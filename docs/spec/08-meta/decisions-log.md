@@ -69,6 +69,8 @@ This log freezes previously open questions into concrete decisions.
 | D392 | Effective image-input overrides across Composer and transport | **Amend D243 / ADR 0101: image capability starts with the published model record, then an exact binding's `supportsImages` value wins when it is `true` or `false`; absent or `null` follows the published value. Composer badges, attachment status, and main-process image transport use the same effective result. Unknown/custom models remain conservative without an explicit override. See ADR 0218 and E2E-163.** | A configured endpoint could already transport an image through its binding override while the Composer row still hid the vision badge, or could show a published badge after image input was disabled for that endpoint. |
 | D393 | User-invoked Skills in the composer | **Amend D123 / D174 / ADR 0024 / ADR 0039: active built-in, plugin, and user Skills appear in a separate `Skills` group at the end of the composer slash menu. Selecting one inserts its exact id; Electron main revalidates the active project scope at send time and asks the model to call the local `Skill` tool, preserving on-demand body loading and existing permissions. Existing command names win collisions; inactive Skills remain literal slash text. See ADR 0219 and E2E-088b.** | D174's model-invoked catalog remains the body-loading and security contract, while a final explicit entry makes known workflows discoverable without moving Skill bodies into the renderer, prompt, or host protocol. |
 | D394 | Windows work-panel chrome keeps one resource action cluster | **Amend D154 / D357 / ADR 0195: the open work-panel header keeps one compact resource switcher; resource close is owned by the existing keyboard-operable context-menu rows, the viewport-fixed toggle remains the only panel collapse control, and subagent detail returns with a back chevron. Windows/Linux native controls remain fixed at the window edge. Renderer-only; no panel state, window geometry, IPC, protocol, or storage change. See ADR 0220 and E2E-067.** | The header resource `X`, viewport-fixed toggle, and Windows native close cluster read as duplicate close actions and became cramped at narrow panel widths. |
+| D396 | Renderer and plugin-panel scrollbars share one compact contract | **Amend D300: every renderer scroll container uses one 6px, trackless, transparent-at-rest scrollbar with the same hover, focus-within, scroll-reveal, and dragged-thumb states. Remove the sidebar-specific width and opacity override. The plugin-panel preload applies the same contract and 300ms reveal mark to docked and detached plugin documents, including the bundled Files view. External pages loaded inside the Browser guest remain page-owned. Presentation-only; no protocol, storage, host runtime, or external-page behavior change. See E2E-157.** | Windows' classic scrollbar made the right-side work-panel Files view visibly heavier than the conversation, while the sidebar retained a second scrollbar treatment. |
+| D398 | Context usage display preference | **Amend D347 / ADR 0184: the context usage inspector's leading figure — the trigger ring arc, percentage, token label, popover heading, tooltip, and `aria-label` — is configurable via `AppSettings.contextUsageDisplay` (`"remaining"` or `"used"`). Default and fallback for absent/unrecognised values is `"remaining"`. When `"used"`, the ring fills by `usedRatio`, and text shows the used-capacity pair. Warning and critical color thresholds (remaining ≤ 25 % / ≤ 10 %) stay based on remaining capacity regardless of display mode. Settings → AI → Defaults adds a segmented control (Remaining / Used) after Link open destination and before Enter-to-send. Renderer only; no protocol, storage, host, or migration change. See ADR 0222 and E2E-250.** | The remaining-only display gave weak signal at low occupancy and did not match users who reason in terms of "how much have I spent". Color must stay on remaining to avoid a misleading green ring at 90 % used. |
 
 
 | D244 | Compact context usage summary | **Amend D103 / D184 / ADR 0047: keep the context inspector's remaining-capacity trigger, used/window counts, turn total, completed-turn speed, exact provider values, aggregate tool types/calls/tokens, and checkpoint summary, but render them as a short summary. Remove the per-tool rows, share bars, source badges, explanatory estimate paragraph, and used-capacity meter from the default panel. No protocol, storage, runtime accounting, or model metadata changes.** *(Amended by D347: the trigger moves to the composer toolbar.)* | The prior diagnostic layout made a routine capacity check tall and visually dense. Keeping the aggregate signal while removing drill-down chrome makes the default status surface scannable without changing the underlying usage data. See ADR 0103 and E2E-060d / US-UI-61. |
@@ -291,7 +293,9 @@ Gold source: local Codex electron captures; latest row wins where rows conflict.
 
 | D187 | Resource-isolated host RPC stdio | **host-core reads stdin and serializes stdout through one dedicated named OS thread per direction, never through Tokio's dynamic blocking pool. The threads retry interrupted and transient `EAGAIN`/`EWOULDBLOCK` errors while preserving NDJSON framing; inability to create a control thread is a structured startup failure. The login-shell PATH probe also treats helper-thread creation as best effort and falls back to the inherited PATH. RPC/tool admission limits remain unchanged.** | Tokio stdio can panic when OS thread creation returns `Resource temporarily unavailable` (errno 35 on macOS), turning temporary resource pressure into `HOST_UNAVAILABLE`; isolating the control pipe removes that process-level crash path while retaining bounded overload behavior (ADR 0051). |
 | D191 | Agent-only mode; Chat renamed to read-only | *(superseded by D188/D189: the mode selector returned as `Agent | Plan`, and `chat` migrates to `plan`)* **`agent` is the only session mode the product exposes. The former `chat` profile is renamed `read-only` and keeps its `Read`/`Glob`/`Grep` hard deny in host-core, but it has no UI surface: no top-bar toggle, no composer chip, no Settings row, no palette command or slash alias, and no localized labels. The host normalizes `chat` to `read-only` on every write path (`session.create`, `session.configure`, `session.import`) and the permission gate is negative — anything that is not `agent` gets the read-only surface — so an unknown or legacy value can never widen the tool set. Error codes become `BASH_DISABLED_IN_READ_ONLY` / `WRITE_DISABLED_IN_READ_ONLY`. A boot fix-up rewrites existing `sessions.mode = 'chat'` rows and a stored `defaultMode` of `chat` to `agent`.** | A mode switch the product never intends users to reach is a footgun and dead UI weight: sessions could be stranded on a read-only profile with no way back, and two toolsets doubled the surface every tool, prompt, and permission change had to be reasoned about. Keeping the narrow profile enforced host-side preserves the security boundary for imported and legacy rows without shipping a control for it (ADR 0055). |
-| D369 | Effective subagent thinking metadata | **The immediate `Task` result, `SubagentRunResult`, and lifecycle snapshots carry the effective `modelId` and `thinkingLevel` passed to each child run; the topology node and side-dock header show a localized non-`off` level after the model name, while `off`, `omit`, and unsupported reasoning stay model-only. No host protocol, storage schema, provider request, or lifecycle behavior change.** | Delegation cards need the level actually sent after the target model clamps it, not a value re-derived from the parent or the definition (ADR 0202, E2E-219) |
+| D369 | Effective subagent thinking metadata | *(amended by D395)* **The immediate `Task` result, `SubagentRunResult`, and lifecycle snapshots carry the effective `modelId` and `thinkingLevel` passed to each child run; the topology node and side-dock header show the raw canonical non-`off` level after the model name, while `off`, `omit`, and unsupported reasoning stay model-only. No host protocol, storage schema, provider request, or lifecycle behavior change.** | Delegation cards need the level actually sent after the target model clamps it, not a value re-derived from the parent or the definition (ADR 0202, ADR 0221, E2E-219) |
+
+| D395 | Canonical thinking-level values in the UI | **Amend D369 / ADR 0202: Composer, model configuration, and delegation surfaces render `off`, `minimal`, `low`, `medium`, `high`, `xhigh`, and `max` directly instead of translating them. Remove these values from every locale catalog; effective metadata, clamping, provider requests, protocol, and storage remain unchanged. See ADR 0221 and E2E-219.** | Thinking levels are stable protocol values, and locale-specific labels made the same provider/runtime setting vary across the application. |
 
 ## N. Notification decisions
 
@@ -913,6 +917,61 @@ section mirrors only marketplace/catalog items still blocking nothing.
 - Decision D394 amends D154 / D357 / ADR 0195. This is renderer-only and does
   not change panel state, window geometry, IPC, protocol, or storage. See ADR
   0220 and E2E-067.
+
+## 2026-09-11 — Canonical thinking-level values in the UI (D395)
+
+- Thinking levels are stable protocol values, but translating them made the
+  same provider/runtime setting vary with the application locale.
+- Decision D395 / ADR 0221 amends D369 / ADR 0202: Composer, model
+  configuration, and delegation surfaces render `off`, `minimal`, `low`,
+  `medium`, `high`, `xhigh`, and `max` directly. These values are removed from
+  every locale catalog; effective metadata, clamping, provider requests,
+  protocol, and storage are unchanged. See E2E-219.
+
+## 2026-09-11 — Renderer and plugin-panel scrollbars share one compact contract (D396)
+
+- Windows' classic scrollbar made the right-side work-panel Files view visibly
+  heavier than the conversation even though the host renderer already had a
+  quiet custom scrollbar. The sidebar also retained a separate width and thumb
+  opacity override, so the app had two scrollbar treatments.
+- Decision D396 amends D300: every renderer scroll container uses the same 6px,
+  trackless, transparent-at-rest scrollbar with the same hover, focus-within,
+  scroll-reveal, and dragged-thumb states. The sidebar-specific override is
+  removed. The plugin-panel preload applies the same contract and 300ms reveal
+  mark to docked and detached plugin documents, including the bundled Files
+  view. An external page loaded inside the Browser guest remains page-owned.
+- This is a presentation-only change; there is no protocol, storage, host
+  runtime, or external-page behavior change. See `04-ux/07-ui-design-system.md`,
+  `04-ux/08-component-spec.md`, and E2E-157.
+## 2026-09-11 — Composer accepts native file and folder drops (D397)
+
+- Native file-system drops into the Composer now prevent the browser default
+  and use one accent outline around the complete shell without changing its
+  layout. Regular files reuse the bounded session-scratch paste bridge and
+  become removable leaf-name chips; folders are never read, traversed, or
+  copied.
+- The preload resolves the path of each user-dropped `File` with Electron's
+  `webUtils.getPathForFile`. The renderer inserts a dropped folder's complete
+  native path at the caret as literal `@<path>/` text, preserving mixed item
+  order, the surrounding draft, focus, and the caret after asynchronous file
+  saving. No host RPC, protocol, workspace, or durable-schema change is added.
+- Decision D397 amends ADR 0101's previous drag/drop scope. See ADR 0222 and
+  E2E-102i.
+
+## 2026-09-11 — Context usage display preference (D398)
+
+- The context usage inspector's leading figure — the trigger ring arc
+  (`strokeDashoffset`), percentage, token label, popover heading, tooltip,
+  and `aria-label` — is configurable via `AppSettings.contextUsageDisplay`
+  (`"remaining"` or `"used"`). Default and fallback for absent or
+  unrecognised values is `"remaining"`.
+- When `"used"`, the ring fills by `usedRatio`, and text shows the
+  used-capacity pair instead of the remaining pair.
+- Warning and critical color thresholds (remaining ≤ 25 % / ≤ 10 %) stay
+  based on remaining capacity regardless of display mode.
+- Settings → AI → Defaults adds a segmented control (Remaining / Used) after
+  Link open destination and before Enter-to-send.
+- Decision D398 amends D347 / ADR 0184. See ADR 0223 and E2E-250.
 
 ## 2026-07-31 — Plugin themes ship CSS files
 
@@ -4112,10 +4171,11 @@ D193, and D194.
   clamps it.
 - Decision D369 / ADR 0202 adds effective `modelId` and `thinkingLevel` to the
   immediate `Task` result, `SubagentRunResult`, and lifecycle snapshots. The
-  topology node and side-dock header show a localized non-`off` level after the
-  model name; `off`, `omit`, and unsupported reasoning remain model-only.
-  No host protocol, storage schema, provider request, or lifecycle behavior
-  changes. See E2E-219.
+  topology node and side-dock header show the raw canonical non-`off` level
+  after the model name; `off`, `omit`, and unsupported reasoning remain
+  model-only. No host protocol, storage schema, provider request, or lifecycle
+  behavior changes. D395 / ADR 0221 removes translation of the canonical value.
+  See E2E-219.
 
 ## 2026-09-09 — Explicit unsigned macOS first-launch helper (D371)
 

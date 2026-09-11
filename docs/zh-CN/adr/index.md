@@ -59,7 +59,7 @@ ADR 记录那些不应被静默改变的架构选择。中文入口与英文索�
 | [ADR 0201：显式插件项目 id 与宿主拥有的会话刷新](/adr/0201-plugin-project-ids-and-session-refresh) | 插件可显式绑定主机项目，成功写入由主机通知渲染器刷新 |
 | [ADR 0204：未签名 macOS 首次启动助手](/adr/0204-unsigned-macos-first-launch-helper) | 只清理 PI-Desktop 的 quarantine 属性，并用 Finder 一键启动可信的未签名应用 |
 
-| [ADR 0221：线程输入框采用正常流布局](/adr/0221-in-flow-chat-composer) | 输入框作为会话面板后的正常流兄弟，消息区永不被输入框覆盖 |
+| [ADR 0224：线程输入框采用正常流布局](/adr/0224-in-flow-chat-composer) | 输入框作为会话面板后的正常流兄弟，消息区永不被输入框覆盖 |
 ## 完整索引
 
 与英文 [ADR 索引](/adr/README) 逐条对应，编号、顺序与状态保持一致；状态以英文记录为准。
@@ -270,7 +270,7 @@ ADR 记录那些不应被静默改变的架构选择。中文入口与英文索�
 | 0204 | [未签名 macOS 首次启动助手](/adr/0204-unsigned-macos-first-launch-helper) | 已接受 |
 | 0205 | [远程 Agent 控制使用专用的 Host 边界](/adr/0205-remote-agent-control-boundary) | 已接受待实现（MVP 之后；由 D376 修订） |
 
-| 0221 | [线程输入框采用正常流布局](/adr/0221-in-flow-chat-composer) | 已接受（修订 ADR 0065 第 4 条 / D264） |
+| 0224 | [线程输入框采用正常流布局](/adr/0224-in-flow-chat-composer) | 已接受（修订 ADR 0065 第 4 条 / D264） |
 ## 什么时候看 ADR
 
 - 规格告诉你系统应该怎样工作。

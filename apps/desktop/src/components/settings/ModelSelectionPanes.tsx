@@ -478,7 +478,7 @@ export function ModelSelectionPanes({
                             >
                               {enabledLevels.map((level) => (
                                 <option key={level} value={level}>
-                                  {t(`thinkingLevel.${level}`)}
+                                  {level}
                                 </option>
                               ))}
                             </select>
@@ -497,8 +497,8 @@ export function ModelSelectionPanes({
                               key={level}
                               type="button"
                               className={cx("provider-thinking-chip", on && "selected")}
-                              ariaLabel={t(`thinkingLevel.${level}`)}
-                              tooltip={t(`thinkingLevel.${level}`)}
+                              ariaLabel={level}
+                              tooltip={level}
                               aria-pressed={on}
                               onClick={() => {
                                 const next: ThinkingLevel[] = on
@@ -516,7 +516,7 @@ export function ModelSelectionPanes({
                                 });
                               }}
                             >
-                              {t(`thinkingLevel.${level}`)}
+                              {level}
                             </TooltipButton>
                           );
                         })}

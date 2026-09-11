@@ -5520,6 +5520,34 @@ Each scenario is documented in this format:
   provider/UI journey Draft (do not run E2E locally unless explicitly
   requested)
 
+#### E2E-102i: Composer accepts native file and folder drops
+
+- **Preconditions**: The app is running with an Agent session and a visible
+  Composer. The OS file manager exposes one regular file, one folder, and a
+  mixed multi-selection; place the caret in the middle of a non-empty draft.
+- **Steps**: 1) Drag the regular file over the Composer and observe the target
+  outline, then drop it. 2) Drag the folder into the same draft. 3) Repeat with
+  a mixed file/folder selection while the caret is between existing text. 4)
+  Inspect the draft, remove the file chip, and send the prompt. 5) Inspect the
+  saved scratch file and the persisted user message.
+- **Expected**: File-system drag-over prevents the browser default and marks
+  the whole Composer shell without layout movement. Regular files are saved
+  through the existing bounded session-scratch bridge and appear as removable
+  leaf-name chips; folders are not read, copied, or traversed, and their full
+  native paths appear at the caret as `@<path>/` literal directory references.
+  Mixed drops preserve OS order, retain surrounding text, and restore the
+  caret after asynchronous file saving. Sending keeps the file's existing
+  attachment metadata/path behavior and the folder path as prompt text; no
+  workspace files are created.
+- **Specs linked**: `04-ux/08-component-spec.md` §11.5–11.8,
+  `04-ux/09-interaction-patterns.md` §8.2/§8a.2,
+  `03-runtime/01-ipc-protocol.md` §13c, ADR 0059, ADR 0070, ADR 0222
+- **Acceptance**: C (conversation & stream), F (persistence), Quality
+- **Milestone**: M5
+- **Status**: Unit-covered (`apps/desktop/test/composer-drag-drop.test.mjs`);
+  full desktop gesture journey Draft (do not run E2E locally unless explicitly
+  requested)
+
 #### E2E-102a: Composer file reference results use compact leaf names
 
 - **Preconditions**: The app is running with an Agent session in a workspace
@@ -6259,14 +6287,14 @@ Each scenario is documented in this format:
 |---|---|
 | A — App startup | E2E-001, E2E-002, E2E-003, E2E-004, E2E-067, E2E-076, E2E-079, E2E-092, E2E-097, E2E-143, E2E-150, E2E-168, E2E-204 |
 | B — Model config | E2E-005, E2E-006, E2E-007, E2E-038, E2E-050, E2E-052, E2E-055, E2E-066, E2E-080, E2E-082, E2E-102c, E2E-102d, E2E-102e, E2E-151, E2E-154, E2E-163, E2E-166, E2E-172, E2E-174, E2E-197, E2E-005G, E2E-005J, E2E-199, E2E-201, E2E-202, E2E-203, E2E-205, E2E-206, E2E-209 |
-| C — Conversation & stream | E2E-008, E2E-008a, E2E-009, E2E-010, E2E-011, E2E-011a, E2E-011b, E2E-011d, E2E-011e, E2E-011g, E2E-031, E2E-040, E2E-047, E2E-048, E2E-048A, E2E-049, E2E-052, E2E-053, E2E-054, E2E-055, E2E-059, E2E-059a, E2E-060c, E2E-060d, E2E-061, E2E-061a, E2E-062, E2E-064, E2E-065, E2E-068, E2E-071, E2E-073, E2E-074, E2E-075, E2E-081, E2E-083, E2E-084, E2E-086, E2E-087, E2E-088, E2E-088b, E2E-089, E2E-090, E2E-094, E2E-095, E2E-096, E2E-097, E2E-098, E2E-099, E2E-102, E2E-102a, E2E-102b, E2E-102c, E2E-102d, E2E-102g, E2E-106, E2E-109, E2E-111, E2E-114, E2E-116, E2E-117, E2E-118, E2E-119, E2E-120, E2E-121, E2E-218, E2E-219, E2E-AGENTS-001, E2E-142, E2E-144, E2E-145, E2E-146, E2E-146a, E2E-147, E2E-151, E2E-154, E2E-155, E2E-158, E2E-159, E2E-161, E2E-162, E2E-166, E2E-172, E2E-173, E2E-174, E2E-177, E2E-178, E2E-179, E2E-180, E2E-182, E2E-183, E2E-187, E2E-198, E2E-199, E2E-202, E2E-203, E2E-207, E2E-208 |
+| C — Conversation & stream | E2E-008, E2E-008a, E2E-009, E2E-010, E2E-011, E2E-011a, E2E-011b, E2E-011d, E2E-011e, E2E-011g, E2E-031, E2E-040, E2E-047, E2E-048, E2E-048A, E2E-049, E2E-052, E2E-053, E2E-054, E2E-055, E2E-059, E2E-059a, E2E-060c, E2E-060d, E2E-061, E2E-061a, E2E-062, E2E-064, E2E-065, E2E-068, E2E-071, E2E-073, E2E-074, E2E-075, E2E-081, E2E-083, E2E-084, E2E-086, E2E-087, E2E-088, E2E-088b, E2E-089, E2E-090, E2E-094, E2E-095, E2E-096, E2E-097, E2E-098, E2E-099, E2E-102, E2E-102a, E2E-102b, E2E-102c, E2E-102d, E2E-102g, E2E-106, E2E-109, E2E-111, E2E-114, E2E-116, E2E-117, E2E-118, E2E-119, E2E-120, E2E-121, E2E-218, E2E-219, E2E-AGENTS-001, E2E-142, E2E-144, E2E-145, E2E-146, E2E-146a, E2E-147, E2E-151, E2E-154, E2E-155, E2E-158, E2E-159, E2E-161, E2E-162, E2E-166, E2E-172, E2E-173, E2E-174, E2E-177, E2E-178, E2E-179, E2E-180, E2E-182, E2E-183, E2E-187, E2E-198, E2E-199, E2E-202, E2E-203, E2E-207, E2E-208, E2E-250, E2E-102i |
 | D — Workspace | E2E-012, E2E-013, E2E-022B, E2E-024I, E2E-047, E2E-049, E2E-057, E2E-058, E2E-060, E2E-068, E2E-075, E2E-078, E2E-153, E2E-158, E2E-182, E2E-187 |
 | E — Tools & permissions | E2E-008a, E2E-014, E2E-015, E2E-016, E2E-017, E2E-018, E2E-019, E2E-024I, E2E-024K, E2E-040, E2E-049, E2E-074, E2E-093, E2E-097, E2E-099, E2E-100, E2E-101, E2E-102, E2E-102d, E2E-102e, E2E-102g, E2E-103, E2E-105, E2E-106, E2E-107, E2E-111, E2E-112, E2E-113, E2E-114, E2E-115, E2E-116, E2E-119, E2E-121, E2E-122, E2E-142, E2E-145, E2E-147, E2E-155, E2E-158, E2E-166, E2E-181 |
-| F — Persistence | E2E-020, E2E-021, E2E-021a, E2E-036, E2E-037, E2E-038, E2E-040, E2E-042, E2E-047, E2E-048, E2E-051, E2E-054, E2E-056, E2E-061, E2E-062, E2E-064, E2E-066, E2E-068, E2E-071, E2E-072, E2E-073, E2E-082, E2E-084, E2E-096, E2E-098, E2E-102, E2E-102b, E2E-102c, E2E-102d, E2E-102g, E2E-103, E2E-AGENTS-001, E2E-061a, E2E-073a, E2E-104, E2E-106, E2E-107, E2E-108, E2E-109, E2E-110, E2E-112, E2E-118, E2E-119, E2E-120, E2E-121, E2E-123, E2E-142, E2E-146, E2E-146a, E2E-148, E2E-151, E2E-158, E2E-160, E2E-168, E2E-171, E2E-177, E2E-178, E2E-183, E2E-186, E2E-005J |
+| F — Persistence | E2E-020, E2E-021, E2E-021a, E2E-036, E2E-037, E2E-038, E2E-040, E2E-042, E2E-047, E2E-048, E2E-051, E2E-054, E2E-056, E2E-061, E2E-062, E2E-064, E2E-066, E2E-068, E2E-071, E2E-072, E2E-073, E2E-082, E2E-084, E2E-096, E2E-098, E2E-102, E2E-102b, E2E-102c, E2E-102d, E2E-102g, E2E-102i, E2E-103, E2E-AGENTS-001, E2E-061a, E2E-073a, E2E-104, E2E-106, E2E-107, E2E-108, E2E-109, E2E-110, E2E-112, E2E-118, E2E-119, E2E-120, E2E-121, E2E-123, E2E-142, E2E-146, E2E-146a, E2E-148, E2E-151, E2E-158, E2E-160, E2E-168, E2E-171, E2E-177, E2E-178, E2E-183, E2E-186, E2E-005J |
 | G — Plugins | E2E-022, E2E-022A, E2E-022B, E2E-022C, E2E-023, E2E-024, E2E-024B, E2E-024C, E2E-024D, E2E-024E, E2E-024W, E2E-024F, E2E-024G, E2E-024H, E2E-024I, E2E-024J, E2E-024K, E2E-024L, E2E-024M, E2E-024N, E2E-024O, E2E-024P, E2E-025, E2E-026, E2E-105, E2E-117, E2E-120, E2E-122, E2E-123, E2E-024Q, E2E-148, E2E-152, E2E-153 |
 | H — Diagnostics | E2E-027, E2E-031, E2E-034, E2E-042, E2E-096, E2E-098, E2E-104, E2E-107, E2E-108, E2E-109, E2E-110, E2E-113, E2E-115, E2E-116, E2E-118, E2E-121, E2E-146, E2E-146a, E2E-155, E2E-159, E2E-176, E2E-194, E2E-195 |
 | Security | E2E-028, E2E-029, E2E-030, E2E-024J, E2E-024K, E2E-024M, E2E-049, E2E-068, E2E-086, E2E-102c, E2E-102d, E2E-102e, E2E-105, E2E-106, E2E-107, E2E-108, E2E-109, E2E-110, E2E-112, E2E-113, E2E-115, E2E-116, E2E-117, E2E-119, E2E-121, E2E-122, E2E-123, E2E-142, E2E-148, E2E-151, E2E-153, E2E-158, E2E-187, E2E-196c, E2E-196b, E2E-196 |
-| Quality | E2E-032, E2E-033, E2E-039, E2E-043, E2E-044, E2E-045, E2E-046, E2E-047, E2E-048, E2E-048A, E2E-049, E2E-050, E2E-053, E2E-055, E2E-056, E2E-057, E2E-058, E2E-059, E2E-060, E2E-061, E2E-062, E2E-063, E2E-064, E2E-065, E2E-066, E2E-067, E2E-068, E2E-069, E2E-070, E2E-071, E2E-072, E2E-073, E2E-074, E2E-075, E2E-076, E2E-077, E2E-078, E2E-079, E2E-080, E2E-081, E2E-082, E2E-083, E2E-084, E2E-085, E2E-086, E2E-092, E2E-093, E2E-094, E2E-095, E2E-096, E2E-097, E2E-098, E2E-099, E2E-100, E2E-101, E2E-102, E2E-102a, E2E-102b, E2E-102c, E2E-102d, E2E-102e, E2E-103, E2E-AGENTS-001, E2E-021a, E2E-024N, E2E-059a, E2E-060b, E2E-060c, E2E-060d, E2E-061a, E2E-073a, E2E-111, E2E-114, E2E-117, E2E-118, E2E-119, E2E-120, E2E-122, E2E-123, E2E-142, E2E-143, E2E-144, E2E-145, E2E-146, E2E-146a, E2E-147, E2E-148, E2E-150, E2E-151, E2E-153, E2E-155, E2E-158, E2E-159, E2E-160, E2E-161, E2E-162, E2E-163, E2E-168, E2E-172, E2E-173, E2E-174, E2E-011g, E2E-176, E2E-177, E2E-178, E2E-179, E2E-180, E2E-181, E2E-182, E2E-183, E2E-186, E2E-187, E2E-194, E2E-195, E2E-196a, E2E-196b, E2E-196c, E2E-198, E2E-199, E2E-200, E2E-196, E2E-201, E2E-204, E2E-202, E2E-203, E2E-205, E2E-206, E2E-207, E2E-208, E2E-209, E2E-210, E2E-218, E2E-219 |
+| Quality | E2E-032, E2E-033, E2E-039, E2E-043, E2E-044, E2E-045, E2E-046, E2E-047, E2E-048, E2E-048A, E2E-049, E2E-050, E2E-053, E2E-055, E2E-056, E2E-057, E2E-058, E2E-059, E2E-060, E2E-061, E2E-062, E2E-063, E2E-064, E2E-065, E2E-066, E2E-067, E2E-068, E2E-069, E2E-070, E2E-071, E2E-072, E2E-073, E2E-074, E2E-075, E2E-076, E2E-077, E2E-078, E2E-079, E2E-080, E2E-081, E2E-082, E2E-083, E2E-084, E2E-085, E2E-086, E2E-092, E2E-093, E2E-094, E2E-095, E2E-096, E2E-097, E2E-098, E2E-099, E2E-100, E2E-101, E2E-102, E2E-102a, E2E-102b, E2E-102c, E2E-102d, E2E-102e, E2E-103, E2E-AGENTS-001, E2E-021a, E2E-024N, E2E-059a, E2E-060b, E2E-060c, E2E-060d, E2E-061a, E2E-073a, E2E-111, E2E-114, E2E-117, E2E-118, E2E-119, E2E-120, E2E-122, E2E-123, E2E-142, E2E-143, E2E-144, E2E-145, E2E-146, E2E-146a, E2E-147, E2E-148, E2E-150, E2E-151, E2E-153, E2E-155, E2E-158, E2E-159, E2E-160, E2E-161, E2E-162, E2E-163, E2E-168, E2E-172, E2E-173, E2E-174, E2E-011g, E2E-176, E2E-177, E2E-178, E2E-179, E2E-180, E2E-181, E2E-182, E2E-183, E2E-186, E2E-187, E2E-194, E2E-195, E2E-196a, E2E-196b, E2E-196c, E2E-198, E2E-199, E2E-200, E2E-196, E2E-201, E2E-204, E2E-202, E2E-203, E2E-205, E2E-206, E2E-207, E2E-208, E2E-209, E2E-210, E2E-218, E2E-219, E2E-250, E2E-102i |
 
 | Milestone | Scenarios |
 |---|---|
@@ -6274,7 +6302,7 @@ Each scenario is documented in this format:
 | M2 | E2E-004, E2E-005, E2E-006, E2E-007, E2E-008, E2E-009, E2E-010, E2E-011, E2E-011a, E2E-011b, E2E-011d, E2E-011e, E2E-011g, E2E-020, E2E-021, E2E-021a, E2E-027, E2E-031, E2E-036, E2E-037, E2E-042, E2E-087, E2E-088, E2E-088b, E2E-089, E2E-090, E2E-144, E2E-005J, E2E-201, E2E-202, E2E-207, E2E-206 |
 | M3 | E2E-012, E2E-013, E2E-014, E2E-015, E2E-016, E2E-017, E2E-018, E2E-019, E2E-040 |
 | M4 | E2E-022, E2E-023, E2E-024, E2E-025, E2E-026, E2E-030, E2E-038 |
-| M5 | E2E-008a, E2E-032, E2E-033, E2E-034, E2E-039, E2E-043, E2E-044, E2E-045, E2E-046, E2E-047, E2E-048, E2E-048A, E2E-049, E2E-050, E2E-051, E2E-052, E2E-053, E2E-054, E2E-055, E2E-056, E2E-057, E2E-058, E2E-059, E2E-060, E2E-061, E2E-062, E2E-063, E2E-064, E2E-065, E2E-066, E2E-067, E2E-068, E2E-069, E2E-070, E2E-071, E2E-072, E2E-073, E2E-074, E2E-075, E2E-076, E2E-077, E2E-078, E2E-079, E2E-080, E2E-081, E2E-082, E2E-083, E2E-084, E2E-085, E2E-086, E2E-092, E2E-093, E2E-096, E2E-097, E2E-098, E2E-099, E2E-100, E2E-101, E2E-102, E2E-102a, E2E-102b, E2E-102c, E2E-102d, E2E-102e, E2E-AGENTS-001, E2E-059a, E2E-060b, E2E-060c, E2E-061a, E2E-073a, E2E-094, E2E-095, E2E-143, E2E-145, E2E-146, E2E-146a, E2E-147, E2E-177, E2E-178, E2E-180, E2E-181, E2E-182, E2E-183, E2E-186, E2E-187, E2E-194, E2E-195, E2E-204, E2E-208 |
+| M5 | E2E-008a, E2E-032, E2E-033, E2E-034, E2E-039, E2E-043, E2E-044, E2E-045, E2E-046, E2E-047, E2E-048, E2E-048A, E2E-049, E2E-050, E2E-051, E2E-052, E2E-053, E2E-054, E2E-055, E2E-056, E2E-057, E2E-058, E2E-059, E2E-060, E2E-061, E2E-062, E2E-063, E2E-064, E2E-065, E2E-066, E2E-067, E2E-068, E2E-069, E2E-070, E2E-071, E2E-072, E2E-073, E2E-074, E2E-075, E2E-076, E2E-077, E2E-078, E2E-079, E2E-080, E2E-081, E2E-082, E2E-083, E2E-084, E2E-085, E2E-086, E2E-092, E2E-093, E2E-096, E2E-097, E2E-098, E2E-099, E2E-100, E2E-101, E2E-102, E2E-102a, E2E-102b, E2E-102c, E2E-102d, E2E-102e, E2E-AGENTS-001, E2E-059a, E2E-060b, E2E-060c, E2E-061a, E2E-073a, E2E-094, E2E-095, E2E-143, E2E-145, E2E-146, E2E-146a, E2E-147, E2E-177, E2E-178, E2E-180, E2E-181, E2E-182, E2E-183, E2E-186, E2E-187, E2E-194, E2E-195, E2E-204, E2E-208, E2E-250, E2E-102i |
 | M6 | E2E-104, E2E-105, E2E-106, E2E-107, E2E-108, E2E-109, E2E-110, E2E-111, E2E-112, E2E-113, E2E-114, E2E-115, E2E-116, E2E-117, E2E-118, E2E-119, E2E-120, E2E-103, E2E-172 |
 | M6+ | E2E-121, E2E-122, E2E-148, E2E-150, E2E-151, E2E-154, E2E-155, E2E-158, E2E-159, E2E-160, E2E-161, E2E-162, E2E-163, E2E-166, E2E-168, E2E-173, E2E-174, E2E-176, E2E-179, E2E-196a, E2E-196b, E2E-196c, E2E-198, E2E-199, E2E-200, E2E-202, E2E-203, E2E-205, E2E-209, E2E-210, E2E-212, E2E-213, E2E-214, E2E-215, E2E-216, E2E-217, E2E-218, E2E-219 |
 | Post-MVP | E2E-022A, E2E-022B, E2E-022C, E2E-024I, E2E-024J, E2E-024K, E2E-024L, E2E-024M (plugin roadmap R2/R3/R6) |
@@ -7991,7 +8019,9 @@ This test plan spec is accepted when:
   Continue; confirm leftover delegates abort, the session is idle, Continue
   is accepted, and the failed assistant error surface stays visible. 8) Define
   a delegate with an explicit `maxTokens` and one without, run both, and read
-  the two outgoing provider requests.
+  the two outgoing provider requests. 9) Start enough delegates for their
+  combined reports to exceed the bounded `TaskWait` result, then let the parent
+  idle.
 - **Expected**: Idle and duration watchdogs never fire. Parent idle does not
   abort delegates. Completion reports are delivered into the same durable
   turn. `TaskWait` expiry reports “Still running after Ns”, includes a
@@ -8003,7 +8033,9 @@ This test plan spec is accepted when:
   capped delegate's request carries the declared output limit and the uncapped
   one carries the model's published limit, so the cap overrides the derived
   `max_tokens` / `max_completion_tokens` / `max_output_tokens` without
-  disturbing the session's own requests (D383).
+  disturbing the session's own requests (D383). In step 9, the reports omitted
+  from the bounded `TaskWait` content are delivered once by the idle resume and
+  are not replayed after they reach the parent.
 - **Specs linked**: `03-runtime/02-agent-runtime.md` §5f,
   `03-runtime/08-error-codes.md`, `03-runtime/09-logging-and-observability.md`,
   ADR 0166, ADR 0189, decisions-log D328 / D352 / D383
@@ -8014,7 +8046,7 @@ This test plan spec is accepted when:
   `subagent-definition.test.ts`, and its document round-trip in host-core
   `user_subagents` tests; the request-level assertion in step 8 stays manual.
 
-#### E2E-157: Sidebar scrollbars stay quiet while remaining discoverable
+#### E2E-157: Global scrollbars stay quiet while remaining discoverable
 
 - **Preconditions**: PI-Desktop is open with the expanded sidebar, more
   temporary sessions than the five-row cap, and enough retained project
@@ -8025,13 +8057,17 @@ This test plan spec is accepted when:
   back into each list, drag its thumb through the region, and keyboard-focus a
   row to confirm the focused list keeps its thumb available. 4) Scroll the
   list with the wheel or trackpad after moving the pointer away from the thumb.
+  5) Open a long conversation and a long right-side work-panel view, including
+  the Files view when the bundled plugin is enabled, and compare their idle,
+  hovered, focused, and scrolling states on Windows.
 - **Expected**: Both regions remain independently scrollable and the footer
-  stays fixed. At rest each scrollbar is trackless, 6px wide, and transparent;
-  hovering or focusing the owning list reveals only its thumb, while scrolling
-  reveals it for 300ms after the last scroll event. Dragging keeps it visible so
-  navigation remains visually quiet without changing the scroll region's width.
-  Chat, code, and Settings scrollbars follow the same rest/reveal rule at 8px:
-  transparent until their scroller is hovered or scrolling (D300).
+  stays fixed. Every in-app scrollbar is trackless, 6px wide, and transparent
+  at rest; hovering or focusing the owning scroller reveals only its thumb,
+  while scrolling reveals it for 300ms after the last scroll event. Dragging
+  keeps it visible without changing the scroll region's width. Chat, code,
+  Settings, and the right-side work-panel scrollbars all match this rule. A
+  docked or detached plugin panel receives the same host-injected rule; an
+  external page inside Browser keeps its own page-owned scrollbar.
 - **Specs linked**: `04-ux/07-ui-design-system.md`,
   `04-ux/08-component-spec.md`, `04-ux/09-interaction-patterns.md`
 - **Acceptance**: Quality (sidebar polish and independent navigation)
@@ -9286,14 +9322,14 @@ are withdrawn with ADR 0165.
   session, and inspect the same card and side-dock details again.
 - **Expected**: Each node and its side-dock header use the delegation result's
   effective `modelId` and `thinkingLevel`, independently of sibling delegates.
-  The reasoning-capable node shows its localized `Max`/equivalent level label
-  after the model name; the unsupported node shows only its model name. No
+  The reasoning-capable node shows the raw canonical `max` value after the
+  model name; the unsupported node shows only its model name. No
   `Off` or `omit` suffix appears. Inheritance and model capability clamping are
   reflected without UI re-derivation, the full label remains available through
   the accessible name and hover title, and narrow layouts ellipsize without
   overflow. Reloaded history matches the live presentation.
 - **Specs linked**: `03-runtime/02-agent-runtime.md` §5f,
-  `04-ux/08-component-spec.md` §5.7, ADR 0202
+  `04-ux/08-component-spec.md` §5.7, ADR 0202, ADR 0221
 - **Acceptance**: C (chat/stream) + Quality
 - **Milestone**: M6+
 - **Status**: Unit/source-contract covered; full multi-provider rendered journey
@@ -9971,3 +10007,31 @@ sample extensions under `apps/desktop/test/fixtures/pi-extensions/`.
   declaration, `mode-prompts.test.ts` updated wording); desktop
   journey is Draft (do not run E2E locally unless explicitly
   requested)
+
+#### E2E-250: Context usage display preference switches the inspector's leading figure
+
+- **Preconditions**: An Agent session has completed at least one turn that
+  reported token usage. Settings → AI → Defaults is reachable.
+- **Steps**:
+  1. Confirm the composer toolbar context ring shows remaining capacity
+     (ring nearly full, percentage ≈ remaining %, tooltip and aria-label
+     use remaining vocabulary).
+  2. Open Settings → AI → Defaults and switch the Context usage display
+     segmented control from Remaining to Used.
+  3. Return to the chat and inspect the context ring: the ring arc now
+     fills by `usedRatio` (nearly empty at low occupancy), the percentage
+     shows ≈ used %, the popover heading shows used tokens + percentage,
+     and the tooltip/aria-label use used-capacity vocabulary.
+  4. Confirm warning/critical ring colors still follow remaining capacity:
+     at remaining > 25 % the ring stays neutral even when used % is high.
+  5. Switch back to Remaining and confirm the original display returns.
+- **Expected**: The display mode flips the ring arc, percentage, token
+  count, heading, tooltip, and aria-label consistently. Color thresholds
+  remain based on remaining capacity in both modes. The default for a
+  fresh profile is Remaining.
+- **Specs linked**: `04-ux/06-settings-ia.md`, `04-ux/08-component-spec.md`,
+  ADR 0223, `08-meta/decisions-log.md` (D398)
+- **Acceptance**: C (conversation & stream), Quality (preference)
+- **Milestone**: M5
+- **Status**: Unit-covered (`context-usage.test.mjs`,
+  `settings-general.test.mjs`); full scenario Draft

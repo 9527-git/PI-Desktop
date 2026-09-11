@@ -72,6 +72,8 @@
 | D392 | Composer 与传输使用生效的图像输入覆盖 | **修订 D243 / ADR 0101：图像能力先取已发布模型记录；精确 binding 的 `supportsImages` 为 `true` 或 `false` 时覆盖该记录，缺失或 `null` 则跟随已发布值。Composer 徽章、附件状态和主进程图像传输使用同一个生效结果。没有显式覆盖时，未知/自定义模型仍保持保守行为。见 ADR 0218 与 E2E-163。** | 已配置的端点可能已经通过 binding 覆盖传输图像，但 Composer 行仍隐藏视觉徽章；或者端点已禁用图像输入，行却仍显示已发布徽章。 |
 | D393 | Composer 中用户调用的 Skills | **修订 D123 / D174 / ADR 0024 / ADR 0039：激活的内置、插件和用户 Skills 出现在 composer slash 菜单末尾独立的 `Skills` 分组中。选择后插入其精确 id；Electron main 在发送时重新验证当前项目范围，并要求模型调用本地 `Skill` 工具，同时保留按需加载正文和现有权限。现有命令名优先解决冲突；未激活的 Skills 保持为字面 slash 文本。见 ADR 0219 和 E2E-088b。** | D174 的模型调用目录仍是 Skill 正文加载和安全契约，但拒绝面向用户的 slash 条目使已经知道工作流的用户难以发现活跃 Skills。 |
 | D394 | Windows 工作面板 chrome 保持单一资源操作组 | **修订 D154 / D357 / ADR 0195：打开的工作面板标题栏只保留一个紧凑资源切换器；资源关闭由现有可键盘操作的上下文菜单行负责，视口固定开关仍是唯一的面板折叠控件，子代理详情使用返回箭头。Windows/Linux 原生控件仍固定在窗口边缘。仅渲染器变更；不改面板状态、窗口几何、IPC、协议或存储。见 ADR 0220 与 E2E-067。** | 标题栏资源 `X`、视口固定开关和 Windows 原生关闭按钮在窄面板中看起来像重复的关闭操作，并且过于拥挤。 |
+| D396 | 渲染器与插件面板滚动条统一为紧凑规则 | **修订 D300：渲染器中的每个滚动容器统一使用 6px、无轨道、静止时透明的滚动条，以及相同的悬停、focus-within、滚动显示和拖动状态。移除侧边栏专用的宽度和透明度覆盖。插件面板 preload 给停靠和独立插件文档（包括内置 Files 视图）注入同一规则和 300ms 的滚动显示标记。Browser 内部加载的外部网页仍由网页自己管理。仅表现层变更；不改变协议、存储、主机运行时或外部网页行为。见 E2E-157。** | Windows 的经典滚动条让右侧工作面板的 Files 视图明显比对话区更粗，而侧边栏还保留了第二套滚动条样式。 |
+| D398 | 上下文用量显示偏好 | **修订 D347 / ADR 0184：上下文用量检查器的引导数值——触发器圆弧（`strokeDashoffset`）、百分比、令牌标签、弹层标题、tooltip 与 `aria-label`——可通过 `AppSettings.contextUsageDisplay`（`"remaining"` 或 `"used"`）配置。缺省及非法值回退为 `"remaining"`。当设为 `"used"` 时，圆环按 `usedRatio` 填充，文字展示已用容量对。警告与临界颜色阈值（剩余 ≤ 25 % / ≤ 10 %）仍按剩余容量判定，不随显示模式变化。设置 → 全局 AI → 默认项新增分段控件（剩余 / 已用），位于链接打开目标之后、回车发送之前。仅渲染器改动；无协议、存储、宿主或迁移变更。见 ADR 0222 与 E2E-250。** | 仅显示剩余时在低占用下信号微弱，且不符合习惯用「已用多少」思考的用户。颜色必须始终按剩余判定，否则已用 90 % 仍为绿色会产生误导。 |
 | D244 | 紧凑的上下文用量摘要 | **修订 D103 / D184 / ADR 0047：保留上下文检查器的剩余容量触发器、已用/窗口计数、回合合计、已完成回合速度、精确的提供商数值、聚合的工具类型/调用数/令牌数以及检查点摘要，但把它们渲染为一段简短摘要。从默认面板中移除逐工具行、占比条、来源徽章、解释性估算段落和已用容量计量条。不改动协议、存储、运行时计费或模型元数据。** *（由 D347 修订：触发器移到输入框工具栏。）* | 之前的诊断式布局让一次例行的容量检查变得又高又密。保留聚合信号、移除下钻装饰，使默认状态界面可以快速浏览，同时不改变底层用量数据。参见 ADR 0103 与 E2E-060d / US-UI-61。 |
 | D347 | 输入框工具栏中的上下文用量检查器 | **修订 D103 / D184 / D244 / ADR 0047 / ADR 0103：紧凑上下文检查器放在输入框右侧工具栏、模型 × 推理芯片左侧，始终对应当前最新一条已报告用量的助手回合。触发器保留剩余容量圆环和百分比，去掉重复的 Context 文字。弹层标题为剩余 tokens + 百分比；下方行用同一套左标签/右数值节奏，只用留白分隔，不画内部分隔线（D297）。答案下方的助理元只保留模型徽章。仅渲染器改动。** | 挂在最新答案下方的检查器会随记录滚出视野。输入框只保留一个入口作为最新快照的权威位置；标题双线通过去掉多余说明文字解决，而不是加分隔线。参见 ADR 0184 与 E2E-060d / US-UI-61。 |
 | D355 | 上下文检查器按最后一次请求计算占用 | **修订 D103 / D184 / D244 / D347 / ADR 0047 / ADR 0103 / ADR 0184：剩余容量、已用/窗口计数、本轮合计，以及模型 input/output/cache/reasoning/命中率，都取最新一条已报告用量的助手消息（最后一次模型请求）。占用为该消息的 `input + output + reasoning + cacheRead + cacheWrite`。它们不是视觉工具循环里每一次请求的加总。已完成回合速度和聚合工具行仍描述该视觉回合。仅渲染器改动；宿主回合汇总和 Token Insights 仍做账单累加。** | 把工具循环里的缓存读取加总后，367k 缓存读取会紧挨着 55k 窗口。OpenCode 的上下文组件只用最后一条助手消息。参见 ADR 0193 与 E2E-060d。 |
@@ -294,7 +296,9 @@
 
 | D187 | 资源隔离主机 RPC stdio | **host-core 通过每个方向的一个专用命名操作系统线程读取 stdin 并序列化 stdout，而不是通过 Tokio 的动态阻塞池。线程重试中断和瞬态 `STREAM_FAILED`/`NETWORK_ERROR` 错误，同时保留 NDJSON 帧；无法创建控制线程是结构化启动失败。登录 shell 路径探测还将帮助程序线程创建视为尽力而为，并回退到继承的路径。 RPC/tool 入场限制保持不变。** | 当操作系统线程创建返回 `Resource temporarily unavailable`（macOS 上的错误号 35）时，Tokio stdio 可能会出现恐慌，从而将临时资源压力转变为 `HOST_UNAVAILABLE`；隔离控制管道会删除该进程级崩溃路径，同时保留有限的过载行为 (ADR 0051)。 |
 | D191 | 仅限代理模式；聊天已重命名为只读 | *（被 D188/D189 取代：模式选择器返回为 `Agent | Plan`, and `chat` migrates to `plan`)* **`agent` is the only session mode the product exposes. The former `chat` profile is renamed `只读` and keeps its `Read`/`Glob`/`Grep` hard deny in host-core, but it has no UI surface: no top-bar toggle, no composer chip, no Settings row, no palette command or slash alias, and no localized labels. The host normalizes `chat` to `只读` on every write path (`session.create`, `session.configure`, `session.import`) and the permission gate is negative — anything that is not `agent` gets the read-only surface — so an unknown or legacy value can never widen the tool set. Error codes become `BASH_DISABLED_IN_READ_ONLY` / `WRITE_DISABLED_IN_READ_ONLY`. A boot fix-up rewrites existing `sessions.mode =“聊天”` rows and a stored `defaultMode` of `chat` to `代理`。** | 该产品从来不希望用户实现的模式切换是枪炮和沉重的 UI 重量：会话可能会滞留在只读配置文件上而无法返回，并且两个工具集使每个工具、提示和权限更改的表面增加了一倍，都必须进行推理。在主机端保持窄配置文件强制执行可以保留导入行和旧行的安全边界，而无需为其提供控件 (ADR 0055)。 |
-| D369 | 有效的子智能体思考元数据 | **即时 `Task` 结果、`SubagentRunResult` 与生命周期快照携带传给每个子运行的有效 `modelId` 与 `thinkingLevel`；拓扑节点与侧栏标题在模型名后显示本地化的非 `off` 级别，`off`、`omit` 与不支持推理时仅显示模型。宿主协议、存储 schema、provider 请求与生命周期行为不变。** | 委托卡片需要目标模型钳制后实际发送的级别，而不是从父级或定义重新推导的值（ADR 0202，E2E-219） |
+| D369 | 有效的子智能体思考元数据 | **（由 D395 修订）** 即时 `Task` 结果、`SubagentRunResult` 与生命周期快照携带传给每个子运行的有效 `modelId` 与 `thinkingLevel`；拓扑节点与侧栏标题在模型名后显示原始规范非 `off` 级别，`off`、`omit` 与不支持推理时仅显示模型。宿主协议、存储 schema、provider 请求与生命周期行为不变。** | 委托卡片需要目标模型钳制后实际发送的级别，而不是从父级或定义重新推导的值（ADR 0202、ADR 0221、E2E-219） |
+
+| D395 | UI 中的规范思考等级值 | **修订 D369 / ADR 0202：Composer、模型配置和委派界面直接显示 `off`、`minimal`、`low`、`medium`、`high`、`xhigh` 和 `max`，不再翻译。所有语言目录移除这些值；有效元数据、钳位、provider 请求、协议和存储保持不变。见 ADR 0221 与 E2E-219。** | 思考等级是稳定的协议值，本地化标签会使同一个 provider/runtime 设置在不同应用语言下显示不同。 |
 
 ## N. 通知决定
 
@@ -3526,8 +3530,9 @@ D193 和 D194。
   从父级或定义重新推导出来的值。
 - 决策 D369 / ADR 0202 把有效的 `modelId` 和 `thinkingLevel` 加进 `Task` 的即时
   结果、`SubagentRunResult` 和生命周期快照。拓扑节点和侧边停靠栏头部在模型名
-  之后显示本地化的非 `off` 等级；`off`、`omit` 和不支持的推理仍只显示模型。
-  不改动主机协议、存储架构、provider 请求或生命周期行为。参见 E2E-219。
+  之后显示原始规范的非 `off` 等级；`off`、`omit` 和不支持的推理仍只显示模型。
+  不改动主机协议、存储架构、provider 请求或生命周期行为。D395 / ADR 0221
+  移除了规范值的翻译。参见 E2E-219。
 
 ## 2026-09-09 —— 未签名 macOS 首次启动助手（D371）
 
@@ -3794,3 +3799,30 @@ D193 和 D194。
   Windows/Linux 原生控件仍固定在窗口边缘。
 - 决策 D394 修订 D154 / D357 / ADR 0195。这是仅渲染器的变更，不改变面板状态、窗口几何、
   IPC、协议或存储。见 ADR 0220 与 E2E-067。
+
+## 2026-09-11 —— UI 中的规范思考等级值（D395）
+
+- 思考等级是稳定的协议值，但本地化会使同一个 provider/runtime 设置随应用语言变化。
+- 决策 D395 / ADR 0221 修订 D369 / ADR 0202：Composer、模型配置和委派界面直接显示
+  `off`、`minimal`、`low`、`medium`、`high`、`xhigh` 和 `max`。这些值从所有语言目录中移除；
+  有效元数据、钳位、provider 请求、协议和存储保持不变。见 E2E-219。
+
+## 2026-09-11 —— 渲染器与插件面板滚动条统一为紧凑规则（D396）
+
+- Windows 的经典滚动条让右侧工作面板的 Files 视图明显比对话区更粗，尽管主渲染器
+  已经使用安静的自定义滚动条。侧边栏还保留了单独的宽度和滑块透明度覆盖，因此应用
+  实际上存在两套滚动条样式。
+- 决策 D396 修订 D300：渲染器中的每个滚动容器统一使用 6px、无轨道、静止时透明的
+  滚动条，以及相同的悬停、focus-within、滚动显示和拖动状态。移除侧边栏专用覆盖。
+  插件面板 preload 给停靠和独立插件文档（包括内置 Files 视图）注入同一规则和 300ms
+  的滚动显示标记。Browser 内部加载的外部网页仍由网页自己管理样式。
+- 这是仅表现层的变更，不改变协议、存储、主机运行时或外部网页行为。见
+  `04-ux/07-ui-design-system.md`、`04-ux/08-component-spec.md` 与 E2E-157。
+
+## 2026-09-11 —— 上下文用量显示偏好（D398）
+
+- 上下文用量检查器的引导数值——触发器圆弧（`strokeDashoffset`）、百分比、令牌标签、弹层标题、tooltip 与 `aria-label`——可通过 `AppSettings.contextUsageDisplay`（`"remaining"` 或 `"used"`）配置。缺省及非法值回退为 `"remaining"`。
+- 当设为 `"used"` 时，圆环按 `usedRatio` 填充，文字展示已用容量对。
+- 警告与临界颜色阈值（剩余 ≤ 25 % / ≤ 10 %）仍按剩余容量判定，不随显示模式变化。
+- 设置 → 全局 AI → 默认项新增分段控件（剩余 / 已用），位于链接打开目标之后、回车发送之前。
+- 决策 D398 修订 D347 / ADR 0184。见 ADR 0223 与 E2E-250。

@@ -1115,9 +1115,10 @@ SESSIONS                                      [msg+][↕]
 - The standalone Sessions body shows at most five compact 28px rows and
   scrolls internally when more rows exist. The Projects list uses the remaining
   sidebar height and scrolls independently; neither region scrolls the footer
-  or primary navigation. Both list scrollbars remain 6px, trackless, and
-  transparent at rest; the semantic-ink thumb appears when its list is hovered,
-  focused, or scrolling and remains visible while dragging, so the independent regions
+  or primary navigation. Both list scrollbars use the same global 6px,
+  trackless, transparent-at-rest rule as the conversation and work-panel
+  scrollbars; the semantic-ink thumb appears when its list is hovered, focused,
+  or scrolling and remains visible while dragging, so the independent regions
   stay available without becoming persistent visual rails.
 
 ---
@@ -1374,11 +1375,17 @@ Single message render — either user (plaintext) or assistant (markdown streami
   assistant message (the last model request), using
   `input + output + reasoning + cacheRead + cacheWrite` (D355). They are not
   the sum of every model call in the visual tool-loop. It is hidden until that
-  usage exists. The trigger keeps a small remaining-capacity ring beside the
-  percentage and omits the redundant `Context` label; low capacity changes
-  the semantic color without making color the only signal. Clicking the
-  trigger (or activating it from the keyboard) toggles a non-modal panel with
-  a remaining-token-plus-percentage heading, used/window counts, and two
+  usage exists. The trigger keeps a small capacity ring beside the
+  percentage and omits the redundant `Context` label; the leading figure
+  (ring arc, percentage, token label, popover heading, tooltip, and
+  `aria-label`) follows `settings.contextUsageDisplay` — `"remaining"`
+  (default) or `"used"` — so the ring fills by `remainingRatio` or
+  `usedRatio` accordingly. Low capacity changes the semantic color based
+  on remaining capacity (remaining ≤ 25 % warning, ≤ 10 % critical)
+  regardless of display mode, without making color the only signal.
+  Clicking the trigger (or activating it from the keyboard) toggles a
+  non-modal panel whose heading follows the same display-mode figure,
+  followed by used/window counts and two
   unboxed turn/speed summary values. Model usage is compressed into one
   inline summary row that retains exact last-request
   input/output/cache/reasoning values
@@ -2140,7 +2147,9 @@ reasoning-level control.
   reasoning-level chip, then the standalone prompt-enhancement action and the
   single Stop/Send submit slot (D347). The inspector trigger shows the ring
   and percentage only. The chip shows Bot, the current model name, and the
-  current reasoning level separated by `·`; `off` omits the level text. The
+  current canonical reasoning level value separated by `·`; `off` omits the
+  level text. The canonical value is rendered as-is (`low`, `high`, `xhigh`,
+  or `max`) and is not localized. The
   prompt-enhancement action shows Sparkles while idle, uses the shared
   `.tool-spinner` and localized `Enhancing…` label while running, and remains
   a one-shot draft rewrite action. Inline file-reference chips, including
@@ -2205,6 +2214,13 @@ reasoning-level control.
 ### 11.5 Interactions
 
 - Enter: send message (configurable: Shift+Enter for newline)
+- Native file-system drop: while a file or folder is dragged over the Composer
+  shell, prevent the browser default and show an accent outline without
+  changing layout. Regular files are saved through the existing bounded
+  session-scratch paste flow and appear as removable leaf-name chips in drop
+  order. Folders are not traversed or copied; insert the complete native path
+  at the caret as the literal `@<path>/` directory form. Mixed drops preserve
+  item order and restore focus/caret after file materialization.
 - Send clears the box before the host round trip (D287): the draft leaves the
   textarea in the frame Enter is pressed, so a slow host cannot make a send look
   ignored or let a second Enter queue the same prompt twice. If the store
@@ -2364,6 +2380,11 @@ reasoning-level control.
 - Stop button: `aria-label="Stop generating"`
 - Queued prompt list: `aria-label="Queued messages"`; each row has an
   accessible Remove button and a Send now button.
+- Native file-system drag-over highlights the complete Composer shell with an
+  outline that does not change layout; dropping a folder leaves its complete
+  path visible in the editable draft, and dropping regular files exposes the
+  existing removable chip labels and full paths through their title and
+  accessible name.
 - Disabled send: `aria-disabled="true"` with tooltip explanation
 - The combined model × reasoning chip exposes `aria-haspopup="menu"` and
   `aria-expanded`. Its root entries use `role="menuitem"`; model and reasoning
@@ -2384,8 +2405,10 @@ reasoning-level control.
   The picker accepts regular files, and the importer classifies each selected
   item as an image or file from its MIME/extension metadata before copying it
   into the active session's scratch `pasted/` directory and adding its compact
-  chip; the original absolute picker paths never enter the prompt. Directory
-  selections are rejected with the normal error toast in the current MVP.
+  chip; the original absolute picker paths never enter the prompt. Native
+  drag-and-drop additionally accepts regular files and folders: file bytes use
+  the same bounded paste bridge, while folders remain visible as literal full
+  paths and are never copied or traversed.
 - The compact chips retain structured kind/name/MIME metadata while keeping
   the textarea free of binary data. The selected model's published record
   supplies the baseline, then the exact binding's `supportsImages` override
@@ -2397,7 +2420,7 @@ reasoning-level control.
   There are no visual previews in MVP.
 - No voice input
 
-### 11.8 Slash commands, @ file references, and clipboard files (D123–D125, D197, D209, D262, D362, ADR 0024, ADR 0059, ADR 0070, ADR 0131)
+### 11.8 Slash commands, @ file references, and clipboard files (D123–D125, D197, D209, D262, D362, D395, D397, ADR 0024, ADR 0059, ADR 0070, ADR 0131, ADR 0221, ADR 0222)
 
 The composer owns an inline autocomplete menu — one component serving two
 modes. Focus never leaves the textarea (D125).
@@ -2904,8 +2927,10 @@ compatibility remains owned by pi-ai.
    tooltip), context window and max output as a two-column numeric pair
    without native spinners, seven thinking-level chips, a constrained
    default-thinking select on the thinking label row, and one wrapping row
-   for attachment and delegation checkboxes. The thinking label, optional
-   catalog hint, and default selector sit above one compact, keyboard-operable
+   for attachment and delegation checkboxes. The seven thinking controls use
+   the canonical values as-is and are not localized. The thinking label,
+   optional catalog hint, and default selector sit above one compact,
+   keyboard-operable
    grouped control that spans the pane; its seven options share the width
    equally and wrap only when the pane is narrow. The first row starts
    expanded and additional rows start collapsed so large model sets do not
