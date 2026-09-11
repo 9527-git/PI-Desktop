@@ -15,6 +15,9 @@ target/
 apps/desktop/out/
 apps/desktop/dist-electron/
 apps/desktop/release/
+
+# Installers published to the project root for convenience
+/*.exe
 packages/*/dist/
 packages/*/dist-bundle/
 
