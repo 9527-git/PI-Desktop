@@ -7,6 +7,11 @@ import {
   WORK_PANEL_MAX_WIDTH,
   WORK_PANEL_MIN_WIDTH,
 } from "../src/lib/work-panel-resize.ts";
+import {
+  placeWorkPanelMenu,
+  WORK_PANEL_MENU_GAP,
+  WORK_PANEL_MENU_MARGIN,
+} from "../src/lib/work-panel-menu-position.ts";
 
 const appSource = await readFile(
   new URL("../src/App.tsx", import.meta.url),
@@ -74,7 +79,13 @@ test("a viewport-fixed toggle is the sole pointer collapse control", () => {
   );
   assert.match(
     globalStyles,
-    /:root\[data-platform="win32"\] \.work-panel-header,[\s\S]*:root\[data-platform="linux"\] \.work-panel-header\s*\{[^}]*padding-right:\s*calc\(var\(--ds-window-controls-width\) \+ 46px\);/,
+    /:root\[data-platform="win32"\] \.work-panel-header,[\s\S]*:root\[data-platform="linux"\] \.work-panel-header\s*\{[^}]*margin-right:\s*var\(--ds-window-controls-width\);/,
+  );
+  // The reservation ends the header's box so its native drag rectangle stops
+  // before the control band: padding alone still covers the window controls.
+  assert.doesNotMatch(
+    globalStyles,
+    /padding-right:\s*calc\(var\(--ds-window-controls-width\)/,
   );
   assert.match(
     globalStyles,
@@ -170,7 +181,7 @@ test("work panel header exposes one unified menu with no duplicated entries", ()
   // `file` *kind* remains: a `file:<path>` tab is a transcript artifact.
   assert.doesNotMatch(panelSource, /\{ kind: "file", Icon/);
   assert.match(panelSource, /openPluginView\(view\)/);
-  assert.match(panelSource, /className="work-panel-context-menu"/);
+  assert.match(panelSource, /className=\{cx\([\s\S]*"work-panel-context-menu"/);
   assert.match(panelSource, /id=\{activeTab \? `work-panel-title-\$\{activeTab\.id\}`/);
   assert.match(panelSource, /role="menuitemradio"/);
   assert.match(panelSource, /aria-checked=\{selected\}/);
@@ -212,7 +223,7 @@ test("work panel header exposes one unified menu with no duplicated entries", ()
   assert.doesNotMatch(panelSource, /panel\.openTool/);
   // Every native surface in the panel — the preview browser and each plugin
   // view — composites above the renderer. Exit and panel-wide overlays hide
-  // it; divider resize and the local context menu keep it mounted so the panel
+  // it; divider resize and the floating context menu keep it mounted so the panel
   // never flashes its background.
   const pluginSurfaceStart = panelSource.indexOf("<PluginViewTab");
   const pluginSurfaceEnd = panelSource.indexOf("/>", pluginSurfaceStart);
@@ -223,18 +234,22 @@ test("work panel header exposes one unified menu with no duplicated entries", ()
   );
   assert.match(
     pluginSurface,
-    /occludedById=\{contextOpen \? "work-panel-context-menu" : undefined\}/s,
+    /occludedById=\{\s*contextMenuPosition \? "work-panel-context-menu" : undefined/s,
   );
   assert.doesNotMatch(pluginSurface, /isResizing/);
-  assert.doesNotMatch(panelSource, /onContextMenu|createPortal|work-panel-tools-menu/);
+  assert.match(panelSource, /import \{ createPortal \} from "react-dom"/);
+  assert.match(panelSource, /ref=\{contextMenuRef\}/);
+  assert.match(panelSource, /createPortal\([\s\S]*document\.body/);
+  assert.doesNotMatch(panelSource, /onContextMenu|work-panel-tools-menu/);
   assert.match(
     globalStyles,
-    /\.work-panel-context-menu \{[^}]*position:\s*absolute;[^}]*min-width:/s,
+    /\.work-panel-context-menu \{[^}]*position:\s*fixed;[^}]*z-index:\s*60;[^}]*min-width:/s,
   );
   assert.match(
     globalStyles,
-    /\.work-panel-context-menu \{[^}]*position:\s*absolute;[^}]*max-height:/s,
+    /\.work-panel-context-menu \{[^}]*position:\s*fixed;[^}]*max-height:/s,
   );
+  assert.match(globalStyles, /\.work-panel-context-menu\.is-open \{[^}]*visibility:\s*visible;/s);
   // Header actions are pinned right so they never shift with the label length.
   assert.match(globalStyles, /\.work-panel-actions \{[^}]*margin-left:\s*auto;/s);
   assert.doesNotMatch(globalStyles, /\.work-panel-tabs\s*\{/);
@@ -285,7 +300,29 @@ test("work panel menu keeps focus, layout, and motion stable while it is open", 
   assert.match(globalStyles, /@keyframes work-panel-menu-in/);
   assert.match(
     globalStyles,
-    /@media \(prefers-reduced-motion: reduce\) \{\s*\.work-panel-context-menu \{\s*animation:\s*none;/,
+    /@media \(prefers-reduced-motion: reduce\) \{\s*\.work-panel-context-menu\.is-open \{\s*animation:\s*none;/,
+  );
+});
+
+test("work panel context menu placement stays within the viewport", () => {
+  assert.equal(WORK_PANEL_MENU_MARGIN, 8);
+  assert.equal(WORK_PANEL_MENU_GAP, 4);
+
+  assert.deepEqual(
+    placeWorkPanelMenu({
+      trigger: { left: 800, top: 8, bottom: 40 },
+      menu: { width: 220, height: 240 },
+      viewport: { width: 1200, height: 800 },
+    }),
+    { left: 800, top: 44 },
+  );
+  assert.deepEqual(
+    placeWorkPanelMenu({
+      trigger: { left: 1100, top: 540, bottom: 572 },
+      menu: { width: 220, height: 240 },
+      viewport: { width: 1200, height: 800 },
+    }),
+    { left: 972, top: 296 },
   );
 });
 

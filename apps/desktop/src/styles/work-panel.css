@@ -138,7 +138,12 @@
 
 :root[data-platform="win32"] .work-panel-header,
 :root[data-platform="linux"] .work-panel-header {
-  padding-right: calc(var(--ds-window-controls-width) + 46px);
+  /* End this header's box — and therefore its native drag rectangle — before
+     the viewport-fixed control band. The drag rectangle is the border box, so
+     padding the content clear of the band still leaves that rectangle across
+     the controls, and Electron swallows their hover and click. The base 46px
+     right padding keeps the same content inset once the box stops early. */
+  margin-right: var(--ds-window-controls-width);
 }
 
 /* The header follows a "context on the left, shell actions on the right"
@@ -171,14 +176,13 @@
 }
 
 .work-panel-context-menu {
-  position: absolute;
-  top: 38px;
+  position: fixed;
+  top: 0;
   left: 0;
-  right: auto;
-  z-index: 50;
+  z-index: 60;
   width: max-content;
   min-width: 200px;
-  max-width: 280px;
+  max-width: calc(100vw - 16px);
   max-height: min(420px, calc(100vh - 72px));
   overflow-y: auto;
   padding-bottom: 5px;
@@ -187,6 +191,17 @@
   background: var(--ds-bg-elevated-opaque);
   box-shadow: var(--ds-shadow-dialog);
   -webkit-app-region: no-drag;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+  visibility: hidden;
+}
+
+.work-panel-context-menu.is-open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+  visibility: visible;
   animation: work-panel-menu-in var(--motion-duration-fast) var(--motion-ease-out)
     both;
 }
@@ -203,8 +218,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .work-panel-context-menu {
+  .work-panel-context-menu.is-open {
     animation: none;
+    transform: none;
   }
 }
 
