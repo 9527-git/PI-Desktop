@@ -17,8 +17,12 @@ const read = (rel) => readFile(new URL(rel, import.meta.url), "utf8");
 const setupSource = await read("../src/components/settings/ProviderSetupDialog.tsx");
 const headerEditorSource = await read("../src/components/settings/ProviderHeadersEditor.tsx");
 const vendorDialogSource = await read("../src/components/settings/VendorAccountDialog.tsx");
-// The panes themselves live in the picker both dialogs render (D269).
+// The panes themselves live in the picker both dialogs render (D269). Its
+// left pane, that pane's header and its fetch error are their own modules.
 const pickerSource = await read("../src/components/settings/ModelSelectionPanes.tsx");
+const listSource = await read("../src/components/settings/ProviderModelList.tsx");
+const listHeadSource = await read("../src/components/settings/ProviderModelListHead.tsx");
+const fetchErrorSource = await read("../src/components/settings/ModelsFetchError.tsx");
 const styles = await loadStyles();
 
 /** Declaration block for exactly one selector, so matches cannot span rules. */
@@ -114,11 +118,12 @@ test("custom Name and Base URL sit on one row without helper copy", () => {
 });
 
 test("a failed model list uses a classified error, not a raw dump plus empty copy", () => {
-  assert.match(pickerSource, /describeModelsFetchError/);
-  assert.match(pickerSource, /ModelsFetchErrorMessage/);
-  assert.match(pickerSource, /variant="placeholder"/);
-  assert.match(pickerSource, /variant="banner"/);
-  assert.match(pickerSource, /emptyFetchError/);
+  assert.match(fetchErrorSource, /describeModelsFetchError/);
+  assert.match(fetchErrorSource, /ModelsFetchErrorMessage/);
+  assert.match(listSource, /variant="placeholder"/);
+  assert.match(listSource, /variant="banner"/);
+  assert.match(listSource, /ModelsFetchErrorMessage/);
+  assert.match(listSource, /emptyFetchError/);
   assert.match(styles, /\.provider-models-placeholder\.is-error\s*\{/);
   assert.match(styles, /\.provider-models-error-summary\s*\{/);
   assert.match(styles, /\.provider-models-note\.is-error\s*\{[\s\S]*overflow-wrap: anywhere/);
@@ -151,8 +156,8 @@ test("pane titles are section labels, not competing headings", () => {
 });
 
 test("the discovered list header hosts a select-all checkbox beside the title", () => {
-  assert.match(pickerSource, /provider-models-heading/);
-  assert.match(pickerSource, /provider-models-select-all/);
+  assert.match(listHeadSource, /provider-models-heading/);
+  assert.match(listHeadSource, /provider-models-select-all/);
   const heading = block(".provider-models-heading");
   assert.match(heading, /display: flex/);
   assert.match(heading, /align-items: center/);
@@ -162,8 +167,8 @@ test("the discovered list header hosts a select-all checkbox beside the title", 
 });
 
 test("the discovered list header hosts a compact fetch-list action beside the title", () => {
-  assert.match(pickerSource, /provider-models-reload/);
-  assert.match(pickerSource, /settings\.fetchModelList/);
+  assert.match(listHeadSource, /provider-models-reload/);
+  assert.match(listHeadSource, /settings\.fetchModelList/);
   const reload = block(".provider-models-reload");
   assert.match(reload, /display: inline-flex/);
   assert.match(reload, /min-height: 24px/);
@@ -220,9 +225,11 @@ test("picking and reviewing models are two side-by-side panes", () => {
   assert.match(panes, /display: grid/);
   assert.match(panes, /grid-template-columns:\s*minmax\(0, 1fr\) minmax\(0, 1fr\)/);
   assert.match(panes, /min-height: 0/);
-  // The available list must come before the chosen list in reading order.
+  // The available list must come before the chosen list in reading order; the
+  // left pane is a module of its own, so reading order is composition order.
+  assert.match(listSource, /className="provider-models"/);
   assert.ok(
-    pickerSource.indexOf('className="provider-models"') <
+    pickerSource.indexOf("<ProviderModelList") <
       pickerSource.indexOf('className="provider-chosen"'),
     "the credential's list should precede the chosen list",
   );

@@ -9033,13 +9033,20 @@ are withdrawn with ADR 0165.
   provider, restart the app, and confirm the alias is still there. 9) Type more
   than 60 characters into the alias input; confirm the field keeps only the
   first 60, then send a direct `providers.update` RPC with a 61-character alias
-  and confirm it fails with `MODEL_ALIAS_TOO_LONG`.
+  and confirm it fails with `MODEL_ALIAS_TOO_LONG`. 10) Click the id of that
+  chosen row in the live list; confirm the model stays configured, its Advanced
+  body is open, and the right pane scrolled to that row. 11) Click the id of a
+  model that is not configured; confirm its checkbox stays clear and the chosen
+  list is unchanged.
 - **Expected**: The alias is a display label only — the provider request still
   carries `models[].id`, and the configuration row keeps showing the real id
   beside the alias chip. Model ids and names are selectable inside the
   non-selectable shell, and a click that carries a selection never toggles the
-  row checkbox. A blank or cleared alias falls back to the catalog display
-  name.
+  row checkbox. Clicking an id or name never picks or drops the model either:
+  a plain click opens the configuration row of a model that is already
+  configured and marks that row briefly, while the name of an unconfigured
+  model changes nothing. A blank or cleared alias falls back to the catalog
+  display name.
 - **Specs linked**: `03-runtime/12-provider-config-schema.md`,
   `04-ux/08-component-spec.md`, ADR 0192
 - **Acceptance**: B (model configuration), Quality

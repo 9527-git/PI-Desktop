@@ -8,7 +8,7 @@
  * guarantee lives here once instead of in a convention two files had to
  * remember.
  */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   THINKING_LEVELS,
@@ -23,9 +23,12 @@ import {
   type ThinkingLevel,
 } from "@pi-desktop/shared";
 import { Button, Field, Input, Tooltip, TooltipButton, cx } from "../ui";
-import { IconClose, IconHelp, IconPlus, IconRefresh, IconSearch } from "../icons";
-import { describeModelsFetchError } from "./model-fetch-error";
+import { IconClose, IconHelp, IconPlus } from "../icons";
+import { ProviderModelList } from "./ProviderModelList";
 import type { ProviderModelsState } from "./useProviderModels";
+
+/** How long the right pane marks the row the left list pointed at. */
+const REVEAL_HIGHLIGHT_MS = 1600;
 
 /** One row of the model list: what the service returned, plus its binding. */
 export type ModelRow = {
@@ -191,37 +194,30 @@ export function ModelSelectionPanes({
 }: ModelSelectionPanesProps) {
   const { t } = useTranslation();
   const { rows, models, publishedLevelsById, setModels } = selection;
-  const [modelQuery, setModelQuery] = useState("");
   const [customModelId, setCustomModelId] = useState("");
   const [customModelError, setCustomModelError] = useState("");
   const [expandedModelId, setExpandedModelId] = useState<string | null>(
     () => models[0]?.id ?? null,
   );
+  // The left list points into the right pane, so picking a configured model
+  // by name opens its settings instead of dropping it. The row it opened is
+  // marked for as long as the highlight runs.
+  const [revealedId, setRevealedId] = useState<string | null>(null);
+  const chosenRowRefs = useRef(new Map<string, HTMLLIElement>());
+  const revealTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // The returned list is short and already local, so filtering is client-side:
-  // no host search and no debounced IPC round trip.
-  const visibleRows = useMemo(() => {
-    const needle = modelQuery.trim().toLowerCase();
-    if (!needle) return rows;
-    return rows.filter(
-      (row) =>
-        row.id.toLowerCase().includes(needle) ||
-        row.displayName.toLowerCase().includes(needle),
-    );
-  }, [modelQuery, rows]);
+  useEffect(
+    () => () => {
+      if (revealTimer.current) clearTimeout(revealTimer.current);
+    },
+    [],
+  );
 
+  // Chosen ids drive the left list's checkbox states.
   const selected = useMemo(
     () => new Set(models.map((binding) => binding.id.toLowerCase())),
     [models],
   );
-  const visibleSelectedCount = useMemo(
-    () => visibleRows.filter((row) => selected.has(row.id.toLowerCase())).length,
-    [selected, visibleRows],
-  );
-  const allVisibleSelected =
-    visibleRows.length > 0 && visibleSelectedCount === visibleRows.length;
-  const someVisibleSelected =
-    visibleSelectedCount > 0 && visibleSelectedCount < visibleRows.length;
 
   // Published records for the chosen rows, so the capability switches can show
   // what models.dev says before the user overrides it.
@@ -250,9 +246,35 @@ export function ModelSelectionPanes({
     });
   };
 
-  const toggleVisibleModels = (select: boolean) => {
+  const toggleVisibleModels = (visibleRows: ModelRow[], select: boolean) => {
     if (select) setExpandedModelId((open) => open ?? visibleRows[0]?.id ?? null);
     setModels((current) => applyVisibleModelSelection(current, visibleRows, select));
+  };
+
+  /**
+   * A click on a configured model's name in the left list: open its settings
+   * and bring the row into view. A model that is not configured yet has no
+   * settings to show, so the checkbox stays the only way to pick it.
+   */
+  const revealModelConfig = (row: ModelRow) => {
+    const key = row.id.toLowerCase();
+    const binding = models.find((entry) => entry.id.toLowerCase() === key);
+    if (!binding) return;
+    setExpandedModelId(binding.id);
+    if (revealTimer.current) clearTimeout(revealTimer.current);
+    revealTimer.current = setTimeout(() => setRevealedId(null), REVEAL_HIGHLIGHT_MS);
+    const node = chosenRowRefs.current.get(key);
+    if (!node) return;
+    // The row is mounted already, so the mark and the scroll follow the
+    // expansion in the next frame: by then the body it opened has settled the
+    // row's height. Dropping the mark first lets a repeated click flash again.
+    setRevealedId(null);
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    requestAnimationFrame(() => {
+      if (!node.isConnected) return;
+      setRevealedId(key);
+      node.scrollIntoView({ block: "nearest", behavior: reduced ? "auto" : "smooth" });
+    });
   };
 
   const updateBinding = (id: string, update: Partial<ModelBinding>) =>
@@ -276,147 +298,19 @@ export function ModelSelectionPanes({
     setCustomModelError("");
   };
 
-  const fetchFailed = discovery.status === "error";
-  const emptyFetchError = fetchFailed && rows.length === 0;
-
-  const modelListBody =
-    discovery.status === "idle" ? (
-      <div className="provider-models-placeholder">{t("settings.modelsEmptyHint")}</div>
-    ) : emptyFetchError ? (
-      <ModelsFetchErrorMessage error={discovery.error} variant="placeholder" />
-    ) : rows.length === 0 ? (
-      <div className="provider-models-placeholder">
-        {discovery.status === "loading"
-          ? t("settings.modelsLoading")
-          : t("settings.modelsNoneFromService")}
-      </div>
-    ) : visibleRows.length === 0 ? (
-      <div className="provider-models-placeholder">{t("settings.noModelMatches")}</div>
-    ) : (
-      <ul className="provider-models-list">
-        {visibleRows.map((row) => (
-          <li className="provider-models-row" key={row.id}>
-            <label
-              className="provider-models-row-label"
-              onClick={(event) => {
-                // Keyboard activation reports detail 0 and is not a click that
-                // carries a text selection, so it must keep toggling.
-                if (event.detail === 0) return;
-                // A copied selection can remain active when the user clicks the
-                // checkbox next. The checkbox is an explicit toggle target, so
-                // an old selection must not cancel its native activation.
-                if (event.target instanceof HTMLInputElement) return;
-                // A drag-selection inside this row is a copy gesture, not a toggle.
-                const selection = window.getSelection();
-                const row = event.currentTarget;
-                if (
-                  selection &&
-                  !selection.isCollapsed &&
-                  row.contains(selection.anchorNode) &&
-                  row.contains(selection.focusNode)
-                ) {
-                  event.preventDefault();
-                }
-              }}
-            >
-              <input
-                type="checkbox"
-                className="provider-models-check"
-                checked={selected.has(row.id.toLowerCase())}
-                disabled={busy}
-                spellCheck={false}
-                autoCorrect="off"
-                autoCapitalize="off"
-                onChange={() => toggleModel(row)}
-              />
-              <span className="provider-models-row-copy selectable">
-                <span className="provider-models-row-id font-mono">{row.id}</span>
-                {row.displayName && row.displayName !== row.id ? (
-                  <span className="provider-models-row-name">{row.displayName}</span>
-                ) : null}
-              </span>
-              <span className="provider-models-row-limits">
-                {formatTokenCount(row.contextWindow)} · {formatTokenCount(row.maxTokens)}
-              </span>
-            </label>
-          </li>
-        ))}
-      </ul>
-    );
-
   return (
     <div className="provider-setup-panes">
-      <div className="provider-models">
-        <div className="provider-models-head">
-          <div className="provider-models-heading">
-            {visibleRows.length > 0 ? (
-              <input
-                type="checkbox"
-                className="provider-models-check provider-models-select-all"
-                checked={allVisibleSelected}
-                disabled={busy}
-                ref={(el) => {
-                  if (el) el.indeterminate = someVisibleSelected;
-                }}
-                aria-label={
-                  allVisibleSelected
-                    ? t("settings.deselectAllVisibleModels")
-                    : t("settings.selectAllVisibleModels")
-                }
-                title={
-                  allVisibleSelected
-                    ? t("settings.deselectAllVisibleModels")
-                    : t("settings.selectAllVisibleModels")
-                }
-                onChange={(event) => toggleVisibleModels(event.target.checked)}
-              />
-            ) : null}
-            <h4 className="provider-models-title">{listTitle}</h4>
-            {onReload ? (
-              <button
-                type="button"
-                className={cx(
-                  "provider-models-reload",
-                  discovery.status === "loading" && "is-loading",
-                )}
-                disabled={busy || !discovery.canReload}
-                onClick={onReload}
-              >
-                <IconRefresh size={13} aria-hidden />
-                {discovery.status === "loading"
-                  ? t("settings.modelsLoading")
-                  : t("settings.fetchModelList")}
-              </button>
-            ) : null}
-          </div>
-          <div className="provider-models-search-wrap">
-            <IconSearch size={13} aria-hidden />
-            <input
-              className="provider-models-search"
-              value={modelQuery}
-              placeholder={t("settings.searchModelId")}
-              aria-label={t("settings.searchModelId")}
-              spellCheck={false}
-              autoCorrect="off"
-              autoCapitalize="off"
-              autoComplete="off"
-              onChange={(event) => setModelQuery(event.target.value)}
-            />
-          </div>
-        </div>
-
-        {discovery.source === "catalog" ? (
-          <div className="provider-models-note">{t("settings.modelsFromCatalogNote")}</div>
-        ) : null}
-        {discovery.source === "fallback" ? (
-          <div className="provider-models-note">{t("settings.modelsFallbackNote")}</div>
-        ) : null}
-        {fetchFailed && !emptyFetchError ? (
-          <ModelsFetchErrorMessage error={discovery.error} variant="banner" />
-        ) : null}
-
-        {modelListBody}
-      </div>
+      <ProviderModelList
+        discovery={discovery}
+        listTitle={listTitle}
+        busy={busy}
+        rows={rows}
+        selectedIds={selected}
+        onToggle={toggleModel}
+        onSelectVisible={toggleVisibleModels}
+        onReveal={revealModelConfig}
+        onReload={onReload}
+      />
 
       <div className="provider-chosen">
         <div className="provider-chosen-head">
@@ -441,7 +335,18 @@ export function ModelSelectionPanes({
               const expanded = expandedModelId === binding.id;
               const advancedId = `model-advanced-${binding.id}`;
               return (
-                <li className="provider-chosen-row" key={binding.id}>
+                <li
+                  className={cx(
+                    "provider-chosen-row",
+                    revealedId === binding.id.toLowerCase() && "is-revealed",
+                  )}
+                  key={binding.id}
+                  ref={(node) => {
+                    const key = binding.id.toLowerCase();
+                    if (node) chosenRowRefs.current.set(key, node);
+                    else chosenRowRefs.current.delete(key);
+                  }}
+                >
                   <div className="provider-chosen-row-head">
                     <span className="provider-chosen-row-id font-mono selectable">
                       {binding.id}
@@ -697,58 +602,6 @@ export function ModelSelectionPanes({
           </Field>
         </div>
       </div>
-    </div>
-  );
-}
-
-function ModelsFetchErrorMessage({
-  error,
-  variant,
-}: {
-  error?: string;
-  variant: "banner" | "placeholder";
-}) {
-  const { t } = useTranslation();
-  const view = describeModelsFetchError(error);
-  let summary = t("settings.modelsFetchFailed");
-  switch (view.kind) {
-    case "unauthorized":
-      summary = t("errors.PROVIDER_UNAUTHORIZED");
-      break;
-    case "notFound":
-      summary = t("settings.modelsFetchNotFound");
-      break;
-    case "rateLimited":
-      summary = t("errors.PROVIDER_RATE_LIMITED");
-      break;
-    case "timeout":
-      summary = t("errors.TIMEOUT");
-      break;
-    case "network":
-      summary = t("errors.NETWORK_ERROR");
-      break;
-    case "invalidResponse":
-      summary = t("settings.modelsFetchInvalidResponse");
-      break;
-    case "http":
-      summary = t("settings.modelsFetchFailedStatus", {
-        status: view.summaryParams?.status ?? 0,
-      });
-      break;
-  }
-  const className =
-    variant === "placeholder"
-      ? "provider-models-placeholder is-error"
-      : "provider-models-note is-error";
-  return (
-    <div className={className} role="alert">
-      <span className="provider-models-error-summary">{summary}</span>
-      {view.detail ? (
-        <span className="provider-models-error-detail">{view.detail}</span>
-      ) : null}
-      {variant === "placeholder" ? (
-        <span className="provider-models-error-hint">{t("settings.modelsFetchHint")}</span>
-      ) : null}
     </div>
   );
 }

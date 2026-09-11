@@ -734,11 +734,13 @@
   outline-offset: 1px;
 }
 
+/* The id and name are the copyable part of the row, never the toggle. */
 .provider-models-row-copy {
   flex: 1;
   display: flex;
   align-items: baseline;
   gap: 8px;
+  cursor: text;
   min-width: 0;
 }
 
@@ -836,6 +838,30 @@
 .provider-chosen-row {
   border-radius: var(--radius-3xs);
   background: var(--ds-tile);
+}
+
+/* The left list pointed at this row, so mark it and leave no trace after. */
+.provider-chosen-row.is-revealed {
+  outline: 1px solid transparent;
+  outline-offset: 1px;
+  animation: provider-chosen-reveal 1.6s ease-out;
+}
+
+@keyframes provider-chosen-reveal {
+  from {
+    outline-color: var(--ds-accent);
+  }
+
+  to {
+    outline-color: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .provider-chosen-row.is-revealed {
+    animation: none;
+    outline-color: var(--ds-accent-soft);
+  }
 }
 
 .provider-chosen-row-head {
