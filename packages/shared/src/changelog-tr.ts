@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.7",
+    "date": "2026-09-11",
+    "highlights": [
+      "Sohbet bestecisini normal belge akışında tutar, böylece yanıtlar çok satırlı taslaklar, kuyruktaki istemler ve onay kartları dahil hiçbir zaman giriş kutusu tarafından kapatılmaz.",
+    ],
+  },
+  {
     "version": "0.14.6",
     "date": "2026-09-10",
     "highlights": [

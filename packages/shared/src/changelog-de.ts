@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.7",
+    "date": "2026-09-11",
+    "highlights": [
+      "Hält den Konversations-Composer im normalen Dokumentfluss, sodass Antworten nie vom Eingabefeld verdeckt werden – auch bei mehrzeiligen Entwürfen, Warteschlangen und Genehmigungskarten nicht.",
+    ],
+  },
+  {
     "version": "0.14.6",
     "date": "2026-09-10",
     "highlights": [

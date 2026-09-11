@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    version: "0.14.7",
+    date: "2026-09-11",
+    highlights: [
+      "대화 입력창을 일반 문서 흐름으로 배치해 답변이 입력창에 가려지지 않으며, 여러 줄 초안, 대기 중인 프롬프트, 승인 카드도 마찬가지입니다.",
+    ],
+  },
+  {
     version: "0.14.6",
     date: "2026-09-10",
     highlights: [
