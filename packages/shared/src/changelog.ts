@@ -29,6 +29,13 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.7",
+    date: "2026-09-11",
+    highlights: [
+      "Keep the conversation composer in normal document flow so replies are never covered by the input box, including multi-line drafts, queued prompts, and approval cards.",
+    ],
+  },
+  {
     version: "0.14.6",
     date: "2026-09-10",
     highlights: [
@@ -744,6 +751,14 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.7",
+    date: "2026-09-11",
+    highlights: [
+      "对话输入框改为正常文档流布局，回复内容不再被输入框遮挡，多行草稿、排队提示与审批卡片同样如此。",
+    ],
+  },
+
+  {
     version: "0.14.6",
     date: "2026-09-10",
     highlights: [
@@ -1457,6 +1472,14 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.7",
+    date: "2026-09-11",
+    highlights: [
+      "對話輸入框改為正常文件流版面配置，回覆內容不再被輸入框遮擋，多行草稿、排隊提示與核准卡片同樣如此。",
+    ],
+  },
+
   {
     version: "0.14.6",
     date: "2026-09-10",

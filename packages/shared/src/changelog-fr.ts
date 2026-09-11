@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.7",
+    "date": "2026-09-11",
+    "highlights": [
+      "Maintient le composeur de conversation dans le flux normal du document, afin que les réponses ne soient jamais recouvertes par la zone de saisie, y compris les brouillons multilignes, les invites en file d'attente et les cartes d'approbation.",
+    ],
+  },
+  {
     "version": "0.14.6",
     "date": "2026-09-10",
     "highlights": [

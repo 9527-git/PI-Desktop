@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.7",
+    "date": "2026-09-11",
+    "highlights": [
+      "Mantiene el compositor de conversación en el flujo normal del documento, de modo que las respuestas nunca queden tapadas por el cuadro de entrada, incluidos borradores multilínea, prompts en cola y tarjetas de aprobación.",
+    ],
+  },
+  {
     "version": "0.14.6",
     "date": "2026-09-10",
     "highlights": [
