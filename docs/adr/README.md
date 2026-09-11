@@ -84,7 +84,7 @@ Each ADR includes:
 | 0062 | Bounded Subagents Behind a Task Tool | Accepted for implementation |
 | 0063 | A Managed Surface for Global Subagent Definitions | Accepted for implementation |
 | 0064 | Codex-parity context compaction | Accepted (amends 0061 / 0030) |
-| 0065 | Smooth shell layout and stream feedback | Accepted for implementation |
+| 0065 | Smooth shell layout and stream feedback | Accepted for implementation (clause 4 superseded by 0221) |
 | 0066 | Empty home direct bottom composer | Accepted for implementation (amends D111) |
 | 0067 | ChatGPT-inspired empty-home starter guidance | Superseded by D206 |
 | 0068 | Add a keyboard entry point for the work panel | Accepted for implementation |
@@ -238,3 +238,4 @@ Each ADR includes:
 | 0218 | Effective image-input overrides across Composer and transport | Accepted (amends 0101 / D243) |
 | 0219 | User-invoked Skills in the composer slash menu | Accepted (amends D123 / D174 / ADR 0024 / ADR 0039) |
 | 0220 | Keep Windows work-panel chrome single-purpose | Accepted (amends D154 / D357 / ADR 0195) |
+| 0221 | Keep the docked conversation composer in normal flow | Accepted (amends ADR 0065 clause 4 / D264) |
