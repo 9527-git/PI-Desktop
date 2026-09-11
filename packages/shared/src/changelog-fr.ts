@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.9",
+    "date": "2026-09-11",
+    "highlights": [
+      "Cliquer sur le nom d'un modèle dans la liste des modèles du fournisseur ne le supprime plus : le nom ouvre sa configuration et seule la case à cocher le sélectionne ou le retire.",
+      "Livre les rapports TaskWait déjà terminés avant l'inactivité du processus parent, restaure les activations d'outils différées encore présentes dans le contexte et complète reasoning_content pour les modèles DeepSeek relayés.",
+      "Déposez des fichiers et des dossiers directement dans le Composer ; l'anneau de contexte peut commencer par la capacité utilisée ou restante.",
+      "Les niveaux de raisonnement s'affichent en valeurs canoniques sans traduction, et les barres de défilement compactes sont unifiées sur toutes les surfaces.",
+    ],
+  },
+  {
     "version": "0.14.8",
     "date": "2026-09-11",
     "highlights": [

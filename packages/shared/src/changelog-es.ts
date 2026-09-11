@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.9",
+    "date": "2026-09-11",
+    "highlights": [
+      "Hacer clic en el nombre de un modelo en la lista de modelos del proveedor ya no elimina el modelo: el nombre abre su configuración y solo la casilla lo selecciona o lo quita.",
+      "Entrega los informes de TaskWait que ya habían terminado antes de que el proceso principal quedara inactivo, restaura las activaciones de herramientas diferidas que siguen en el contexto y rellena reasoning_content en los modelos DeepSeek retransmitidos.",
+      "Arrastra archivos y carpetas directamente al Composer, y permite que el anillo de contexto empiece por la capacidad usada o la restante.",
+      "Los niveles de razonamiento se muestran como valores canónicos sin traducción y las barras de desplazamiento compactas se unifican en toda la interfaz.",
+    ],
+  },
+  {
     "version": "0.14.8",
     "date": "2026-09-11",
     "highlights": [
