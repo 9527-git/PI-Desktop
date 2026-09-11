@@ -29,6 +29,13 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.8",
+    date: "2026-09-11",
+    highlights: [
+      "Clicking a model name in the provider model list no longer drops that model: the name opens its configuration, and only the checkbox picks or removes a model.",
+    ],
+  },
+  {
     version: "0.14.7",
     date: "2026-09-11",
     highlights: [
@@ -751,6 +758,13 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.8",
+    date: "2026-09-11",
+    highlights: [
+      "在模型选择器的服务模型列表中点击模型名称不再误删该模型：点击名称会展开它的配置，增删模型只由复选框完成。",
+    ],
+  },
+  {
     version: "0.14.7",
     date: "2026-09-11",
     highlights: [
@@ -1472,6 +1486,13 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.8",
+    date: "2026-09-11",
+    highlights: [
+      "在模型選擇器的服務模型清單中點擊模型名稱不再誤刪該模型：點擊名稱會展開它的設定，增減模型只由核取方塊完成。",
+    ],
+  },
   {
     version: "0.14.7",
     date: "2026-09-11",

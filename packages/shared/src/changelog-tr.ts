@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.8",
+    "date": "2026-09-11",
+    "highlights": [
+      "Sağlayıcı model listesinde bir model adına tıklamak artık modeli kaldırmaz: ad, o modelin yapılandırmasını açar ve modeli yalnızca onay kutusu seçer veya kaldırır.",
+    ],
+  },
+  {
     "version": "0.14.7",
     "date": "2026-09-11",
     "highlights": [

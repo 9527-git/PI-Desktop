@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.8",
+    "date": "2026-09-11",
+    "highlights": [
+      "Cliquer sur le nom d'un modèle dans la liste des modèles du fournisseur ne le supprime plus : le nom ouvre sa configuration et seule la case à cocher le sélectionne ou le retire.",
+    ],
+  },
+  {
     "version": "0.14.7",
     "date": "2026-09-11",
     "highlights": [

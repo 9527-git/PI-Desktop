@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.8",
+    "date": "2026-09-11",
+    "highlights": [
+      "공급자 모델 목록에서 모델 이름을 클릭해도 더 이상 모델이 제거되지 않습니다. 이름을 클릭하면 해당 모델의 설정이 열리고, 모델 선택과 제거는 체크박스로만 이뤄집니다.",
+    ],
+  },
+  {
     version: "0.14.7",
     date: "2026-09-11",
     highlights: [

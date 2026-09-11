@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.8",
+    "date": "2026-09-11",
+    "highlights": [
+      "Hacer clic en el nombre de un modelo en la lista de modelos del proveedor ya no elimina el modelo: el nombre abre su configuración y solo la casilla lo selecciona o lo quita.",
+    ],
+  },
+  {
     "version": "0.14.7",
     "date": "2026-09-11",
     "highlights": [
