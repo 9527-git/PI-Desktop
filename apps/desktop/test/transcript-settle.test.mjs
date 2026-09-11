@@ -140,8 +140,8 @@ test("pinned follow re-pins inside the resize observer, on the border box", () =
   );
   assert.match(transcript, /new ResizeObserver\(followScrollNow\)/);
   assert.doesNotMatch(transcript, /new ResizeObserver\(scheduleFollowScroll\)/);
-  // The composer publishes its height as the content's bottom padding; only the
-  // border box sees that change. The scroller's own box covers window resizes.
+  // The normal-flow composer changes the transcript viewport; the scroller's
+  // own box covers that resize while the content observer covers row changes.
   assert.match(transcript, /ro\.observe\(content, \{ box: "border-box" \}\)/);
   assert.match(transcript, /ro\.observe\(scroller, \{ box: "border-box" \}\)/);
 });

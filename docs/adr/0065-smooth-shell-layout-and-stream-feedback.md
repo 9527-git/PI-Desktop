@@ -1,6 +1,6 @@
 # ADR 0065: Smooth shell layout and stream feedback
 
-- Status: Accepted for implementation
+- Status: Accepted for implementation (clause 4 superseded by ADR 0221)
 - Date: 2026-08-07
 - Deciders: PI-Desktop core
 - Related: ADR 0033, ADR 0122, D146, D163, D255
@@ -37,8 +37,9 @@ opaque elevated surface, so the veil added visual noise without carrying state.
 3. `ChatTranscript` uses React's deferred value for the heavy grouped-entry
    projection and minimap input. Immediate controls, permission state, running
    state, and terminal outcomes remain synchronous.
-4. The docked composer uses a transparent outer dock with bottom space reserved
-   by the transcript; the composer shell remains the only elevated surface.
+4. **Superseded by ADR 0221.** The docked composer uses a normal-flow sibling
+   after the session panes; the transcript keeps only a 16px reading gap and the
+   composer shell remains the only elevated surface.
 5. An activity group only receives terminal failure styling after its active
    run settles. Intermediate error rows remain visible, but a provider/tool
    retry does not make the whole still-running group look finished.
@@ -52,8 +53,9 @@ opaque elevated surface, so the veil added visual noise without carrying state.
   are discarded and terminal events are never delayed.
 - Long transcripts still need a future true virtualization pass; this decision
   reduces update pressure without changing message persistence or grouping.
-- Removing the dock veil makes the transcript surface visually quieter and
-  keeps the composer separation dependent on its measured layout and elevation.
+- Removing the dock veil makes the transcript surface visually quieter. ADR 0221
+  removes the measured overlay reserve as well, so normal flex flow makes overlap
+  impossible while preserving the shell's visual elevation.
 
 ## Alternatives considered
 

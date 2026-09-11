@@ -138,7 +138,7 @@ test("transcript density and hover actions are quiet", () => {
   assert.match(stylesSource, /\.message-row \{[\s\S]*?padding:\s*12px 0;/);
   assert.match(
     stylesSource,
-    /\.thread-content \{[\s\S]*?padding:\s*20px 32px calc\(var\(--composer-dock-height, 228px\) \+ 16px\);/,
+    /\.thread-content \{[\s\S]*?padding:\s*20px 32px 16px;/
   );
   assert.match(
     stylesSource,
@@ -451,6 +451,14 @@ test("thread scroll reserves stable gutters before overflow appears", () => {
   );
 });
 
+test("docked composer stays in flow so replies cannot sit underneath it", () => {
+  const dock = stylesSource.match(/\.composer-dock-docked\s*\{[\s\S]*?\}/)?.[0] ?? "";
+  assert.match(dock, /position:\s*relative;/);
+  assert.match(dock, /flex:\s*0 0 auto;/);
+  assert.doesNotMatch(dock, /position:\s*absolute/);
+  assert.match(stylesSource, /\.thread-content\s*\{[\s\S]*?padding:\s*20px 32px 16px;/);
+});
+
 test("conversation minimap stays centered below titlebar at high density", () => {
   assert.match(
     minimapSource,
@@ -458,7 +466,7 @@ test("conversation minimap stays centered below titlebar at high density", () =>
   );
   assert.match(
     stylesSource,
-    /\.minimap-rail \{[\s\S]*?top:\s*var\(--ds-toolbar-height\);[\s\S]*?bottom:\s*calc\(var\(--composer-dock-height, 200px\) \+ 16px\);[\s\S]*?justify-content:\s*center;/,
+    /\.minimap-rail \{[\s\S]*?top:\s*var\(--ds-toolbar-height\);[\s\S]*?bottom:\s*16px;[\s\S]*?justify-content:\s*center;/
   );
   assert.match(
     stylesSource,
