@@ -171,6 +171,9 @@ one run (`PI-Desktop-Setup-<version>.exe` and
 `release/<version>/` at the repository root: one folder per version, holding
 every packaging form of that version. `apps/desktop/release/` remains the raw
 electron-builder output; the version folder is the delivery unit.
+The local script never deletes `release/<version>/` (`-Clean` clears only the
+electron-builder output directories), and repackaging the same version refills
+the existing version folder in place, warning when it overwrites a file.
 
 ### 4.3 GitHub tag and manual workflow
 

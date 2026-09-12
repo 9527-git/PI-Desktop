@@ -372,14 +372,15 @@ foreach ($packed in "$release/win-unpacked/resources/bin/pi-desktop-host-core.ex
 }
 
 # Only this version's installers: a stale build must never be listed or copied
-# into this version's release folder.
+# into this version's release folder. Both packaging forms must be present.
 $appVersion = (Get-Content 'apps/desktop/package.json' -Raw | ConvertFrom-Json).version
+$expected = @("PI-Desktop-Setup-$appVersion.exe", "PI-Desktop-Portable-$appVersion.exe")
 $packages = @(Get-ChildItem -Path $release -Filter '*.exe' -ErrorAction SilentlyContinue |
-  Where-Object {
-    $_.Name -eq "PI-Desktop-Setup-$appVersion.exe" -or
-      $_.Name -eq "PI-Desktop-Portable-$appVersion.exe"
-  })
-if ($packages.Count -eq 0) { Stop-Step "no installers for $appVersion found in $release" }
+  Where-Object { $expected -contains $_.Name })
+$missing = @($expected | Where-Object { $packages.Name -notcontains $_ })
+if ($missing.Count -gt 0) {
+  Stop-Step "missing installers for ${appVersion} in ${release}: $($missing -join ', ')"
+}
 
 Write-Head "Artifacts ($appVersion)"
 foreach ($pkg in $packages | Sort-Object Name) {
@@ -387,16 +388,25 @@ foreach ($pkg in $packages | Sort-Object Name) {
 }
 
 # --- publish one folder per version (every packaging form = one release) --------
-$delivery = Join-Path $Root "release/$appVersion"
+$delivery = Join-Path (Join-Path $Root 'release') $appVersion
 Write-Head "Publishing to release/$appVersion"
 New-Item -ItemType Directory -Force -Path $delivery | Out-Null
+$failed = @()
 foreach ($pkg in $packages) {
+  $target = Join-Path $delivery $pkg.Name
+  if (Test-Path $target) {
+    Write-Warn2 "overwriting $($pkg.Name) already in release/$appVersion (same version repackaged)"
+  }
   try {
-    Copy-Item -LiteralPath $pkg.FullName -Destination (Join-Path $delivery $pkg.Name) -Force -ErrorAction Stop
+    Copy-Item -LiteralPath $pkg.FullName -Destination $target -Force -ErrorAction Stop
     Write-Ok "$($pkg.Name) -> $delivery"
   } catch {
+    $failed += $pkg.Name
     Write-Warn2 "could not refresh $($pkg.Name) in $delivery (is that copy running?)"
   }
+}
+if ($failed.Count -gt 0) {
+  Stop-Step "release/$appVersion is incomplete: $($failed -join ', ') not updated"
 }
 
 Write-Host ''
