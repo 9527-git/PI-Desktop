@@ -2366,6 +2366,25 @@
   color: var(--ds-text-muted);
 }
 
+/* Inline markdown inside one-line row summaries (MarkdownInline): code spans
+   read as chips and bold reads one step brighter, both quieter than prose. */
+.tool-row-summary code,
+.subagent-topology-node-summary code {
+  font-family: var(--font-mono);
+  font-size: inherit;
+  font-variant-ligatures: none;
+  background: color-mix(in oklab, var(--ds-text-primary) 7%, transparent);
+  border-radius: var(--radius-3xs);
+  padding: 0.08em 0.35em;
+  color: var(--ds-text-secondary);
+}
+
+.tool-row-summary strong,
+.subagent-topology-node-summary strong {
+  font-weight: var(--font-weight-medium);
+  color: var(--ds-text-secondary);
+}
+
 .tool-row-status {
   display: inline-flex;
   flex: none;
