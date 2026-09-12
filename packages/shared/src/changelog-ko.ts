@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.10",
+    "date": "2026-09-12",
+    "highlights": [
+      "실행 중인 세션을 도중에 열면 지속된 내용뿐 아니라 라이브 스트리밍 끄리가 바로 화면에 표시됩니다.",
+      "서브에이전트 상세 패널이 세션을 전환해도 강제로 닫히지 않고 열린 상태를 유지합니다.",
+      "사이드바 세션 행이 제목 아래에 최신 메시지의 한 C�� B��리보기를 표시합니다.",
+    ],
+  },
+  {
     "version": "0.14.9",
     "date": "2026-09-11",
     "highlights": [

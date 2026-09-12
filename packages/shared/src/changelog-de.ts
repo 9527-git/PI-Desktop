@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.10",
+    "date": "2026-09-12",
+    "highlights": [
+      "Öffnet man eine laufende Sitzung während der Ausführung, ist das Live-Streaming-Ende bereits auf dem Bildschirm, nicht nur der persistierte Stand.",
+      "Das Subagent-Detail-Dock übersteht jetzt Sitzungswechsel, statt geschlossen zu werden.",
+      "Sitzungszeilen in der Seitenleiste zeigen unter dem Titel eine einzeilige Vorschau der neuesten Nachricht.",
+    ],
+  },
+  {
     "version": "0.14.9",
     "date": "2026-09-11",
     "highlights": [

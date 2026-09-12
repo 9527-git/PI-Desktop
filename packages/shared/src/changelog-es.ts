@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.10",
+    "date": "2026-09-12",
+    "highlights": [
+      "Al abrir una sesión en mitad de su ejecución, la cola del streaming en vivo ya está en pantalla, no solo el contenido persistido.",
+      "El panel de detalles de subagentes ahora sobrevive a los cambios de sesión en lugar de cerrarse.",
+      "Las filas de sesión de la barra lateral muestran una vista previa de una línea del mensaje más reciente bajo el título.",
+    ],
+  },
+  {
     "version": "0.14.9",
     "date": "2026-09-11",
     "highlights": [

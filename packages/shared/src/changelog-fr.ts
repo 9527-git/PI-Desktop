@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.10",
+    "date": "2026-09-12",
+    "highlights": [
+      "Ouvrir une session en cours d'exécution affiche déjà la fin du flux en direct, et pas seulement le contenu persisté.",
+      "Le panneau de détails des sous-agents survit désormais aux changements de session au lieu de se fermer.",
+      "Les lignes de session de la barre latérale affichent un aperçu d'une ligne du dernier message sous le titre.",
+    ],
+  },
+  {
     "version": "0.14.9",
     "date": "2026-09-11",
     "highlights": [

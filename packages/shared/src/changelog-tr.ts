@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.10",
+    "date": "2026-09-12",
+    "highlights": [
+      "Çalışmakta olan bir oturumu tam ortasında açtığınızda canlı akış kuyruğu ekranda hazırdır, yalnızca kalıcı kayıt değil.",
+      "Alt ajan ayrıntı paneli artık oturum değişimlerinde kapanmak yerine açık kalır.",
+      "Kenar çubuğu oturum satırları, başlığın altında en yeni mesajın tek satırlık önizlemesini gösterir.",
+    ],
+  },
+  {
     "version": "0.14.9",
     "date": "2026-09-11",
     "highlights": [

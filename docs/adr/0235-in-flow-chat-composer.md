@@ -1,4 +1,4 @@
-# ADR 0224: Keep the Docked Conversation Composer in Normal Flow
+ # ADR 0235: Keep the Docked Conversation Composer in Normal Flow
 
 - Status: Accepted for implementation
 - Date: 2026-09-11

@@ -29,6 +29,15 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.10",
+    date: "2026-09-12",
+    highlights: [
+      "Open a session mid-run and its live streaming tail is already on screen, not just the persisted read.",
+      "The subagent detail dock now survives session switches instead of closing.",
+      "Sidebar session rows show a one-line preview of their newest message.",
+    ],
+  },
+  {
     version: "0.14.9",
     date: "2026-09-11",
     highlights: [
@@ -767,6 +776,15 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.10",
+    date: "2026-09-12",
+    highlights: [
+      "中途打开正在运行的会话时，流式输出尾部会直接显示，而不再只有已持久化的内容。",
+      "子代理详情停靠面板在切换会话后保持打开，不再被强制关闭。",
+      "侧栏会话行在标题下方显示最新一条消息的单行预览。",
+    ],
+  },
+  {
     version: "0.14.9",
     date: "2026-09-11",
     highlights: [
@@ -1504,6 +1522,15 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.10",
+    date: "2026-09-12",
+    highlights: [
+      "中途開啟執行中的會話時，串流輸出尾部會直接顯示，而不再只有已持久化的內容。",
+      "子代理詳細資訊停駐面板在切換會話後保持開啟，不再被強制關閉。",
+      "側欄會話列在標題下方顯示最新一則訊息的單行預覽。",
+    ],
+  },
   {
     version: "0.14.9",
     date: "2026-09-11",
