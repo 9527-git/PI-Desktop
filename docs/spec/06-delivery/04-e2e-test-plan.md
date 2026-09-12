@@ -7245,6 +7245,28 @@ This test plan spec is accepted when:
 - **Milestone**: M6
 - **Status**: Partially automated (`macos-sidebar-vibrancy.test.mjs` source contract); native visual verification Draft
 
+### US-UI-75 Transcript status colour rendering
+
+- Run a session in light and dark themes that reaches a long-running tool, a
+  denied tool call, a failed tool call, a successful tool call, a live
+  subagent topology, and a streaming reply.
+- Expect the running tool row to show a warning-orange pulsing state dot and a
+  warning-tinted tool icon, the spinner arc to carry the same orange, and a
+  completed row to show only its green dot with a neutral icon (success never
+  shouts).
+- Expect the failed row to carry the red state dot, alert label, and red icon
+  tint; a denied call to carry the purple state dot, purple icon tint, and
+  denied label — purple stays reserved for permission outcomes.
+- Expect a live subagent topology node to badge its avatar with the orange
+  pulse, and a live activity group's header icon to carry the same orange
+  while every row inside it is collapsed.
+- Expect a streaming reply to keep a blinking caret on the growing prose, and
+  running labels (activity group, tool row names) to carry the orange pulse
+  marker. Reduced motion keeps every color and disables every animation.
+- **Specs linked**: `04-ux/07-ui-design-system.md` §4.6
+- **Milestone**: M6
+- **Status**: Documented
+
 #### E2E-123: asktool collects multiple answers and returns skipped placeholders
 
 - **Preconditions**: Agent, Plan, or Goal mode; a configured provider; a

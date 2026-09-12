@@ -262,7 +262,29 @@ refresh or app restart. Outcomes already marked read never produce a terminal
 mark. Reduced-motion mode disables the breathing animation while retaining its
 orange fill and localized accessible name.
 
-### 4.6 Tailwind CSS variable stub
+### 4.6 Chat transcript status semantics
+
+The transcript carries the same semantic colors as the sidebar, and every
+status-bearing surface renders its state visually — never as bare text alone:
+
+| Surface | State | Semantic color | Shape / motion |
+|---|---|---|---|
+| Tool row (`tool-row-state`) | running | warning orange | dot with a restrained pulse; tool icon tinted warning |
+| Tool row | success | success green | dot only; icon stays neutral (success never shouts) |
+| Tool row | error | error red | dot, icon tint, and alert label |
+| Tool row | denied | purple | dot, icon tint, and label (reserved for refusals) |
+| Subagent topology node | running | warning orange | avatar badge with a restrained pulse |
+| Activity group (live) | running | warning orange | header icon tint while the turn is in flight |
+| Streaming reply | streaming | neutral accent | blinking caret on the growing prose |
+| Tool spinner | running | warning orange | arc ring; track held at 30% alpha |
+
+Success stays visually neutral apart from its green dot: a finished row earns
+no badge beyond the state dot (D227). Denied keeps purple — the same color the
+permission flow uses — so refusals read as permission outcomes rather than
+errors. All motion is disabled under `prefers-reduced-motion` while the color
+remains.
+
+### 4.7 Tailwind CSS variable stub
 
 The following CSS custom properties stub is the canonical bridge between spec tokens and Tailwind classes. It is **not an app source file** — it documents the intended mapping for implementation.
 
