@@ -6,6 +6,7 @@ node_modules/
 dist/
 out/
 build/
+/release/
 docs/.vitepress/cache/
 docs/.vitepress/dist/
 !apps/desktop/build/
