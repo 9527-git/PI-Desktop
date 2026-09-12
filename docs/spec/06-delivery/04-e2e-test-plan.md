@@ -7267,6 +7267,27 @@ This test plan spec is accepted when:
 - **Milestone**: M6
 - **Status**: Documented
 
+#### E2E-124: other sessions render without switching (D326/D328)
+
+- **Preconditions**: Two or more sessions; one runs a turn while another is
+  selected.
+- **Steps**: 1) While session A is selected, start a long turn in session B
+  from a second entry point. 2) Inspect the sidebar: session B's row shows a
+  one-line preview of its newest user/assistant text under the title. 3)
+  Switch to session B mid-run and confirm the live tail renders without a
+  rebuild blank. 4) Open a subagent detail in session B, then switch back to
+  session A and confirm the dock keeps showing the selected subagent.
+- **Expected**: The background session's streaming rows accumulate in the
+  renderer cache even when the renderer never held that session, so opening
+  it mid-run shows the live rows instead of only the durable read. The
+  subagent dock belongs to its selection, not to the visible session:
+  switching sessions keeps the dock open and re-finds its rows in the
+  destination pane's retained transcript; only leaving the chat page closes
+  it. Sidebar rows show the bounded last-message preview (host-truncated,
+  CSS-ellipsized), absent while a transcript has no readable text.
+- **Specs linked**: `04-ux/07-ui-design-system.md` §16
+- **Milestone**: M6
+- **Status**: Documented
 #### E2E-123: asktool collects multiple answers and returns skipped placeholders
 
 - **Preconditions**: Agent, Plan, or Goal mode; a configured provider; a

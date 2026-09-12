@@ -1184,7 +1184,11 @@ Full component contract and usage rules: [08-component-spec.md §17](08-componen
 13. Stream updates do not retrigger destination/shell enter motion or a
     backdrop-filter repaint behind the composer
 14. Expanded sidebar session titles, project/group titles, and empty-state copy
+14. Expanded sidebar session titles, project/group titles, and empty-state copy
     use the 13px compact token without changing the 28–32px row pitch
+15. Sidebar session rows show the bounded last-message preview under the
+    title; other sessions' transcripts and the subagent dock render without
+    switching (§16)
 
 ## Dark floating surfaces (Codex parity)
 
@@ -1212,3 +1216,19 @@ Full component contract and usage rules: [08-component-spec.md §17](08-componen
   window instead of retaining D070's fixed 720px cap — the earlier in-shell
   200px rail and broad grouped directory are superseded
 - Light destination cards use white elevated plates (not flat gray fills)
+
+## 16. Cross-session rendering
+
+Content that belongs to another session renders without switching to it:
+
+- **Background transcripts (D326)**: streaming rows accumulate in the
+  renderer cache even when the renderer never held that session, so a
+  session opened mid-run shows its live tail instead of only the durable
+  read. Opening it commits the merged transcript in one frame.
+- **Subagent dock (D328)**: the dock belongs to its selection, not to the
+  visible session. Switching sessions keeps it open and re-finds its rows in
+  the destination pane's retained transcript; only leaving the chat page
+  closes it.
+- **Sidebar preview**: each session row shows the newest user/assistant text
+  under the title — host-truncated to 120 code points, CSS-ellipsized,
+  `--text-2xs` muted, absent while a transcript has no readable text.

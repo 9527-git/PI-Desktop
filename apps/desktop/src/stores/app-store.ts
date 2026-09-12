@@ -570,13 +570,15 @@ function cacheBackgroundTranscriptEvent(envelope: AgentEventEnvelope): void {
   const state = useAppStore.getState();
   const current =
     sessionTranscriptCache.get(sessionId) ?? state.retainedTranscripts[sessionId];
-  if (!current) return;
-
+  // A session the renderer never held (cache evicted, never visited) still
+  // accumulates its streaming tail: seed the cache from the event itself so
+  // opening the session mid-run shows the live rows instead of only the
+  // durable read (D326). Non-transcript events seed nothing.
   let next = current;
   switch (event.type) {
     case "message_start":
     case "message_update":
-      next = upsertLiveSessionMessage(current, event.message);
+      next = upsertLiveSessionMessage(current ?? [], event.message);
       break;
     case "message_end": {
       const failed =
@@ -586,12 +588,12 @@ function cacheBackgroundTranscriptEvent(envelope: AgentEventEnvelope): void {
         !(event.message.thinking || "").trim();
       next =
         failed && empty && !event.message.error
-          ? removeLiveSessionMessage(current, event.message.id)
-          : upsertLiveSessionMessage(current, event.message);
+          ? removeLiveSessionMessage(current ?? [], event.message.id)
+          : upsertLiveSessionMessage(current ?? [], event.message);
       break;
     }
     case "tool_start":
-      next = upsertLiveSessionMessage(current, {
+      next = upsertLiveSessionMessage(current ?? [], {
         id: event.toolCallId,
         role: "tool",
         content: "",
@@ -609,13 +611,13 @@ function cacheBackgroundTranscriptEvent(envelope: AgentEventEnvelope): void {
       break;
     case "tool_update": {
       if (event.partialResult === undefined) return;
-      const existing = current.find(
+      const existing = current?.find(
         (message) =>
           message.toolCallId === event.toolCallId &&
           message.toolStatus === "running",
       );
       if (!existing) return;
-      next = upsertLiveSessionMessage(current, {
+      next = upsertLiveSessionMessage(current ?? [], {
         ...existing,
         content:
           typeof event.partialResult === "string"
@@ -649,7 +651,7 @@ function cacheBackgroundTranscriptEvent(envelope: AgentEventEnvelope): void {
         status: "complete",
         isError: event.isError,
       };
-      const existing = current.find(
+      const existing = current?.find(
         (message) => message.toolCallId === event.toolCallId,
       );
       next = existing
@@ -660,14 +662,14 @@ function cacheBackgroundTranscriptEvent(envelope: AgentEventEnvelope): void {
             toolArgs: existing.toolArgs ?? completed.toolArgs,
             createdAt: existing.createdAt || completed.createdAt,
           })
-        : upsertLiveSessionMessage(current, completed);
+        : upsertLiveSessionMessage(current ?? [], completed);
       break;
     }
     default:
       return;
   }
 
-  if (next === current) return;
+  if (!next || next === current) return;
   liveSessionTranscripts.add(sessionId);
   cacheSessionTranscript(
     sessionId,

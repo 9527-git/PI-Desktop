@@ -59,7 +59,6 @@ function findSelectedSubagent(
 
 export function SubagentPanel({ selection }: { selection: SubagentPanelSelection }) {
   const { t } = useTranslation();
-  const activeSessionId = useAppStore((state) => state.activeSessionId);
   const messages = useAppStore((state) =>
     state.activeSessionId === selection.sessionId
       ? state.messages
@@ -158,9 +157,7 @@ export function SubagentPanel({ selection }: { selection: SubagentPanelSelection
         </TooltipButton>
       ) : null}
       <span id="subagent-panel-title" className="sr-only">
-        {activeSessionId === selection.sessionId
-          ? t("panel.subagent")
-          : t("panel.subagentEmpty")}
+        {t("panel.subagent")}
       </span>
     </section>
   );
