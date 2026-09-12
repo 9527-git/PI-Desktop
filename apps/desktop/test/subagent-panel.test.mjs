@@ -98,7 +98,7 @@ test("the work-panel dock hosts subagent details without creating a resource tab
   assert.match(workPanelSource, /subagentPanel && onCloseSubagentPanel/);
   assert.match(appSource, /const subagentPanelOpen = Boolean\(/);
   assert.match(appSource, /page === "chat"/);
-  assert.match(appSource, /page !== "chat" \|\| subagentPanel\.sessionId !== activeSessionId/);
+  assert.match(appSource, /if \(subagentPanel && page !== "chat"\)/);
   assert.match(appSource, /workPanelOpen \|\| subagentPanelOpen/);
   assert.match(appSource, /subagentPanel=\{subagentPanelOpen \? subagentPanel : null\}/);
   assert.doesNotMatch(workPanelSource, /setContextOpen/);

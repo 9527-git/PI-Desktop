@@ -431,6 +431,9 @@ export type SessionSummary = {
   title: string;
   /** Number of messages in the current canonical transcript. */
   messageCount: number;
+  /** Newest user/assistant text for the sidebar preview row; absent when the
+   * transcript has no readable text yet. */
+  lastMessage?: string;
   projectPath?: string;
   modelId?: string;
   providerId?: string;
