@@ -2965,12 +2965,9 @@ export const ChatTranscript = memo(function ChatTranscript({
 
   // Streamed Markdown, expanded activity rows, late images, and diagrams change
   // the content height without a React commit, so pinned follow is kept in sync
-  // from the observed layout. The content is observed on its border box: the
-  // bottom padding is the composer's published height, and a multi-line draft
-  // growing that padding must re-pin too, or the newest turn slides behind the
-  // composer until the next commit happens to re-pin it. The content box does
-  // not include padding and would miss that change entirely. The scroller is
-  // observed as well so a window or work-panel resize keeps the bottom in view.
+  // from the observed layout. The scroller is observed as well because the
+  // normal-flow composer can change the viewport height as its draft, queue, or
+  // approval content grows.
   useEffect(() => {
     const content = contentRef.current;
     const scroller = scrollRef.current;

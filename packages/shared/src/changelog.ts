@@ -29,6 +29,30 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.9",
+    date: "2026-09-11",
+    highlights: [
+      "Clicking a model name in the provider model list no longer drops that model: the name opens its configuration, and only the checkbox picks or removes a model.",
+      "Deliver delegated TaskWait reports that settled before the parent idled, restore deferred tool activations still in context, and backfill reasoning_content for relayed DeepSeek models.",
+      "Drop files and folders straight onto the Composer, and let the context ring lead with used or remaining capacity.",
+      "Render canonical thinking-level values without translation, and unify compact scrollbars across app surfaces.",
+    ],
+  },
+  {
+    version: "0.14.8",
+    date: "2026-09-11",
+    highlights: [
+      "Clicking a model name in the provider model list no longer drops that model: the name opens its configuration, and only the checkbox picks or removes a model.",
+    ],
+  },
+  {
+    version: "0.14.7",
+    date: "2026-09-11",
+    highlights: [
+      "Keep the conversation composer in normal document flow so replies are never covered by the input box, including multi-line drafts, queued prompts, and approval cards.",
+    ],
+  },
+  {
     version: "0.14.6",
     date: "2026-09-10",
     highlights: [
@@ -743,6 +767,31 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.9",
+    date: "2026-09-11",
+    highlights: [
+      "在服务模型列表中点击模型名称不再误删该模型：点击名称会展开它的配置，增删模型只由复选框完成。",
+      "补齐父会话空闲前已结束的 TaskWait 委派报告，恢复仍在上下文中的延迟工具激活，并为经由中转的 DeepSeek 模型回填 reasoning_content。",
+      "支持把文件与文件夹直接拖入 Composer，上下文环可选择优先显示已用或剩余容量。",
+      "思考档位直接显示规范值不再翻译，并统一各界面为紧凑滚动条。",
+    ],
+  },
+  {
+    version: "0.14.8",
+    date: "2026-09-11",
+    highlights: [
+      "在模型选择器的服务模型列表中点击模型名称不再误删该模型：点击名称会展开它的配置，增删模型只由复选框完成。",
+    ],
+  },
+  {
+    version: "0.14.7",
+    date: "2026-09-11",
+    highlights: [
+      "对话输入框改为正常文档流布局，回复内容不再被输入框遮挡，多行草稿、排队提示与审批卡片同样如此。",
+    ],
+  },
+
+  {
     version: "0.14.6",
     date: "2026-09-10",
     highlights: [
@@ -1455,6 +1504,31 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.9",
+    date: "2026-09-11",
+    highlights: [
+      "在服務模型清單中點擊模型名稱不再誤刪該模型：點擊名稱會展開它的設定，增減模型只由核取方塊完成。",
+      "補齊父會話閒置前已結束的 TaskWait 委派報告，恢復仍在上下文中的延遲工具啟用，並為經中轉的 DeepSeek 模型回填 reasoning_content。",
+      "支援把檔案與資料夾直接拖入 Composer，上下文環可選擇優先顯示已用或剩餘容量。",
+      "思考檔位直接顯示規範值不再翻譯，並統一各介面為緊湊捲軸。",
+    ],
+  },
+  {
+    version: "0.14.8",
+    date: "2026-09-11",
+    highlights: [
+      "在模型選擇器的服務模型清單中點擊模型名稱不再誤刪該模型：點擊名稱會展開它的設定，增減模型只由核取方塊完成。",
+    ],
+  },
+  {
+    version: "0.14.7",
+    date: "2026-09-11",
+    highlights: [
+      "對話輸入框改為正常文件流版面配置，回覆內容不再被輸入框遮擋，多行草稿、排隊提示與核准卡片同樣如此。",
+    ],
+  },
+
   {
     version: "0.14.6",
     date: "2026-09-10",

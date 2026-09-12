@@ -2,6 +2,30 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.9",
+    "date": "2026-09-11",
+    "highlights": [
+      "Sağlayıcı model listesinde bir model adına tıklamak artık modeli kaldırmaz: ad, o modelin yapılandırmasını açar ve modeli yalnızca onay kutusu seçer veya kaldırır.",
+      "Üst çalışma boşa düşmeden önce sonuçlanan TaskWait delege raporlarını iletir, bağlamda kalan ertelenmiş araç etkinleştirmelerini geri getirir ve aktarılan DeepSeek modelleri için reasoning_content değerini doldurur.",
+      "Dosyaları ve klasörleri doğrudan Composer'a bırakın; bağlam halkası kullanılan veya kalan kapasiteyle başlayabilir.",
+      "Düşünme seviyeleri çeviri olmadan kanonik değerlerle gösterilir ve kompakt kaydırma çubukları tüm yüzeylerde birleştirilir.",
+    ],
+  },
+  {
+    "version": "0.14.8",
+    "date": "2026-09-11",
+    "highlights": [
+      "Sağlayıcı model listesinde bir model adına tıklamak artık modeli kaldırmaz: ad, o modelin yapılandırmasını açar ve modeli yalnızca onay kutusu seçer veya kaldırır.",
+    ],
+  },
+  {
+    "version": "0.14.7",
+    "date": "2026-09-11",
+    "highlights": [
+      "Sohbet bestecisini normal belge akışında tutar, böylece yanıtlar çok satırlı taslaklar, kuyruktaki istemler ve onay kartları dahil hiçbir zaman giriş kutusu tarafından kapatılmaz.",
+    ],
+  },
+  {
     "version": "0.14.6",
     "date": "2026-09-10",
     "highlights": [

@@ -5,7 +5,7 @@
 > Interaction behavior: [09-interaction-patterns.md](09-interaction-patterns.md)
 
 
-> Shell layout is Codex-aligned: left thread sidebar (240–520px, 275px by default), main transcript, floating bottom composer with runtime mode/permission/model controls, and a compact action-only top bar. Prefer neutral charcoal surfaces over blue-slate chrome.
+> Shell layout is Codex-aligned: left thread sidebar (240–520px, 275px by default), main transcript, bottom composer with runtime mode/permission/model controls, and a compact action-only top bar. Prefer neutral charcoal surfaces over blue-slate chrome.
 >
 > **Precedence rule**: where a metric or copy string below disagrees with a
 > Codex parity decision in [decisions-log §D](../08-meta/decisions-log.md)
@@ -656,9 +656,9 @@ reading surface of the workstation.
 - Follow release is gesture-gated: only scroll events preceded by a user
   scroll input (wheel / trackpad / touch / scrollbar / keyboard) release
   follow. Layout clamps that fire after a follow `scrollTo` — the composer
-  collapses when the draft clears, indicator rows mount or unmount — are
+  changes size when the draft clears, indicator rows mount or unmount — are
   re-baselined and never cancel follow, so a pinned send stays at the latest
-  turn even when the bottom reserve changes mid-turn
+  turn while the normal-flow viewport changes mid-turn
 - Destination entry uses one short opacity/translate transition. Streaming
   updates occur inside the mounted surface and never replay this transition.
 - A pane bounds its own first commit to the newest entries and mounts the
@@ -672,13 +672,12 @@ reading surface of the workstation.
   an opaque skeleton veil covers the scroller from that same commit until the
   scroller geometry has held still for consecutive frames (600ms cap), then
   fades out; the composer stays visible and usable above it (D287).
-- The transcript's bottom reserve is **height-aware**, not a fixed gap. The
-  docked composer measures its real rendered height (it grows with multi-line
-  drafts) and publishes it as the `--composer-dock-height` custom property on
-  `:root`; `.thread-content` reserves `calc(var(--composer-dock-height) + 16px)`
-  so the last message sits ~16px above the box and is never overlapped even as
-  the draft grows. `.jump-latest-btn` and `.minimap-rail` anchor to the same
-  variable so they stay just above the composer.
+- The transcript and docked composer use one vertical flex layout. The composer
+  is a normal-flow sibling after the session panes, so its full rendered height
+  (including multi-line drafts, queue rows, asks, and approvals) reduces the
+  transcript scrollport instead of covering reply content. `.thread-content` keeps
+  only a `16px` reading gap, while `.jump-latest-btn` and `.minimap-rail` anchor
+  within the thread area above the composer.
 
 ### 4.4 States
 
@@ -1582,8 +1581,8 @@ Renderer: `apps/desktop/src/components/Markdown.tsx` + `apps/desktop/src/lib/shi
   Reading a dash's geometry inside the same loop that writes to it forces one
   synchronous layout per dash on every hover frame. The measurement is refreshed
   when the marker set changes and whenever the rail's own box resizes: the rail's
-  height derives from `--composer-dock-height`, which the composer republishes as
-  its draft grows, so dashes move without a marker change or a window resize.
+  height follows the available thread area, so dashes move when the composer
+  grows without a marker change or a window resize.
 
 ---
 
@@ -2185,7 +2184,7 @@ reasoning-level control.
 - Scroll stability: The thread scrollport reserves one stable trailing gutter,
   so the transcript does not shift when overflow appears while the minimap
   does not create a matching blank strip on the left.
-- Bottom-anchored: fixed at bottom of MainChat area
+- Bottom-reserved: occupies the bottom of the MainChat flex column
 - Placeholder guidance: home uses `chat.placeholderHome`,
   `chat.placeholderHomeHint`, and `chat.placeholderShortcut`; a session
   composer uses `chat.placeholder`, `chat.placeholderHint`, and the same
@@ -2197,7 +2196,7 @@ reasoning-level control.
 - Queue rows: while a session is running, each accepted prompt is held in a
   renderer-owned FIFO list above the shell. Rows show the visible prompt (or
   file-reference names), expose independent Remove and Send now actions, and
-  increase the dock height measured by `--composer-dock-height`.
+  increase the normal-flow composer height without covering transcript rows.
 
 ### 11.4 States
 
@@ -2279,10 +2278,9 @@ reasoning-level control.
 - Auto-grow: textarea measures wrapped visual lines, starts at one visible
   line, expands through seven lines, then scrolls internally; deleting content
   shrinks it back to one line
-- Resize writes are idempotent (D264): an unchanged height performs no DOM
-  write, so `--composer-dock-height` is not republished and the document's
-  style is not invalidated while typing inside one row. The `height: auto`
-  measurement probe is taken only when the box may need to shrink.
+- Resize writes are idempotent (D264): an unchanged editor height performs no
+  DOM write, so typing inside one visual row does not invalidate layout. The
+  `height: auto` measurement probe is taken only when the box may need to shrink.
 - Draft text and file-reference chips are retained in renderer memory per
   session (D301). The cache is module-scoped, not instance state, so a remount
   — empty-home ↔ docked, chat ↔ Settings/Plugins/other pages, or the window
@@ -2967,9 +2965,10 @@ compatibility remains owned by pi-ai.
 - Add provider opens a modal dialog that stays inside the overlay (it can shrink below its 1040px preferred width). Focused credential fields keep their 2px accent ring fully visible: the scrolling body reserves that gutter instead of clipping the ring. Cancel/close resets fields and dismisses the dialog
 - The model picker searches and toggles multiple models without using a native
   multiple select. Its portaled menu closes on outside press, Escape, scroll,
-  and resize; model selection immediately adds or removes its configuration
-  row. Configuration rows stay compact until expanded; expanding one row does
-  not expand or collapse any other row.
+  and resize; a row checkbox immediately adds or removes its configuration
+  row. Configuration rows stay compact until expanded, and one row at a time is
+  expanded: expanding a row, from its Advanced control or from its name in the
+  left list, collapses whichever other row was open.
 - The left-pane list header carries a checkbox that selects or clears every
   currently visible row. A search filter narrows which rows "all" means;
   already-chosen bindings keep their advanced overrides. The checkbox is
@@ -2984,9 +2983,16 @@ compatibility remains owned by pi-ai.
   top-level option list, selects it, and applies 128,000 context / 8,192 max
   output / no thinking defaults. Removing its selection does not delete the
   custom option.
-- Model IDs and names are selectable text inside the otherwise non-selectable
-  shell. A click that carries a text selection does not toggle the row
-  checkbox, so drag-to-copy and click-to-toggle coexist (ADR 0192).
+- The checkbox is the row's only toggle. Every click outside it is an open
+  gesture, so the row's pointer cursor never removes the model: the id, the
+  name, the row padding, and the limits cell all open a configured model's
+  configuration row in the right pane and scroll it into view, and a click on
+  a model that is not configured yet picks it. Removal stays with the
+  checkbox and the right pane's remove button. The id and name are still
+  selectable text inside the otherwise non-selectable shell; a click that
+  carries a text selection stays a copy. The row the left list pointed at is
+  marked briefly for as long as that highlight runs; under reduced motion the
+  mark is a static outline rather than an animation (ADR 0192).
 - The alias is a display label only: a non-empty alias names the model in the
   composer chip and the picker, while the configuration row and the transcript
   badge keep the real ID. Clearing the field restores the catalog's published

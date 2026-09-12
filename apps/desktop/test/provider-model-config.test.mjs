@@ -19,6 +19,10 @@ const hookSource = await read("../src/components/settings/useProviderModels.ts")
 const pageSource = await read("../src/components/settings/ModelConfigPage.tsx");
 const vendorDialogSource = await read("../src/components/settings/VendorAccountDialog.tsx");
 const pickerSource = await read("../src/components/settings/ModelSelectionPanes.tsx");
+// The picker's left pane, its header and its rows are modules of their own.
+const listSource = await read("../src/components/settings/ProviderModelList.tsx");
+const listHeadSource = await read("../src/components/settings/ProviderModelListHead.tsx");
+const rowSource = await read("../src/components/settings/ProviderModelRow.tsx");
 const vendorAccountsSource = await read("../src/components/settings/VendorAccountsSection.tsx");
 const apiSource = await read("../src/lib/api.ts");
 const catalogContractSource = await read("../../../packages/shared/src/model-catalog.ts");
@@ -139,29 +143,29 @@ test("a header action probes the live list without waiting for debounce", () => 
   assert.match(hookSource, /canReload/);
   // Idle-with-a-valid-URL (the edit debounce) must still be reloadable.
   assert.match(hookSource, /status !== "loading"/);
-  assert.match(pickerSource, /disabled=\{busy \|\| !discovery\.canReload\}/);
+  assert.match(listHeadSource, /disabled=\{busy \|\| !canReload\}/);
   assert.doesNotMatch(
     pickerSource,
     /discovery\.status === "idle" \|\| discovery\.status === "loading"/,
   );
   // The automatic path still waits; only the header action skips the window.
   assert.match(hookSource, /FETCH_DEBOUNCE_MS/);
-  assert.match(pickerSource, /settings\.fetchModelList/);
-  assert.match(pickerSource, /provider-models-reload/);
-  assert.match(pickerSource, /onReload/);
+  assert.match(listHeadSource, /settings\.fetchModelList/);
+  assert.match(listHeadSource, /provider-models-reload/);
+  assert.match(pickerSource, /onReload=\{onReload\}/);
   assert.doesNotMatch(pickerSource, /provider-models-state/);
 });
 
 test("the shared picker can select or clear every visible model at once", () => {
   assert.match(pickerSource, /export function applyVisibleModelSelection/);
-  assert.match(pickerSource, /provider-models-select-all/);
+  assert.match(listHeadSource, /provider-models-select-all/);
   assert.match(pickerSource, /toggleVisibleModels/);
-  assert.match(pickerSource, /settings\.selectAllVisibleModels/);
-  assert.match(pickerSource, /settings\.deselectAllVisibleModels/);
-  assert.match(pickerSource, /el\.indeterminate/);
+  assert.match(listHeadSource, /settings\.selectAllVisibleModels/);
+  assert.match(listHeadSource, /settings\.deselectAllVisibleModels/);
+  assert.match(listHeadSource, /el\.indeterminate/);
   // A filtered select-all must not drop models the filter is hiding.
   assert.match(pickerSource, /a filtered select-all does not touch hidden matches/);
-  assert.match(pickerSource, /visibleRows\.length > 0/);
+  assert.match(listHeadSource, /visibleCount > 0/);
 });
 
 test("the shared picker owns the advanced per-model controls for both kinds", () => {
@@ -218,20 +222,22 @@ test("the rejected catalog-browser styles are gone from the cascade", () => {
 
 test("model ids are copyable and a configured model can carry an alias", () => {
   // The shell is non-selectable, so the id/name text opts back in.
-  assert.match(pickerSource, /provider-models-row-copy selectable/);
+  assert.match(rowSource, /provider-models-row-copy selectable/);
   assert.match(pickerSource, /provider-chosen-row-id font-mono selectable/);
   // A drag-selection inside the row is a copy gesture, not a checkbox toggle.
   // The guard is row-scoped, so a stale selection elsewhere on the page cannot
   // cancel a plain click or the Space key's synthetic click.
-  assert.match(pickerSource, /selection\.isCollapsed/);
-  assert.match(pickerSource, /row\.contains\(selection\.anchorNode\)/);
-  assert.match(pickerSource, /row\.contains\(selection\.focusNode\)/);
+  assert.match(rowSource, /selection\.isCollapsed/);
+  assert.match(rowSource, /label\.contains\(selection\.anchorNode\)/);
+  assert.match(rowSource, /label\.contains\(selection\.focusNode\)/);
   // Keyboard activation reports detail 0 and must still toggle.
-  assert.match(pickerSource, /event\.detail === 0/);
+  assert.match(rowSource, /event\.detail === 0/);
   // A selection left behind by copying must not block an explicit checkbox click.
-  assert.match(pickerSource, /event\.target instanceof HTMLInputElement/);
-  assert.match(pickerSource, /event\.preventDefault\(\)/);
-  assert.doesNotMatch(pickerSource, /window\.getSelection\(\)\?\.toString\(\)/);
+  assert.match(rowSource, /event\.target instanceof HTMLInputElement/);
+  assert.match(rowSource, /event\.preventDefault\(\)/);
+  for (const source of [pickerSource, listSource, listHeadSource, rowSource]) {
+    assert.doesNotMatch(source, /window\.getSelection\(\)\?\.toString\(\)/);
+  }
   // The alias is edited in the Advanced body and shown beside the id.
   assert.match(pickerSource, /settings\.modelAlias/);
   assert.match(pickerSource, /updateBinding\(binding\.id, \{/);
@@ -239,4 +245,43 @@ test("model ids are copyable and a configured model can carry an alias", () => {
   assert.match(pickerSource, /\[\.\.\.event\.target\.value\]\.slice\(0, 60\)/);
   assert.match(pickerSource, /provider-chosen-row-alias/);
   assert.match(styles, /\.provider-chosen-row-alias\s*\{/);
+});
+
+test("a click outside the checkbox never drops the model", () => {
+  // The row label owns the click for the whole row: it cancels the label's
+  // native checkbox activation, so the pointer cursor over the row's padding,
+  // id, name, or limits cell never removes the model.
+  const rowClick = rowSource.slice(rowSource.indexOf("provider-models-row-label"));
+  assert.match(rowClick, /event\.preventDefault\(\);\s*if \(busy\) return;/);
+  // A configured row opens its settings; an unconfigured one is picked. Only
+  // the checkbox removes.
+  assert.match(rowClick, /if \(chosen\) onReveal\(\);/);
+  assert.match(rowClick, /else onToggle\(\);/);
+  assert.match(rowClick, /if \(busy\) return;/);
+  // The checkbox stays the one control that picks or drops the model.
+  assert.match(rowSource, /onChange=\{onToggle\}/);
+  // A drag-copy that happens to end inside the text stays a copy, and the
+  // keyboard's synthetic click keeps toggling.
+  assert.match(rowClick, /selection\.isCollapsed/);
+  assert.match(rowSource, /event\.detail === 0/);
+
+  // The picker answers by opening the configured binding and scrolling to it.
+  assert.match(pickerSource, /const revealModelConfig = \(row: ModelRow\)/);
+  assert.match(
+    pickerSource,
+    /models\.find\(\(entry\) => entry\.id\.toLowerCase\(\) === key\)/,
+  );
+  // A model that is not configured yet has nothing to open.
+  assert.match(pickerSource, /if \(!binding\) return;/);
+  assert.match(pickerSource, /setExpandedModelId\(binding\.id\)/);
+  assert.match(pickerSource, /scrollIntoView\(\{ block: "nearest"/);
+  assert.match(pickerSource, /onReveal=\{revealModelConfig\}/);
+  // The mark it leaves is transient and respects reduced motion.
+  assert.match(pickerSource, /REVEAL_HIGHLIGHT_MS/);
+  assert.match(pickerSource, /revealedId === binding\.id\.toLowerCase\(\) && "is-revealed"/);
+  assert.match(pickerSource, /window\.matchMedia/);
+  assert.match(styles, /\.provider-chosen-row\.is-revealed\s*\{/);
+  assert.match(styles, /prefers-reduced-motion[\s\S]{0,200}\.provider-chosen-row\.is-revealed/);
+  // The name advertises itself as text rather than as the row's toggle.
+  assert.match(styles, /\.provider-models-row-copy\s*\{[\s\S]*?cursor: text;/);
 });

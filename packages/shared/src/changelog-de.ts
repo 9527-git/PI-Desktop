@@ -2,6 +2,30 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.9",
+    "date": "2026-09-11",
+    "highlights": [
+      "Ein Klick auf einen Modellnamen in der Anbieter-Modellliste entfernt das Modell nicht mehr: Der Name öffnet seine Konfiguration, und nur das Kontrollkästchen wählt Modelle aus oder ab.",
+      "Liefert verzögerte TaskWait-Berichte nach, die schon vor dem Leerlauf des übergeordneten Laufs fertig waren, stellt zurückgestellte Werkzeug-Aktivierungen im Kontext wieder her und füllt reasoning_content für über Relais laufende DeepSeek-Modelle nach.",
+      "Dateien und Ordner lassen sich direkt in den Composer ziehen; der Kontextring kann mit belegter oder freier Kapazität beginnen.",
+      "Denkstufen werden als kanonische Werte ohne Übersetzung angezeigt, und kompakte Scrollbalken sind über alle Oberflächen vereinheitlicht.",
+    ],
+  },
+  {
+    "version": "0.14.8",
+    "date": "2026-09-11",
+    "highlights": [
+      "Ein Klick auf einen Modellnamen in der Anbieter-Modellliste entfernt das Modell nicht mehr: Der Name öffnet seine Konfiguration, und nur das Kontrollkästchen wählt Modelle aus oder ab.",
+    ],
+  },
+  {
+    "version": "0.14.7",
+    "date": "2026-09-11",
+    "highlights": [
+      "Hält den Konversations-Composer im normalen Dokumentfluss, sodass Antworten nie vom Eingabefeld verdeckt werden – auch bei mehrzeiligen Entwürfen, Warteschlangen und Genehmigungskarten nicht.",
+    ],
+  },
+  {
     "version": "0.14.6",
     "date": "2026-09-10",
     "highlights": [

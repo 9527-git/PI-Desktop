@@ -60,6 +60,7 @@ ADR 记录那些不应被静默改变的架构选择。中文入口与英文索�
 | [ADR 0204：未签名 macOS 首次启动助手](/adr/0204-unsigned-macos-first-launch-helper) | 只清理 PI-Desktop 的 quarantine 属性，并用 Finder 一键启动可信的未签名应用（由 ADR 0232 修订） |
 | [ADR 0232：macOS DMG 只保留打开说明](/adr/0232-macos-dmg-text-only-opening-guidance) | DMG 只显示“如果打不开请看”说明，ZIP 保留首次启动助手 |
 
+| [ADR 0224：线程输入框采用正常流布局](/adr/0224-in-flow-chat-composer) | 输入框作为会话面板后的正常流兄弟，消息区永不被输入框覆盖 |
 ## 完整索引
 
 与英文 [ADR 索引](/adr/README) 逐条对应，编号、顺序与状态保持一致；状态以英文记录为准。
@@ -271,6 +272,7 @@ ADR 记录那些不应被静默改变的架构选择。中文入口与英文索�
 | 0205 | [远程 Agent 控制使用专用的 Host 边界](/adr/0205-remote-agent-control-boundary) | 已接受待实现（MVP 之后；由 D376 修订） |
 | 0232 | [macOS DMG 只保留打开说明](/adr/0232-macos-dmg-text-only-opening-guidance) | 已接受（修订 D371 / ADR 0204） |
 
+| 0224 | [线程输入框采用正常流布局](/adr/0224-in-flow-chat-composer) | 已接受（修订 ADR 0065 第 4 条 / D264） |
 ## 什么时候看 ADR
 
 - 规格告诉你系统应该怎样工作。
