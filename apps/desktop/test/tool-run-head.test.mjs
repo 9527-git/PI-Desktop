@@ -70,7 +70,7 @@ test("a run row states what the command did, not what the call did", () => {
   );
   assert.match(
     styles,
-    /@media \(prefers-reduced-motion: reduce\) \{\s*\.tool-row-state\.is-running \.tool-row-state-dot \{\s*animation: none;/,
+    /@media \(prefers-reduced-motion: reduce\) \{\s*\.tool-row-state\.is-running \.tool-row-state-dot,\s*\.subagent-topology-node\.outcome-running \.subagent-topology-status-icon,\s*\.assistant-turn-fragment\.streaming \.prose-chat > :last-child::after \{\s*animation: none;/,
   );
 });
 
