@@ -274,6 +274,8 @@ status-bearing surface renders its state visually — never as bare text alone:
 | Tool row | error | error red | dot, icon tint, and alert label |
 | Tool row | denied | purple | dot, icon tint, and label (reserved for refusals) |
 | Subagent topology node | running | warning orange | avatar badge with a restrained pulse |
+| Subagent topology node | denied | purple | avatar badge (matches the tool-row refusal color) |
+| Subagent topology node | aborted | neutral gray | avatar badge (a stop is neutral, not a failure) |
 | Activity group (live) | running | warning orange | header icon tint while the turn is in flight |
 | Streaming reply | streaming | neutral accent | blinking caret on the growing prose |
 | Tool spinner | running | warning orange | arc ring; track held at 30% alpha |

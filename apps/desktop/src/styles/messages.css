@@ -1986,9 +1986,12 @@
   background: var(--ds-error);
 }
 
-.subagent-topology-node.outcome-aborted .subagent-topology-status-icon,
-.subagent-topology-node.outcome-denied .subagent-topology-status-icon {
+.subagent-topology-node.outcome-aborted .subagent-topology-status-icon {
   background: var(--ds-text-muted);
+}
+
+.subagent-topology-node.outcome-denied .subagent-topology-status-icon {
+  background: var(--ds-purple);
 }
 
 .subagent-topology-node-title-row {
