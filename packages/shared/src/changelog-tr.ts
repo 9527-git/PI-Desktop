@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.12",
+    "date": "2026-09-12",
+    "highlights": [
+      "İşlem satırları kendi tonunu taşıyor: okuma ve arama satırları mavi, çalıştırma satırları turuncu, yazma satırları yeşil, düşünme satırları ve salt düşünme grupları mor görünür.",
+      "Çalıştırma satırlarının durum etiketleri çıplak metin yerine renkli rozetler —yeşil, turuncu, kırmızı veya mor— olarak görünür.",
+    ],
+  },
+  {
     "version": "0.14.11",
     "date": "2026-09-12",
     "highlights": [

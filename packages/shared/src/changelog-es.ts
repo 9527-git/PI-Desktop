@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.12",
+    "date": "2026-09-12",
+    "highlights": [
+      "Las filas de proceso leen con su propio tono: las filas de lectura y búsqueda van en azul, las de ejecución en naranja, las de escritura en verde, y las filas de pensamiento y los grupos solo de pensamiento en púrpura.",
+      "Las etiquetas de estado de las filas de ejecución se muestran como chips con fondo —verde, naranja, rojo o púrpura— en lugar de texto plano.",
+    ],
+  },
+  {
     "version": "0.14.11",
     "date": "2026-09-12",
     "highlights": [

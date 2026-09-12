@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.12",
+    "date": "2026-09-12",
+    "highlights": [
+      "Verarbeitungszeilen lesen sich in ihrem eigenen Farbton: Lese- und Suchzeilen erscheinen blau, Ausführungszeilen orange, Schreibzeilen grün, und Denkzeilen samt reinen Denkgruppen in Lila.",
+      "Statusbeschriftungen von Ausführungszeilen erscheinen als getönte Chips – Grün, Orange, Rot oder Lila – statt als nackter Text.",
+    ],
+  },
+  {
     "version": "0.14.11",
     "date": "2026-09-12",
     "highlights": [

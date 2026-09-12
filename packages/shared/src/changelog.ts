@@ -29,6 +29,14 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.12",
+    date: "2026-09-12",
+    highlights: [
+      "Processing rows read as their own hue: read and search rows go blue, run rows orange, write rows green, and thinking rows and thinking-only groups purple.",
+      "Run-row state labels render as tinted chips — green, orange, red, or purple — instead of bare text.",
+    ],
+  },
+  {
     version: "0.14.11",
     date: "2026-09-12",
     highlights: [
@@ -783,6 +791,14 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.12",
+    date: "2026-09-12",
+    highlights: [
+      "处理行按类型着色：读取与搜索行为蓝色、运行为橙色、写入为绿色，思考行与纯思考分组为紫色。",
+      "运行行的状态文字改为带底色的标签——绿、橙、红、紫——不再是裸文本。",
+    ],
+  },
+  {
     version: "0.14.11",
     date: "2026-09-12",
     highlights: [
@@ -1536,6 +1552,14 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.12",
+    date: "2026-09-12",
+    highlights: [
+      "處理行按類型著色：讀取與搜尋行為藍色、執行為橙色、寫入為綠色，思考行與純思考分組為紫色。",
+      "執行行的狀態文字改為帶底色的標籤——綠、橙、紅、紫——不再是裸文字。",
+    ],
+  },
   {
     version: "0.14.11",
     date: "2026-09-12",

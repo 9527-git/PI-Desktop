@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.12",
+    "date": "2026-09-12",
+    "highlights": [
+      "Les lignes de traitement prennent leur propre teinte : lecture et recherche en bleu, exécution en orange, écriture en vert, et les lignes de réflexion ainsi que les groupes purement réflexion en violet.",
+      "Les libellés d'état des lignes d'exécution s'affichent sous forme de pastilles teintées — vert, orange, rouge ou violet — au lieu de texte brut.",
+    ],
+  },
+  {
     "version": "0.14.11",
     "date": "2026-09-12",
     "highlights": [

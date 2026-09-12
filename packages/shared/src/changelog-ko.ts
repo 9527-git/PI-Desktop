@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.12",
+    "date": "2026-09-12",
+    "highlights": [
+      "처리 행이 각자의 색조로 표시됩니다: 읽기·검색 행은 파란색, 실행 행은 주황색, 쓰기 행은 초록색, 생각 행과 순수 생각 그룹은 보라색으로 표시됩니다.",
+      "실행 행의 상태 텍스트가 맨 텍스트 대신 배경색이 입혀진 칩(녹색·주황·빨강·보라)으로 표시됩니다.",
+    ],
+  },
+  {
     "version": "0.14.11",
     "date": "2026-09-12",
     "highlights": [
