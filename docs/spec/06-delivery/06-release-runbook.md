@@ -165,6 +165,13 @@ Artifacts land in `apps/desktop/release/` (DMG + ZIP + blockmaps).
 `MAC_ARCH=arm64` or `MAC_ARCH=x64` only when that architecture matches the
 host. This keeps the native Rust host sidecar and Electron package aligned.
 
+**Local Windows lane:** `build-win.ps1` builds both Windows packaging forms in
+one run (`PI-Desktop-Setup-<version>.exe` and
+`PI-Desktop-Portable-<version>.exe`) and publishes them to
+`release/<version>/` at the repository root: one folder per version, holding
+every packaging form of that version. `apps/desktop/release/` remains the raw
+electron-builder output; the version folder is the delivery unit.
+
 ### 4.3 GitHub tag and manual workflow
 
 The GitHub Release workflow starts all native platform runners without a

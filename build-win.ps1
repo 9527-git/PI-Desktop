@@ -7,8 +7,9 @@
   One file, two modes:
 
     (default)  build and publish. Five build stages, equivalent to
-               apps/desktop `dist:win`, then both installers are copied into
-               the project root so the newest version is easy to find:
+               apps/desktop `dist:win`, then this version's installers are
+               copied into release/<version>/ - one folder per version, holding
+               every packaging form of that version:
                  1. TypeScript workspace packages (tsc)
                  2. Rust host core (cargo, release)
                  3. agent-runtime sidecar bundle (esbuild)
@@ -370,8 +371,8 @@ foreach ($packed in "$release/win-unpacked/resources/bin/pi-desktop-host-core.ex
   if (-not (Test-Path $packed)) { Stop-Step "missing $packed inside package" }
 }
 
-# Only this version's installers: a stale build must never be listed or
-# published to the project root.
+# Only this version's installers: a stale build must never be listed or copied
+# into this version's release folder.
 $appVersion = (Get-Content 'apps/desktop/package.json' -Raw | ConvertFrom-Json).version
 $packages = @(Get-ChildItem -Path $release -Filter '*.exe' -ErrorAction SilentlyContinue |
   Where-Object {
@@ -385,16 +386,18 @@ foreach ($pkg in $packages | Sort-Object Name) {
   Write-Ok ("{0,-42} {1,7:N1} MB  {2}" -f $pkg.Name, ($pkg.Length / 1MB), (Get-FileHash $pkg.FullName -Algorithm SHA256).Hash)
 }
 
-# --- publish to the project root (newest version stays easy to find) -----------
-Write-Head 'Publishing to the project root'
+# --- publish one folder per version (every packaging form = one release) --------
+$delivery = Join-Path $Root "release/$appVersion"
+Write-Head "Publishing to release/$appVersion"
+New-Item -ItemType Directory -Force -Path $delivery | Out-Null
 foreach ($pkg in $packages) {
   try {
-    Copy-Item -LiteralPath $pkg.FullName -Destination (Join-Path $Root $pkg.Name) -Force -ErrorAction Stop
-    Write-Ok "$($pkg.Name) -> $Root"
+    Copy-Item -LiteralPath $pkg.FullName -Destination (Join-Path $delivery $pkg.Name) -Force -ErrorAction Stop
+    Write-Ok "$($pkg.Name) -> $delivery"
   } catch {
-    Write-Warn2 "could not refresh $($pkg.Name) in $Root (is that copy running?)"
+    Write-Warn2 "could not refresh $($pkg.Name) in $delivery (is that copy running?)"
   }
 }
 
 Write-Host ''
-Write-Host '[DONE] both packages built, resources verified, installers published to the project root'
+Write-Host "[DONE] both packages built, resources verified, this version published to release/$appVersion"
