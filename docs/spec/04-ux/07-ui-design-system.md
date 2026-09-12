@@ -286,6 +286,13 @@ permission flow uses — so refusals read as permission outcomes rather than
 errors. All motion is disabled under `prefers-reduced-motion` while the color
 remains.
 
+Row summary text renders inline markdown, not bare source: the collapsed
+tool, thinking, and subagent topology summaries run through a lightweight
+inline renderer (`MarkdownInline`) so code spans and bold read with the same
+visual language as the chat prose. Block level syntax (lists, headings) stays
+literal, and single-asterisk emphasis is deliberately unparsed so glob
+patterns in tool arguments survive untouched.
+
 ### 4.7 Tailwind CSS variable stub
 
 The following CSS custom properties stub is the canonical bridge between spec tokens and Tailwind classes. It is **not an app source file** — it documents the intended mapping for implementation.

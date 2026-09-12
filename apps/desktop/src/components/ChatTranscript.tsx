@@ -31,6 +31,7 @@ import { ConversationMinimap } from "./ConversationMinimap";
 import { TurnOutcomeCard } from "./TurnOutcomeCard";
 import { ReviewChangeCard } from "./ReviewChangeCard";
 import { Markdown, useCopy } from "./Markdown";
+import { MarkdownInline } from "./MarkdownInline";
 import { ToolChips, ToolDetailBlocks } from "./ToolDetails";
 import {
   formatToolDuration,
@@ -885,7 +886,9 @@ const ToolRow = memo(function ToolRow({
               </span>
             </span>
             {summary ? (
-              <span className="subagent-topology-node-summary">{summary}</span>
+              <span className="subagent-topology-node-summary">
+                <MarkdownInline source={summary} />
+              </span>
             ) : null}
             {delegate?.items.length ? (
               <span className="subagent-topology-node-steps">
@@ -953,7 +956,7 @@ const ToolRow = memo(function ToolRow({
                     : undefined
                 }
               >
-                {summary}
+                <MarkdownInline source={summary} />
               </span>
             ) : null}
             <ToolChips chips={chips} />
@@ -1575,7 +1578,9 @@ function ThinkingRow({
         <span className={`tool-row-name ${streaming ? "running" : ""}`}>
           {t("chat.thinking", { defaultValue: "Thinking" })}
         </span>
-        <span className="tool-row-summary">{summary}</span>
+        <span className="tool-row-summary">
+          <MarkdownInline source={summary} />
+        </span>
         <span className="tool-row-caret" aria-hidden>
           <IconChevronRight size={12} />
         </span>
