@@ -833,7 +833,7 @@ const ToolRow = memo(function ToolRow({
 
   return (
     <div
-      className={`tool-row ${variant === "topology" ? "subagent-topology-node" : ""} ${
+      className={`tool-row kind-${action} ${variant === "topology" ? "subagent-topology-node" : ""} ${
         renderedOpen ? "open" : ""
       } status-${run === "failed" ? "error" : status || "success"}${outcome ? ` outcome-${outcome.replaceAll("_", "-")}` : ""}`}
       role={variant === "topology" ? "listitem" : "region"}
@@ -1870,7 +1870,7 @@ const ActivityGroup = memo(function ActivityGroup({
         open ? "open" : ""
       } ${live ? "active" : ""}${
         runtimeActivity ? ` phase-${runtimeActivity.phase}` : ""
-      }`}
+      } group-kind-${hasSubagentTopology ? "subagents" : thinkingNow || onlyThinking ? "thinking" : "mixed"}`}
     >
       <button
         className="tool-activity-header"
