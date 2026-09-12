@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.11",
+    "date": "2026-09-12",
+    "highlights": [
+      "Les résumés d'outils, de réflexion et de sous-agents sur une ligne affichent le Markdown en ligne : les extraits de code et le gras se lisent comme dans le texte du chat, plus de guillemets inversés littéraux.",
+    ],
+  },
+  {
     "version": "0.14.10",
     "date": "2026-09-12",
     "highlights": [

@@ -29,6 +29,13 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.11",
+    date: "2026-09-12",
+    highlights: [
+      "One-line tool, thinking, and subagent summaries render inline markdown — code spans and bold read like the chat prose instead of literal backticks.",
+    ],
+  },
+  {
     version: "0.14.10",
     date: "2026-09-12",
     highlights: [
@@ -776,6 +783,13 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.11",
+    date: "2026-09-12",
+    highlights: [
+      "工具、思考与子代理的单行摘要现在渲染内联 Markdown——代码 span 与粗体按正文样式显示，不再露出字面反引号。",
+    ],
+  },
+  {
     version: "0.14.10",
     date: "2026-09-12",
     highlights: [
@@ -1522,6 +1536,13 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.11",
+    date: "2026-09-12",
+    highlights: [
+      "工具、思考與子代理的單行摘要現在渲染內聯 Markdown——程式碼 span 與粗體按正文樣式顯示，不再露出字面反引號。",
+    ],
+  },
   {
     version: "0.14.10",
     date: "2026-09-12",

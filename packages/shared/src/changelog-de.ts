@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.11",
+    "date": "2026-09-12",
+    "highlights": [
+      "Einzeilige Werkzeug-, Denk- und Subagenten-Zusammenfassungen rendern Inline-Markdown – Code-Spans und Fettdruck erscheinen wie im Chat-Fließtext statt als literale Backticks.",
+    ],
+  },
+  {
     "version": "0.14.10",
     "date": "2026-09-12",
     "highlights": [

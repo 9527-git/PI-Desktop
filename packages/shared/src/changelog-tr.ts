@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.11",
+    "date": "2026-09-12",
+    "highlights": [
+      "Tek satırlık araç, düşünce ve alt ajan özetleri satır içi markdown oluşturur; kodspanlar ve kalın metin, gerçek ters tırnak yerine sohbet metni gibi okunur.",
+    ],
+  },
+  {
     "version": "0.14.10",
     "date": "2026-09-12",
     "highlights": [

@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.11",
+    "date": "2026-09-12",
+    "highlights": [
+      "Los resúmenes de una línea de herramientas, pensamiento y subagentes muestran Markdown en línea: los fragmentos de código y la negrita se leen como en el texto del chat, no como acentos graves literales.",
+    ],
+  },
+  {
     "version": "0.14.10",
     "date": "2026-09-12",
     "highlights": [
