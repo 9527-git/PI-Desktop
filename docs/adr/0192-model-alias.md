@@ -30,8 +30,9 @@ daily use:
    published display name. An absent or blank alias leaves the published name
    unchanged, so clearing the field restores catalog naming.
 4. Model ids and names in the configuration page opt back into text selection
-   (`.selectable`). A click that carries a selection no longer toggles the
-   model checkbox, so drag-to-copy and click-to-toggle coexist.
+   (`.selectable`), so drag-to-copy keeps working. *(Amended by D397: the
+   checkbox is the row's only toggle — a click outside it opens a configured
+   model's settings or picks an unconfigured one, and never removes it.)*
 5. Host-core persists and normalizes the alias inside the existing provider
    `config_json` `models` array: a blank or absent alias is dropped, and an
    alias longer than 60 characters is rejected with `MODEL_ALIAS_TOO_LONG`. No

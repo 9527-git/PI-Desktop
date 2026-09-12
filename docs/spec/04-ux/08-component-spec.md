@@ -2969,16 +2969,16 @@ compatibility remains owned by pi-ai.
   top-level option list, selects it, and applies 128,000 context / 8,192 max
   output / no thinking defaults. Removing its selection does not delete the
   custom option.
-- The model id and name are the row's non-toggle region: they are selectable
-  text inside the otherwise non-selectable shell, so clicking them never picks
-  or drops the model. A click that carries a text selection stays a copy, and a
-  plain click on a name whose model is already configured opens that model's
-  configuration row in the right pane and scrolls it into view, so a click made
-  to edit a model can never remove it. Row padding and the limits cell keep
-  toggling; a name that is not configured yet has nothing to open, so it
-  changes nothing. The row the left list pointed at is marked briefly for as
-  long as that highlight runs; under reduced motion the mark is a static
-  outline rather than an animation (ADR 0192).
+- The checkbox is the row's only toggle. Every click outside it is an open
+  gesture, so the row's pointer cursor never removes the model: the id, the
+  name, the row padding, and the limits cell all open a configured model's
+  configuration row in the right pane and scroll it into view, and a click on
+  a model that is not configured yet picks it. Removal stays with the
+  checkbox and the right pane's remove button. The id and name are still
+  selectable text inside the otherwise non-selectable shell; a click that
+  carries a text selection stays a copy. The row the left list pointed at is
+  marked briefly for as long as that highlight runs; under reduced motion the
+  mark is a static outline rather than an animation (ADR 0192).
 - The alias is a display label only: a non-empty alias names the model in the
   composer chip and the picker, while the configuration row and the transcript
   badge keep the real ID. Clearing the field restores the catalog's published

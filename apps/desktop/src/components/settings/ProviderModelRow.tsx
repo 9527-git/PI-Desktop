@@ -1,10 +1,10 @@
 /**
  * One model the service offers, as a checkbox row.
  *
- * The row is a checkbox label, so clicking it picks or drops the model. The id
- * and name are the exception: that text is copyable, and it is the way into an
- * already-configured model's settings, so a click there never changes what is
- * picked. The checkbox, the row's padding and the limits cell still toggle.
+ * The checkbox is the only control that picks or drops the model. Every other
+ * part of the row is an open gesture: a click on a configured row reveals its
+ * settings in the right pane, and a click on an unconfigured one picks it. The
+ * id and name stay copyable, so a drag-selection is a copy, not an activation.
  */
 import { formatTokenCount } from "@pi-desktop/shared";
 import type { ModelRow } from "./ModelSelectionPanes";
@@ -32,14 +32,14 @@ export function ProviderModelRow({
       <label
         className="provider-models-row-label"
         onClick={(event) => {
-          // Keyboard activation reports detail 0 and is not a click that
-          // carries a text selection, so it must keep toggling.
+          // Keyboard activation reports detail 0 and is not a pointer click,
+          // so it keeps the checkbox's native toggle.
           if (event.detail === 0) return;
-          // A copied selection can remain active when the user clicks the
-          // checkbox next. The checkbox is an explicit toggle target, so
-          // an old selection must not cancel its native activation.
+          // The checkbox is an explicit toggle target; its native activation
+          // must run even when a copied selection is still active.
           if (event.target instanceof HTMLInputElement) return;
-          // A drag-selection inside this row is a copy gesture, not a toggle.
+          // A drag-selection inside this row is a copy gesture, not an
+          // activation of the row.
           const selection = window.getSelection();
           const label = event.currentTarget;
           if (
@@ -49,7 +49,16 @@ export function ProviderModelRow({
             label.contains(selection.focusNode)
           ) {
             event.preventDefault();
+            return;
           }
+          // Cancelling the click keeps the label from activating the checkbox,
+          // so a click outside the checkbox never drops the model: the row's
+          // pointer cursor always opens or picks, never removes. A configured
+          // row opens its settings; an unconfigured one is picked.
+          event.preventDefault();
+          if (busy) return;
+          if (chosen) onReveal();
+          else onToggle();
         }}
       >
         <input
@@ -62,19 +71,7 @@ export function ProviderModelRow({
           autoCapitalize="off"
           onChange={onToggle}
         />
-        <span
-          className="provider-models-row-copy selectable"
-          onClick={(event) => {
-            // Cancelling the click keeps the surrounding label from activating
-            // the checkbox: the id and name copy in place, and a plain click
-            // opens the model's settings instead of dropping the model.
-            event.preventDefault();
-            // A drag-copy that happens to end inside the text stays a copy.
-            const selection = window.getSelection();
-            if (selection && !selection.isCollapsed) return;
-            onReveal();
-          }}
-        >
+        <span className="provider-models-row-copy selectable">
           <span className="provider-models-row-id font-mono">{row.id}</span>
           {row.displayName && row.displayName !== row.id ? (
             <span className="provider-models-row-name">{row.displayName}</span>

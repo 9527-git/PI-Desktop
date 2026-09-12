@@ -247,20 +247,23 @@ test("model ids are copyable and a configured model can carry an alias", () => {
   assert.match(styles, /\.provider-chosen-row-alias\s*\{/);
 });
 
-test("a model name is never the toggle, and it opens what it configures", () => {
-  // The copy area is text: clicking it must not pick or drop the model, and
-  // nothing in that region may reach the toggle.
-  const copyClick = rowSource.slice(
-    rowSource.indexOf('className="provider-models-row-copy selectable"'),
-  );
-  assert.match(copyClick, /event\.preventDefault\(\)/);
-  assert.match(copyClick, /onReveal\(\)/);
-  assert.doesNotMatch(copyClick, /onToggle/);
+test("a click outside the checkbox never drops the model", () => {
+  // The row label owns the click for the whole row: it cancels the label's
+  // native checkbox activation, so the pointer cursor over the row's padding,
+  // id, name, or limits cell never removes the model.
+  const rowClick = rowSource.slice(rowSource.indexOf("provider-models-row-label"));
+  assert.match(rowClick, /event\.preventDefault\(\);\s*if \(busy\) return;/);
+  // A configured row opens its settings; an unconfigured one is picked. Only
+  // the checkbox removes.
+  assert.match(rowClick, /if \(chosen\) onReveal\(\);/);
+  assert.match(rowClick, /else onToggle\(\);/);
+  assert.match(rowClick, /if \(busy\) return;/);
   // The checkbox stays the one control that picks or drops the model.
   assert.match(rowSource, /onChange=\{onToggle\}/);
-  // A plain click asks the picker for that model's configuration; a drag-copy
-  // that happens to end inside the text stays a copy.
-  assert.match(copyClick, /selection\.isCollapsed/);
+  // A drag-copy that happens to end inside the text stays a copy, and the
+  // keyboard's synthetic click keeps toggling.
+  assert.match(rowClick, /selection\.isCollapsed/);
+  assert.match(rowSource, /event\.detail === 0/);
 
   // The picker answers by opening the configured binding and scrolling to it.
   assert.match(pickerSource, /const revealModelConfig = \(row: ModelRow\)/);
