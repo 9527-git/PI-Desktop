@@ -113,9 +113,15 @@ test("light theme markdown uses paper-quiet surfaces", () => {
     stylesSource,
     /:root\[data-theme="light"\] \.prose-chat a\s*\{[^}]*text-decoration-color:\s*color-mix\(in oklab,\s*#1a1c1f 30%/,
   );
+  // Inline code keeps no painted wash in light: the token glows the code blue
+  // (D-decision: glowing labels over chips, per 0.14.13).
   assert.match(
     stylesSource,
-    /:root\[data-theme="light"\] \.prose-chat code\s*\{[^}]*background:\s*color-mix\(in oklab,\s*#1a1c1f 6%/,
+    /:root\[data-theme="light"\] \.prose-chat code\s*\{[^}]*color:\s*#2563eb/,
+  );
+  assert.doesNotMatch(
+    stylesSource,
+    /:root\[data-theme="light"\] \.prose-chat code\s*\{[^}]*background:/,
   );
   // Blockquotes keep their muted ink in light; the tile fill comes from the
   // theme-agnostic base rule, so the override sets colour only (D297).
