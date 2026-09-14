@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.17",
+    "date": "2026-09-14",
+    "highlights": [
+      "Referenzierte Pfade in Nachrichten öffnen jetzt immer: Pfade außerhalb des Arbeitsbereichs im Assistententext gehen an das Betriebssystem statt an den Dateibetrachter, verlinkte Laufwerkspfade überstehen die URL-Filterung von Markdown, und Pfade mit Leerzeichen bleiben eine Referenz. Im Ordner anzeigen funktioniert nun für Dateien, Ordner und inzwischen gelöschte Dateien.",
+    ],
+  },
+  {
     "version": "0.14.16",
     "date": "2026-09-14",
     "highlights": [

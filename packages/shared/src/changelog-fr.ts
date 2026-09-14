@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.17",
+    "date": "2026-09-14",
+    "highlights": [
+      "Les chemins référencés dans les messages s'ouvrent désormais toujours : hors de l'espace de travail, le texte de l'assistant les confie au système plutôt qu'au visualiseur, les chemins de lecteur liés survivent au filtrage d'URL de markdown, et les chemins contenant des espaces restent une seule référence. Afficher dans le dossier fonctionne pour les fichiers, les dossiers et un fichier supprimé depuis.",
+    ],
+  },
+  {
     "version": "0.14.16",
     "date": "2026-09-14",
     "highlights": [

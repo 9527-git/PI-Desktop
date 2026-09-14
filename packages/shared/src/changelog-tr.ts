@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.17",
+    "date": "2026-09-14",
+    "highlights": [
+      "Mesajlarda başvurulan yollar artık her zaman açılır: çalışma alanı dışındaki yollar dosya görüntüleyici yerine işletim sistemine gider, bağlantılı sürücü yolları markdown URL filtresinden geçer ve boşluk içeren yollar tek başvuru olarak kalır. Klasörde göster artık dosyalar, klasörler ve silinmiş dosyalar için çalışır.",
+    ],
+  },
+  {
     "version": "0.14.16",
     "date": "2026-09-14",
     "highlights": [

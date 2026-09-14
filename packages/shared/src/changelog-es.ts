@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.17",
+    "date": "2026-09-14",
+    "highlights": [
+      "Las rutas referenciadas en los mensajes ahora siempre se abren: las rutas fuera del espacio de trabajo en el texto del asistente van al sistema operativo en lugar del visor, las rutas de unidad enlazadas sobreviven al filtrado de URL de markdown y las rutas con espacios siguen siendo una sola referencia. Mostrar en la carpeta ya funciona para archivos, carpetas y archivos eliminados.",
+    ],
+  },
+  {
     "version": "0.14.16",
     "date": "2026-09-14",
     "highlights": [

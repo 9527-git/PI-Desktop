@@ -29,6 +29,13 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.17",
+    date: "2026-09-14",
+    highlights: [
+      "Referenced paths in messages now always open: assistant prose routes a path outside the workspace to the OS instead of the file viewer, linked drive paths survive markdown URL filtering, and paths containing spaces stay one reference. Show in folder now works for files, folders, and a file that was since deleted.",
+    ],
+  },
+  {
     version: "0.14.16",
     date: "2026-09-14",
     highlights: [
@@ -820,6 +827,13 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.17",
+    date: "2026-09-14",
+    highlights: [
+      "消息中的路径现在都能打开：助手正文里工作区外的路径改由系统打开而非文件查看器，链接形式的盘符路径不再被 markdown 过滤掉，含空格的路径保持为一个整体。在文件夹中显示对文件、文件夹以及已被删除的文件都能生效。",
+    ],
+  },
+  {
     version: "0.14.16",
     date: "2026-09-14",
     highlights: [
@@ -1610,6 +1624,13 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.17",
+    date: "2026-09-14",
+    highlights: [
+      "訊息中的路徑現在都能開啟：助手正文中工作區外的路徑改由系統開啟而非檔案檢視器，連結形式的磁碟機路徑不再被 markdown 過濾掉，含空格的路徑保持為一個整體。在資料夾中顯示對檔案、資料夾以及已被刪除的檔案都能生效。",
+    ],
+  },
   {
     version: "0.14.16",
     date: "2026-09-14",

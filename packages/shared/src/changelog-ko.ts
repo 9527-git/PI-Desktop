@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.17",
+    "date": "2026-09-14",
+    "highlights": [
+      "메시지에 참조된 경로가 이제 항상 열립니다: 작업 공간 밖의 경로는 파일 뷰어 대신 운영 체제로 전달되고, 링크된 드라이브 경로는 markdown의 URL 필터링을 통과하며, 공백이 있는 경로는 하나의 참조로 유지됩니다. 폴더에서 보기는 파일, 폴더, 삭제된 파일 모두에서 동작합니다.",
+    ],
+  },
+  {
     "version": "0.14.16",
     "date": "2026-09-14",
     "highlights": [
