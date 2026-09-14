@@ -296,7 +296,10 @@ background-free: the hue lives in the label, never in a row wash. Inline code
 in the chat prose and in row summaries glows the same code blue, so technical
 tokens read identically wherever they appear. Bold in the chat prose and in
 row summaries glows purple, so emphasis reads as its own hue instead of plain
-ink.
+ink. File paths glow yellow — chat-prose path links (the `remarkChatFileLinks`
+targets with a non-http href) and `md-inline-path` spans in row summaries —
+while http(s) links keep the neutral underline, so paths, code, bold, and URLs
+each read as their own content type at a glance.
 
 Row summary text renders inline markdown, not bare source: the collapsed
 tool, thinking, and subagent topology summaries run through a lightweight

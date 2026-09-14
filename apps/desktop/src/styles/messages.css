@@ -2433,6 +2433,14 @@
   text-shadow: 0 0 8px color-mix(in oklab, var(--ds-purple) 45%, transparent);
 }
 
+/* File paths inside one-line row summaries glow yellow: a path summary reads
+   as its own hue, distinct from the blue code spans and purple bold around it. */
+.tool-row-summary .md-inline-path,
+.subagent-topology-node-summary .md-inline-path {
+  color: var(--ds-yellow);
+  text-shadow: 0 0 8px color-mix(in oklab, var(--ds-yellow) 50%, transparent);
+}
+
 .tool-row-status {
   display: inline-flex;
   flex: none;
