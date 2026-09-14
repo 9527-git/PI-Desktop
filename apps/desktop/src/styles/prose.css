@@ -41,8 +41,9 @@
 }
 
 .prose-chat strong {
-  color: var(--ds-text-primary);
+  color: var(--ds-purple);
   font-weight: var(--font-weight-semibold);
+  text-shadow: 0 0 9px color-mix(in oklab, var(--ds-purple) 45%, transparent);
 }
 
 .prose-chat em {
