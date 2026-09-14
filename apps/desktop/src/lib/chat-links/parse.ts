@@ -35,7 +35,7 @@ export function parseFileRef(text: string): string | null {
   let raw = text.trim();
   if (!raw || raw.length > 512) return null;
   if (raw.startsWith("@")) raw = raw.slice(1);
-  if (!raw || !fileTokenShape(raw)) return null;
+  if (!raw || !FILE_SHAPE_RE.test(raw)) return null;
   const path = stripLineRef(raw);
   return isLikelyFilePath(path) ? path : null;
 }
@@ -62,22 +62,14 @@ export function unwrapAtFileRef(text: string): string | null {
 }
 
 /**
- * Whole-token shape check for `parseFileRef`: an optional drive prefix, an
- * optional leading separator or `./` / `../`, segments joined by `/` or `\`,
- * and optional `:line[:col]` chrome. Built by hand instead of from `SEG` so
- * the accepted shape stays readable.
+ * Whole-token shape check: an optional drive prefix, an optional leading
+ * separator or `./` / `../`, segments joined by `/` or `\`, and optional
+ * `:line[:col]` chrome. The segment class excludes both separators (written
+ * as \u005c / \u0060 escapes), so the repetition stays linear.
  */
-const SEGMENT = String.raw`[^\s<>"'` +
-  "`" +
-  String.raw`|*?(){}\[\],;!。、，；：「」『』（）【】]+`;
-const SEPARATOR = String.raw`[\\/]`;
-
-function fileTokenShape(token: string): boolean {
-  const drive = String.raw`(?:[A-Za-z]:)?`;
-  const lead = String.raw`(?:${SEPARATOR}|\.{1,2}${SEPARATOR})?`;
-  const tail = String.raw`(?::\d+(?::\d+)?)?`;
-  const shape = new RegExp(
-    String.raw`^${drive}${lead}${SEGMENT}(?:${SEPARATOR}${SEGMENT})*${tail}$`,
-  );
-  return shape.test(token);
-}
+const SEG = "[^\\s<>\"'\\u005c\\u0060|*?(){}\\[\\],;!。、，；：「」『』（）【】]+";
+const SEPARATOR = "[\\u005c/]";
+const FILE_SHAPE_RE = new RegExp(
+  "^(?:[A-Za-z]:)?(?:" + SEPARATOR + "|\\.{1,2}" + SEPARATOR + ")?" +
+    SEG + "(?:" + SEPARATOR + SEG + ")*(?::\\d+(?::\\d+)?)?$",
+);

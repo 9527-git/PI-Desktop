@@ -25,31 +25,34 @@ const KNOWN_BARE_NAMES = new Set([
   "CHANGELOG",
 ]);
 
-/** One path segment: no whitespace, no shell/markdown punctuation, no
- *  Windows-invalid character, and no CJK sentence punctuation (a path written
- *  inside Chinese prose must stop at the trailing `。` or `、`). */
-const SEG_CHAR = String.raw`[^\s<>"'` +
-  "`" +
-  String.raw`|*?(){}\[\],;!。、，；：「」『』（）【】]`;
+/**
+ * One path segment: no whitespace, no shell/markdown punctuation, no
+ * backslash or backtick (regex-escaped as \u005c / \u0060 so the class also
+ * excludes separators — this keeps `SEG + separator` quantifiers linear), no
+ * Windows-invalid character, and no CJK sentence punctuation (a path written
+ * inside Chinese prose must stop at the trailing `。` or `、`).
+ */
+const SEG_CHAR =
+  "[^\\s<>\"'\\u005c\\u0060|*?(){}\\[\\],;!。、，；：「」『』（）【】]";
 
 /** Separators a path token may use between segments. */
-const SEP = String.raw`[\\/]`;
+const SEP = "[\\\\/]";
 
 export const SEG = `${SEG_CHAR}+`;
 
 /** Drive-prefixed path: `C:\dir\file.ts`, `E:/pi-pro/x`, `d:\root`. */
 export const DRIVE_PATH_RE = new RegExp(
-  String.raw`^[A-Za-z]:${SEP}(?:${SEG}${SEP})*${SEG}$`,
+  `^[A-Za-z]:${SEP}(?:${SEG}${SEP})*${SEG}$`,
 );
 
 /** POSIX absolute path: `/a/b`. */
 export const POSIX_ABS_RE = new RegExp(
-  String.raw`^${SEP}(?:${SEG}${SEP})*${SEG}$`,
+  `^${SEP}(?:${SEG}${SEP})*${SEG}$`,
 );
 
 /** MSYS/Git-Bash mount form: `/e/pi-pro/...` — a drive path on Windows only. */
 export const MSYS_MOUNT_RE = new RegExp(
-  String.raw`^${SEP}([A-Za-z])${SEP}(?:${SEG}${SEP})*${SEG}$`,
+  `^${SEP}([A-Za-z])${SEP}(?:${SEG}${SEP})*${SEG}$`,
 );
 
 /** Convert any separator style to `/`. */

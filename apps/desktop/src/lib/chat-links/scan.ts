@@ -5,8 +5,8 @@
  */
 
 import {
-  leafName,
   SEG,
+  leafName,
   toPosix,
   trimPathToken,
 } from "./path-shape";
@@ -27,17 +27,18 @@ export type ChatTextSegment =
 
 /**
  * The scan alternation, most specific first: `@refs`, URLs, drive paths,
- * `./`-relative, slash paths, then bare dotted names. Segment characters are
- * shared with `path-shape` so a token accepted here is the same shape the
- * parser validates.
+ * `./`-relative, slash paths, then bare dotted names. Segment characters come
+ * from `path-shape.SEG`, which excludes separators, so the repetitions stay
+ * linear on hostile input.
  */
+const SEPARATOR = "[\\u005c/]";
 const SCAN_RE = new RegExp(
-  `@"[^"\\n]+"|@\\S+` +
-    `|https?:\\/\\/[^\\s<>"'\`()[\\]{}]+` +
-    `|[A-Za-z]:[\\\\/](?:${SEG}[\\\\/])*${SEG}(?::\\d+(?::\\d+)?)?` +
-    `|\\.{1,2}[\\\\/](?:${SEG}[\\\\/])*${SEG}(?::\\d+(?::\\d+)?)?` +
-    `|(?:${SEG}[\\\\/])+${SEG}(?::\\d+(?::\\d+)?)?` +
-    `|[\\w@+-][\\w@+.-]*\\.[A-Za-z0-9]{1,8}\\b`,
+  '@"[^"\\n]+"|@\\S+' +
+    `|https?:\\/\\/[^\\s<>"'\u0060()[\\]{}]+` +
+    "|[A-Za-z]:" + SEPARATOR + "(?:" + SEG + SEPARATOR + ")*" + SEG + "(?::\\d+(?::\\d+)?)?" +
+    "|\\.{1,2}" + SEPARATOR + "(?:" + SEG + SEPARATOR + ")*" + SEG + "(?::\\d+(?::\\d+)?)?" +
+    "|(?:" + SEG + SEPARATOR + ")+" + SEG + "(?::\\d+(?::\\d+)?)?" +
+    "|[\\w@+-][\\w@+.-]*\\.[A-Za-z0-9]{1,8}\\b",
   "gu",
 );
 
