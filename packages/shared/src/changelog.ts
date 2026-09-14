@@ -29,6 +29,13 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.14",
+    date: "2026-09-14",
+    highlights: [
+      "Bold text in the chat prose and row summaries glows purple, contrasting with the blue inline code.",
+    ],
+  },
+  {
     version: "0.14.13",
     date: "2026-09-12",
     highlights: [
@@ -799,6 +806,13 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.14",
+    date: "2026-09-14",
+    highlights: [
+      "聊天正文与单行摘要中的粗体文字改为发光紫色，与行内代码的蓝色形成对比。",
+    ],
+  },
+  {
     version: "0.14.13",
     date: "2026-09-12",
     highlights: [
@@ -1568,6 +1582,13 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.14",
+    date: "2026-09-14",
+    highlights: [
+      "聊天正文與單行摘要中的粗體文字改為發光紫色，與行內程式碼的藍色形成對比。",
+    ],
+  },
   {
     version: "0.14.13",
     date: "2026-09-12",

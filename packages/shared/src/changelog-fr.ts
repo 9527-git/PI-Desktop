@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.14",
+    "date": "2026-09-14",
+    "highlights": [
+      "Le texte en gras du chat et des résumés brille en violet, contrastant avec le code en ligne bleu.",
+    ],
+  },
+  {
     "version": "0.14.13",
     "date": "2026-09-12",
     "highlights": [

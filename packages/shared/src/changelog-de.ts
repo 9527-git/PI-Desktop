@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.14",
+    "date": "2026-09-14",
+    "highlights": [
+      "Fetter Text im Chat-Fließtext und in Zeilenzusammenfassungen leuchtet violett und hebt sich vom blauen Inline-Code ab.",
+    ],
+  },
+  {
     "version": "0.14.13",
     "date": "2026-09-12",
     "highlights": [

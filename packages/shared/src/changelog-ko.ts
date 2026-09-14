@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.14",
+    "date": "2026-09-14",
+    "highlights": [
+      "채팅 본문과 행 요약의 굵은 텍스트가 보라색으로 빛나 파란 인라인 코드와 대비됩니다.",
+    ],
+  },
+  {
     "version": "0.14.13",
     "date": "2026-09-12",
     "highlights": [

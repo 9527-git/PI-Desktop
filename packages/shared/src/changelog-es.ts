@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.14",
+    "date": "2026-09-14",
+    "highlights": [
+      "El texto en negrita del chat y de los resúmenes brilla en púrpura, contrastando con el código en línea azul.",
+    ],
+  },
+  {
     "version": "0.14.13",
     "date": "2026-09-12",
     "highlights": [

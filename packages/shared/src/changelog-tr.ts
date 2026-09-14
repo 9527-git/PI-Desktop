@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.14",
+    "date": "2026-09-14",
+    "highlights": [
+      "Sohbet metnindeki ve satır özetlerindeki kalın metin mor olarak parlıyor ve mavi satır içi kodla kontrast oluşturuyor.",
+    ],
+  },
+  {
     "version": "0.14.13",
     "date": "2026-09-12",
     "highlights": [
