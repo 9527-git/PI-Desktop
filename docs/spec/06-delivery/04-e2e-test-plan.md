@@ -10075,3 +10075,18 @@ sample extensions under `apps/desktop/test/fixtures/pi-extensions/`.
 - **Acceptance criterion**: F
 - **Milestone**: M6
 - **Status**: Documented
+
+### E2E-CHAT-bold-row-summary-session-open
+
+- **Preconditions**: A persisted session whose collapsed tool, thinking, or
+  subagent row summaries contain `**bold**` inline markdown.
+- **Steps**:
+  1. Open the session from the session list.
+  2. Expand and collapse a row that carries a bold summary.
+- **Expected**: The transcript renders with bold (and code/path) styling in
+  the row summaries; no renderer crash or error boundary
+  (`Maximum call stack size exceeded`).
+- **Specs linked**: `docs/spec/04-ux/07-ui-design-system.md`
+- **Acceptance criterion**: F
+- **Milestone**: M6
+- **Status**: Documented
