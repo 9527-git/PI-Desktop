@@ -2429,7 +2429,8 @@
 .tool-row-summary strong,
 .subagent-topology-node-summary strong {
   font-weight: var(--font-weight-medium);
-  color: var(--ds-text-secondary);
+  color: var(--ds-purple);
+  text-shadow: 0 0 8px color-mix(in oklab, var(--ds-purple) 45%, transparent);
 }
 
 .tool-row-status {

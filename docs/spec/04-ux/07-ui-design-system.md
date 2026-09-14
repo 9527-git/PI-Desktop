@@ -294,7 +294,9 @@ transcript derives from `getToolAction` and a `group-kind-*` hook on the
 activity group; delegation rows keep their D268 accent story. Row rows stay
 background-free: the hue lives in the label, never in a row wash. Inline code
 in the chat prose and in row summaries glows the same code blue, so technical
-tokens read identically wherever they appear.
+tokens read identically wherever they appear. Bold in the chat prose and in
+row summaries glows purple, so emphasis reads as its own hue instead of plain
+ink.
 
 Row summary text renders inline markdown, not bare source: the collapsed
 tool, thinking, and subagent topology summaries run through a lightweight
