@@ -301,6 +301,41 @@ function stripWinLongPrefix(p: string): string {
   return p;
 }
 
+/**
+ * Hand `target` to the OS file manager so the action is always visible:
+ * a file is selected in its folder, a directory opens, and a target that
+ * disappeared between the containment check and the reveal falls back to its
+ * nearest existing ancestor. `showItemInFolder` alone is a silent no-op in
+ * those cases, which reads as a dead button.
+ */
+function revealTarget(target: string): void {
+  const native = stripWinLongPrefix(target);
+  try {
+    if (statSync(native).isDirectory()) {
+      void shell.openPath(native);
+      return;
+    }
+    shell.showItemInFolder(native);
+    return;
+  } catch {
+    // Fall through: the entry is gone, so show whatever still exists.
+  }
+  let cursor = dirname(native);
+  for (;;) {
+    try {
+      if (statSync(cursor).isDirectory()) {
+        void shell.openPath(stripWinLongPrefix(cursor));
+        return;
+      }
+    } catch {
+      // Keep walking up.
+    }
+    const parent = dirname(cursor);
+    if (parent === cursor) return;
+    cursor = parent;
+  }
+}
+
 // A closed stdout/stderr (Linux AppImage, GUI launch without a TTY) must not
 // surface as Electron's "Uncaught Exception: write EPIPE" dialog.
 ignoreBrokenStdio();
@@ -7691,7 +7726,7 @@ function registerIpc() {
         errorCode: ErrorCodes.INVALID_ARGUMENT,
       });
     }
-    shell.showItemInFolder(stripWinLongPrefix(target));
+    revealTarget(target);
     return { ok: true };
   });
 

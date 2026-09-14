@@ -60,9 +60,11 @@ test("markdown renderer still streams by memoized blocks", () => {
 test("markdown resolves relative file links against a base directory", () => {
   assert.match(markdownSource, /baseDir\?: string/);
   assert.match(markdownSource, /remarkChatFileLinks/);
+  // The anchor resolves through the shared resolver so an external absolute
+  // path (outside the workspace) still opens through the host (ADR 0236).
   assert.match(
     markdownSource,
-    /toWorkspaceRel\(safeDecodeUri\(href\), root, baseDir\)/,
+    /resolvePreviewTarget\(safeDecodeUri\(href\), root, baseDir\)/,
   );
   assert.match(filesTabSource, /baseDir=\{fileDirOf\(selected\)\}/);
 });

@@ -32,9 +32,24 @@ export type ChatTextSegment =
  * linear on hostile input.
  */
 const SEPARATOR = "[\\u005c/]";
+
+/**
+ * A segment that may contain spaces — Windows install paths are full of them
+ * ("C:\\Program Files\\App\\app.exe"). The scan only offers this shape to
+ * tokens that start like an explicit path (drive, root, or `./`) and end in an
+ * extension, so `see README.md and notes.txt` still yields two references
+ * instead of one runaway match. Colons stay excluded so a spaced segment
+ * cannot swallow the next token's drive prefix.
+ */
+const SPACED =
+  "[^<>\"'\\u0060|*?(){}\\[\\],;!。、，；：「」『』（）【】：\\u005c/]+";
+const SPACED_PATH =
+  "(?:[A-Za-z]:|\\.{1,2})?" + SEPARATOR + "(?:" + SPACED + SEPARATOR + ")*?" +
+  SPACED + "\\.[A-Za-z0-9]{1,8}"
 const SCAN_RE = new RegExp(
   '@"[^"\\n]+"|@\\S+' +
     `|https?:\\/\\/[^\\s<>"'\u0060()[\\]{}]+` +
+    "|" + SPACED_PATH +
     "|[A-Za-z]:" + SEPARATOR + "(?:" + SEG + SEPARATOR + ")*" + SEG + "(?::\\d+(?::\\d+)?)?" +
     "|\\.{1,2}" + SEPARATOR + "(?:" + SEG + SEPARATOR + ")*" + SEG + "(?::\\d+(?::\\d+)?)?" +
     "|(?:" + SEG + SEPARATOR + ")+" + SEG + "(?::\\d+(?::\\d+)?)?" +
