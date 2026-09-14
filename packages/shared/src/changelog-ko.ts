@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.15",
+    "date": "2026-09-14",
+    "highlights": [
+      "파일 경로가 노란색으로 빛납니다 — 채팅 본문의 경로 링크와 행 요약의 경로 — URL은 중립 밑줄을 유지하며 경로·코드·굵은 글씨·URL이 각각 구분됩니다.",
+    ],
+  },
+  {
     "version": "0.14.14",
     "date": "2026-09-14",
     "highlights": [

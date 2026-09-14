@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.15",
+    "date": "2026-09-14",
+    "highlights": [
+      "Las rutas de archivo brillan en amarillo — los enlaces de ruta en el chat y las rutas de los resúmenes — mientras las URLs conservan el subrayado neutro; rutas, código, negrita y URLs se distinguen por separado.",
+    ],
+  },
+  {
     "version": "0.14.14",
     "date": "2026-09-14",
     "highlights": [

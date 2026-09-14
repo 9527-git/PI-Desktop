@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.15",
+    "date": "2026-09-14",
+    "highlights": [
+      "Dateipfade leuchten gelb – Pfad-Links im Chat-Text und Pfade in Zeilenzusammenfassungen –, während URLs die neutrale Unterstreichung behalten; Pfade, Code, Fettdruck und URLs sind jeweils eigens erkennbar.",
+    ],
+  },
+  {
     "version": "0.14.14",
     "date": "2026-09-14",
     "highlights": [

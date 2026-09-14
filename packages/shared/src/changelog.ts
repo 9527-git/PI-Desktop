@@ -29,6 +29,13 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.15",
+    date: "2026-09-14",
+    highlights: [
+      "File paths glow yellow — chat-prose path links and paths in row summaries — while URLs keep the neutral underline, so paths, code, bold, and URLs each read as their own content type.",
+    ],
+  },
+  {
     version: "0.14.14",
     date: "2026-09-14",
     highlights: [
@@ -806,6 +813,13 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.15",
+    date: "2026-09-14",
+    highlights: [
+      "文件路径改为发光黄色——聊天正文的路径链接与单行摘要中的路径——URL 保持中性下划线，路径、代码、粗体、URL 各自可辨。",
+    ],
+  },
+  {
     version: "0.14.14",
     date: "2026-09-14",
     highlights: [
@@ -1582,6 +1596,13 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.15",
+    date: "2026-09-14",
+    highlights: [
+      "檔案路徑改為發光黃色——聊天正文的路徑連結與單行摘要中的路徑——URL 保持中性底線，路徑、程式碼、粗體、URL 各自可辨。",
+    ],
+  },
   {
     version: "0.14.14",
     date: "2026-09-14",

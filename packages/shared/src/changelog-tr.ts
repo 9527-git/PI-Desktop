@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.15",
+    "date": "2026-09-14",
+    "highlights": [
+      "Dosya yolları sarı olarak parlıyor — sohbet metnindeki yol bağlantıları ve satır özetlerindeki yollar — URL'ler nötr alt çizgiyi koruyor; yollar, kod, kalın metin ve URL'ler birbirinden ayrılıyor.",
+    ],
+  },
+  {
     "version": "0.14.14",
     "date": "2026-09-14",
     "highlights": [

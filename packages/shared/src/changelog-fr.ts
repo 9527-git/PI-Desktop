@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.15",
+    "date": "2026-09-14",
+    "highlights": [
+      "Les chemins de fichiers brillent en jaune — les liens de chemin dans le chat et les chemins des résumés — tandis que les URLs gardent le soulignement neutre ; chemins, code, gras et URLs se distinguent séparément.",
+    ],
+  },
+  {
     "version": "0.14.14",
     "date": "2026-09-14",
     "highlights": [
