@@ -29,6 +29,7 @@ import {
 } from "@pi-desktop/shared";
 import { ConversationMinimap } from "./ConversationMinimap";
 import { TurnOutcomeCard } from "./TurnOutcomeCard";
+import { TurnSummaryCard } from "./TurnSummaryCard";
 import { ReviewChangeCard } from "./ReviewChangeCard";
 import { Markdown, useCopy } from "./Markdown";
 import { MarkdownInline } from "./MarkdownInline";
@@ -2597,6 +2598,7 @@ const AssistantTurn = memo(function AssistantTurn({
             ) : null}
           </div>
         ) : null}
+        {!isActive ? <TurnSummaryCard entry={entry} /> : null}
       </div>
     </div>
   );
