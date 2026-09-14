@@ -252,4 +252,6 @@ Each ADR includes:
 | 0232 | Keep macOS DMG opening guidance text-only | Accepted (amends D371 / ADR 0204) |
 | 0233 | Renderer-owned multi-folder project creation | Accepted (amends ADR 0011 / ADR 0016) |
 | 0234 | Keep project memory host-owned and path-scoped | Accepted |
+| 0235 | In-flow chat composer | Accepted |
+| 0236 | Chat open/reveal for local paths outside the workspace | Accepted (amends D320 / ADR 0109 / ADR 0111) |
  | 0235 | Keep the docked conversation composer in normal flow | Accepted (amends ADR 0065 clause 4 / D264) |

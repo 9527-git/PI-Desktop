@@ -4,22 +4,24 @@ import test from "node:test";
 
 const read = (path) => readFile(new URL(path, import.meta.url), "utf8");
 
-const [transcript, markdown, api, main, panel, protocol, hook] = await Promise.all([
-  read("../src/components/ChatTranscript.tsx"),
-  read("../src/components/Markdown.tsx"),
-  read("../src/lib/api.ts"),
-  read("../electron/main/index.ts"),
-  read("../electron/main/fs-panel.ts"),
-  read("../../../packages/shared/src/protocol.ts"),
-  read("../src/lib/use-referenced-image-data-url.ts"),
-]);
+const [transcript, markdown, api, main, panel, gate, protocol, hook] =
+  await Promise.all([
+    read("../src/components/ChatTranscript.tsx"),
+    read("../src/components/Markdown.tsx"),
+    read("../src/lib/api.ts"),
+    read("../electron/main/index.ts"),
+    read("../electron/main/fs-panel.ts"),
+    read("../electron/main/fs-open-gate.ts"),
+    read("../../../packages/shared/src/protocol.ts"),
+    read("../src/lib/use-referenced-image-data-url.ts"),
+  ]);
 
 test("in-chat image display has a contained renderer-to-main bridge", () => {
   assert.match(protocol, /fsReadImageDataUrl: "pi-desktop\/fs\/readImageDataUrl"/);
   assert.match(api, /fsReadImageDataUrl: \(ref: string, mimeType\?: string\)/);
   assert.match(main, /IPC\.invoke\.fsReadImageDataUrl/);
   assert.match(main, /readOpenableImage\(/);
-  assert.match(panel, /export async function readOpenableImage\(/);
+  assert.match(gate, /export async function readOpenableImage\(/);
   assert.match(panel, /isAttachmentBlobRef/);
   assert.match(panel, /ALLOWED_IMAGE_MIME/);
   assert.match(panel, /MAX_IMAGE_BYTES/);
