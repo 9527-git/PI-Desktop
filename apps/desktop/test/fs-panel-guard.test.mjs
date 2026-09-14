@@ -1,22 +1,30 @@
 import assert from "node:assert/strict";
 import { mkdtemp, mkdir, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
+import { register } from "node:module";
 import test from "node:test";
+import { fileURLToPath, pathToFileURL } from "node:url";
+
+const here = dirname(fileURLToPath(import.meta.url));
+register(pathToFileURL(join(here, "helpers/ts-import-hooks.mjs")));
 import {
   imageMimeFor,
   isAttachmentBlobRef,
   isIgnoredName,
   listDir,
   previewFile,
-  readOpenableFile,
-  readOpenableImage,
   readWorkspaceFile,
-  resolveOpenablePath,
-  resolveRealOpenablePath,
   resolveWithinRoot,
   MAX_TEXT_BYTES,
 } from "../electron/main/fs-panel.ts";
+const {
+  readOpenableFile,
+  readOpenableImage,
+  resolveLooseOpenablePath,
+  resolveOpenablePath,
+  resolveRealOpenablePath,
+} = await import("../electron/main/fs-open-gate.ts");
 
 const ROOT = resolve("virtual-workspace");
 
@@ -216,4 +224,46 @@ test("readOpenableImage serves attachment blobs and rejects escapes", async (t) 
     extra,
   );
   assert.equal(escaped, null);
+});
+
+test("resolveLooseOpenablePath opens existing absolute paths outside roots", async (t) => {
+  const fixture = await mkdtemp(join(tmpdir(), "pi-fs-loose-"));
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  const outside = join(fixture, "release");
+  await mkdir(outside);
+  const exe = join(outside, "app.exe");
+  await writeFile(exe, "binary-ish");
+
+  const target = await resolveLooseOpenablePath(exe, []);
+  assert.equal(target, await (await import("node:fs/promises")).realpath(exe));
+
+  // Relative paths, ~, and missing files stay refused.
+  assert.equal(await resolveLooseOpenablePath("release/app.exe", []), null);
+  assert.equal(await resolveLooseOpenablePath("~/x", []), null);
+  assert.equal(await resolveLooseOpenablePath(join(outside, "missing.exe"), []), null);
+});
+
+test("resolveLooseOpenablePath refuses protected roots through links", async (t) => {
+  const fixture = await mkdtemp(join(tmpdir(), "pi-fs-loose-"));
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  const dataDir = join(fixture, "data");
+  await mkdir(dataDir);
+  const secret = join(dataDir, "sessions.db");
+  await writeFile(secret, "sqlite");
+
+  assert.equal(await resolveLooseOpenablePath(secret, [dataDir]), null);
+
+  // A symlink planted outside the protected root that points into it is
+  // refused too: the check runs on the resolved target.
+  const linkDir = join(fixture, "link");
+  await mkdir(linkDir);
+  const link = join(linkDir, "innocent.lnk");
+  try {
+    await symlink(secret, link);
+  } catch {
+    // Windows may deny symlink creation without privileges; the direct case
+    // above already covers the policy.
+    return;
+  }
+  assert.equal(await resolveLooseOpenablePath(link, [dataDir]), null);
 });

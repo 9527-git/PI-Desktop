@@ -4696,3 +4696,17 @@ D193, and D194.
   The note provides the narrow Terminal fallback for trusted unsigned builds;
   signed and notarized builds do not need it.
 - Decision D406 amends D371 / ADR 0204. See ADR 0232 and E2E-196b.
+
+## 2026-09-14 — Chat turn summary and external path open/reveal (D408)
+
+- A finished turn ends with a compact summary card: the step count and the
+  workspace files it durably changed, grouped by added/modified/deleted with
+  per-file diffs, a work-panel open action, and a file-manager reveal action.
+- Chat file references recognize Windows drive paths, backslash separators,
+  and MSYS mounts; absolute drive paths outside the workspace open through
+  the OS as external targets.
+- `fs/open` and `fs/reveal` accept existing local absolute paths outside the
+  workspace behind a realpath + protected-roots guard; `fs/read` and all
+  agent-tool gates are unchanged.
+- Decision D408 amends D320 / ADR 0163 and ADR 0109 / 0111. See ADR 0236,
+  E2E-CHAT-turn-summary-card, and E2E-CHAT-external-path-open-reveal.

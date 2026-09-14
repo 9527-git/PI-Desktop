@@ -200,11 +200,14 @@ import { OAUTH_AUTH_KIND, VendorOAuth } from "./oauth";
 import {
   isAttachmentBlobRef,
   listDir,
+} from "./fs-panel";
+import {
   readOpenableFile,
   readOpenableImage,
+  resolveLooseOpenablePath,
   resolveOpenablePath,
   resolveRealOpenablePath,
-} from "./fs-panel";
+} from "./fs-open-gate";
 import { getWorkspaceFileIndex } from "./fs-index";
 import {
   importComposerFiles,
@@ -7673,11 +7676,16 @@ function registerIpc() {
         throw error;
       }
     }
-    const target = await resolveRealOpenablePath(
+    let target = await resolveRealOpenablePath(
       requested,
       workspaceRoot,
       fsExtraRoots(),
     );
+    if (!target) {
+      // Outside the workspace: a user-initiated reveal may still address any
+      // existing local absolute path (ADR 0236), minus protected roots.
+      target = await resolveLooseOpenablePath(requested, [dataDir]);
+    }
     if (!target) {
       throw Object.assign(new Error("path outside allowed roots"), {
         errorCode: ErrorCodes.INVALID_ARGUMENT,
@@ -7689,7 +7697,12 @@ function registerIpc() {
 
   handle(IPC.invoke.fsOpen, async (input: { path?: string } = {}) => {
     const workspaceRoot = await optionalWorkspaceRoot();
-    const target = resolveOpenablePath(String(input.path ?? ""), workspaceRoot, fsExtraRoots());
+    let target = resolveOpenablePath(String(input.path ?? ""), workspaceRoot, fsExtraRoots());
+    if (!target) {
+      // Outside the workspace: a user-initiated open may still address any
+      // existing local absolute path (ADR 0236), minus protected roots.
+      target = await resolveLooseOpenablePath(String(input.path ?? ""), [dataDir]);
+    }
     if (!target) {
       throw Object.assign(new Error("path is not openable"), {
         errorCode: ErrorCodes.INVALID_ARGUMENT,

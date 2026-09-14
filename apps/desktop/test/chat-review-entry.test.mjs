@@ -15,6 +15,10 @@ const cardSource = await readFile(
   new URL("../src/components/ReviewChangeCard.tsx", import.meta.url),
   "utf8",
 );
+const diffBodySource = await readFile(
+  new URL("../src/components/ReviewChangeDiff.tsx", import.meta.url),
+  "utf8",
+);
 const reviewSource = await readFile(
   new URL("../src/components/workpanel/ReviewTab.tsx", import.meta.url),
   "utf8",
@@ -166,7 +170,7 @@ test("chat renders one message-owned card immediately after its tool row", () =>
   assert.doesNotMatch(transcriptSource, /workspaceDiff|findWorkspaceChange/);
   assert.match(cardSource, /aria-expanded=\{open\}/);
   assert.match(cardSource, /chat\.reviewChangeShow/);
-  assert.match(cardSource, /change\.hunks\.map/);
+  assert.match(diffBodySource, /change\.hunks\.map/);
   assert.match(cardSource, /workspaceReviewRollback|rollbackWorkspaceChange/);
   assert.match(
     storeSource,

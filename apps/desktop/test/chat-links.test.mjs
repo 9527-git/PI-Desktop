@@ -1,6 +1,13 @@
 import assert from "node:assert/strict";
+import { register } from "node:module";
+import { dirname, join } from "node:path";
 import test from "node:test";
-import {
+import { fileURLToPath, pathToFileURL } from "node:url";
+
+const here = dirname(fileURLToPath(import.meta.url));
+register(pathToFileURL(join(here, "helpers/ts-import-hooks.mjs")));
+
+const {
   fileDirOf,
   getToolPreviewTarget,
   isHttpUrl,
@@ -10,7 +17,7 @@ import {
   resolvePreviewTarget,
   splitChatText,
   toWorkspaceRel,
-} from "../src/lib/chat-links.ts";
+} = await import("../src/lib/chat-links/index.ts");
 
 const ROOT = "/Users/dev/project";
 
@@ -218,4 +225,41 @@ test("remarkChatFileLinks is a unified attacher, not a transformer", () => {
   transformer(tree);
   assert.equal(tree.children[0].children[1].type, "link");
   assert.equal(tree.children[0].children[1].url, "apps/desktop/src/App.tsx");
+});
+
+test("parseFileRef accepts windows drive paths with separators and line refs", () => {
+  assert.equal(parseFileRef("E:\\pi-pro\\report.xlsx"), "E:\\pi-pro\\report.xlsx");
+  assert.equal(parseFileRef("C:/Users/dev/notes.md:12"), "C:/Users/dev/notes.md");
+  assert.equal(parseFileRef("release\\0.14.14\\app.exe"), "release\\0.14.14\\app.exe");
+  assert.equal(parseFileRef("e:/x/a.ts"), "e:/x/a.ts");
+  // A drive path counts even without an extension (folder).
+  assert.equal(parseFileRef("E:\\pi-pro\\PI-Desktop\\release"), "E:\\pi-pro\\PI-Desktop\\release");
+});
+
+test("toWorkspaceRel maps windows drive paths under a windows root", () => {
+  const winRoot = "E:/pi-pro/PI-Desktop";
+  assert.equal(toWorkspaceRel("E:\\pi-pro\\PI-Desktop\\src\\a.ts", winRoot), "src/a.ts");
+  assert.equal(toWorkspaceRel("e:/pi-pro/PI-Desktop/docs/x.md", "E:\\PI-PRO\\PI-DESKTOP"), "docs/x.md");
+  assert.equal(toWorkspaceRel("C:\\elsewhere\\a.ts", winRoot), null);
+});
+
+test("resolvePreviewTarget marks external drive paths and keeps posix strictness", () => {
+  assert.deepEqual(resolvePreviewTarget("E:\\pi-pro\\report.xlsx"), {
+    kind: "file",
+    path: "E:/pi-pro/report.xlsx",
+    external: true,
+  });
+  // POSIX absolute paths outside the root stay unresolvable (historical).
+  assert.equal(resolvePreviewTarget("/etc/hosts", ROOT), null);
+});
+
+test("splitChatText chips windows drive paths inside prose", () => {
+  const segments = splitChatText("产物在 E:\\pi-pro\\PI-Desktop\\release\\setup.exe，请查收");
+  const targets = segments.filter((s) => s.kind === "target");
+  assert.equal(targets.length, 1);
+  assert.equal(targets[0].target.kind, "file");
+  assert.equal(targets[0].target.external, true);
+  assert.equal(targets[0].label, "setup.exe");
+  assert.ok(segments[0].text.includes("产物在"));
+  assert.ok(segments.at(-1).text.includes("，请查收"));
 });

@@ -10035,3 +10035,43 @@ sample extensions under `apps/desktop/test/fixtures/pi-extensions/`.
 - **Milestone**: M5
 - **Status**: Unit-covered (`context-usage.test.mjs`,
   `settings-general.test.mjs`); full scenario Draft
+
+### E2E-CHAT-turn-summary-card
+
+- **Preconditions**: A session with a completed assistant turn that wrote or
+  edited at least one workspace file (Write/Edit with review evidence).
+- **Steps**:
+  1. Send a prompt that leads the agent to create and edit a workspace file.
+  2. Wait for the turn to finish.
+- **Expected**: A summary card renders below the finished turn showing the
+  step count and the changed files grouped by added/modified/deleted with
+  +/− totals. Expanding a row shows that file's per-call diffs; the panel
+  action opens the file in the work panel; the header action opens the
+  session review list. The card is absent while the turn is still running
+  and when the turn produced no durable changes (D408).
+- **Specs linked**: `docs/spec/04-ux/08-component-spec.md`,
+  `docs/spec/08-meta/decisions-log.md`
+- **Acceptance criterion**: F
+- **Milestone**: M6
+- **Status**: Documented
+
+### E2E-CHAT-external-path-open-reveal
+
+- **Preconditions**: A session on a Windows host (or any host with a POSIX
+  fixture path) with an existing local file outside the workspace, e.g. a
+  build artifact under a drive path.
+- **Steps**:
+  1. Send a message that makes the assistant report the absolute path of the
+     outside file.
+  2. Click the rendered path chip in the transcript.
+  3. Use the summary card's reveal action on a workspace file.
+- **Expected**: The drive-path chip renders as a clickable reference despite
+  backslashes and CJK-adjacent punctuation. Clicking it opens the file with
+  the OS default application; the reveal action shows the file in the OS
+  file manager. A path inside the app data directory, a `~` path, and a
+  missing path are refused with an error toast; `fs/read` stays
+  workspace-scoped (ADR 0236 / D408).
+- **Specs linked**: `docs/adr/0236-chat-open-reveal-for-external-local-paths.md`
+- **Acceptance criterion**: F
+- **Milestone**: M6
+- **Status**: Documented
