@@ -1668,7 +1668,6 @@
   align-items: center;
   gap: 5px;
   border-radius: var(--radius-sm);
-  background: var(--row-tint, transparent);
   margin: 0 -3px;
   padding: 2px 5px;
   color: var(--ds-text-secondary);
@@ -1681,11 +1680,12 @@
   color: var(--ds-text-primary);
 }
 
-/* A thinking-only group's header carries the thinking tint so the collapsed
-   batch reads with the thinking rows inside it; mixed and subagent groups stay
-   neutral and let their member rows carry the kind tints. */
-.tool-activity-group.group-kind-thinking > .tool-activity-header {
-  --row-tint: color-mix(in oklab, var(--ds-purple) 9%, transparent);
+/* A thinking-only group's label carries the thinking glow so the collapsed
+   batch reads with the thinking rows inside it; mixed and subagent groups
+   stay neutral and let their member rows carry the kind glows. */
+.tool-activity-group.group-kind-thinking > .tool-activity-header .tool-activity-label {
+  color: var(--ds-purple);
+  text-shadow: 0 0 9px color-mix(in oklab, var(--ds-purple) 55%, transparent);
 }
 .tool-activity-icon {
   display: inline-flex;
@@ -2119,7 +2119,6 @@
   margin: 0 -4px;
   padding: 2px 4px;
   border-radius: var(--radius-sm);
-  background: var(--row-tint, transparent);
   color: var(--ds-text-secondary);
   font-size: var(--text-sm-plus);
   text-align: left;
@@ -2129,29 +2128,32 @@
   cursor: default;
 }
 
-/* Processing-kind tint: each tool family reads as its own hue so a scan
-   separates reads, searches, runs, writes and thinking at a glance. The tint
-   rides the kind-* hook the transcript derives from getToolAction; delegation
-   rows keep their D268 accent story and stay untinted. Hover falls back to the
-   neutral hover fill. */
-.tool-row.kind-read > .tool-row-head > .tool-row-header,
-.tool-row.kind-list > .tool-row-head > .tool-row-header,
-.tool-row.kind-search > .tool-row-head > .tool-row-header,
-.tool-row.kind-fetch > .tool-row-head > .tool-row-header {
-  --row-tint: color-mix(in oklab, var(--ds-blue) 12%, transparent);
+/* Processing-kind glow: each tool family's label reads as its own hue so a
+   scan separates reads, runs, writes and thinking at a glance. The glow rides
+   the kind-* hook the transcript derives from getToolAction; delegation rows
+   keep their D268 accent story. Hover keeps the kind colour on the label. */
+.tool-row.kind-read > .tool-row-head > .tool-row-header .tool-row-name,
+.tool-row.kind-list > .tool-row-head > .tool-row-header .tool-row-name,
+.tool-row.kind-search > .tool-row-head > .tool-row-header .tool-row-name,
+.tool-row.kind-fetch > .tool-row-head > .tool-row-header .tool-row-name {
+  color: var(--ds-blue);
+  text-shadow: 0 0 9px color-mix(in oklab, var(--ds-blue) 55%, transparent);
 }
 
-.tool-row.kind-run > .tool-row-head > .tool-row-header {
-  --row-tint: color-mix(in oklab, var(--ds-warning) 11%, transparent);
+.tool-row.kind-run > .tool-row-head > .tool-row-header .tool-row-name {
+  color: var(--ds-warning);
+  text-shadow: 0 0 9px color-mix(in oklab, var(--ds-warning) 55%, transparent);
 }
 
-.tool-row.kind-write > .tool-row-head > .tool-row-header,
-.tool-row.kind-edit > .tool-row-head > .tool-row-header {
-  --row-tint: color-mix(in oklab, var(--ds-success) 11%, transparent);
+.tool-row.kind-write > .tool-row-head > .tool-row-header .tool-row-name,
+.tool-row.kind-edit > .tool-row-head > .tool-row-header .tool-row-name {
+  color: var(--ds-success);
+  text-shadow: 0 0 9px color-mix(in oklab, var(--ds-success) 55%, transparent);
 }
 
-.tool-row.thinking > .tool-row-header {
-  --row-tint: color-mix(in oklab, var(--ds-purple) 12%, transparent);
+.tool-row.thinking > .tool-row-header .tool-row-name {
+  color: var(--ds-purple);
+  text-shadow: 0 0 9px color-mix(in oklab, var(--ds-purple) 55%, transparent);
 }
 
 /*
@@ -2236,15 +2238,14 @@
 }
 
 /* A run row states its outcome next to the caret, success included: every
-   tone renders as a tinted chip so the state never reads as bare text. */
+   tone reads as a glowing label so the state never reads as bare text. */
 .tool-row-state {
   display: inline-flex;
   flex: none;
   align-items: center;
   gap: 5px;
   margin-left: auto;
-  padding: 1px 7px 1px 5px;
-  border-radius: var(--radius-3xs);
+  padding-left: 4px;
   color: var(--ds-text-muted);
   font-size: var(--text-xs);
   white-space: nowrap;
@@ -2252,12 +2253,12 @@
 
 .tool-row-state.is-done {
   color: var(--ds-success);
-  background: color-mix(in oklab, var(--ds-success) 15%, transparent);
+  text-shadow: 0 0 8px color-mix(in oklab, var(--ds-success) 55%, transparent);
 }
 
 .tool-row-state.is-error {
   color: var(--ds-error);
-  background: color-mix(in oklab, var(--ds-error) 16%, transparent);
+  text-shadow: 0 0 8px color-mix(in oklab, var(--ds-error) 55%, transparent);
 }
 
 .tool-row-state-dot {
@@ -2278,7 +2279,7 @@
 
 .tool-row-state.is-denied {
   color: var(--ds-purple);
-  background: color-mix(in oklab, var(--ds-purple) 16%, transparent);
+  text-shadow: 0 0 8px color-mix(in oklab, var(--ds-purple) 55%, transparent);
 }
 
 .tool-row-state.is-denied .tool-row-state-dot {
@@ -2287,7 +2288,7 @@
 
 .tool-row-state.is-running {
   color: var(--ds-warning);
-  background: color-mix(in oklab, var(--ds-warning) 16%, transparent);
+  text-shadow: 0 0 8px color-mix(in oklab, var(--ds-warning) 55%, transparent);
 }
 
 .tool-row-state.is-running .tool-row-state-dot {
@@ -2414,16 +2415,15 @@
 }
 
 /* Inline markdown inside one-line row summaries (MarkdownInline): code spans
-   read as chips and bold reads one step brighter, both quieter than prose. */
+   glow in the code blue and bold reads one step brighter, both quieter than
+   prose; no chip background — the gray wash buried every token. */
 .tool-row-summary code,
 .subagent-topology-node-summary code {
   font-family: var(--font-mono);
   font-size: inherit;
   font-variant-ligatures: none;
-  background: color-mix(in oklab, var(--ds-text-primary) 7%, transparent);
-  border-radius: var(--radius-3xs);
-  padding: 0.08em 0.35em;
-  color: var(--ds-text-secondary);
+  color: var(--ds-blue);
+  text-shadow: 0 0 8px color-mix(in oklab, var(--ds-blue) 50%, transparent);
 }
 
 .tool-row-summary strong,

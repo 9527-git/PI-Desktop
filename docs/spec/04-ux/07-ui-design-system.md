@@ -269,10 +269,10 @@ status-bearing surface renders its state visually — never as bare text alone:
 
 | Surface | State | Semantic color | Shape / motion |
 |---|---|---|---|
-| Tool row (`tool-row-state`) | running | warning orange | tinted chip with a restrained pulse; tool icon tinted warning |
-| Tool row (`tool-row-state`) | success | success green | tinted chip with a green dot; icon stays neutral |
-| Tool row | error | error red | tinted chip; dot, icon tint, and alert label |
-| Tool row | denied | purple | tinted chip; dot, icon tint, and label (reserved for refusals) |
+| Tool row (`tool-row-state`) | running | warning orange | glowing label with a restrained pulse; tool icon tinted warning |
+| Tool row (`tool-row-state`) | success | success green | glowing label with a green dot; icon stays neutral |
+| Tool row | error | error red | glowing label; dot, icon tint, and alert label |
+| Tool row | denied | purple | glowing label; dot, icon tint, and label (reserved for refusals) |
 | Subagent topology node | running | warning orange | avatar badge with a restrained pulse |
 | Subagent topology node | denied | purple | avatar badge (matches the tool-row refusal color) |
 | Subagent topology node | aborted | neutral gray | avatar badge (a stop is neutral, not a failure) |
@@ -280,19 +280,21 @@ status-bearing surface renders its state visually — never as bare text alone:
 | Streaming reply | streaming | neutral accent | blinking caret on the growing prose |
 | Tool spinner | running | warning orange | arc ring; track held at 30% alpha |
 
-Every state chip uses its semantic color at the same low alpha, so the label
-never reads as bare text; the chip stays the only completion marker (D227).
-Denied keeps purple — the same color the permission flow uses — so refusals
-read as permission outcomes rather than errors. All motion is disabled under
-`prefers-reduced-motion` while the color remains.
+Every state label carries its semantic color as a soft glow (text-shadow at
+low alpha) rather than a painted chip; the label stays the only completion
+marker (D227). Denied keeps purple — the same color the permission flow uses —
+so refusals read as permission outcomes rather than errors. All motion is
+disabled under `prefers-reduced-motion` while the color remains.
 
-Processing rows carry a kind tint so a scan separates tool families at a
-glance: read/list/search/fetch rows read as blue, run rows as warning orange,
-write/edit rows as success green, and thinking rows — plus thinking-only
-activity groups — as purple. The tint rides the `kind-*` hook the transcript
-derives from `getToolAction` and a `group-kind-*` hook on the activity group;
-delegation rows keep their D268 accent story and stay untinted, and hover
-falls back to the neutral hover fill.
+Processing rows carry a kind glow so a scan separates tool families at a
+glance: read/list/search/fetch labels glow blue, run labels warning orange,
+write/edit labels success green, and thinking labels — plus thinking-only
+activity group labels — purple. The glow rides the `kind-*` hook the
+transcript derives from `getToolAction` and a `group-kind-*` hook on the
+activity group; delegation rows keep their D268 accent story. Row rows stay
+background-free: the hue lives in the label, never in a row wash. Inline code
+in the chat prose and in row summaries glows the same code blue, so technical
+tokens read identically wherever they appear.
 
 Row summary text renders inline markdown, not bare source: the collapsed
 tool, thinking, and subagent topology summaries run through a lightweight
