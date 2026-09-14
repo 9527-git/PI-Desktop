@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.16",
+    "date": "2026-09-14",
+    "highlights": [
+      "채팅이 메시지의 Windows 드라이브 경로(C:\\..., E:/...)를 클릭 가능한 참조로 인식하고, 완료된 턴은 단계와 변경된 파일의 요약 카드로 마무리되며, 파일 행에서 파일이 있는 폴더를 바로 엽니다.",
+    ],
+  },
+  {
     "version": "0.14.15",
     "date": "2026-09-14",
     "highlights": [

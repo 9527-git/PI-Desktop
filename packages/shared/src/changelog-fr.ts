@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.16",
+    "date": "2026-09-14",
+    "highlights": [
+      "Le chat reconnaît les chemins de lecteur Windows (C:\\..., E:/...) dans les messages comme références cliquables ; les tours terminés se closent par une carte récapitulative des étapes et fichiers modifiés, et les lignes de fichiers ouvrent directement le dossier du fichier dans le gestionnaire.",
+    ],
+  },
+  {
     "version": "0.14.15",
     "date": "2026-09-14",
     "highlights": [

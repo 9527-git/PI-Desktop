@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.16",
+    "date": "2026-09-14",
+    "highlights": [
+      "Der Chat erkennt Windows-Laufwerkspfade (C:\\..., E:/...) in Nachrichten als klickbare Verweise, beendete Durchgänge enden mit einer Zusammenfassungskarte aus Schritten und geänderten Dateien, und Dateizeilen öffnen direkt den Ordner der Datei im Dateimanager.",
+    ],
+  },
+  {
     "version": "0.14.15",
     "date": "2026-09-14",
     "highlights": [

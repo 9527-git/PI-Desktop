@@ -29,6 +29,13 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.16",
+    date: "2026-09-14",
+    highlights: [
+      "Chat recognizes Windows drive paths (C:\\..., E:/...) in messages as clickable references, finished turns end with a summary card of steps and changed files, and file rows open straight to the file's folder in the file manager.",
+    ],
+  },
+  {
     version: "0.14.15",
     date: "2026-09-14",
     highlights: [
@@ -813,6 +820,13 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.16",
+    date: "2026-09-14",
+    highlights: [
+      "聊天消息中的 Windows 盘符路径（C:\\...、E:/...）可点击打开；回合结束追加汇总卡片，列出步骤与变更文件；文件行支持一键在文件管理器中打开所在文件夹。",
+    ],
+  },
+  {
     version: "0.14.15",
     date: "2026-09-14",
     highlights: [
@@ -1596,6 +1610,13 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.16",
+    date: "2026-09-14",
+    highlights: [
+      "聊天訊息中的 Windows 磁碟機路徑（C:\\...、E:/...）可點擊開啟；回合結束附加摘要卡片，列出步驟與變更檔案；檔案行支援一鍵在檔案管理員中開啟所在資料夾。",
+    ],
+  },
   {
     version: "0.14.15",
     date: "2026-09-14",

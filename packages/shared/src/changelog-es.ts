@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.16",
+    "date": "2026-09-14",
+    "highlights": [
+      "El chat reconoce rutas de unidad de Windows (C:\\..., E:/...) en los mensajes como referencias clicables; los turnos finalizados terminan con una tarjeta de resumen de pasos y archivos cambiados, y las filas de archivos abren directamente la carpeta del archivo en el explorador.",
+    ],
+  },
+  {
     "version": "0.14.15",
     "date": "2026-09-14",
     "highlights": [

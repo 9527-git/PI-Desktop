@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.16",
+    "date": "2026-09-14",
+    "highlights": [
+      "Sohbet, mesajlardaki Windows sürücü yollarını (C:\\..., E:/...) tıklanabilir referanslar olarak tanır; biten turlar adımların ve değiştirilen dosyaların özet kartıyla biter ve dosya satırları dosyanın klasörünü dosya yöneticisinde doğrudan açar.",
+    ],
+  },
+  {
     "version": "0.14.15",
     "date": "2026-09-14",
     "highlights": [
