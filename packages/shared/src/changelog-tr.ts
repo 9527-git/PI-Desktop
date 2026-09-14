@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.13",
+    "date": "2026-09-12",
+    "highlights": [
+      "İşlem satırlarının arka planı kalktı: araç etiketleri kendi tonunda parlıyor — okuma ve arama mavi, çalıştırma turuncu, yazma yeşil, düşünme mor.",
+      "Sohbet metnindeki ve satır özetlerindeki satır içi kod, gri rozet yerine mavi olarak parlıyor.",
+    ],
+  },
+  {
     "version": "0.14.12",
     "date": "2026-09-12",
     "highlights": [

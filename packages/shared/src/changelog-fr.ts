@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.13",
+    "date": "2026-09-12",
+    "highlights": [
+      "Les fonds colorés des lignes de traitement disparaissent : les libellés d'outils brillent de leur teinte — lecture et recherche en bleu, exécution en orange, écriture en vert, réflexion en violet.",
+      "Le code en ligne du texte du chat et des résumés brille en bleu au lieu d'un pastille grise.",
+    ],
+  },
+  {
     "version": "0.14.12",
     "date": "2026-09-12",
     "highlights": [

@@ -29,6 +29,14 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.13",
+    date: "2026-09-12",
+    highlights: [
+      "Row background tints are gone: tool-family labels glow their own hue — reads and searches blue, runs orange, writes green, thinking purple.",
+      "Inline code in the chat prose and row summaries glows blue instead of wearing a gray chip.",
+    ],
+  },
+  {
     version: "0.14.12",
     date: "2026-09-12",
     highlights: [
@@ -791,6 +799,14 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.13",
+    date: "2026-09-12",
+    highlights: [
+      "处理行的底色移除，改为发光的彩色文字：读取与搜索为蓝、运行为橙、写入为绿、思考为紫。",
+      "聊天正文与单行摘要中的行内代码改为发光蓝色，不再有灰色底块。",
+    ],
+  },
+  {
     version: "0.14.12",
     date: "2026-09-12",
     highlights: [
@@ -1552,6 +1568,14 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.13",
+    date: "2026-09-12",
+    highlights: [
+      "處理行的底色移除，改為發光的彩色標籤：讀取與搜尋為藍、執行為橙、寫入為綠、思考為紫。",
+      "聊天正文與單行摘要中的行內程式碼改為發光藍色，不再有灰色底塊。",
+    ],
+  },
   {
     version: "0.14.12",
     date: "2026-09-12",

@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.13",
+    "date": "2026-09-12",
+    "highlights": [
+      "Los fondos de las filas de proceso desaparecen: las etiquetas de herramientas brillan con su tono — lectura y búsqueda en azul, ejecución en naranja, escritura en verde, pensamiento en púrpura.",
+      "El código en línea del texto del chat y de los resúmenes brilla en azul en lugar de llevar un chip gris.",
+    ],
+  },
+  {
     "version": "0.14.12",
     "date": "2026-09-12",
     "highlights": [

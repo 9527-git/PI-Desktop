@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.13",
+    "date": "2026-09-12",
+    "highlights": [
+      "처리 행의 배경색이 사라지고 도구 라벨이 각자의 색으로 빛납니다 — 읽기·검색은 파랑, 실행은 주황, 쓰기는 초록, 생각은 보라.",
+      "채팅 본문과 행 요약의 인라인 코드가 회색 칩 대신 파란색으로 빛납니다.",
+    ],
+  },
+  {
     "version": "0.14.12",
     "date": "2026-09-12",
     "highlights": [

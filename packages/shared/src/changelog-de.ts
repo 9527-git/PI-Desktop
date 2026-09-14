@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.13",
+    "date": "2026-09-12",
+    "highlights": [
+      "Die Hintergrundfarben der Verarbeitungszeilen sind weg: Werkzeugbezeichnungen leuchten in ihrem Farbton – Lesen und Suchen blau, Ausführen orange, Schreiben grün, Denken violett.",
+      "Inline-Code im Chat-Text und in Zeilenzusammenfassungen leuchtet blau statt einen grauen Chip zu tragen.",
+    ],
+  },
+  {
     "version": "0.14.12",
     "date": "2026-09-12",
     "highlights": [
