@@ -263,3 +263,21 @@ test("splitChatText chips windows drive paths inside prose", () => {
   assert.ok(segments[0].text.includes("产物在"));
   assert.ok(segments.at(-1).text.includes("，请查收"));
 });
+
+test("paths containing spaces stay one reference", () => {
+  assert.equal(parseFileRef("C:\\Program Files\\App\\app.exe"), "C:\\Program Files\\App\\app.exe");
+  const segments = splitChatText("产物：" + "C:\\Program Files\\App\\app.exe" + "，请查收");
+  const targets = segments.filter((s) => s.kind === "target");
+  assert.equal(targets.length, 1);
+  assert.equal(targets[0].text, "C:\\Program Files\\App\\app.exe");
+  assert.equal(targets[0].target.external, true);
+  assert.ok(segments.at(-1).text.includes("，请查收"));
+});
+
+test("spaced scanning does not swallow neighbouring prose", () => {
+  // Two plain relative references stay two references.
+  const plain = splitChatText("see README.md and notes.txt", "/ws");
+  assert.equal(plain.filter((s) => s.kind === "target").length, 2);
+  // A dot-led list is not a path.
+  assert.equal(parseFileRef("and then some text"), null);
+});

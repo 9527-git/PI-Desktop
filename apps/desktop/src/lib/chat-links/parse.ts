@@ -35,7 +35,7 @@ export function parseFileRef(text: string): string | null {
   let raw = text.trim();
   if (!raw || raw.length > 512) return null;
   if (raw.startsWith("@")) raw = raw.slice(1);
-  if (!raw || !FILE_SHAPE_RE.test(raw)) return null;
+  if (!raw || !isPathTokenShape(raw)) return null;
   const path = stripLineRef(raw);
   return isLikelyFilePath(path) ? path : null;
 }
@@ -73,3 +73,21 @@ const FILE_SHAPE_RE = new RegExp(
   "^(?:[A-Za-z]:)?(?:" + SEPARATOR + "|\\.{1,2}" + SEPARATOR + ")?" +
     SEG + "(?:" + SEPARATOR + SEG + ")*(?::\\d+(?::\\d+)?)?$",
 );
+
+/**
+ * Shape that tolerates interior spaces ("C:\\Program Files\\App\\app.exe").
+ * Only an extension-terminated token qualifies, so a spaced absolute path
+ * cannot swallow following prose.
+ */
+const SPACED_SEG =
+  "[^<>\"'\\u0060|*?(){}\\[\\],;!。、，；：「」『』（）【】：\\u005c/]+";
+const SPACED_SHAPE_RE = new RegExp(
+  "^(?:[A-Za-z]:)?(?:" + SEPARATOR + "|\\.{1,2}" + SEPARATOR + ")?" +
+    SPACED_SEG + "(?:" + SEPARATOR + SPACED_SEG + ")*" +
+    "\\.[A-Za-z0-9]{1,8}(?::\\d+(?::\\d+)?)?$",
+);
+
+/** Does the token look like a path (spaced absolute paths allowed)? */
+export function isPathTokenShape(token: string): boolean {
+  return FILE_SHAPE_RE.test(token) || SPACED_SHAPE_RE.test(token);
+}
