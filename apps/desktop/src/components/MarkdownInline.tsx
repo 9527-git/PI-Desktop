@@ -2,10 +2,11 @@ import { Fragment, type ReactNode } from "react";
 
 /**
  * Lightweight inline markdown renderer for one-line row summaries: code
- * spans and bold render through the same visual language as the chat prose,
- * without block parsing or the full Markdown pipeline. Block level syntax
- * (lists, headings) stays literal text; single-asterisk emphasis is
- * deliberately not parsed so glob patterns in tool arguments survive.
+ * spans, bold, file paths and URLs render through the same visual language
+ * as the chat prose, without block parsing or the full Markdown pipeline.
+ * Block level syntax (lists, headings) stays literal text; single-asterisk
+ * emphasis is deliberately not parsed so glob patterns in tool arguments
+ * survive.
  */
 export function MarkdownInline({ source }: { source: string }) {
   return <Fragment>{inlineNodes(source, 0)}</Fragment>;
@@ -13,19 +14,26 @@ export function MarkdownInline({ source }: { source: string }) {
 
 const CODE_SPAN = /`([^`\n]+)`/;
 const BOLD = /\*\*([^*\n]+)\*\*/;
+const URL_TOKEN = /https?:\/\/[^\s`]+/;
+const PATH_TOKEN = /(?:[A-Za-z]:)?(?:[\w@+~.-]+[\/\\])+[\w@+~.-]+/;
 
-type Match = { kind: "code" | "bold"; index: number; inner: string; raw: string };
+type MatchKind = "code" | "bold" | "url" | "path";
+type Match = { kind: MatchKind; index: number; inner: string; raw: string };
+
+const pick = (kind: MatchKind, re: RegExp, text: string): Match | null => {
+  const m = re.exec(text);
+  return m ? { kind, index: m.index, inner: m[0], raw: m[0] } : null;
+};
 
 function firstMatch(text: string): Match | null {
-  const code = CODE_SPAN.exec(text);
-  const bold = BOLD.exec(text);
-  const pick = (kind: Match["kind"], m: RegExpExecArray | null): Match | null =>
-    m ? { kind, index: m.index, inner: m[1], raw: m[0] } : null;
-  const codeMatch = pick("code", code);
-  const boldMatch = pick("bold", bold);
-  if (!codeMatch) return boldMatch;
-  if (!boldMatch) return codeMatch;
-  return codeMatch.index <= boldMatch.index ? codeMatch : boldMatch;
+  const candidates = [
+    pick("code", CODE_SPAN, text),
+    pick("bold", BOLD, text),
+    pick("url", URL_TOKEN, text),
+    pick("path", PATH_TOKEN, text),
+  ].filter((m): m is Match => m !== null);
+  if (candidates.length === 0) return null;
+  return candidates.reduce((a, b) => (b.index < a.index ? b : a));
 }
 
 function inlineNodes(text: string, base: number): ReactNode[] {
@@ -42,10 +50,18 @@ function inlineNodes(text: string, base: number): ReactNode[] {
     nodes.push(
       match.kind === "code" ? (
         <code key={key}>{match.inner}</code>
-      ) : (
+      ) : match.kind === "bold" ? (
         <strong key={key}>
           {inlineNodes(match.inner, base + match.index + match.raw.length)}
         </strong>
+      ) : match.kind === "path" ? (
+        <span key={key} className="md-inline-path">
+          {match.inner}
+        </span>
+      ) : (
+        // A URL stays literal text: consumed whole so the path scan never
+        // recolors its host tail.
+        match.inner
       ),
     );
     rest = rest.slice(match.index + match.raw.length);

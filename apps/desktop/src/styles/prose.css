@@ -281,6 +281,18 @@
   text-decoration-color: color-mix(in oklab, #1a1c1f 80%, transparent);
 }
 
+/* File-path links glow yellow; http(s) links keep the neutral underline so
+   the two read as different content at a glance. The light re-assert outranks
+   the light link rule above without losing the token. */
+.prose-chat a:not([href^="http"]) {
+  color: var(--ds-yellow);
+  text-shadow: 0 0 9px color-mix(in oklab, var(--ds-yellow) 45%, transparent);
+}
+
+:root[data-theme="light"] .prose-chat a:not([href^="http"]) {
+  color: var(--ds-yellow);
+}
+
 .prose-chat img,
 .prose-chat .chat-image-remote {
   display: block;
