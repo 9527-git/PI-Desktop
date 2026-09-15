@@ -7194,6 +7194,8 @@ and identify the platform validation still needed.
 | D — Workspace (project delete) | E2E-PROJECT-delete-removes-project-and-owned-sessions |
 | F — Persistence (project delete) | E2E-PROJECT-delete-removes-project-and-owned-sessions |
 | Quality (project delete) | E2E-PROJECT-delete-removes-project-and-owned-sessions |
+| C — Conversation & stream (manual compaction queue) | E2E-QUEUE-prompt-during-manual-compaction-is-queued-and-delivered |
+| Quality (manual compaction queue) | E2E-QUEUE-prompt-during-manual-compaction-is-queued-and-delivered |
 
 | Milestone | Scenarios |
 |---|---|
@@ -11838,4 +11840,26 @@ plugin-form fixtures in an isolated temporary directory at runtime.
   disabled, no migration/repair/fallback occurs, and source bytes and mtimes are
   unchanged.
 - **Specs:** IPC native routing; runtime §12; storage §12; security §12.
+- **Status:** Documented; run after integration into main.
+
+### E2E-QUEUE-prompt-during-manual-compaction-is-queued-and-delivered
+
+- **Preconditions:** A session with a slow summarization provider, so the manual
+  compaction stays in flight long enough to type and send; the session is idle
+  with no active turn and no queued prompt.
+- **Steps:** Run `/compact` from the composer and, while the compaction
+  indicator is showing, send a prompt. Inspect the FIFO row and the runtime
+  state before the compaction answers; then let the compaction finish and the
+  queued prompt run. Repeat with a compaction that fails on a provider error,
+  with Stop pressed while the prompt is queued, and with two prompts sent during
+  the same compaction.
+- **Expected:** A prompt sent during a manual compaction queues as an ordinary
+  FIFO row instead of starting: no `AGENT_BUSY` error row appears and the draft
+  is not restored into the composer. When the compaction answers, the queued
+  prompt starts by itself and completes in one turn. A failed compaction still
+  releases the hold and drains the queue, a queued prompt removed before the
+  compaction ends is never started, and two prompts stay FIFO. The transcript
+  shows the compaction row before the queued turn.
+- **Specs:** `03-runtime/02-agent-runtime.md` (§5),
+  `03-runtime/01-ipc-protocol.md` (prompt/compact admission)
 - **Status:** Documented; run after integration into main.

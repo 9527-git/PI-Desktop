@@ -114,6 +114,9 @@ No host RPC or storage schema change is required.
 4. validate model/secret availability
 5. reject if session busy; the renderer queues a user-facing next prompt and
    does not call this path until the current session reaches `agent_end`
+   A manual compaction counts as busy for that window: it occupies the runtime
+   until its RPC answers, so a prompt sent meanwhile queues behind it instead of
+   failing with `AGENT_BUSY`.
 6. validate structured attachments at Electron main's session-bound path
    boundary, persist image bytes by SHA-256, and retain only attachment refs in
    the durable user message. Only an image that is within the 10 MB inline

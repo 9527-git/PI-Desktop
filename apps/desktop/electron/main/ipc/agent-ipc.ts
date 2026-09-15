@@ -12,6 +12,7 @@ import type { HostProcess } from "../host-process";
 import type { Logger } from "../logger";
 import type { PersistenceOutbox } from "../persistence-outbox";
 import type { ComposerCommandService } from "./composer-ipc";
+import { holdCompactionSession } from "../runtime/compaction-occupancy";
 import type { IpcRegistrar } from "./types";
 
 export type AgentIpcDependencies = {
@@ -589,12 +590,23 @@ export function registerAgentIpc({
       settings,
     );
     sidecar.setProjectInstructionRoot(req.sessionId, launch.projectPath);
-    const result = await sidecar.call("agent.compact", launch.sidecarParams);
-    logger.app("session", "info", "context compacted manually", {
-      sessionId: req.sessionId,
-      data: { providerId: launch.providerId, modelId: launch.modelId },
-    });
-    return result;
+    // A manual compaction occupies the runtime until this RPC answers, but it
+    // registers no turn. Hold the session so a prompt sent meanwhile queues
+    // instead of starting against a busy runtime, and kick the queue once the
+    // hold is gone (the host's own drain at `compaction_end` runs while the
+    // hold is still up and must skip).
+    const releaseCompaction = holdCompactionSession(req.sessionId);
+    try {
+      const result = await sidecar.call("agent.compact", launch.sidecarParams);
+      logger.app("session", "info", "context compacted manually", {
+        sessionId: req.sessionId,
+        data: { providerId: launch.providerId, modelId: launch.modelId },
+      });
+      return result;
+    } finally {
+      releaseCompaction();
+      agentHostBridge?.agentHost.kick(req.sessionId);
+    }
   });
 
   handle(IPC.invoke.agentAbort, async (req: { sessionId: string; turnId?: string }) => {

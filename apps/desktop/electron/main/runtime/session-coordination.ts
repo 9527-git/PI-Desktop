@@ -7,6 +7,7 @@ import {
 import {
   shouldCreateTaskNotification as shouldCreateTaskNotificationPolicy,
 } from "../notification-policy";
+import { isCompactionOccupied } from "./compaction-occupancy";
 
 /**
  * Terminal state of one host turn. `aborted` is reserved for a turn the host
@@ -197,12 +198,14 @@ export function createSessionCoordination({
    * turn but its announcement has not run yet, so the finalization records are
    * part of the answer. That table only holds the turns still finalizing, so a
    * prefix scan is bounded by the number of concurrent finalizations and needs no
-   * second index.
+   * second index. A manual compaction occupies the runtime without registering a
+   * turn, so its hold is part of the answer too.
    */
   function isSessionBusy(sessionId: string): boolean {
     const id = sessionId.trim();
     if (!id) return false;
     if (activeTurns.has(id)) return true;
+    if (isCompactionOccupied(id)) return true;
     const prefix = id + ":";
     for (const key of turnFinalizations.keys()) {
       if (key.startsWith(prefix)) return true;
