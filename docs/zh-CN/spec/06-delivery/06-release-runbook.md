@@ -166,6 +166,12 @@ scripts/release-macos.sh
 `scripts/release-macos.sh` 默认使用主机架构，也接受 `MAC_ARCH=arm64` 或
 `MAC_ARCH=x64`，但该值必须与主机匹配，以保持 Rust 本机主机和 Electron
 软件包的架构一致。
+**本机 Windows 流程：** `build-win.ps1` 一次运行产出两种 Windows 打包形态
+（`PI-Desktop-Setup-<版本>.exe` 与 `PI-Desktop-Portable-<版本>.exe`），并把它们发布到
+仓库根目录的 `release/<版本>/`：一个版本一个目录，容纳该版本的全部打包形态。
+`apps/desktop/release/` 仍是 electron-builder 的原始输出，版本目录才是交付单位。
+`-Clean` 只清理 electron-builder 的输出目录，不会动 `release/<版本>/`。
+重复打包同一版本会就地补写既有版本目录，并在覆盖文件时给出警告。
 
 ### 4.3 GitHub 标签和手动工作流程
 

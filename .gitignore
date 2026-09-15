@@ -14,6 +14,8 @@ target/
 *.tsbuildinfo
 apps/desktop/out/
 apps/desktop/dist-electron/
+# Per-version installer folders published to the repository root for delivery
+/release/
 apps/desktop/release/
 packages/*/dist/
 packages/*/dist-bundle/
