@@ -10043,13 +10043,19 @@ sample extensions under `apps/desktop/test/fixtures/pi-extensions/`.
 - **Steps**:
   1. Send a prompt that leads the agent to create and edit a workspace file.
   2. Wait for the turn to finish.
-- **Expected**: A summary card renders below the finished turn showing the
-  step count and the changed files grouped by added/modified/deleted with
-  +/− totals. Expanding a row shows that file's per-call diffs; the panel
-  action opens the file in the work panel; the header action opens the
-  session review list. The card is absent while the turn is still running
-  and when the turn produced no durable changes (D408).
+- **Expected**: A summary card renders below the finished turn with the step
+  count and two tables. The Changes table lists one row per changed workspace
+  file — status mark, what changed (operation, +/− counts, the first changed
+  line), and the path — and the Outputs table lists the files the answer
+  reported as produced, each with the reported line and its path. Expanding a
+  change row shows that file's per-call diffs; the panel action opens the file
+  in the work panel; the reveal action locates it in the OS file manager; the
+  header action opens the session review list. A row whose file no longer
+  exists shows a localized not-found hint beside the path and disables its
+  actions. The card is absent while the turn is still running and when the
+  turn reported no changes, outputs, or steps (D408/D409).
 - **Specs linked**: `docs/spec/04-ux/08-component-spec.md`,
+  `docs/adr/0237-transcript-path-existence-probe.md`,
   `docs/spec/08-meta/decisions-log.md`
 - **Acceptance criterion**: F
 - **Milestone**: M6

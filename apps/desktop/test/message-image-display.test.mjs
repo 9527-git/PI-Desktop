@@ -11,7 +11,7 @@ const [transcript, markdown, api, main, panel, gate, protocol, hook] =
     read("../src/lib/api.ts"),
     read("../electron/main/index.ts"),
     read("../electron/main/fs-panel.ts"),
-    read("../electron/main/fs-open-gate.ts"),
+    read("../electron/main/fs-openable-io.ts"),
     read("../../../packages/shared/src/protocol.ts"),
     read("../src/lib/use-referenced-image-data-url.ts"),
   ]);

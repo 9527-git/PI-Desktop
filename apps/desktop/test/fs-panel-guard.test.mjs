@@ -19,12 +19,13 @@ import {
   MAX_TEXT_BYTES,
 } from "../electron/main/fs-panel.ts";
 const {
-  readOpenableFile,
-  readOpenableImage,
   resolveLooseOpenablePath,
   resolveOpenablePath,
   resolveRealOpenablePath,
 } = await import("../electron/main/fs-open-gate.ts");
+const { readOpenableFile, readOpenableImage, statOpenablePath } = await import(
+  "../electron/main/fs-openable-io.ts"
+);
 
 const ROOT = resolve("virtual-workspace");
 
@@ -266,4 +267,46 @@ test("resolveLooseOpenablePath refuses protected roots through links", async (t)
     return;
   }
   assert.equal(await resolveLooseOpenablePath(link, [dataDir]), null);
+});
+
+test("statOpenablePath reports file, directory, and missing verdicts", async (t) => {
+  const fixture = await mkdtemp(join(tmpdir(), "pi-fs-stat-"));
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  const workspace = join(fixture, "ws");
+  const outside = join(fixture, "out");
+  const dataDir = join(fixture, "data");
+  await Promise.all([mkdir(workspace), mkdir(outside), mkdir(dataDir)]);
+  await writeFile(join(workspace, "a.ts"), "x");
+  await writeFile(join(outside, "artifact.exe"), "x");
+  await writeFile(join(dataDir, "sessions.db"), "x");
+
+  // Workspace-relative and workspace file -> file.
+  assert.deepEqual(await statOpenablePath("a.ts", workspace, []), {
+    exists: true,
+    kind: "file",
+  });
+  // Directory resolves as a directory.
+  assert.deepEqual(await statOpenablePath(outside, workspace, []), {
+    exists: true,
+    kind: "dir",
+  });
+  // Outside absolute path is reported (the row can offer open/reveal).
+  assert.deepEqual(
+    await statOpenablePath(join(outside, "artifact.exe"), workspace, [], [dataDir]),
+    { exists: true, kind: "file" },
+  );
+  // A missing file, a relative path without a workspace, and a protected
+  // root all report missing: no verdict the card could act on.
+  assert.deepEqual(await statOpenablePath(join(outside, "gone.exe"), workspace, [], [dataDir]), {
+    exists: false,
+    kind: null,
+  });
+  assert.deepEqual(await statOpenablePath("a.ts", null, []), {
+    exists: false,
+    kind: null,
+  });
+  assert.deepEqual(
+    await statOpenablePath(join(dataDir, "sessions.db"), workspace, [], [dataDir]),
+    { exists: false, kind: null },
+  );
 });

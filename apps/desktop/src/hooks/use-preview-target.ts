@@ -22,6 +22,21 @@ export function useOpenLocalPath() {
   );
 }
 
+/** Locate a local path in the OS file manager, reporting a failed handoff. */
+export function useRevealLocalPath() {
+  const showToast = useAppStore((s) => s.showToast);
+  return useCallback(
+    (path: string) => {
+      void api.fsReveal(path).catch((error: unknown) => {
+        showToast(error instanceof Error ? error.message : String(error), {
+          variant: "error",
+        });
+      });
+    },
+    [showToast],
+  );
+}
+
 /**
  * Open a resolved chat reference: workspace files in the work-panel viewer,
  * files outside the workspace with the OS default handler, URLs in the

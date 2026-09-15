@@ -4710,3 +4710,20 @@ D193, and D194.
   agent-tool gates are unchanged.
 - Decision D408 amends D320 / ADR 0163 and ADR 0109 / 0111. See ADR 0236,
   E2E-CHAT-turn-summary-card, and E2E-CHAT-external-path-open-reveal.
+
+## 2026-09-14 — Turn summary as tables, with stale-path reporting (D409)
+
+- The per-turn summary renders two tables. Changes lists one row per changed
+  workspace file: status mark, what changed (operation, +/− counts, first
+  changed line), path, and the row actions. Outputs lists the files the turn's
+  final answer reported as produced, each with the reported line and path —
+  which covers artifacts no Write/Edit record can see.
+- A row whose path no longer resolves shows a localized not-found hint beside
+  the path and disables its actions, so a stale reference reads as stale
+  instead of as a dead button.
+- New additive channel `pi-desktop/fs/stat` reports the verdict and the entry
+  kind only (no content, size, or listing) through the existing containment
+  gates.
+- Decision D409 amends D408 / ADR 0236. See ADR 0237,
+  E2E-CHAT-turn-summary-card, and E2E-CHAT-external-path-open-reveal.
+

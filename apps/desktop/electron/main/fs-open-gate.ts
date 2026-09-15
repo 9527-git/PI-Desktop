@@ -1,24 +1,22 @@
 /**
- * Containment gates for the OS handoff actions on chat-referenced paths:
- * opening a file with its associated application and revealing it in the
- * file manager (ADR 0109 / 0111 / 0236).
+ * Containment gates for chat-referenced paths: the workspace-scoped resolver
+ * used by the work-panel viewer, and the OS-handoff resolvers used by
+ * `fs/open` and `fs/reveal` (ADR 0109 / 0111 / 0236).
  *
  * Split from `fs-panel` so the panel's read/browse surface keeps its strict
- * workspace scope while these user-initiated handoffs carry their own,
- * documented gate.
+ * workspace scope while the user-initiated handoffs carry their own,
+ * documented gate. The actions that consume these resolvers live in
+ * `fs-openable-io`.
  */
 
 import { realpathSync } from "node:fs";
+import { realpath } from "node:fs/promises";
 import { basename, isAbsolute, resolve } from "node:path";
-import { stat } from "node:fs/promises";
-import type { FsImageDataUrlResult, FsReadResult } from "@pi-desktop/shared";
 import {
   isAttachmentBlobRef,
   pathIsWithin,
-  previewFile,
   resolveWithinRoot,
 } from "./fs-panel";
-import { realpath } from "node:fs/promises";
 
 /**
  * Resolve a user-clicked chat file path against the workspace plus extra
@@ -122,7 +120,7 @@ export async function resolveLooseOpenablePath(
   if (!raw || raw.startsWith("~")) return null;
   // Only absolute local paths qualify: a drive prefix, or a POSIX-absolute
   // path (an MSYS mount resolves through the same realpath on Windows).
-  if (!isAbsolute(raw) && !/^[A-Za-z]:[\/]/.test(raw)) return null;
+  if (!isAbsolute(raw) && !/^[A-Za-z]:[\\/]/.test(raw)) return null;
   let target: string;
   try {
     target = await realpath(resolve(raw));
@@ -137,51 +135,4 @@ export async function resolveLooseOpenablePath(
     }
   });
   return insideProtected ? null : target;
-}
-
-/**
- * Read a workspace file, a content-addressed `attachments/<sha256>` blob, or
- * an absolute path already inside scratch/attachments. Containment matches
- * `fs/open` (D320) plus a realpath check.
- */
-export async function readOpenableFile(
-  path: string,
-  workspaceRoot: string | null | undefined,
-  extraRoots: readonly string[],
-  mimeType?: string,
-): Promise<FsReadResult> {
-  const target = await resolveRealOpenablePath(path, workspaceRoot, extraRoots);
-  if (!target) throw new Error("path outside allowed roots");
-  const info = await stat(target);
-  if (!info.isFile()) throw new Error("not a file");
-  return previewFile(target, path, mimeType);
-}
-
-/**
- * Bounded image data URL for in-chat display. Never returns file bytes for
- * non-images, so a markdown `![](secret.txt)` cannot dump text into the
- * renderer cache.
- */
-export async function readOpenableImage(
-  path: string,
-  workspaceRoot: string | null | undefined,
-  extraRoots: readonly string[],
-  mimeType?: string,
-): Promise<FsImageDataUrlResult> {
-  const target = await resolveRealOpenablePath(path, workspaceRoot, extraRoots);
-  if (!target) {
-    return { kind: "missing", errorCode: "PATH_OUTSIDE_ALLOWED_ROOT" };
-  }
-  try {
-    const result = await previewFile(target, path, mimeType);
-    if (result.kind === "image" && result.dataUrl) {
-      return { kind: "image", dataUrl: result.dataUrl, size: result.size };
-    }
-    if (result.kind === "tooLarge") {
-      return { kind: "tooLarge", size: result.size, errorCode: "IMAGE_TOO_LARGE" };
-    }
-    return { kind: "notImage", size: result.size, errorCode: "NOT_AN_IMAGE" };
-  } catch {
-    return { kind: "missing", errorCode: "FILE_NOT_FOUND" };
-  }
 }
