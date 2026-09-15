@@ -32,6 +32,7 @@ import { IconQuote, IconChat } from "../../../components/icons";
 import { Markdown } from "../../../components/Markdown";
 import { IconBranch, IconReview } from "../../../components/icons";
 import { TooltipButton } from "../../../components/ui";
+import { TurnSummaryCard } from "../../../components/TurnSummaryCard";
 import {
   AssistantErrorMessage,
   CopyButton,
@@ -403,6 +404,7 @@ export const AssistantTurn = memo(function AssistantTurn({
             ) : null}
           </div>
         ) : null}
+        {!isActive ? <TurnSummaryCard entry={entry} /> : null}
       </div>
     </div>
   );

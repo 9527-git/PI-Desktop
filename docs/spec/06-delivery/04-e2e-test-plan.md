@@ -7197,6 +7197,9 @@ and identify the platform validation still needed.
 | D — Workspace (external path handoff) | E2E-CHAT-external-path-open-reveal |
 | Security (external path handoff) | E2E-CHAT-external-path-open-reveal |
 | Quality (external path handoff) | E2E-CHAT-external-path-open-reveal |
+| C — Conversation & stream (turn summary card) | E2E-CHAT-turn-summary-card |
+| D — Workspace (turn summary card) | E2E-CHAT-turn-summary-card |
+| Quality (turn summary card) | E2E-CHAT-turn-summary-card |
 | C — Conversation & stream (manual compaction queue) | E2E-QUEUE-prompt-during-manual-compaction-is-queued-and-delivered |
 | Quality (manual compaction queue) | E2E-QUEUE-prompt-during-manual-compaction-is-queued-and-delivered |
 
@@ -11894,4 +11897,33 @@ plugin-form fixtures in an isolated temporary directory at runtime.
   row and disables its actions. `fs/read`, `fs/list`, and `fs/index` still
   refuse every path outside the workspace and the session roots.
 - **Specs:** `03-runtime/01-ipc-protocol.md`; ADR 0256; ADR 0257; D320 / D322.
+- **Status:** Documented; run after integration into main.
+
+### E2E-CHAT-turn-summary-card
+
+- **Preconditions:** A session with a configured model and a writable
+  workspace. One turn edits a tracked file, adds a new file and deletes one;
+  another turn only reads; a third reports an output path in its final answer
+  that no tool wrote (a build artifact), including one whose file is deleted
+  before the row is inspected.
+- **Steps:** Run each turn and inspect the card that appears under the finished
+  turn. Expand and collapse a changed file's diff, use the row's work-panel
+  open action and its file-manager reveal action, inspect a path whose file was
+  deleted, then switch sessions and reopen the transcript. Reload the renderer
+  and inspect the card again. Repeat with a turn that changed nothing and with a
+  turn whose answer reported more than the row cap.
+- **Expected:** Exactly one summary card renders per finished turn, below that
+  turn's own rows and above nothing that belongs to the next turn; no card
+  renders while the turn is still active, and none renders in the composer. The
+  changes table lists each durably changed file once, grouped by
+  added/modified/deleted, with correct operation and +/− counts, and its diff
+  expands and collapses. The outputs table lists the paths the final answer
+  reported, including the artifact no tool wrote. A row whose path no longer
+  resolves shows the localized not-found hint and its actions are disabled,
+  while a resolvable path opens in the work panel and reveals in the file
+  manager; a path outside the workspace opens through the OS. A turn that
+  changed nothing shows the empty-changes label instead of a table. The card
+  survives a session switch and a renderer reload without duplicating or losing
+  rows, and every shipped locale renders the labels.
+- **Specs:** `04-ux/08-component-spec.md`; ADR 0256; ADR 0257; D425.
 - **Status:** Documented; run after integration into main.
