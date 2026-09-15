@@ -202,12 +202,15 @@ import {
   listDir,
 } from "./fs-panel";
 import {
-  readOpenableFile,
-  readOpenableImage,
   resolveLooseOpenablePath,
   resolveOpenablePath,
   resolveRealOpenablePath,
 } from "./fs-open-gate";
+import {
+  readOpenableFile,
+  readOpenableImage,
+  statOpenablePath,
+} from "./fs-openable-io";
 import { getWorkspaceFileIndex } from "./fs-index";
 import {
   importComposerFiles,
@@ -7728,6 +7731,15 @@ function registerIpc() {
     }
     revealTarget(target);
     return { ok: true };
+  });
+
+  handle(IPC.invoke.fsStat, async (input: { path?: string } = {}) => {
+    return statOpenablePath(
+      String(input.path ?? ""),
+      await optionalWorkspaceRoot(),
+      fsExtraRoots(),
+      [dataDir],
+    );
   });
 
   handle(IPC.invoke.fsOpen, async (input: { path?: string } = {}) => {

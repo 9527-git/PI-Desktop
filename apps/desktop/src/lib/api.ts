@@ -31,6 +31,7 @@ import type {
   FsEntry,
   FsImageDataUrlResult,
   FsIndexResult,
+  FsPathStat,
   FsReadResult,
   HostHealth,
   HostStatusEvent,
@@ -841,6 +842,9 @@ export const api = {
     }),
   fsReveal: (path: string) => invoke(IPC.invoke.fsReveal, { path }),
   fsOpen: (path: string) => invoke(IPC.invoke.fsOpen, { path }),
+  /** Existence probe for a referenced path; the verdict only, never content. */
+  fsStat: (path: string) =>
+    invoke<FsPathStat>(IPC.invoke.fsStat, { path }),
   fsIndex: () => invoke<FsIndexResult>(IPC.invoke.fsIndex),
   composerCommands: () =>
     invoke<{ commands: ComposerCommand[] }>(IPC.invoke.composerCommands),

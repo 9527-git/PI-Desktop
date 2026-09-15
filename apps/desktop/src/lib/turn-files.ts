@@ -1,3 +1,4 @@
+import type { ReviewChange } from "@pi-desktop/shared";
 import type { AssistantTurnEntry } from "./assistant-turns";
 import { assistantTurnTools } from "./assistant-turns";
 import { reviewChangeFromMessage, type ReviewChangeEntry } from "./workspace-review";
@@ -12,11 +13,37 @@ export type TurnFileChange = {
   status: TurnFileStatus;
   additions: number;
   deletions: number;
+  /**
+   * First changed line of the most recent call, trimmed and bounded — the
+   * one-line answer to "what changed". "" when the diff carried no line text
+   * (binary, truncated, or a deletion recorded without hunks).
+   */
+  preview: string;
   /** Successful per-call records, in call order. */
   records: ReviewChangeEntry[];
 };
 
 export type TurnFilesTotal = { additions: number; deletions: number };
+
+const PREVIEW_MAX = 90;
+
+/**
+ * First line the change actually added or removed, so a table row can say what
+ * changed instead of only how much. Context lines are skipped: they are equal
+ * on both sides and describe nothing about this edit.
+ */
+export function firstChangedLine(change: ReviewChange): string {
+  for (const hunk of change.hunks) {
+    for (const line of hunk.lines) {
+      if (line.type === "add" || line.type === "del") {
+        const text = line.text.trim();
+        if (!text) continue;
+        return text.length > PREVIEW_MAX ? `${text.slice(0, PREVIEW_MAX)}…` : text;
+      }
+    }
+  }
+  return "";
+}
 
 /**
  * Aggregate one turn's durable workspace file changes by path.
@@ -41,6 +68,7 @@ export function turnFileChanges(entry: AssistantTurnEntry): TurnFileChange[] {
         status: change.status as TurnFileStatus,
         additions: change.additions,
         deletions: change.deletions,
+        preview: firstChangedLine(change),
         records: [{ message, change }],
       });
       continue;
@@ -51,6 +79,8 @@ export function turnFileChanges(entry: AssistantTurnEntry): TurnFileChange[] {
     if (change.status !== "modified") {
       existing.status = change.status as TurnFileStatus;
     }
+    const preview = firstChangedLine(change);
+    if (preview) existing.preview = preview;
   }
   return [...byPath.values()];
 }

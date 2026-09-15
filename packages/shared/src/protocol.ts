@@ -220,6 +220,7 @@ export const IPC = {
     statsGetTokenUsageHistory: "pi-desktop/stats/getTokenUsageHistory",
     fsReveal: "pi-desktop/fs/reveal",
     fsOpen: "pi-desktop/fs/open",
+    fsStat: "pi-desktop/fs/stat",
     fsIndex: "pi-desktop/fs/index",
     windowSetWorkPanelReservation:
       "pi-desktop/window/setWorkPanelReservation",

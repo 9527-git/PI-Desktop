@@ -254,4 +254,5 @@ Each ADR includes:
 | 0234 | Keep project memory host-owned and path-scoped | Accepted |
 | 0235 | In-flow chat composer | Accepted |
 | 0236 | Chat open/reveal for local paths outside the workspace | Accepted (amends D320 / ADR 0109 / ADR 0111) |
+| 0237 | Existence probe for transcript path rows | Accepted (amends ADR 0236) |
  | 0235 | Keep the docked conversation composer in normal flow | Accepted (amends ADR 0065 clause 4 / D264) |
