@@ -2,6 +2,17 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.19",
+    "date": "2026-09-15",
+    "highlights": [
+      "Tamamlanan bir turu değiştirilen dosyalar ve bildirilen çıktılarla özetler.",
+      "Sohbet mesajlarındaki Windows sürücü yollarını tıklanabilir referanslar olarak tanır.",
+      "Çalışma alanı dışındaki sohbet yollarını işletim sistemi üzerinden açar ve dosya yöneticisinde gösterir.",
+      "Manuel sıkıştırma sırasında gönderilen istemleri düşürmek yerine kuyruğa alır.",
+      "Kurulum ve taşınabilir derlemeler için yerel Windows paketleme hattı ekler.",
+    ],
+  },
+  {
     "version": "0.14.8",
     "date": "2026-09-14",
     "highlights": [

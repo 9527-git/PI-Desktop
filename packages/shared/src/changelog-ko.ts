@@ -2,6 +2,17 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    version: "0.14.19",
+    date: "2026-09-15",
+    highlights: [
+      "완료된 턴을 변경된 파일과 보고된 출력과 함께 요약합니다.",
+      "채팅 메시지의 Windows 드라이브 경로를 클릭 가능한 참조로 인식합니다.",
+      "워크스페이스 밖의 채팅 경로를 OS를 통해 열거나 파일 관리자에서 표시합니다.",
+      "수동 압축 중에 보낸 프롬프트를 삭제하지 않고 대기열에 넣습니다.",
+      "설치형 및 휴대용 빌드를 위한 로컬 Windows 패키징 파이프라인을 추가합니다.",
+    ],
+  },
+  {
     version: "0.14.8",
     date: "2026-09-14",
     highlights: [

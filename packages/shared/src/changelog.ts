@@ -29,6 +29,17 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.19",
+    date: "2026-09-15",
+    highlights: [
+      "Summarize a finished turn with the files it changed and the outputs it reported.",
+      "Recognize Windows drive paths in chat messages as clickable references.",
+      "Open and reveal chat paths outside the workspace through the OS.",
+      "Queue prompts sent during a manual compaction instead of dropping them.",
+      "Add a local Windows packaging lane for installer and portable builds.",
+    ],
+  },
+  {
     version: "0.14.8",
     date: "2026-09-14",
     highlights: [
@@ -759,6 +770,17 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.19",
+    date: "2026-09-15",
+    highlights: [
+      "回合结束时汇总本回合修改的文件与报告的产出。",
+      "识别聊天消息中的 Windows 盘符路径，并作为可点击引用。",
+      "工作区外的聊天路径可通过系统打开或在文件管理器中显示。",
+      "手动压缩期间发送的提示会排队等待，不再丢失。",
+      "新增本地 Windows 打包流水线，支持安装版与便携版构建。",
+    ],
+  },
+  {
     version: "0.14.8",
     date: "2026-09-14",
     highlights: [
@@ -1487,6 +1509,17 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.19",
+    date: "2026-09-15",
+    highlights: [
+      "回合結束時彙總本回合修改的檔案與回報的產出。",
+      "識別聊天訊息中的 Windows 磁碟路徑，並作為可點擊參照。",
+      "工作區外的聊天路徑可透過系統開啟或在檔案管理員中顯示。",
+      "手動壓縮期間送出的提示會排隊等待，不再遺失。",
+      "新增本機 Windows 封裝流程，支援安裝版與可攜版建置。",
+    ],
+  },
   {
     version: "0.14.8",
     date: "2026-09-14",

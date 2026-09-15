@@ -2,6 +2,17 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.19",
+    "date": "2026-09-15",
+    "highlights": [
+      "Resume un turno finalizado con los archivos que modificó y las salidas que reportó.",
+      "Reconoce rutas de unidades de Windows en los mensajes del chat como referencias clicables.",
+      "Abre y muestra rutas de chat fuera del espacio de trabajo a través del sistema operativo.",
+      "Pone en cola los mensajes enviados durante una compactación manual en lugar de descartarlos.",
+      "Añade un flujo de empaquetado local de Windows para compilaciones de instalador y portables.",
+    ],
+  },
+  {
     "version": "0.14.8",
     "date": "2026-09-14",
     "highlights": [

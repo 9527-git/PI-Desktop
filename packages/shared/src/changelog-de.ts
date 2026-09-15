@@ -2,6 +2,17 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.19",
+    "date": "2026-09-15",
+    "highlights": [
+      "Fasst einen abgeschlossenen Durchlauf mit den geänderten Dateien und den gemeldeten Ergebnissen zusammen.",
+      "Erkennt Windows-Laufwerkspfade in Chatnachrichten als anklickbare Verweise.",
+      "Öffnet Chatpfade außerhalb des Arbeitsbereichs über das Betriebssystem und zeigt sie im Dateimanager.",
+      "Wartet mit während einer manuellen Kompaktierung gesendeten Eingaben in einer Warteschlange, statt sie zu verwerfen.",
+      "Fügt eine lokale Windows-Build-Pipeline für Installer- und portable Builds hinzu.",
+    ],
+  },
+  {
     "version": "0.14.8",
     "date": "2026-09-14",
     "highlights": [

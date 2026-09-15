@@ -2,6 +2,17 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.19",
+    "date": "2026-09-15",
+    "highlights": [
+      "Résume un tour terminé avec les fichiers modifiés et les sorties rapportées.",
+      "Reconnaît les chemins de lecteurs Windows dans les messages du chat comme des références cliquables.",
+      "Ouvre et révèle les chemins de chat hors de l'espace de travail via le système.",
+      "Met en file d'attente les prompts envoyés pendant une compactage manuel au lieu de les perdre.",
+      "Ajoute une chaîne de packaging Windows locale pour les builds installateur et portable.",
+    ],
+  },
+  {
     "version": "0.14.8",
     "date": "2026-09-14",
     "highlights": [
