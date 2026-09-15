@@ -7194,6 +7194,9 @@ and identify the platform validation still needed.
 | D — Workspace (project delete) | E2E-PROJECT-delete-removes-project-and-owned-sessions |
 | F — Persistence (project delete) | E2E-PROJECT-delete-removes-project-and-owned-sessions |
 | Quality (project delete) | E2E-PROJECT-delete-removes-project-and-owned-sessions |
+| D — Workspace (external path handoff) | E2E-CHAT-external-path-open-reveal |
+| Security (external path handoff) | E2E-CHAT-external-path-open-reveal |
+| Quality (external path handoff) | E2E-CHAT-external-path-open-reveal |
 | C — Conversation & stream (manual compaction queue) | E2E-QUEUE-prompt-during-manual-compaction-is-queued-and-delivered |
 | Quality (manual compaction queue) | E2E-QUEUE-prompt-during-manual-compaction-is-queued-and-delivered |
 
@@ -11862,4 +11865,33 @@ plugin-form fixtures in an isolated temporary directory at runtime.
   shows the compaction row before the queued turn.
 - **Specs:** `03-runtime/02-agent-runtime.md` (§5),
   `03-runtime/01-ipc-protocol.md` (prompt/compact admission)
+- **Status:** Documented; run after integration into main.
+
+### E2E-CHAT-external-path-open-reveal
+
+- **Preconditions:** A workspace with a configured model, plus an existing
+  local file outside it (a build artifact such as `E:\out\report.xlsx`) and a
+  path that does not exist. The app data directory holds the live databases.
+- **Steps:** Ask the agent to report an artifact path outside the workspace,
+  then click the rendered path and its "show in folder" action. Repeat with a
+  directory, a path containing spaces, a path with a `:line` suffix, a stale
+  path whose file is deleted after the row renders, and a path under the app
+  data directory. Inspect `fs/open`, `fs/reveal`, and `fs/stat` calls for a
+  workspace-relative path, an absolute path inside the workspace, a session
+  scratch blob, and an absolute path outside it.
+- **Expected:** A drive path, a backslash separator, and an MSYS mount are
+  recognized as file references, and an absolute path outside the workspace
+  resolves to an external target that opens through the OS instead of the
+  work-panel viewer. `fs/open` and `fs/reveal` accept the existing outside
+  absolute path through the realpath plus protected-roots gate while workspace
+  and session-root containment keeps priority and behaves as before; a
+  relative path, a `~` path, and a missing target are still refused, and a path
+  under the app data directory is refused even through a planted symlink. The
+  reveal action selects a file in its folder, opens a directory, and opens the
+  nearest existing ancestor when the entry vanished, so it is never a silent
+  no-op. The `fs/stat` verdict reports `{ exists, kind }` only — no content,
+  size, or listing — and a stale path reports `exists: false`, which marks the
+  row and disables its actions. `fs/read`, `fs/list`, and `fs/index` still
+  refuse every path outside the workspace and the session roots.
+- **Specs:** `03-runtime/01-ipc-protocol.md`; ADR 0256; ADR 0257; D320 / D322.
 - **Status:** Documented; run after integration into main.

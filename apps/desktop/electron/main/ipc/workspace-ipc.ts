@@ -32,6 +32,11 @@ import {
   resolveOpenablePath,
   resolveRealOpenablePath,
 } from "../fs-panel";
+import {
+  resolveLooseOpenablePath,
+  revealTarget,
+  statOpenablePath,
+} from "../fs-open-gate";
 import { getWorkspaceFileIndex } from "../fs-index";
 import { BROWSER_PLUGIN_ID, type BrowserHost } from "../browser-host";
 import type { AgentSidecar } from "../agent-sidecar";
@@ -713,23 +718,44 @@ export function registerWorkspaceIpc({
         throw error;
       }
     }
-    const target = await resolveRealOpenablePath(
+    let target = await resolveRealOpenablePath(
       requested,
       workspaceRoot,
       fsExtraRoots(),
     );
     if (!target) {
+      // Outside the workspace: a user-initiated reveal may still address any
+      // existing local absolute path (ADR 0256), minus protected roots.
+      target = await resolveLooseOpenablePath(requested, [dataDir]);
+    }
+    if (!target) {
       throw Object.assign(new Error("path outside allowed roots"), {
         errorCode: ErrorCodes.INVALID_ARGUMENT,
       });
     }
-    shell.showItemInFolder(stripWinLongPrefix(target));
+    revealTarget(target, shell);
     return { ok: true };
   });
 
+  // Existence probe for transcript rows (ADR 0257): verdict and kind only.
+  handle(IPC.invoke.fsStat, async (input: { path?: string } = {}) => {
+    return statOpenablePath(
+      String(input.path ?? ""),
+      await optionalWorkspaceRoot(),
+      fsExtraRoots(),
+      [dataDir],
+    );
+  });
+
   handle(IPC.invoke.fsOpen, async (input: { path?: string } = {}) => {
+    const requested = String(input.path ?? "");
     const workspaceRoot = await optionalWorkspaceRoot();
-    const target = resolveOpenablePath(String(input.path ?? ""), workspaceRoot, fsExtraRoots());
+    let target = resolveOpenablePath(requested, workspaceRoot, fsExtraRoots());
+    if (!target) {
+      // Outside the workspace: a user-initiated open may still address any
+      // existing local absolute path (ADR 0256), minus protected roots.
+      target = await resolveLooseOpenablePath(requested, [dataDir]);
+    }
     if (!target) {
       throw Object.assign(new Error("path is not openable"), {
         errorCode: ErrorCodes.INVALID_ARGUMENT,

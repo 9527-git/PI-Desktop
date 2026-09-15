@@ -5,6 +5,17 @@ export type FsEntry = {
   size: number;
 };
 
+/**
+ * Existence verdict for one referenced path (ADR 0257). The host reports the
+ * verdict and the entry kind only: no content, size, or directory listing, so
+ * a transcript row can mark a path whose file is gone without gaining a new
+ * read capability.
+ */
+export type FsPathStat = {
+  exists: boolean;
+  kind: "file" | "dir" | null;
+};
+
 export type FsReadResult = {
   kind: "text" | "image" | "binary" | "tooLarge";
   /** UTF-8 file content when kind is "text". */

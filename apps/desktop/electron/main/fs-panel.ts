@@ -62,7 +62,7 @@ export function resolveWithinRoot(root: string, rel: string): string | null {
   return target;
 }
 
-function pathIsWithin(root: string, target: string): boolean {
+export function pathIsWithin(root: string, target: string): boolean {
   const rel = relative(root, target);
   return rel === "" || (!rel.startsWith(`..${sep}`) && rel !== ".." && !isAbsolute(rel));
 }

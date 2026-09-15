@@ -278,3 +278,5 @@ Each ADR includes:
 | 0252 | Host turn-end event for plugins | Accepted (D422) |
 | 0253 | [Remove the subagent turn limit](0253-remove-subagent-turn-limit.md) | Accepted (supersedes the `maxTurns` clauses of 0062 / 0063 / 0119 / 0126 / 0166 / 0210) |
 | 0254 | [Continue native Pi sessions in their canonical JSONL](0254-native-pi-session-continuation.md) | Accepted (amends baseline D007; D421) |
+| 0256 | [Chat open/reveal for local paths outside the workspace](0256-chat-open-reveal-for-external-local-paths.md) | Accepted (amends D320 / D322 / ADR 0109 / ADR 0111; D424) |
+| 0257 | [Existence probe for transcript path rows](0257-transcript-path-existence-probe.md) | Accepted (amends ADR 0256; D424) |
