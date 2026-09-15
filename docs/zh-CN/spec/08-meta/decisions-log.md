@@ -91,6 +91,8 @@
 | D421 | Native Pi 会话续接 | **修订基线 D007：把 Pi v3 会话发现为按来源区分的投影，并通过 coding-agent `AgentSession`/`SessionManager` 针对其规范 JSONL 继续会话。Rust host-core 仍是 Desktop SQLite/Desktop 成绩单的权威；原生回合不进入 Desktop outbox，也不产生导入副本。原生续接要求精确的已存 provider/auth、项目信任、规范路径/头身份，以及带字节/叶节点校验的协作租约；失败保持可浏览/只读。首片不含原生 rename/delete/move/revisions/Plan/Goal/queue/collaboration；2026-09-14 的 ADR 0254 修订加入原生 fork 与持久侧聊，含精确流重键与 inode 跟踪的发布。见 ADR 0254 与 E2E-SESSION-native-pi-*/E2E-SESSION-native-side-chat-*。** | 导入扁平副本无法保留 Pi 的树结构，也无法让之后 Desktop 的回合对 Pi Web 可见。 |
 | D412 | 仅增量且合并的流式更新 | **修订本地 `message_update` 契约：追加型流式帧携带 `stream: delta` 以及 `deltaText`/`deltaThinking`（和 reset 标志），不再附带增长中的 `content`/`thinking`。运行时每 16ms 合并这些帧，并在语义边界前立即 flush。AgentHost、进行中检查点和渲染器应用增量；`message_start`/`message_end` 仍是完整快照。仅尾部 token 变化时，转录活动 part 保持对象身份。协议版本仍为 11。见 ADR 0242、E2E-STREAM-long-turn-keeps-realtime 和 issue #299。** | 每个 token 都在 sidecar、AgentHost 和 IPC 上重新序列化完整助手快照，长回合接近 O(n²) 字节并让后续短块排队变慢。 |
 | D416 | Git clone 只接受语法上的公网主机 | **修订首页 Git clone：`parseGitCloneUrl` 复用 `isPublicHostname`，在运行 `git clone` 前拒绝回环、私网、CGNAT、链路本地、ULA 以及 `.local`/`.localhost` 远程。指向公网主机的 HTTPS/HTTP/SSH/`git@host:path` 仍然有效。`file:` 和 URL 密码继续拒绝。Git 仍自己做 DNS；这不是市场那种地址固定。见 ADR 0247 与 E2E-CLONE-public-hostname-rejects-private。** | clone 曾接受 `http://127.0.0.1/...` 和 RFC1918 字面量，这是市场 HTTPS 拉取已经关掉的局域网/SSRF 缺口。 |
+| D424 | 工作区外的本地路径可打开与显示 | **修订 D320 / D322 / ADR 0109 / ADR 0111：聊天文件引用识别 Windows 盘符路径、反斜杠分隔符与 MSYS 挂载点，工作区外的绝对路径解析为外部目标并经操作系统打开。`fs/open` 与 `fs/reveal` 在 realpath 加保护根目录（应用数据目录）门禁之后接受已存在的本地绝对路径，工作区包含检查保持优先；`fs/reveal` 会在文件夹中选中文件、打开目录，并在条目消失时回退到最近的已存在祖先目录，因此绝不会成为静默无操作。新增附加通道 `pi-desktop/fs/stat` 只报告结论与条目类型。`fs/read`、`fs/list`、`fs/index` 以及所有智能体工具路径门禁不变。见 ADR 0256、ADR 0257 与 E2E-CHAT-external-path-open-reveal。** | 助手回答中的产物路径通常位于工作区之外，因此仅限工作区的包含检查让转录中的路径引用成了死路（D320 / D322）。 |
+| D425 | 带变更与产出的回合摘要卡片 | **新增仅渲染器的摘要卡片，置于每个已完成（非活动）回合之下：步骤计数与该回合变更的工作区文件，按新增/修改/删除分组并附逐文件 diff，另加最终回答报告的产出路径 —— 覆盖任何 Write/Edit 记录看不到的产物。长列表渲染为两个表格（变更、产出），列为变更内容、路径与行操作（在工作面板打开、在文件管理器中显示）。`fs/stat`（D424 / ADR 0257）标记路径不再可解析的行并禁用其操作，让失效引用读起来是失效而不是死按钮。卡片读取该回合自身的工具结果与回答；它不调用 git，除 `fs/stat` 探测外不新增权限、IPC、host-core、存储或 schema 变更。见 ADR 0257 与 E2E-CHAT-turn-summary-card。** | 已完成的回合把结果散落在活动行中，读者必须自行重建改了什么、产出了什么；而回合边界本就持有这些信息。 |
 | D417 | 插件运行时主题 API + 侧栏图像令牌 | **在 `ui.theme` 下新增 `pi.app.setTheme` 与 `pi.themes.upsert`/`remove`/`list`（ADR 0249 / issue #352）。移除 `MAX_THEMES_PER_PLUGIN`。运行时 upsert 与加载期相同的 CSS 消毒，并发出 `pluginChanged`（`reason: "themes"`）；`setTheme` 持久化 `AppSettings.theme` 并发出 `settingsChanged`。拆分侧栏绘制：`--ds-bg-sidebar` 保持颜色；可选 `--ds-bg-sidebar-image` 承载渐变/图片，macOS vibrancy 在图像层之上叠加 sheen。** | 主题编辑插件无法在面板内应用主题，无法提供不限量主题库，也无法在生产模式免重载实时改 CSS；把渐变塞进颜色令牌会破坏 `color-mix` / vibrancy 消费方。 |
 | D420 | 结构化、有界且脱敏的进程日志 | **修订 ADR 0046 / ADR 0212：每条 app/host/agent NDJSON 记录都有稳定 event 和顶层关联字段。正常工具调用只产生一条完成/失败记录；sidecar 意外退出时为活动工具产生中断记录；工具协议和成绩单保持不变。中心日志会脱敏凭据与本机路径，将结构化数据限制为 8 KiB，用工具结果摘要替代原始输出，并把同一份已脱敏记录镜像到开发控制台。** | 旧的 `tool start` / `tool end` 行重复且不清楚，自由文本的子进程/错误详情还可能泄露秘密或无限增长。 |
 | D422 | 插件的宿主回合结束事件 | **`session:turnEnded` 是宿主事件，载荷为 `{ sessionId, turnId, reason }`（`completed` / `aborted` / `error`），对 `session.beginTurn` 真正开始的每个回合，在回合拆除结束时、持久化的 `session.endTurn` 尝试之后广播一次。携带的 `turnId` 是终止运行时事件本身所标识的身份，而不是恰好活动的那个回合；插件工具上下文中的 `turnId` 也会填充同一值。没有 ack，也没有重放：存活且已订阅的插件只收到一次；与崩溃、重载或宿主退出竞态的投递不作保证；收到该事件也不代表该回合的所有在途工具都已退出，因此清理必须按 `turnId` 串行化或限定作用域。不需要新权限，目前尚无任何已发布宿主发出该事件（0.14.8 也尚未包含）。见 ADR 0252。** | 驱动 GUI 的插件此前只能用空闲计时器猜测回合是否结束，而计时器会在回合中途触发、在回合结束后再次触发。宿主拥有的「每个回合一次」终止事件加上明确的回合身份，让插件可以精确结算一次，工具上下文中的同一身份还能用来关联迟到的工具结果。 |
@@ -4148,3 +4150,21 @@ the retained upstream work-panel lifecycle. See
 - `truncated` 子智能体状态从共享运行状态联合类型、渲染器结果联合类型、各语言的 `chat.subagentStatus` 目录项以及委托拓扑的警告计数中一并移除。尽管 D328 已撤掉产生它的看门狗，`timed_out` 仍保留在类型中。
 - 不改协议版本、schema 版本或存储：host-core 的子智能体输入结构仍然忽略未知字段，注册表解析的是 Markdown frontmatter 而不是表列。
 - 见 ADR 0253、`03-runtime/02-agent-runtime.md` §5f、`04-ux/06-settings-ia.md` §7、E2E-155 与 E2E-SUBAGENT-legacy-turn-limit-frontmatter-is-ignored。
+
+## 2026-09-15 —— 工作区外的聊天路径可打开、可显示并报告失效（D424）
+
+- 转录能够识别聊天文本中的 Windows 盘符路径、反斜杠分隔符与 MSYS 挂载点。工作区外的绝对路径解析为外部目标并经操作系统打开，而不是交给工作面板查看器，因此助手回答中的产物路径不再是死路。
+- `fs/open` 与 `fs/reveal` 在 realpath 加保护根目录（应用数据目录会被拒绝）门禁之后接受已存在的本地绝对路径。工作区与会话根的包含检查保持优先，行为不变。`fs/read`、`fs/list`、`fs/index` 以及所有智能体工具门禁仍限定在工作区内：此次放宽只覆盖两个由用户发起的操作系统移交操作。
+- `fs/reveal` 会在文件夹中选中文件、打开目录，并在条目于包含检查与移交之间消失时回退到最近的已存在祖先目录，因此在 Windows 上绝不会成为静默无操作。
+- 新增附加通道 `pi-desktop/fs/stat` 只报告 `{ exists, kind }` —— 不含内容、大小或列表 —— 并经过同样的门禁，因此路径不再可解析的行读起来是失效，而不是死按钮。
+- 决策 D424 修订 D320 / D322 与 ADR 0109 / 0111。见 ADR 0256、ADR 0257 与 E2E-CHAT-external-path-open-reveal。
+
+## 2026-09-15 —— 回合摘要卡片（D425）
+
+- 已完成的回合在转录中以一张紧凑卡片收尾，而不是让读者从活动行中重建结果。卡片只为不再活动的回合渲染，因此实时输出绝不会被自己的摘要盖住。
+- **变更**为每个被该回合持久变更的工作区文件列出一行：新增/修改/删除、操作与 +/− 计数、路径，以及逐文件 diff 展开。**产出**列出该回合最终回答报告的产出路径，附报告行，从而覆盖任何 Write/Edit 记录看不到的产物。
+- 每一行都可以在工作面板中打开路径，或在文件管理器中显示它。两个操作都复用现有的聊天路径移交（D424 / ADR 0256），因此工作区外的路径会经操作系统打开。
+- 路径不再可解析的行在路径旁显示未找到提示并禁用其操作。结论来自只读的 `pi-desktop/fs/stat` 探测（ADR 0257），且探测不可达也计为未找到，因为渲染器没有其他证据。
+- 卡片读取该回合自身的工具结果与最终回答。它不调用 git，因此消息中的证据始终是变更声明的唯一来源。
+- 除既有探测外仅涉及渲染器：不新增权限，也不改 host-core、存储或 schema。
+- 决策 D425 在本地产线中承接 D408 / D409，并移植到上游基线上。见 ADR 0256、ADR 0257 与 E2E-CHAT-turn-summary-card。
