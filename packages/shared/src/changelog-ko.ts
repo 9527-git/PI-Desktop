@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.18",
+    "date": "2026-09-14",
+    "highlights": [
+      "턴 요약이 두 개의 표로 바뀌었습니다: 각 파일에서 무엇이 바뀌었고 어디에 있는지, 그리고 응답이 보고한 산출물입니다. 파일이 없는 경로는 동작하지 않는 작업을 제공하는 대신 찾을 수 없음으로 표시됩니다.",
+    ],
+  },
+  {
     "version": "0.14.17",
     "date": "2026-09-14",
     "highlights": [

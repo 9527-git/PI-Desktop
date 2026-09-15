@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.18",
+    "date": "2026-09-14",
+    "highlights": [
+      "Le récapitulatif du tour se présente désormais en deux tableaux : ce qui a changé dans chaque fichier et son emplacement, ainsi que les résultats annoncés par la réponse. Un chemin dont le fichier a disparu est signalé comme introuvable au lieu de proposer des actions inopérantes.",
+    ],
+  },
+  {
     "version": "0.14.17",
     "date": "2026-09-14",
     "highlights": [

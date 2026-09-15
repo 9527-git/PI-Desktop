@@ -29,6 +29,13 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.18",
+    date: "2026-09-14",
+    highlights: [
+      "The turn summary is now two tables: what changed in each file and where it lives, plus the outputs the answer reported. A path whose file is gone is marked as not found instead of offering actions that cannot work.",
+    ],
+  },
+  {
     version: "0.14.17",
     date: "2026-09-14",
     highlights: [
@@ -827,6 +834,13 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.18",
+    date: "2026-09-14",
+    highlights: [
+      "回合汇总改为表格：每个文件改了什么、路径在哪，以及回复中报出的产出。路径对应的文件不存在时给出提示并停用无效操作。",
+    ],
+  },
+  {
     version: "0.14.17",
     date: "2026-09-14",
     highlights: [
@@ -1624,6 +1638,13 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.18",
+    date: "2026-09-14",
+    highlights: [
+      "回合摘要改為表格：每個檔案改了什麼、路徑在哪，以及回覆中報出的產出。路徑對應的檔案不存在時給出提示並停用無效操作。",
+    ],
+  },
   {
     version: "0.14.17",
     date: "2026-09-14",

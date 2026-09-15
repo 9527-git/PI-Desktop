@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.18",
+    "date": "2026-09-14",
+    "highlights": [
+      "Die Durchgangszusammenfassung besteht jetzt aus zwei Tabellen: was sich in jeder Datei geändert hat und wo sie liegt, plus die vom Ergebnis gemeldeten Ausgaben. Ein Pfad, dessen Datei fehlt, wird als nicht gefunden markiert, statt Aktionen anzubieten, die nicht funktionieren können.",
+    ],
+  },
+  {
     "version": "0.14.17",
     "date": "2026-09-14",
     "highlights": [

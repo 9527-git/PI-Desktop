@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.18",
+    "date": "2026-09-14",
+    "highlights": [
+      "El resumen del turno ahora son dos tablas: qué cambió en cada archivo y dónde está, más los resultados que reportó la respuesta. Una ruta cuyo archivo ya no existe se marca como no encontrada en lugar de ofrecer acciones que no pueden funcionar.",
+    ],
+  },
+  {
     "version": "0.14.17",
     "date": "2026-09-14",
     "highlights": [

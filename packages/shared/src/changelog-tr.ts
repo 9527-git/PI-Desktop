@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.18",
+    "date": "2026-09-14",
+    "highlights": [
+      "Tur özeti artık iki tablo: her dosyada neyin değiştiği ve nerede olduğu, ayrıca yanıtın bildirdiği çıktılar. Dosyası bulunmayan bir yol, çalışmayacak eylemler sunmak yerine bulunamadı olarak işaretlenir.",
+    ],
+  },
+  {
     "version": "0.14.17",
     "date": "2026-09-14",
     "highlights": [
