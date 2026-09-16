@@ -42,6 +42,7 @@ import {
   getToolAction,
   getToolSummary,
 } from "../../../lib/tool-display";
+import { MarkdownInline } from "../../../components/MarkdownInline";
 import { ReviewChangeCard } from "../../../components/ReviewChangeCard";
 import { IconChevronRight, IconCircleAlert, IconSparkles, IconWorkflow } from "../../../components/icons";
 import {
@@ -396,7 +397,7 @@ export const ActivityGroup = memo(function ActivityGroup({
       </button>
       {tail ? (
         <div className="tool-activity-preview" aria-hidden>
-          {tail}
+          <MarkdownInline source={tail} />
         </div>
       ) : null}
       <div

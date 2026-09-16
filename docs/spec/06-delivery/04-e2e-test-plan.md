@@ -11951,8 +11951,10 @@ plugin-form fixtures in an isolated temporary directory at runtime.
   inspected.
 - **Steps:** Run a turn that produces the rows above, then inspect the
   transcript in both themes. Read the state labels beside the tool rows, the
-  label of a thinking-only activity group, and the collapsed summaries of a
-  tool row, a thinking row and a subagent topology node. Check the prose of
+  labels of a live mixed group, a finished mixed group and a thinking-only
+  group — collapsing the live one to read its activity ticker — and the
+  collapsed summaries of a tool row, a thinking row and a subagent topology
+  node. Check the prose of
   the reply for the bold, code, path and URL treatments. While the long
   running command, the subagent fan-out and the streaming reply are still
   live, inspect their icon, dot, badge and caret states. Re-run the failing
@@ -11970,11 +11972,15 @@ plugin-form fixtures in an isolated temporary directory at runtime.
   header icon warning even when every row inside it is collapsed. A streaming
   reply keeps a blinking caret on the growing prose; reduced-motion mode
   keeps every color while removing every animation. Processing rows tint only
-  their row name by kind: read/list/search/fetch glow blue, run glows warning
-  orange, write/edit glow success green, and thinking rows glow purple; a
-  thinking-only activity group label glows purple while mixed groups stay
-  neutral. Row names keep no background wash, and the kind colors stay
-  readable in both themes. Collapsed summaries render inline markdown: code
+  their row name by kind: read/list/search/fetch glow blue — generic `use`
+  calls and `fork` rows join them — run glows warning orange, write/edit glow
+  success green, and thinking rows glow purple. Activity group labels state
+  status instead of kind: a live mixed or subagent group label glows warning
+  while its work runs and settles into success green once the batch finishes,
+  while a thinking-only group label glows purple in both states. Row names
+  keep no background wash, and the kind colors stay
+  readable in both themes. Collapsed summaries — including the live activity
+  ticker under a running group's header — render inline markdown: code
   spans glow blue, bold glows purple, and file paths glow yellow, while
   http(s) links keep the neutral underline; block syntax and glob patterns in
   tool arguments stay literal. The reply's prose carries the same glow

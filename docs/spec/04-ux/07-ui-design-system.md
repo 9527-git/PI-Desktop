@@ -277,7 +277,8 @@ status-bearing surface renders its state visually — never as bare text alone:
 | Subagent topology node | running | warning orange | avatar badge with a restrained pulse |
 | Subagent topology node | denied | purple | avatar badge (matches the tool-row refusal color) |
 | Subagent topology node | aborted | neutral gray | avatar badge (a stop is neutral, not a failure) |
-| Activity group (live) | running | warning orange | header icon tint while the turn is in flight |
+| Activity group (live) | running | warning orange | header icon tint and label glow while the turn is in flight |
+| Activity group (finished) | completed | success green | header label glow once the batch finishes |
 | Streaming reply | streaming | neutral accent | blinking caret on the growing prose |
 | Tool spinner | running | warning orange | arc ring; track held at 30% alpha |
 
@@ -289,11 +290,16 @@ refusals read as permission outcomes rather than errors. All motion is
 disabled under `prefers-reduced-motion` while the color remains.
 
 Processing rows carry a kind glow so a scan separates tool families at a
-glance: read/list/search/fetch labels glow blue, run labels warning orange,
-write/edit labels success green, and thinking labels — plus thinking-only
-activity group labels — purple. The glow rides the `kind-*` hook the
-transcript derives from `getToolAction` and a `group-kind-*` hook on the
-activity group; delegation rows keep their D268 accent story. Rows stay
+glance: read/list/search/fetch labels glow blue — generic `use` calls and
+`fork` rows join them, so no tool row is left without a hue — run labels
+warning orange, write/edit labels success green, and thinking labels purple.
+Activity group labels state status instead of kind: a live batch's label
+glows warning while its work runs and settles into success green once the
+batch finishes, while thinking-only groups keep purple in both states —
+their label names the kind of work, not the outcome. The glow rides the
+`kind-*` hook the transcript derives from `getToolAction` and a
+`group-kind-*` hook on the activity group; delegation rows keep their D268
+accent story. Rows stay
 background-free: the hue lives in the label, never in a row wash. Inline code
 in the chat prose and in row summaries glows the same code blue, so technical
 tokens read identically wherever they appear. Bold in the chat prose and in
@@ -304,9 +310,10 @@ while http(s) links keep the neutral underline, so paths, code, bold, and
 URLs each read as their own content type at a glance.
 
 Row summary text renders inline markdown, not bare source: the collapsed
-tool, thinking, and subagent topology summaries run through a lightweight
-inline renderer (`MarkdownInline`) so code spans and bold read with the same
-visual language as the chat prose. Block level syntax (lists, headings) stays
+tool, thinking, and subagent topology summaries — plus the live activity
+ticker under a running group's header — run through a lightweight inline
+renderer (`MarkdownInline`) so code spans and bold read with the same visual
+language as the chat prose. Block level syntax (lists, headings) stays
 literal, single-asterisk emphasis is deliberately unparsed so glob patterns
 in tool arguments survive untouched, and a URL is consumed whole so a link
 never re-matches the path pattern.
