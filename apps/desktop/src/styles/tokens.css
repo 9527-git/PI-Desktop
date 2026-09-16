@@ -119,6 +119,8 @@
   --ds-error: #ff6764;
   --ds-info: var(--gray-300);
   --ds-purple: #c27aff;
+  --ds-blue: #5ca7ff;
+  --ds-yellow: #ffd23f;
   --ds-shadow-dialog: 0 16px 48px rgba(0, 0, 0, 0.55);
   /* Codex --elevation-prominent (same stroke+lift in dark and light) */
   --ds-elevation-stroke: 0 0 0 0.5px color-mix(in oklab, var(--gray-0) 12%, transparent);
@@ -202,8 +204,10 @@
   --ds-success: #00a240;
   --ds-warning: #e25507;
   --ds-error: #e02e2a;
+  --ds-yellow: #a16207;
   --ds-info: #5d5d5d;
   --ds-purple: #7c3aed;
+  --ds-blue: #2563eb;
   --ds-shadow-dialog: 0 16px 48px rgba(0, 0, 0, 0.12);
   --ds-elevation-stroke: 0 0 0 0.5px color-mix(in oklab, #1a1c1f 12%, transparent);
   /* Codex elevation-prominent exact (same dark/light formula). */

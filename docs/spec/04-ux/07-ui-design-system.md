@@ -263,7 +263,42 @@ refresh or app restart. Outcomes already marked read never produce a terminal
 mark. Reduced-motion mode disables the breathing animation while retaining its
 orange fill and localized accessible name.
 
-### 4.6 Tailwind CSS variable stub
+### 4.6 Chat transcript status semantics
+
+The transcript carries the same semantic colors as the sidebar, and every
+status-bearing surface renders its state visually — never as bare text alone:
+
+Every state label carries its semantic color as a soft glow (text-shadow at
+low alpha) rather than a painted chip; the label stays the only completion
+marker (D227). Running labels keep the dot's restrained pulse and glow
+warning; denied keeps purple — the same color the permission flow uses — so
+refusals read as permission outcomes rather than errors. All motion is
+disabled under `prefers-reduced-motion` while the color remains.
+
+Processing rows carry a kind glow so a scan separates tool families at a
+glance: read/list/search/fetch labels glow blue, run labels warning orange,
+write/edit labels success green, and thinking labels — plus thinking-only
+activity group labels — purple. The glow rides the `kind-*` hook the
+transcript derives from `getToolAction` and a `group-kind-*` hook on the
+activity group; delegation rows keep their D268 accent story. Rows stay
+background-free: the hue lives in the label, never in a row wash. Inline code
+in the chat prose and in row summaries glows the same code blue, so technical
+tokens read identically wherever they appear. Bold in the chat prose and in
+row summaries glows purple, so emphasis reads as its own hue instead of plain
+ink. File paths glow yellow — chat-prose file links (`remarkChatFileLinks`
+targets with a non-http href) and `md-inline-path` spans in row summaries —
+while http(s) links keep the neutral underline, so paths, code, bold, and
+URLs each read as their own content type at a glance.
+
+Row summary text renders inline markdown, not bare source: the collapsed
+tool, thinking, and subagent topology summaries run through a lightweight
+inline renderer (`MarkdownInline`) so code spans and bold read with the same
+visual language as the chat prose. Block level syntax (lists, headings) stays
+literal, single-asterisk emphasis is deliberately unparsed so glob patterns
+in tool arguments survive untouched, and a URL is consumed whole so a link
+never re-matches the path pattern.
+
+### 4.7 Tailwind CSS variable stub
 
 The following CSS custom properties stub is the canonical bridge between spec tokens and Tailwind classes. It is **not an app source file** — it documents the intended mapping for implementation.
 

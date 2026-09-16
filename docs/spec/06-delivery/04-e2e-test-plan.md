@@ -7202,6 +7202,8 @@ and identify the platform validation still needed.
 | Quality (turn summary card) | E2E-CHAT-turn-summary-card |
 | C — Conversation & stream (manual compaction queue) | E2E-QUEUE-prompt-during-manual-compaction-is-queued-and-delivered |
 | Quality (manual compaction queue) | E2E-QUEUE-prompt-during-manual-compaction-is-queued-and-delivered |
+| C — Conversation & stream (transcript glow language) | E2E-CHAT-transcript-glow-language |
+| Quality (transcript glow language) | E2E-CHAT-transcript-glow-language |
 
 | Milestone | Scenarios |
 |---|---|
@@ -11926,4 +11928,35 @@ plugin-form fixtures in an isolated temporary directory at runtime.
   survives a session switch and a renderer reload without duplicating or losing
   rows, and every shipped locale renders the labels.
 - **Specs:** `04-ux/08-component-spec.md`; ADR 0256; ADR 0257; D425.
+- **Status:** Documented; run after integration into main.
+
+### E2E-CHAT-transcript-glow-language
+
+- **Preconditions:** A session with a configured model and a writable
+  workspace. The transcript will show a mix of processing rows (reads, a
+  search, a run, a write, a thinking row), a denied tool call, a failing
+  command, and a reply whose prose carries bold, inline code, a workspace
+  file link and an http(s) link. At least one tool argument contains a glob
+  (for example `src/**/*.ts`).
+- **Steps:** Run a turn that produces the rows above, then inspect the
+  transcript in both themes. Read the state labels beside the tool rows, the
+  label of a thinking-only activity group, and the collapsed summaries of a
+  tool row, a thinking row and a subagent topology node. Check the prose of
+  the reply for the bold, code, path and URL treatments. Re-run the failing
+  command with reduced motion enabled.
+- **Expected:** Each state label renders as glowing text in its semantic
+  color — warning for a running row, success for a done row, error for a
+  failed one, purple for a denied one — with no filled chip behind the label;
+  the running dot keeps its restrained pulse and reduced-motion mode keeps
+  the colors while removing the animation. Processing rows tint only their
+  row name by kind: read/list/search/fetch glow blue, run glows warning
+  orange, write/edit glow success green, and thinking rows glow purple; a
+  thinking-only activity group label glows purple while mixed groups stay
+  neutral. Row names keep no background wash, and the kind colors stay
+  readable in both themes. Collapsed summaries render inline markdown: code
+  spans glow blue, bold glows purple, and file paths glow yellow, while
+  http(s) links keep the neutral underline; block syntax and glob patterns in
+  tool arguments stay literal. The reply's prose carries the same glow
+  language.
+- **Specs:** `04-ux/07-ui-design-system.md` §4.6; D227; D268.
 - **Status:** Documented; run after integration into main.

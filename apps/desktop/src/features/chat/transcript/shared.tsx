@@ -26,6 +26,7 @@ import { getToolAction, type ToolAction } from "../../../lib/tool-display";
 import { calculateTokenRate } from "../../../lib/context-usage";
 import { useAppStore } from "../../../stores/app-store";
 import { Markdown, useCopy } from "../../../components/Markdown";
+import { MarkdownInline } from "../../../components/MarkdownInline";
 import {
   IconArchive,
   IconAudio,
@@ -544,7 +545,9 @@ export const ThinkingRow = memo(function ThinkingRow({
         <span className={`tool-row-name ${streaming ? "running" : ""}`}>
           {t("chat.thinking", { defaultValue: "Thinking" })}
         </span>
-        <span className="tool-row-summary">{summary}</span>
+        <span className="tool-row-summary">
+          <MarkdownInline source={summary} />
+        </span>
         <span className="tool-row-caret" aria-hidden>
           <IconChevronRight size={12} />
         </span>

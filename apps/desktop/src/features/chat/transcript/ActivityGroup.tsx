@@ -356,7 +356,7 @@ export const ActivityGroup = memo(function ActivityGroup({
         open ? "open" : ""
       } ${live ? "active" : ""}${
         runtimeActivity ? ` phase-${runtimeActivity.phase}` : ""
-      }`}
+      } group-kind-${hasSubagentTopology ? "subagents" : thinkingNow || onlyThinking ? "thinking" : "mixed"}`}
     >
       <button
         className="tool-activity-header"

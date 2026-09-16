@@ -43,6 +43,7 @@ import {
 } from "../../../lib/subagent-topology";
 import { useAppStore } from "../../../stores/app-store";
 import { Markdown } from "../../../components/Markdown";
+import { MarkdownInline } from "../../../components/MarkdownInline";
 import { ReviewChangeCard } from "../../../components/ReviewChangeCard";
 import { ToolChips, ToolDetailBlocks } from "../../../components/ToolDetails";
 import {
@@ -308,7 +309,7 @@ export const ToolRow = memo(function ToolRow({
 
   return (
     <div
-      className={`tool-row ${variant === "topology" ? "subagent-topology-node" : ""} ${
+      className={`tool-row kind-${action} ${variant === "topology" ? "subagent-topology-node" : ""} ${
         renderedOpen ? "open" : ""
       } status-${run === "failed" ? "error" : status || "success"}${outcome ? ` outcome-${outcome.replaceAll("_", "-")}` : ""}${creating ? " outcome-creating" : ""}`}
       role={variant === "topology" ? "listitem" : "region"}
@@ -362,7 +363,9 @@ export const ToolRow = memo(function ToolRow({
               </span>
             </span>
             {summary ? (
-              <span className="subagent-topology-node-summary">{summary}</span>
+              <span className="subagent-topology-node-summary">
+                <MarkdownInline source={summary} />
+              </span>
             ) : null}
             {delegate?.items.length ? (
               <span className="subagent-topology-node-steps">
@@ -430,7 +433,7 @@ export const ToolRow = memo(function ToolRow({
                     : undefined
                 }
               >
-                {summary}
+                <MarkdownInline source={summary} />
               </span>
             ) : null}
             <ToolChips chips={chips} />
