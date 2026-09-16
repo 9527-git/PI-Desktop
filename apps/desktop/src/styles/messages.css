@@ -468,7 +468,7 @@
   margin-inline-start: 6px;
   vertical-align: middle;
   border-radius: var(--radius-round);
-  background: var(--ds-text-secondary);
+  background: var(--ds-warning);
   content: "";
   animation: activity-marker-pulse 1s var(--motion-ease-standard) infinite;
 }
@@ -1847,6 +1847,30 @@
   box-shadow: none;
 }
 
+/* A streaming answer keeps a live caret on the growing prose so the turn
+   reads as in-progress before the next row arrives. */
+.assistant-turn-fragment.streaming .prose-chat > :last-child::after {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 14px;
+  margin-inline-start: 3px;
+  vertical-align: text-bottom;
+  border-radius: var(--radius-3xs);
+  background: var(--ds-accent-soft);
+  animation: stream-caret-blink 1s var(--motion-ease-standard) infinite;
+}
+
+@keyframes stream-caret-blink {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 /* Live parent turns stay transparent like completed prose (D323). The
    `--ds-tile` card belongs only to `.tool-activity-group.has-subagents`
    (D319) and the nested `.subagent-run`. */
@@ -2027,6 +2051,12 @@
   display: inline-flex;
   flex: none;
   color: var(--ds-text-muted);
+}
+
+/* A live group's icon carries the running colour so an in-flight turn reads
+   as busy even when every row inside it is collapsed. */
+.tool-activity-group.active .tool-activity-icon {
+  color: var(--ds-warning);
 }
 
 .tool-activity-label {
@@ -2314,6 +2344,11 @@
   background: var(--ds-success);
 }
 
+.subagent-topology-node.outcome-running .subagent-topology-status-icon {
+  background: var(--ds-warning);
+  animation: tool-row-state-pulse 1.1s ease-in-out infinite;
+}
+
 .subagent-topology-node.outcome-truncated .subagent-topology-status-icon {
   background: var(--ds-warning);
 }
@@ -2326,9 +2361,12 @@
   background: var(--ds-error);
 }
 
-.subagent-topology-node.outcome-aborted .subagent-topology-status-icon,
-.subagent-topology-node.outcome-denied .subagent-topology-status-icon {
+.subagent-topology-node.outcome-aborted .subagent-topology-status-icon {
   background: var(--ds-text-muted);
+}
+
+.subagent-topology-node.outcome-denied .subagent-topology-status-icon {
+  background: var(--ds-purple);
 }
 
 .subagent-topology-node.outcome-creating .subagent-topology-status-icon {
@@ -2661,8 +2699,25 @@
   }
 }
 
+/* Row state colour rides the status-* hook the transcript already sets, so
+   the tool icon carries the live state without colouring the whole row.
+   Success stays neutral: a finished row earns only its green dot. */
+.tool-row.status-running .tool-row-icon {
+  color: var(--ds-warning);
+}
+
+.tool-row.status-error .tool-row-icon {
+  color: var(--ds-error);
+}
+
+.tool-row.status-denied .tool-row-icon {
+  color: var(--ds-purple);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .tool-row-state.is-running .tool-row-state-dot {
+  .tool-row-state.is-running .tool-row-state-dot,
+  .subagent-topology-node.outcome-running .subagent-topology-status-icon,
+  .assistant-turn-fragment.streaming .prose-chat > :last-child::after {
     animation: none;
   }
 
@@ -2793,14 +2848,18 @@
   color: var(--ds-error);
 }
 
+.tool-row-status.denied {
+  color: var(--ds-purple);
+}
+
 .tool-spinner {
   flex: none;
   width: 11px;
   height: 11px;
   margin-left: auto;
   border-radius: var(--radius-round);
-  border: 1.5px solid var(--ds-border-default);
-  border-top-color: var(--ds-text-secondary);
+  border: 1.5px solid color-mix(in oklab, var(--ds-warning) 30%, transparent);
+  border-top-color: var(--ds-warning);
   animation: spin 0.8s linear infinite;
 }
 

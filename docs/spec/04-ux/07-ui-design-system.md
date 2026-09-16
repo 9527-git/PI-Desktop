@@ -268,6 +268,19 @@ orange fill and localized accessible name.
 The transcript carries the same semantic colors as the sidebar, and every
 status-bearing surface renders its state visually — never as bare text alone:
 
+| Surface | State | Semantic color | Shape / motion |
+|---|---|---|---|
+| Tool row (`tool-row-state`) | running | warning orange | glowing label with a restrained pulse; tool icon tinted warning |
+| Tool row (`tool-row-state`) | success | success green | glowing label with a green dot; icon stays neutral |
+| Tool row | error | error red | glowing label; dot, icon tint, and alert label |
+| Tool row | denied | purple | glowing label; dot, icon tint, and label (reserved for refusals) |
+| Subagent topology node | running | warning orange | avatar badge with a restrained pulse |
+| Subagent topology node | denied | purple | avatar badge (matches the tool-row refusal color) |
+| Subagent topology node | aborted | neutral gray | avatar badge (a stop is neutral, not a failure) |
+| Activity group (live) | running | warning orange | header icon tint while the turn is in flight |
+| Streaming reply | streaming | neutral accent | blinking caret on the growing prose |
+| Tool spinner | running | warning orange | arc ring; track held at 30% alpha |
+
 Every state label carries its semantic color as a soft glow (text-shadow at
 low alpha) rather than a painted chip; the label stays the only completion
 marker (D227). Running labels keep the dot's restrained pulse and glow

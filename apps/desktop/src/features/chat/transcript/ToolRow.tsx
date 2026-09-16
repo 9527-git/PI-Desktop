@@ -457,7 +457,7 @@ export const ToolRow = memo(function ToolRow({
                 {t("chat.toolFailed")}
               </span>
             ) : status === "denied" ? (
-              <span className="tool-row-status">{t("chat.toolDenied")}</span>
+              <span className="tool-row-status denied">{t("chat.toolDenied")}</span>
             ) : null}
             {runHead && statusLabel ? null : (
               <span className="sr-only" role="status" aria-live="polite">

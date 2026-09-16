@@ -11937,19 +11937,31 @@ plugin-form fixtures in an isolated temporary directory at runtime.
   search, a run, a write, a thinking row), a denied tool call, a failing
   command, and a reply whose prose carries bold, inline code, a workspace
   file link and an http(s) link. At least one tool argument contains a glob
-  (for example `src/**/*.ts`).
+  (for example `src/**/*.ts`). A long-running command, a live subagent
+  fan-out and a streaming reply stay in flight while their rows are
+  inspected.
 - **Steps:** Run a turn that produces the rows above, then inspect the
   transcript in both themes. Read the state labels beside the tool rows, the
   label of a thinking-only activity group, and the collapsed summaries of a
   tool row, a thinking row and a subagent topology node. Check the prose of
-  the reply for the bold, code, path and URL treatments. Re-run the failing
+  the reply for the bold, code, path and URL treatments. While the long
+  running command, the subagent fan-out and the streaming reply are still
+  live, inspect their icon, dot, badge and caret states. Re-run the failing
   command with reduced motion enabled.
 - **Expected:** Each state label renders as glowing text in its semantic
   color — warning for a running row, success for a done row, error for a
-  failed one, purple for a denied one — with no filled chip behind the label;
-  the running dot keeps its restrained pulse and reduced-motion mode keeps
-  the colors while removing the animation. Processing rows tint only their
-  row name by kind: read/list/search/fetch glow blue, run glows warning
+  failed one, purple for a denied one — with no filled chip behind the label.
+  State never rides text alone: a running row shows its pulsing warning dot,
+  a warning-tinted tool icon and the warning spinner arc, a failed row its
+  red dot with the alert label and red icon tint, a denied row the purple
+  dot, purple icon tint and denied label, while a completed row shows only
+  its green dot with a neutral icon. A live subagent topology node badges its
+  avatar with the same warning pulse, a denied node carries the purple badge
+  and an aborted one stays neutral grey, and a live activity group tints its
+  header icon warning even when every row inside it is collapsed. A streaming
+  reply keeps a blinking caret on the growing prose; reduced-motion mode
+  keeps every color while removing every animation. Processing rows tint only
+  their row name by kind: read/list/search/fetch glow blue, run glows warning
   orange, write/edit glow success green, and thinking rows glow purple; a
   thinking-only activity group label glows purple while mixed groups stay
   neutral. Row names keep no background wash, and the kind colors stay
