@@ -16,7 +16,11 @@ import {
   type RefObject,
   type ReactNode,
 } from "react";
-import ReactMarkdown, { type Components, type Options } from "react-markdown";
+import ReactMarkdown, {
+  defaultUrlTransform,
+  type Components,
+  type Options,
+} from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
@@ -52,6 +56,7 @@ import {
   safeDecodeUri,
   toWorkspaceRel,
 } from "../lib/chat-links";
+import { useOpenPreviewTarget } from "../hooks/use-preview-target";
 import { annotationMarkerToken, splitAnnotationMarkerTokens } from "../lib/response-annotations";
 import {
   isClosedFencedCodeBlock,
@@ -450,8 +455,7 @@ function InlineCode({
 }: ComponentProps<"code"> & { node?: unknown }) {
   const root = useAppStore((s) => s.workspace?.path);
   const baseDir = useContext(MarkdownBaseDirContext);
-  const openFile = useAppStore((s) => s.openFileInWorkPanel);
-  const openUrl = useAppStore((s) => s.openUrlInWorkPanel);
+  const openTarget = useOpenPreviewTarget();
   const text = typeof children === "string" ? children : null;
   const target =
     text && !className && !text.includes("\n")
@@ -471,9 +475,7 @@ function InlineCode({
       type="button"
       className="chat-code-link"
       title={target.kind === "file" ? fileTitle : urlTitle}
-      onClick={() =>
-        target.kind === "file" ? openFile(target.path) : openUrl(target.url)
-      }
+      onClick={() => openTarget(target)}
     >
       <code className={className} {...rest}>
         {children}
@@ -526,8 +528,8 @@ function Anchor({
   const { t } = useTranslation();
   const root = useAppStore((s) => s.workspace?.path);
   const baseDir = useContext(MarkdownBaseDirContext);
-  const openFile = useAppStore((s) => s.openFileInWorkPanel);
   const openUrl = useAppStore((s) => s.openUrlInWorkPanel);
+  const openTarget = useOpenPreviewTarget();
   const showToast = useAppStore((s) => s.showToast);
   const linkOpenTarget = useAppStore((s) => s.settings?.linkOpenTarget ?? "workpanel");
 
@@ -631,10 +633,12 @@ function Anchor({
       }
       return;
     }
-    const rel = toWorkspaceRel(safeDecodeUri(href), root, baseDir);
-    if (rel) {
+    // A resolved local reference — inside the workspace, or an absolute path
+    // the host hands to the OS — owns the click instead of the anchor target.
+    const target = resolvePreviewTarget(safeDecodeUri(href), root, baseDir);
+    if (target?.kind === "file") {
       e.preventDefault();
-      openFile(rel);
+      openTarget(target);
     }
   };
   return (
@@ -716,12 +720,23 @@ function MarkdownImage({
   const baseDir = useContext(MarkdownBaseDirContext);
   const openFile = useAppStore((s) => s.openFileInWorkPanel);
   const openUrl = useAppStore((s) => s.openUrlInWorkPanel);
+  const openTarget = useOpenPreviewTarget();
   const fileTitle = usePreviewTitle("file");
   const urlTitle = usePreviewTitle("url");
   const source = typeof src === "string" ? src : "";
   const isRemote = /^https?:/i.test(source);
   const decoded = safeDecodeUri(source);
   const rel = isRemote ? null : toWorkspaceRel(decoded, root, baseDir);
+  // Outside the workspace there is no in-app image: the OS opens it (ADR 0256).
+  const externalPath =
+    !isRemote && !rel
+      ? (() => {
+          const target = resolvePreviewTarget(decoded, root, baseDir);
+          return target?.kind === "file" && target.external
+            ? target.path
+            : null;
+        })()
+      : null;
   const attachmentRef =
     !isRemote && /^attachments\/[0-9a-f]{64}$/i.test(decoded.replace(/\\/g, "/"))
       ? decoded.replace(/\\/g, "/")
@@ -730,6 +745,22 @@ function MarkdownImage({
   // Always run the hook before any branch so hook order stays stable when a
   // streaming src flips between remote and local. Remote images pass null.
   const dataUrl = useReferencedImageDataUrl(isRemote ? null : localRef);
+  if (externalPath) {
+    return (
+      <button
+        type="button"
+        className="chat-image-chip"
+        {...sourcePositionProps(rest)}
+        title={externalPath}
+        onClick={() =>
+          openTarget({ kind: "file", path: externalPath, external: true })
+        }
+      >
+        <IconImage size={14} aria-hidden />
+        <span>{alt || externalPath.split(/[\/]/).pop()}</span>
+      </button>
+    );
+  }
   if (isRemote) {
     return (
       <img
@@ -890,6 +921,26 @@ function remarkAnnotationMarkers() {
 
 const staticRemarkPlugins = [remarkGfm, remarkMath, remarkAnnotationMarkers];
 
+/**
+ * react-markdown erases any protocol its default transform does not know,
+ * which would blank every local file reference the transcript renders
+ * (`E:\out\app.exe` becomes href=""). Keep the default verdict for web
+ * protocols and fragment/relative links, and pass a URL through only when we
+ * resolved it to a local file target — which the Anchor/InlineCode handlers
+ * then open through the host (D424, ADR 0256).
+ */
+function chatUrlTransform(
+  root: string | null | undefined,
+  baseDir: string | null | undefined,
+) {
+  return (url: string): string => {
+    const allowed = defaultUrlTransform(url);
+    if (allowed) return allowed;
+    const target = resolvePreviewTarget(safeDecodeUri(url), root, baseDir);
+    return target?.kind === "file" ? url : "";
+  };
+}
+
 // Extend the default schema only for the media elements rendered above.
 const sanitizeSchema = {
   ...defaultSchema,
@@ -1004,12 +1055,17 @@ const Block = memo(function MarkdownBlock({
     () => [...rehypePlugins!, [rehypeSourcePositions, { offset: sourceOffset }]] as Options["rehypePlugins"],
     [sourceOffset],
   );
+  const urlTransform = useMemo(
+    () => chatUrlTransform(workspaceRoot, baseDir),
+    [workspaceRoot, baseDir],
+  );
   return (
     <MarkdownBlockContext.Provider value={context}>
       <ReactMarkdown
         remarkPlugins={remarkPlugins}
         rehypePlugins={positionedRehypePlugins}
         components={markdownComponents}
+        urlTransform={urlTransform}
       >
         {raw}
       </ReactMarkdown>

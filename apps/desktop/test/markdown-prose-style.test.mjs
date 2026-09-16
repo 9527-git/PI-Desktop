@@ -60,11 +60,42 @@ test("markdown renderer still streams by memoized blocks", () => {
 test("markdown resolves relative file links against a base directory", () => {
   assert.match(markdownSource, /baseDir\?: string/);
   assert.match(markdownSource, /remarkChatFileLinks/);
+  // The anchor resolves through the shared resolver so an external absolute
+  // path (outside the workspace) still opens through the host (ADR 0256).
   assert.match(
     markdownSource,
-    /toWorkspaceRel\(safeDecodeUri\(href\), root, baseDir\)/,
+    /resolvePreviewTarget\(safeDecodeUri\(href\), root, baseDir\)/,
   );
   assert.match(filesTabSource, /baseDir=\{fileDirOf\(selected\)\}/);
+});
+
+test("every prose reference opens through the shared preview target", () => {
+  // Inline code, anchors and images all route through the same hook, so an
+  // external absolute path reaches the OS instead of a viewer that has no file
+  // outside the workspace (D424 / ADR 0256).
+  const hookCalls = markdownSource.match(/useOpenPreviewTarget\(\)/g) ?? [];
+  assert.equal(hookCalls.length, 3);
+  assert.match(markdownSource, /onClick=\{\(\) => openTarget\(target\)\}/);
+  assert.match(markdownSource, /const target = resolvePreviewTarget\(safeDecodeUri\(href\), root, baseDir\);/);
+  assert.match(markdownSource, /if \(target\?\.kind === "file"\) \{/);
+});
+
+test("a local file reference survives the markdown URL transform", () => {
+  // react-markdown's default transform blanks any protocol it does not know,
+  // so a linked drive path arrived as href="" and the click fell through. The
+  // chat transform keeps the default verdict and passes a resolved local file
+  // through (D424 / ADR 0256).
+  assert.match(markdownSource, /defaultUrlTransform/);
+  assert.match(markdownSource, /function chatUrlTransform\(/);
+  assert.match(markdownSource, /urlTransform=\{urlTransform\}/);
+});
+
+test("an image outside the workspace opens through its chip instead of a broken tag", () => {
+  assert.match(
+    markdownSource,
+    /target\?\.kind === "file" && target\.external\s*\?\s*target\.path\s*:\s*null/,
+  );
+  assert.match(markdownSource, /className="chat-image-chip"[\s\S]*?openTarget\(\{ kind: "file", path: externalPath, external: true \}\)/);
 });
 
 test("code blocks use one-dark-pro with a single surface background", () => {
