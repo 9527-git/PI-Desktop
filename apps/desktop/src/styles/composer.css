@@ -31,7 +31,7 @@
 
 .composer-dock-home .composer-stack {
   /* Keep home and docked modes on the same state-aware content cap. */
-  width: min(100%, var(--chat-composer-max-width, 768px));
+  width: min(100%, var(--chat-composer-max-width, 868px));
   max-width: 100%;
   gap: 0;
   overflow: visible;
@@ -39,7 +39,7 @@
 
 .composer-stack {
   pointer-events: auto;
-  width: min(100%, var(--chat-composer-max-width, 768px));
+  width: min(100%, var(--chat-composer-max-width, 868px));
   display: flex;
   flex-direction: column;
   align-items: stretch;

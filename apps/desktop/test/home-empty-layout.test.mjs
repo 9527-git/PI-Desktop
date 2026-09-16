@@ -114,7 +114,7 @@ test("home and docked composers share one width envelope", () => {
   assert.match(dockedComposer, /padding:\s*0 24px 16px/);
   assert.match(
     homeStack,
-    /width:\s*min\(100%,\s*var\(--chat-composer-max-width,\s*768px\)\)/,
+    /width:\s*min\(100%,\s*var\(--chat-composer-max-width,\s*868px\)\)/,
   );
   // The minimap is out of flow, so appearing after overflow cannot consume
   // inline space from either composer variant.

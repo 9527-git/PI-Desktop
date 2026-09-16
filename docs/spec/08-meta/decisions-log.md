@@ -146,7 +146,7 @@ Gold source: local Codex electron captures; latest row wins where rows conflict.
 | D055 | Empty plate draft Y | *(plate-height guidance superseded by D061; workspace-chip density superseded by D095)* Home empty shell min-height ~148px (bottom-aligned) so draft densest ink ≈y556 vs gold; chips compact 28px | 112px plate left draft ~30px low; grow plate upward without moving toolbar footing |
 | D056 | Empty-home workspace chips | *(superseded by D095)* **Hide project/Local/branch capsule on empty home always; show only in thread-docked composer** | cx-home-clean empty gold has no capsule band above the plate even with project title |
 | D057 | Home mark + hero title optical | *(home mark superseded by D094; title guidance retained)* **Empty-home Codex mark uses denser stroke; short workspace basenames display as `PI-Desktop` for gold title span** | Hero residual was thin mark + short project label under-inking title vs Codex gold |
-| D058 | Home content width + dark ink tokens | **Home dual-grow max width uses `768px` (not `48rem` under 14px root); home horizontal pad 12px; hero title/night controls use theme tokens; night home plate scoped to dark only** | `48rem` at 14px root shrank plate ~120px vs Codex gold; hardcoded light hero ink made night title unreadable |
+| D058 | Home content width + dark ink tokens | *(width amended by D429: the home stack follows the 868px composer token)* **Home dual-grow max width uses `768px` (not `48rem` under 14px root); home horizontal pad 12px; hero title/night controls use theme tokens; night home plate scoped to dark only** | `48rem` at 14px root shrank plate ~120px vs Codex gold; hardcoded light hero ink made night title unreadable |
 | D059 | Light disabled send ink | **Disabled send chip `#8e8e90` + white arrow (not `#bdbdbd`)** | Pixel-match cx-home-clean empty send control |
 | D060 | Light New task ghost row | **Light empty-home New task is transparent (no solid chip); only hover wash** | Gold has icon+label without filled pill; filled `#e8` chip was main nav residual |
 | D061 | Empty plate Y + night elevated-primary | **Home empty plate min-height 140px + wrap bottom pad 16px (top ~y536–538 / draft ~y552 / foot shadow ~y674); light+dark home plates use elevated-primary fill and downward elevation (no upward omni glow); dark fill `#212121f5`** | Plate was high with pre-plate halo; solid night plate + heavy omni shadow diverged from Codex elevated-primary and gold foot band |
@@ -246,7 +246,7 @@ Gold source: local Codex electron captures; latest row wins where rows conflict.
 
 | ID | Topic | Decision | Rationale |
 |---|---|---|---|
-| D101 | WorkBuddy-inspired transcript density | **User turns render as compact right-aligned soft plates (`min(78%, 560px)`, subtle border + hairline shadow). Assistant turns stay transparent full-width prose (max 720px). Message row vertical padding tightens to 10px. Hover/focus-within reveals quiet copy chips under each turn (right-aligned for user, left-aligned for assistant). Streaming assistant answers use a thin accent left rule. No mascot, reactions, or cost-chip UI yet.** *(amended by D323)* | Current right-aligned user bubbles were underspec'd and visually sparse versus WorkBuddy's task chat; denser plates improve scanability without abandoning the Codex/developer restraint |
+| D101 | WorkBuddy-inspired transcript density | **User turns render as compact right-aligned soft plates (`min(78%, 560px)`, subtle border + hairline shadow). Assistant turns stay transparent full-width prose (max 720px). Message row vertical padding tightens to 10px. Hover/focus-within reveals quiet copy chips under each turn (right-aligned for user, left-aligned for assistant). Streaming assistant answers use a thin accent left rule. No mascot, reactions, or cost-chip UI yet.** *(amended by D323; the 720px prose cap is amended by D429 to the 820px `--chat-message-max-width` token)* | Current right-aligned user bubbles were underspec'd and visually sparse versus WorkBuddy's task chat; denser plates improve scanability without abandoning the Codex/developer restraint |
 | D103 | Per-message model + token meta and retry | **Completed assistant turns surface modelId + token usage chips under the answer (tokens-only; hover breakdown for input/output/cache/reasoning). Usage is attached on runtime message_end from pi-ai Usage, persisted in message meta_json, and reloaded with the transcript. Action row adds Retry, which re-sends the nearest preceding user prompt. No currency pricing and no like/dislike.** | WorkBuddy per-message meta improves trust/scanability; token totals already flow from the provider while priced cost still needs a catalog |
 | D105 | In-place regenerate for assistant turns | **Regenerate truncates the session transcript to the nearest preceding user prompt (exclusive of that prompt and everything after), disposes the live pi-agent for the session, and re-sends the prompt so the new assistant/tool tail replaces the discarded branch instead of stacking a duplicate turn.** | Users expect regenerate to rewrite the current turn; append-only retry polluted long sessions and left stale answers above the redo |
 | D106 | Preserve user hard newlines in transcript | **User bubbles render plaintext with hard newlines intact. Composer only trims leading/trailing whitespace; transcript uses `message-user-text` with `white-space: pre-wrap` (no forced mid-glyph word-break) so multi-line prompts never collapse into one paragraph. Copy and session reload keep the original line breaks.** | Multi-line prompts (code snippets, lists, pasted blocks) are common in coding agents; collapsing newlines makes the transcript hard to re-read and re-edit |
@@ -376,6 +376,7 @@ Gold source: local Codex electron captures; latest row wins where rows conflict.
 | D370 | Local MCP control plane for desktop operations | *(amended by D372)* **An opt-in Streamable HTTP MCP server inside Electron Main binds to `127.0.0.1`, authenticates with a persistent random bearer token, validates supplied Origins against loopback hostnames, writes a mode-restricted connection manifest, and delegates to the same registered IPC handlers the renderer uses. Named tools cover the project/session/Agent flow; `pi_desktop_invoke` reaches a risk-tagged operation catalog; dangerous operations require `confirm: true`; successful external mutations reuse the renderer session-change event. Local-only and fail-soft at startup.** | An external Agent needs to drive the running desktop without a second permission or persistence implementation and without touching the deferred remote Gateway / WebUI boundary (ADR 0203, E2E-220) |
 | D372 | Tightened local MCP control-plane boundary | **Amend D370 / ADR 0203: the first-version catalog is the project/session/Agent/workspace flow plus reviewed reads; secret-shaped arguments are stripped; `session/configure` is dangerous; listen addresses are asserted loopback; protocol versions are negotiated rather than echoed; results including `structuredContent` are bounded; renderer session refresh is mutation-only.** | The first catalog still exposed native pickers, secret-write provider/OAuth/MCP paths, and unconfirmed `session/configure`, and treated session reads as renderer mutations (E2E-220) |
 | D377 | Plugin desktop control requires native user consent | **A `dangerous` desktop operation invoked through `pi.desktop.invoke` needs the plugin's `confirm: true` and then the user's answer to a host-owned native dialog that shows only the catalog operation id, description, and a bounded argument preview; dismissal, Deny, and a host without a dialog service fail with `PERMISSION_DENIED`. `read`/`write` operations and the MCP contract (D372) are unchanged.** | The controller's `confirm` flag is set by the caller, so a plugin (or a model behind it) could delete sessions or switch a session to `auto` with no human in the loop, and any plugin-drawn confirmation card can be relabeled by a prompt-injected transcript (ADR 0208, E2E-236) |
+| D429 | Wider chat band, fullscreen fill, and one dock seam | **The centered chat band widens to 860px content / 868px composer plate, and the assistant message column gets its own `--chat-message-max-width` at 820px so D101's 720px prose cap can no longer pin the band to its old width. A collapsed sidebar keeps one narrower ceiling of 760px for all three tokens. `:root[data-fullscreen="true"]` (F11, published by `useAppShellRuntime`) sets all three tokens to `100%`, filling the whole main pane; the fullscreen rule is declared after the collapsed override because both selectors have equal specificity, and a style test asserts that source order. An open work panel regains exactly one in-flow stroke: a 1px `--ds-border-default` hairline on the chat column's right edge, painted by the main pane (`.main-pane::after`, z-index above `.conversation-topbar`) rather than the dock, because the dock's own left box edge feeds the native plugin/browser-view reservation and those native views composite above the renderer, which would cover a stroke drawn inside the panel; the dock interior stays divider-free per D297. Renderer CSS only: no IPC, host protocol, storage, permission, or dependency change. See `04-ux/07-ui-design-system.md` §6.4/§8.3, `04-ux/08-component-spec.md` §5.2, and E2E-CHAT-fullscreen-widens-reading-band / E2E-WORKPANEL-open-dock-draws-chat-column-seam.** | The 760/768px band came from a 720px prose cap that no longer matches how the transcript is read on wide displays, and the dock boundary had only a tone difference after D297. Fullscreen is the moment the shell owns the whole display, so the reading column should stop reserving space for chrome that is not there. |
 
 ## P. Transcript storage decisions
 
@@ -3415,6 +3416,11 @@ D193, and D194.
   new scheme per file. No protocol, storage, or runtime behavior changes.
   Supersedes the stroke rows of §6.4 in the UI design system and the D148
   0.5px field stroke.
+- Amended 2026-09-16 by D429: exactly one in-flow stroke returns — a 1px
+  `--ds-border-default` hairline between the chat column and an open work
+  panel, painted by the main pane because native plugin views composite above
+  the renderer at that edge. Every other divider-free rule here, including the
+  dock interior, stands.
 ## 2026-09-05 — Streaming replies are checkpointed and recovered (D299)
 
 - The assistant reply currently streaming in a session is checkpointed by
@@ -5290,3 +5296,41 @@ Validation contract: E2E-SIDEBAR-global-pinned-conversations.
 - Decision D427 follows the local line's D326 / D328 entries and is ported onto
   the upstream base. See `04-ux/07-ui-design-system.md` §16 and
   E2E-CHAT-other-sessions-render-without-switching.
+
+## 2026-09-16 — Wider chat band, fullscreen fill, and one dock seam (D429)
+
+- `.main-pane` now owns three width tokens: `--chat-content-max-width` 860px,
+  `--chat-composer-max-width` 868px, and the new
+  `--chat-message-max-width` 820px. Every assistant-side cap in
+  `messages.css` that used to be a literal `720px` (13 sites including
+  `.review-change-card` and `.turn-summary-card`) reads the message token, so
+  the prose column grows with the band instead of pinning it. The user plate
+  keeps its `min(max-content, 82%, 600px)` form.
+- A collapsed sidebar keeps one narrower ceiling for all three tokens: 760px,
+  replacing the previous 640px content band, and its faster easing.
+- `:root[data-fullscreen="true"] .main-pane` sets all three tokens to `100%`,
+  so the fullscreen shell state (F11, `documentElement.dataset.fullscreen`,
+  published by `useAppShellRuntime.tsx`) fills the pane with the reading
+  column. It sits after the collapsed override on purpose: equal specificity,
+  so source order decides; `sidebar-collapse-animation.test.mjs` asserts both
+  the values and the order.
+- The dock boundary regains one hairline. `.app-shell:has(> .work-panel)
+  .main-pane::after` paints a 1px `--ds-border-default` stroke on the chat
+  column's right edge, `inset-block: 0`, `pointer-events: none`, `z-index: 11`
+  so it spans past the absolutely positioned 46px conversation topbar
+  (z-index 10). It is drawn by the main pane, not the dock: the pane's right
+  edge is exactly the dock's left content edge, and a stroke inside
+  `.work-panel` would be covered by the native `WebContentsView` that
+  `PluginViewTab`/browser host positions against that edge and composites
+  above the renderer. Preview (maximized) mode unmounts `.main-pane`, so no
+  seam is drawn there. The dock interior stays divider-free (D297); §6.4 of
+  the UI design system names this the one reintroduced in-flow stroke.
+- Renderer CSS plus tests only. No IPC, host protocol, storage schema,
+  permission, dependency, or persisted-preference change; older persisted
+  panel widths and the resize preference remain untouched.
+- Decision D429 amends D058 (home plate width now follows the 868px composer
+  token), D101 (assistant prose cap 720px → 820px), and D297 (one dock seam).
+  See `04-ux/07-ui-design-system.md` §6.4 / §8.3, `04-ux/08-component-spec.md`
+  §4.3 / §5.2, `04-ux/01-ui-ia.md` (main pane), and
+  E2E-CHAT-fullscreen-widens-reading-band /
+  E2E-WORKPANEL-open-dock-draws-chat-column-seam.
