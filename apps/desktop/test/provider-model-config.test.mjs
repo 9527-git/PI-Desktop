@@ -225,8 +225,8 @@ test("model ids are copyable and a configured model can carry an alias", () => {
   // The guard is row-scoped, so a stale selection elsewhere on the page cannot
   // cancel a plain click or the Space key's synthetic click.
   assert.match(pickerSource, /selection\.isCollapsed/);
-  assert.match(pickerSource, /row\.contains\(selection\.anchorNode\)/);
-  assert.match(pickerSource, /row\.contains\(selection\.focusNode\)/);
+  assert.match(pickerSource, /label\.contains\(selection\.anchorNode\)/);
+  assert.match(pickerSource, /label\.contains\(selection\.focusNode\)/);
   // Keyboard activation reports detail 0 and must still toggle.
   assert.match(pickerSource, /event\.detail === 0/);
   // A selection left behind by copying must not block an explicit checkbox click.
@@ -240,6 +240,55 @@ test("model ids are copyable and a configured model can carry an alias", () => {
   assert.match(pickerSource, /\[\.\.\.event\.target\.value\]\.slice\(0, 60\)/);
   assert.match(pickerSource, /provider-chosen-row-alias/);
   assert.match(styles, /\.provider-chosen-row-alias\s*\{/);
+});
+
+test("a model name is never the toggle, and it opens what it configures", () => {
+  // The id, the name, the row padding and the limits cell are one open
+  // gesture: a click there must never reach the checkbox's toggle. The click
+  // handler that owns the row sits between the label and its checkbox.
+  const rowClick = pickerSource.slice(
+    pickerSource.indexOf('className="provider-models-row-label"'),
+    pickerSource.indexOf('className="provider-models-check"'),
+  );
+  assert.match(rowClick, /event\.preventDefault\(\)/);
+  assert.match(rowClick, /if \(busy\) return;/);
+  // A plain click on a configured row opens its settings; only an
+  // unconfigured row is picked by that same gesture.
+  assert.match(rowClick, /if \(chosen\) revealModelConfig\(row\);\s*else toggleModel\(row\)/);
+  // The checkbox stays the one control that picks or drops the model.
+  assert.match(pickerSource, /onChange=\{\(\) => toggleModel\(row\)\}/);
+  // A drag-copy that happens to end inside the text stays a copy.
+  assert.match(rowClick, /selection\.isCollapsed/);
+
+  // The picker answers by opening the configured binding and scrolling to it.
+  assert.match(pickerSource, /const revealModelConfig = \(row: ModelRow\)/);
+  assert.match(
+    pickerSource,
+    /models\.find\(\(entry\) => entry\.id\.toLowerCase\(\) === key\)/,
+  );
+  // A model that is not configured yet has nothing to open.
+  assert.match(pickerSource, /if \(!binding\) return;/);
+  assert.match(pickerSource, /setExpandedModelId\(binding\.id\)/);
+  assert.match(pickerSource, /scrollIntoView\(\{ block: "nearest"/);
+  // The mark it leaves is transient, respects reduced motion, and its timer
+  // is cleared both when the mark is re-armed and when the picker unmounts.
+  assert.match(pickerSource, /REVEAL_HIGHLIGHT_MS/);
+  assert.match(
+    pickerSource,
+    /revealedId === binding\.id\.toLowerCase\(\) && "is-revealed"/,
+  );
+  assert.match(pickerSource, /window\.matchMedia/);
+  assert.ok(
+    (pickerSource.match(/clearTimeout\(revealTimer\.current\)/g) ?? []).length >= 2,
+    "the reveal timer should be cleared on re-reveal and on unmount",
+  );
+  assert.match(styles, /\.provider-chosen-row\.is-revealed\s*\{/);
+  assert.match(
+    styles,
+    /@media \(prefers-reduced-motion: reduce\) \{\s*\.provider-chosen-row\.is-revealed\s*\{[^}]*animation: none;/,
+  );
+  // The name advertises itself as text rather than as the row's toggle.
+  assert.match(styles, /\.provider-models-row-copy\s*\{[^}]*cursor: text;/);
 });
 
 test("the chosen pane narrows a long configured list with its own search", () => {

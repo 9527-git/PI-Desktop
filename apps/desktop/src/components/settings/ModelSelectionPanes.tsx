@@ -8,7 +8,7 @@
  * guarantee lives here once instead of in a convention two files had to
  * remember.
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   THINKING_LEVELS,
@@ -32,6 +32,9 @@ import { IconClose, IconHelp, IconPlus, IconRefresh, IconSearch } from "../icons
 import { filterChosenModels, hidesAddedBinding } from "./model-chosen-filter";
 import { describeModelsFetchError } from "./model-fetch-error";
 import type { ProviderModelsState } from "./useProviderModels";
+
+/** How long the right pane marks the row the left list pointed at. */
+const REVEAL_HIGHLIGHT_MS = 1600;
 
 /** One row of the model list: what the service returned, plus its binding. */
 export type ModelRow = {
@@ -204,6 +207,19 @@ export function ModelSelectionPanes({
   const [expandedModelId, setExpandedModelId] = useState<string | null>(
     () => models[0]?.id ?? null,
   );
+  // The left list points into the right pane, so a click on a configured
+  // model opens its settings instead of dropping it. The row it opened is
+  // marked for as long as the highlight runs.
+  const [revealedId, setRevealedId] = useState<string | null>(null);
+  const chosenRowRefs = useRef(new Map<string, HTMLLIElement>());
+  const revealTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (revealTimer.current) clearTimeout(revealTimer.current);
+    },
+    [],
+  );
 
   // The returned list is short and already local, so filtering is client-side:
   // no host search and no debounced IPC round trip.
@@ -297,6 +313,32 @@ export function ModelSelectionPanes({
     setModels((current) => applyVisibleModelSelection(current, visibleRows, select));
   };
 
+  /**
+   * A click on a configured model's row in the left list: open its settings
+   * and bring the row into view. A model that is not configured yet has no
+   * settings to show, so the checkbox stays the only way to drop one.
+   */
+  const revealModelConfig = (row: ModelRow) => {
+    const key = row.id.toLowerCase();
+    const binding = models.find((entry) => entry.id.toLowerCase() === key);
+    if (!binding) return;
+    setExpandedModelId(binding.id);
+    if (revealTimer.current) clearTimeout(revealTimer.current);
+    revealTimer.current = setTimeout(() => setRevealedId(null), REVEAL_HIGHLIGHT_MS);
+    const node = chosenRowRefs.current.get(key);
+    if (!node) return;
+    // The row is mounted already, so the mark and the scroll follow the
+    // expansion in the next frame: by then the body it opened has settled the
+    // row's height. Dropping the mark first lets a repeated click flash again.
+    setRevealedId(null);
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    requestAnimationFrame(() => {
+      if (!node.isConnected) return;
+      setRevealedId(key);
+      node.scrollIntoView({ block: "nearest", behavior: reduced ? "auto" : "smooth" });
+    });
+  };
+
   const updateBinding = (id: string, update: Partial<ModelBinding>) =>
     setModels((current) =>
       current.map((binding) => (binding.id === id ? { ...binding, ...update } : binding)),
@@ -338,53 +380,67 @@ export function ModelSelectionPanes({
       <div className="provider-models-placeholder">{t("settings.noModelMatches")}</div>
     ) : (
       <ul className="provider-models-list">
-        {visibleRows.map((row) => (
-          <li className="provider-models-row" key={row.id}>
-            <label
-              className="provider-models-row-label"
-              onClick={(event) => {
-                // Keyboard activation reports detail 0 and is not a click that
-                // carries a text selection, so it must keep toggling.
-                if (event.detail === 0) return;
-                // A copied selection can remain active when the user clicks the
-                // checkbox next. The checkbox is an explicit toggle target, so
-                // an old selection must not cancel its native activation.
-                if (event.target instanceof HTMLInputElement) return;
-                // A drag-selection inside this row is a copy gesture, not a toggle.
-                const selection = window.getSelection();
-                const row = event.currentTarget;
-                if (
-                  selection &&
-                  !selection.isCollapsed &&
-                  row.contains(selection.anchorNode) &&
-                  row.contains(selection.focusNode)
-                ) {
+        {visibleRows.map((row) => {
+          const chosen = selected.has(row.id.toLowerCase());
+          return (
+            <li className="provider-models-row" key={row.id}>
+              <label
+                className="provider-models-row-label"
+                onClick={(event) => {
+                  // Keyboard activation reports detail 0 and is not a pointer
+                  // click, so it keeps the checkbox's native toggle.
+                  if (event.detail === 0) return;
+                  // The checkbox is an explicit toggle target; its native
+                  // activation must run even when a copied selection is still
+                  // active.
+                  if (event.target instanceof HTMLInputElement) return;
+                  // A drag-selection inside this row is a copy gesture, not an
+                  // activation of the row.
+                  const selection = window.getSelection();
+                  const label = event.currentTarget;
+                  if (
+                    selection &&
+                    !selection.isCollapsed &&
+                    label.contains(selection.anchorNode) &&
+                    label.contains(selection.focusNode)
+                  ) {
+                    event.preventDefault();
+                    return;
+                  }
+                  // Cancelling the click keeps the label from activating the
+                  // checkbox, so a click outside the checkbox never drops the
+                  // model: the row's pointer cursor always opens or picks,
+                  // never removes. A configured row opens its settings; an
+                  // unconfigured one is picked.
                   event.preventDefault();
-                }
-              }}
-            >
-              <input
-                type="checkbox"
-                className="provider-models-check"
-                checked={selected.has(row.id.toLowerCase())}
-                disabled={busy}
-                spellCheck={false}
-                autoCorrect="off"
-                autoCapitalize="off"
-                onChange={() => toggleModel(row)}
-              />
-              <span className="provider-models-row-copy selectable">
-                <span className="provider-models-row-id font-mono">{row.id}</span>
-                {row.displayName && row.displayName !== row.id ? (
-                  <span className="provider-models-row-name">{row.displayName}</span>
-                ) : null}
-              </span>
-              <span className="provider-models-row-limits">
-                {formatTokenCount(row.contextWindow)} · {formatTokenCount(row.maxTokens)}
-              </span>
-            </label>
-          </li>
-        ))}
+                  if (busy) return;
+                  if (chosen) revealModelConfig(row);
+                  else toggleModel(row);
+                }}
+              >
+                <input
+                  type="checkbox"
+                  className="provider-models-check"
+                  checked={chosen}
+                  disabled={busy}
+                  spellCheck={false}
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  onChange={() => toggleModel(row)}
+                />
+                <span className="provider-models-row-copy selectable">
+                  <span className="provider-models-row-id font-mono">{row.id}</span>
+                  {row.displayName && row.displayName !== row.id ? (
+                    <span className="provider-models-row-name">{row.displayName}</span>
+                  ) : null}
+                </span>
+                <span className="provider-models-row-limits">
+                  {formatTokenCount(row.contextWindow)} · {formatTokenCount(row.maxTokens)}
+                </span>
+              </label>
+            </li>
+          );
+        })}
       </ul>
     );
 
@@ -502,7 +558,18 @@ export function ModelSelectionPanes({
               const expanded = expandedModelId === binding.id;
               const advancedId = `model-advanced-${binding.id}`;
               return (
-                <li className="provider-chosen-row" key={binding.id}>
+                <li
+                  className={cx(
+                    "provider-chosen-row",
+                    revealedId === binding.id.toLowerCase() && "is-revealed",
+                  )}
+                  key={binding.id}
+                  ref={(node) => {
+                    const key = binding.id.toLowerCase();
+                    if (node) chosenRowRefs.current.set(key, node);
+                    else chosenRowRefs.current.delete(key);
+                  }}
+                >
                   <div className="provider-chosen-row-head">
                     <span className="provider-chosen-row-id font-mono selectable">
                       {binding.id}
