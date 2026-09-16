@@ -402,6 +402,10 @@ async function main() {
       walkDataDir(dataDir).filter((path) =>
         sessionIds.some((id) => path.includes(id)),
       );
+    // Host responses use the canonical spelling from db.rs
+    // canonical_project_path, which keeps forward slashes even on Windows;
+    // realpathSync keeps backslashes, so normalize before string comparison.
+    const canonicalPath = (dir) => realpathSync(dir).replaceAll("\\", "/");
 
     // E2E-PROJECT-delete-removes-project-and-owned-sessions — removing a
     // project drops its durable row plus every session attached to it, their
@@ -416,8 +420,8 @@ async function main() {
       await host.call("projects.create", { path: removedProjectDir });
       await host.call("projects.create", { path: keptProjectDir });
       // projects.list stores the canonical spelling (db.rs canonical_project_path).
-      const removedProjectPath = realpathSync(removedProjectDir);
-      const keptProjectPath = realpathSync(keptProjectDir);
+      const removedProjectPath = canonicalPath(removedProjectDir);
+      const keptProjectPath = canonicalPath(keptProjectDir);
 
       const deletedSessionIds = [];
       for (const title of ["E2E removed session 1", "E2E removed session 2"]) {
@@ -509,7 +513,7 @@ async function main() {
       const busyProjectDir = join(dataDir, "e2e-project-busy");
       mkdirSync(busyProjectDir, { recursive: true });
       await host.call("projects.create", { path: busyProjectDir });
-      const busyProjectPath = realpathSync(busyProjectDir);
+      const busyProjectPath = canonicalPath(busyProjectDir);
       const busySession = await host.call("session.create", {
         title: "E2E busy session",
         mode: "agent",
