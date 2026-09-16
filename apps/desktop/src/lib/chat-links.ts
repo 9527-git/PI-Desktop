@@ -1,11 +1,10 @@
 /**
- * Detection and resolution of file/URL references in chat content so the
- * transcript can preview them: HTML in the work-panel browser, other files
- * with the OS default handler, URLs in the embedded browser.
+ * Compatibility facade for the split `chat-links/` modules.
  *
- * This file stays as the module's public entry point so every existing
- * `../lib/chat-links` import keeps working unchanged. The implementation is
- * split by responsibility under `./chat-links/`; see that directory's
- * `index.ts` for the shape of the whole module.
+ * `chat-links.ts` and `chat-links/` coexist on purpose: module resolution
+ * prefers the file, so every existing `from "../lib/chat-links"` import keeps
+ * working unchanged while the implementation lives split by responsibility in
+ * `./chat-links/*`. New code may import either form.
  */
+
 export * from "./chat-links/index";

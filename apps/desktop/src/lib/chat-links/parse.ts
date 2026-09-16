@@ -64,20 +64,24 @@ export function unwrapAtFileRef(text: string): string | null {
 /**
  * Whole-token shape check: an optional drive prefix, an optional leading
  * separator or `./` / `../`, segments joined by `/` or `\`, and optional
- * `:line[:col]` chrome. The segment class excludes both separators (written
- * as \u005c / \u0060 escapes), so the repetition stays linear.
+ * `:line[:col]` chrome. The segment class is negated, so it accepts every
+ * Unicode letter and digit (CJK names included, #235) and only excludes
+ * punctuation; the backslash is escaped out of the class (\u005c) so a
+ * backslash-separated token is split on the separator instead of being
+ * swallowed as one segment.
  */
 const SEG = "[^\\s<>\"'\\u005c\\u0060|*?(){}\\[\\],;!。、，；：「」『』（）【】]+";
 const SEPARATOR = "[\\u005c/]";
 const FILE_SHAPE_RE = new RegExp(
   "^(?:[A-Za-z]:)?(?:" + SEPARATOR + "|\\.{1,2}" + SEPARATOR + ")?" +
     SEG + "(?:" + SEPARATOR + SEG + ")*(?::\\d+(?::\\d+)?)?$",
+  "u",
 );
 
 /**
  * Shape that tolerates interior spaces ("C:\\Program Files\\App\\app.exe").
- * Only an extension-terminated token qualifies, so a spaced absolute path
- * cannot swallow following prose.
+ * Only an extension-terminated token qualifies, which keeps ordinary prose
+ * (`see README.md and notes.txt`) readable as separate references.
  */
 const SPACED_SEG =
   "[^<>\"'\\u0060|*?(){}\\[\\],;!。、，；：「」『』（）【】：\\u005c/]+";
@@ -85,6 +89,7 @@ const SPACED_SHAPE_RE = new RegExp(
   "^(?:[A-Za-z]:)?(?:" + SEPARATOR + "|\\.{1,2}" + SEPARATOR + ")?" +
     SPACED_SEG + "(?:" + SEPARATOR + SPACED_SEG + ")*" +
     "\\.[A-Za-z0-9]{1,8}(?::\\d+(?::\\d+)?)?$",
+  "u",
 );
 
 /** Does the token look like a path (spaced absolute paths allowed)? */

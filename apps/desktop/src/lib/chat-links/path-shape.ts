@@ -26,11 +26,13 @@ const KNOWN_BARE_NAMES = new Set([
 ]);
 
 /**
- * One path segment: no whitespace, no shell/markdown punctuation, no
- * backslash or backtick (regex-escaped as \u005c / \u0060 so the class also
- * excludes separators — this keeps `SEG + separator` quantifiers linear), no
- * Windows-invalid character, and no CJK sentence punctuation (a path written
- * inside Chinese prose must stop at the trailing `。` or `、`).
+ * One path segment. The class is *negated* on purpose: every Unicode letter
+ * and digit (`\p{L}` / `\p{N}`, CJK included) is inside it by default, so no
+ * `\w` / `\b` ASCII assumption can drop a non-ASCII filename (#235). It drops
+ * whitespace, shell/markdown punctuation, both separators (\u005c / \u0060
+ * escaped — keeping `SEG + separator` quantifiers linear), Windows-invalid
+ * characters, and CJK sentence punctuation, so a path inside Chinese prose
+ * stops at the trailing `。` / `、` / `：`.
  */
 const SEG_CHAR =
   "[^\\s<>\"'\\u005c\\u0060|*?(){}\\[\\],;!。、，；：「」『』（）【】]";
@@ -107,14 +109,6 @@ export function normalizePathSegments(path: string): string | null {
 /** `E:\x\a.ts:42:7` → `E:/x/a.ts`. The line ref is display chrome, not path. */
 export function stripLineRef(path: string): string {
   return path.replace(/:\d+(?::\d+)?$/, "");
-}
-
-/** Remove scan-swept trailing dots/separators. Other punctuation never enters
- * a token because the segment class already excludes it. */
-export function trimPathToken(token: string): string {
-  // A bare drive root (`C:\`) stays intact; every other path drops the tail.
-  if (/^[A-Za-z]:[\\/]$/.test(token)) return token;
-  return token.replace(/[.]+$/, "").replace(/[\\/]+$/, "");
 }
 
 /** Parent directory of any path shape; "" when there is none. */

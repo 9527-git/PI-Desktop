@@ -2,18 +2,16 @@
  * Scan plain chat text for file/URL references and split it into literal runs
  * and previewable targets. Used by user messages (chips) and, through
  * `mdast.ts`, by markdown phrasing.
+ *
+ * The alternation is ordered most-specific-first, and every repetition is
+ * anchored on a segment class that excludes the backslash separator, so a
+ * hostile run of tokens scans linearly instead of exploding on nested
+ * quantifiers. Segment characters are shared with `path-shape`, so a token
+ * accepted here is the same shape the parser validates.
  */
 
-import {
-  SEG,
-  leafName,
-  toPosix,
-  trimPathToken,
-} from "./path-shape";
-import {
-  resolvePreviewTarget,
-  type ChatPreviewTarget,
-} from "./resolve";
+import { SEG, leafName, toPosix } from "./path-shape";
+import { resolvePreviewTarget, type ChatPreviewTarget } from "./resolve";
 
 export type ChatTextSegment =
   | { kind: "text"; text: string }
@@ -25,12 +23,6 @@ export type ChatTextSegment =
       target: ChatPreviewTarget;
     };
 
-/**
- * The scan alternation, most specific first: `@refs`, URLs, drive paths,
- * `./`-relative, slash paths, then bare dotted names. Segment characters come
- * from `path-shape.SEG`, which excludes separators, so the repetitions stay
- * linear on hostile input.
- */
 const SEPARATOR = "[\\u005c/]";
 
 /**
@@ -45,21 +37,45 @@ const SPACED =
   "[^<>\"'\\u0060|*?(){}\\[\\],;!。、，；：「」『』（）【】：\\u005c/]+";
 const SPACED_PATH =
   "(?:[A-Za-z]:|\\.{1,2})?" + SEPARATOR + "(?:" + SPACED + SEPARATOR + ")*?" +
-  SPACED + "\\.[A-Za-z0-9]{1,8}"
+  SPACED + "\\.[A-Za-z0-9]{1,8}";
+
+/** `:12` / `:12:7` line chrome; `stripLineRef` drops it before resolution. */
+const LINE_REF = "(?::\\d+(?::\\d+)?)?";
+
+/**
+ * Optional `~/` or `/` anchor on a multi-segment token, captured whole so the
+ * resolver sees the real anchor: an outside absolute or a home path then fails
+ * resolution and stays plain text instead of chipping a suffix that could
+ * never open (#235).
+ */
+const ANCHOR = "(?:~" + SEPARATOR + ")?" + SEPARATOR + "?";
+
+/**
+ * Unicode-aware bare name (#235). `\p{L}` / `\p{N}` keep CJK filenames
+ * linking, and the extension tail uses `(?![A-Za-z0-9_])` rather than `\b`,
+ * because a word boundary would stop `App.tsx文件` from linking.
+ */
+const BARE_NAME =
+  "[\\p{L}\\p{N}_@+-][\\p{L}\\p{N}_@+.-]*\\.[A-Za-z0-9]{1,8}(?![A-Za-z0-9_])";
+
 const SCAN_RE = new RegExp(
   '@"[^"\\n]+"|@\\S+' +
-    `|https?:\\/\\/[^\\s<>"'\u0060()[\\]{}]+` +
+    `|https?:\\/\\/[^\\s<>"'\\u0060()[\\]{}]+` +
     "|" + SPACED_PATH +
-    "|[A-Za-z]:" + SEPARATOR + "(?:" + SEG + SEPARATOR + ")*" + SEG + "(?::\\d+(?::\\d+)?)?" +
-    "|\\.{1,2}" + SEPARATOR + "(?:" + SEG + SEPARATOR + ")*" + SEG + "(?::\\d+(?::\\d+)?)?" +
-    "|(?:" + SEG + SEPARATOR + ")+" + SEG + "(?::\\d+(?::\\d+)?)?" +
-    // The bare-name tail must stay Unicode-aware: `\w` / `\b` are ASCII-only,
-    // so a name like `报告.pdf` would never link and `App.tsx文件` would stop
-    // short. The extension tail uses `(?![A-Za-z0-9_])` rather than `\b` for
-    // the same reason (#235).
-    "|[\\p{L}\\p{N}_@+-][\\p{L}\\p{N}_@+.-]*\\.[A-Za-z0-9]{1,8}(?![A-Za-z0-9_])",
+    "|[A-Za-z]:" + SEPARATOR + "(?:" + SEG + SEPARATOR + ")*" + SEG + LINE_REF +
+    "|\\.{1,2}" + SEPARATOR + "(?:" + SEG + SEPARATOR + ")*" + SEG + LINE_REF +
+    "|" + ANCHOR + "(?:" + SEG + SEPARATOR + ")+" + SEG + LINE_REF +
+    "|" + BARE_NAME,
   "gu",
 );
+
+/** Remove scan-swept trailing dots/separators. Other punctuation never enters
+ * a token because the segment class already excludes it. */
+function trimPathToken(token: string): string {
+  // A bare drive root (`C:\`) stays intact; every other path drops the tail.
+  if (/^[A-Za-z]:[\\/]$/.test(token)) return token;
+  return token.replace(/[.]+$/, "").replace(/[\\/]+$/, "");
+}
 
 /**
  * Split plain chat text (user messages) into literal runs and previewable

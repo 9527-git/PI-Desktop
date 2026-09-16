@@ -1,66 +1,39 @@
 /**
  * Resolve a chat-mentioned path onto something openable: a workspace-relative
  * path for the work panel, or — for Windows drive paths (and MSYS mounts on a
- * Windows host) — an absolute local path outside the workspace that the host
- * opens through its own containment gate.
+ * Windows host) — an absolute local path marked `external`.
+ *
+ * Absolute paths deliberately DO resolve outside the workspace. That is a
+ * product decision opposite to the older "links cannot escape the workspace"
+ * rule (D322): the transcript has to name real artifacts
+ * (`E:\pi-pro\...\setup.exe`), so containment belongs to the *opening* action
+ * rather than to resolution. Electron main still gates that action —
+ * `resolveOpenablePath` (`electron/main/fs-panel.ts`) opens only a path under
+ * the workspace root or an allowed extra root — so a target the host refuses
+ * fails loudly there instead of silently chipping a never-openable suffix.
  *
  * POSIX-style absolute paths keep the historical semantics: they only resolve
  * when they live under the workspace root, and stay null otherwise, because a
  * `/usr/...` token in prose is far more likely to be an example than a file.
+ * `~` never resolves: nothing here can expand it.
  */
 
 import {
-  isDrivePath,
   MSYS_MOUNT_RE,
-  isWindowsHost,
+  isDrivePath,
   normalizePathSegments,
   toPosix,
 } from "./path-shape";
+import {
+  absoluteLocalPath,
+  pathIsUnderLocal,
+  pathSegmentsEqual,
+} from "./local-path";
 import { isHttpUrl, parseFileRef, unwrapAtFileRef } from "./parse";
 
 export type ChatPreviewTarget =
   | { kind: "file"; path: string; external?: true }
   | { kind: "url"; url: string };
-
-/** Normalize a drive path: unify separators, uppercase the drive letter. */
-function normalizeDrivePath(path: string): string {
-  const posix = toPosix(path);
-  return posix[0].toUpperCase() + posix.slice(1);
-}
-
-/** `/e/x` → `E:/x`. Only meaningful on a Windows host; elsewhere `/e/x` is a
- * real POSIX path and must never be rewritten. */
-function msysToDrive(path: string): string | null {
-  const mount = toPosix(path).match(MSYS_MOUNT_RE);
-  if (!mount || !isWindowsHost()) return null;
-  // `/e/` is exactly three characters before the mounted path.
-  return normalizeDrivePath(`${mount[1].toUpperCase()}:${path.slice(3)}`);
-}
-
-/** Canonical absolute form of a drive/MSYS path token, or null. */
-export function absoluteLocalPath(path: string): string | null {
-  const clean = normalizePathSegments(path);
-  if (!clean) return null;
-  if (isDrivePath(clean)) return normalizeDrivePath(clean);
-  return msysToDrive(clean);
-}
-
-function pathSegmentsEqual(a: string, b: string): boolean {
-  return (
-    toPosix(a).split("/").filter(Boolean).join("/").toLowerCase() ===
-    toPosix(b).split("/").filter(Boolean).join("/").toLowerCase()
-  );
-}
-
-/** Is `child` inside (or equal to) `parent`, drive-aware and case-insensitive? */
-export function pathIsUnderLocal(child: string, parent: string): boolean {
-  const childSeg = toPosix(child).split("/").filter(Boolean);
-  const parentSeg = toPosix(parent).split("/").filter(Boolean);
-  if (childSeg.length < parentSeg.length) return false;
-  return parentSeg.every((segment, index) =>
-    segment.toLowerCase() === childSeg[index].toLowerCase(),
-  );
-}
 
 function isDotRelative(path: string): boolean {
   return (
@@ -80,12 +53,12 @@ function joinBaseDir(path: string, baseDir?: string | null): string {
 
 /**
  * Map a chat-mentioned path onto a workspace-relative path accepted by the
- * fs panel IPC. Absolute paths must live under the workspace root.
- * Unprefixed relative paths are workspace-rooted. `./` and `../` resolve
- * against `baseDir` (the viewed markdown file's directory) when provided,
- * otherwise against the workspace root. `~`, parent escapes, and paths
- * outside the root return null. Windows drive paths resolve against the root
- * case-insensitively when the drive matches.
+ * fs panel IPC; null when the token lies outside the root. Unprefixed relative
+ * paths are workspace-rooted. `./` and `../` resolve against `baseDir` (the
+ * viewed markdown file's directory) when provided, otherwise against the
+ * workspace root. `~`, parent escapes, and POSIX paths outside the root return
+ * null. Windows drive paths resolve against the root case-insensitively when
+ * the drive matches; a drive path outside it is left to `resolveLocalFileRef`.
  */
 export function toWorkspaceRel(
   path: string,
@@ -120,10 +93,10 @@ export function toWorkspaceRel(
 }
 
 /**
- * Resolve one chat path: a workspace-relative path when it lives under the
- * workspace root, else an absolute Windows drive/MSYS path marked `external`.
- * Null when the token is neither (including POSIX paths outside the root and
- * `~`).
+ * Resolve one chat path: a workspace-relative path under the root, else an
+ * absolute Windows drive/MSYS path marked `external` — resolved outside the
+ * root on purpose; Electron main still decides whether it may open. Null when
+ * the token is neither (POSIX paths outside the root, `~`).
  */
 export function resolveLocalFileRef(
   path: string,
