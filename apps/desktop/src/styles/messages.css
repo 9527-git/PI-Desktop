@@ -453,9 +453,8 @@
   }
 }
 
-/* Running labels stay readable; the small marker carries the live feedback
-   so long tool names never flash between two text colours. */
-.tool-activity-label.running,
+/* A running row whose kind carries no glow of its own keeps the legible
+   secondary ink; the small marker carries the live feedback either way. */
 .tool-row-name.running {
   color: var(--ds-text-secondary);
 }
@@ -2068,12 +2067,24 @@
   font-weight: var(--font-weight-medium);
 }
 
-/* A thinking-only group's label carries the thinking glow so the collapsed
-   batch reads with the thinking rows inside it; mixed and subagent groups
-   stay neutral and let their member rows carry the kind glows. */
+/* A collapsed batch states its status from the header: while its work runs
+   the label glows the running warning, and once the batch finishes it settles
+   into the completed success green — the same pair the rows and the sidebar
+   use. Thinking-only groups keep the thinking glow in both states: their
+   label names the kind of work, not the outcome. */
 .tool-activity-group.group-kind-thinking > .tool-activity-header .tool-activity-label {
   color: var(--ds-purple);
   text-shadow: 0 0 9px color-mix(in oklab, var(--ds-purple) 55%, transparent);
+}
+
+.tool-activity-group.active:not(.group-kind-thinking) > .tool-activity-header .tool-activity-label {
+  color: var(--ds-warning);
+  text-shadow: 0 0 9px color-mix(in oklab, var(--ds-warning) 55%, transparent);
+}
+
+.tool-activity-group:not(.active):not(.group-kind-thinking) > .tool-activity-header .tool-activity-label {
+  color: var(--ds-success);
+  text-shadow: 0 0 9px color-mix(in oklab, var(--ds-success) 55%, transparent);
 }
 
 .tool-activity-count {
@@ -2609,11 +2620,15 @@
 /* Processing-kind glow: each tool family's label reads as its own hue so a
    scan separates reads, runs, writes and thinking at a glance. The glow rides
    the kind-* hook the transcript derives from getToolAction; delegation rows
-   keep their D268 accent story. Hover keeps the kind colour on the label. */
+   keep their D268 accent story. Hover keeps the kind colour on the label.
+   Generic `use` calls and session `fork` rows share the blue family: no tool
+   row is left without a hue. */
 .tool-row.kind-read > .tool-row-head > .tool-row-header .tool-row-name,
 .tool-row.kind-list > .tool-row-head > .tool-row-header .tool-row-name,
 .tool-row.kind-search > .tool-row-head > .tool-row-header .tool-row-name,
-.tool-row.kind-fetch > .tool-row-head > .tool-row-header .tool-row-name {
+.tool-row.kind-fetch > .tool-row-head > .tool-row-header .tool-row-name,
+.tool-row.kind-use > .tool-row-head > .tool-row-header .tool-row-name,
+.tool-row.kind-fork > .tool-row-head > .tool-row-header .tool-row-name {
   color: var(--ds-blue);
   text-shadow: 0 0 9px color-mix(in oklab, var(--ds-blue) 55%, transparent);
 }
@@ -2811,11 +2826,13 @@
   color: var(--ds-text-muted);
 }
 
-/* Inline markdown inside one-line row summaries (MarkdownInline): code spans
-   glow in the code blue and bold reads one step brighter, both quieter than
-   prose; no chip background — the gray wash buried every token. */
+/* Inline markdown inside one-line summaries — row summaries, topology node
+   summaries and the live activity ticker (MarkdownInline): code spans glow in
+   the code blue and bold reads one step brighter, both quieter than prose; no
+   chip background — the gray wash buried every token. */
 .tool-row-summary code,
-.subagent-topology-node-summary code {
+.subagent-topology-node-summary code,
+.tool-activity-preview code {
   font-family: var(--font-mono);
   font-size: inherit;
   font-variant-ligatures: none;
@@ -2824,7 +2841,8 @@
 }
 
 .tool-row-summary strong,
-.subagent-topology-node-summary strong {
+.subagent-topology-node-summary strong,
+.tool-activity-preview strong {
   font-weight: var(--font-weight-medium);
   color: var(--ds-purple);
   text-shadow: 0 0 8px color-mix(in oklab, var(--ds-purple) 45%, transparent);
@@ -2833,7 +2851,8 @@
 /* File paths inside one-line row summaries glow yellow: a path summary reads
    as its own hue, distinct from the blue code spans and purple bold around it. */
 .tool-row-summary .md-inline-path,
-.subagent-topology-node-summary .md-inline-path {
+.subagent-topology-node-summary .md-inline-path,
+.tool-activity-preview .md-inline-path {
   color: var(--ds-yellow);
   text-shadow: 0 0 8px color-mix(in oklab, var(--ds-yellow) 50%, transparent);
 }
