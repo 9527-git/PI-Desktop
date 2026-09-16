@@ -1488,7 +1488,12 @@ export function Sidebar({
           {session.source === "pi-native" ? (
             <span className="thread-item-source" title="Native Pi session">Pi</span>
           ) : null}
-          <span className="thread-item-title">{taskTitle(session.title)}</span>
+          <span className="thread-item-text">
+            <span className="thread-item-title">{taskTitle(session.title)}</span>
+            {session.lastMessage ? (
+              <span className="thread-item-preview">{session.lastMessage}</span>
+            ) : null}
+          </span>
           {options?.global ? (
             <span className="thread-item-project">
               {owningProject}

@@ -380,10 +380,14 @@ export function createSessionRuntime({ get, set }: StoreAccess): SessionRuntime 
     const state = get();
     const current =
       sessionTranscriptCache.get(sessionId) ?? state.retainedTranscripts[sessionId];
-    if (!current) return;
 
-    const next = projectTranscriptEvent(current, envelope);
-    if (next === current) return;
+    // A session the renderer never held (cache evicted, never visited) still
+    // accumulates its streaming tail: seed the cache from the event itself so
+    // opening the session mid-run shows the live rows instead of only the
+    // durable read (D427). Non-transcript events seed nothing.
+    const previous = current ?? [];
+    const next = projectTranscriptEvent(previous, envelope);
+    if (next === previous) return;
     liveSessionTranscripts.add(sessionId);
     cacheSessionTranscript(
       sessionId,

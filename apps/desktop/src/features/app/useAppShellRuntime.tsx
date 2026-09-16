@@ -54,11 +54,11 @@ export function useAppShellRuntime() {
   const closeSubagentPanel = useAppStore((s) => s.closeSubagentPanel);
   const workPanelOpen = useAppStore((s) => s.workPanelOpen);
   const workPanelWidth = useAppStore((s) => s.workPanelWidth);
-  const subagentPanelOpen = Boolean(
-    page === "chat" &&
-      subagentPanel &&
-      subagentPanel.sessionId === activeSessionId,
-  );
+  // The subagent dock belongs to its selection, not to the visible session
+  // (D427): switching sessions keeps the selected subagent's content on
+  // screen — a hidden pane's retained transcript feeds it — instead of
+  // force-closing the dock the user just opened.
+  const subagentPanelOpen = Boolean(page === "chat" && subagentPanel);
   const pluginThemes = useAppStore((s) => s.pluginThemes);
   const refreshPluginThemes = useAppStore((s) => s.refreshPluginThemes);
   const plugins = useAppStore((s) => s.plugins);
@@ -206,14 +206,14 @@ export function useAppShellRuntime() {
     presentedWorkPanelRef.current = presentedWorkPanelOpen;
   }, [presentedWorkPanelOpen]);
 
+  // Leaving the chat page is the only reason to close the dock; a session
+  // switch keeps it (its selection re-finds rows in the destination pane's
+  // retained transcript, or shows the empty state once that pane is gone).
   useEffect(() => {
-    if (
-      subagentPanel &&
-      (page !== "chat" || subagentPanel.sessionId !== activeSessionId)
-    ) {
+    if (subagentPanel && page !== "chat") {
       closeSubagentPanel();
     }
-  }, [activeSessionId, closeSubagentPanel, page, subagentPanel]);
+  }, [closeSubagentPanel, page, subagentPanel]);
 
   // Destination pages own the center pane. Leaving Chat while previewing must
   // restore that pane before the destination is presented; otherwise the

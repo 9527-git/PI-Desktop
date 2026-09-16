@@ -89,10 +89,18 @@ test("the work-panel dock hosts subagent details without creating a resource tab
   assert.match(workPanelSource, /!subagentPanel && activeTab\?\.kind === "review"/);
   assert.match(workPanelSource, /subagentPanel && onCloseSubagentPanel/);
   assert.match(appSource, /const subagentPanelOpen = Boolean\(/);
-  assert.match(appSource, /page === "chat"/);
-  assert.match(appSource, /page !== "chat" \|\| subagentPanel\.sessionId !== activeSessionId/);
+  // The dock belongs to its selection, not to the visible session (D427): a
+  // session switch keeps it, only leaving the chat page closes it.
+  assert.match(appSource, /Boolean\(page === "chat" && subagentPanel\)/);
+  assert.match(appSource, /if \(subagentPanel && page !== "chat"\)/);
+  assert.doesNotMatch(appSource, /subagentPanel\.sessionId/);
   assert.match(appSource, /workPanelOpen \|\| subagentPanelOpen/);
   assert.match(appSource, /subagentPanel=\{subagentPanelOpen \? subagentPanel : null\}/);
+  assert.match(
+    panelSource,
+    /className="sr-only">\s*\{t\("panel\.subagent"\)\}\s*<\/span>/,
+  );
+  assert.doesNotMatch(panelSource, /activeSessionId/);
   assert.doesNotMatch(workPanelSource, /setContextOpen/);
 });
 

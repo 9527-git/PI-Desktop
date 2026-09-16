@@ -269,6 +269,32 @@ test("sidebar row menus omit project reassignment and switching actions", () => 
   );
 });
 
+test("session rows show the bounded last-message preview under the title", () => {
+  const sessionMain = sidebarSource.match(
+    /className="thread-item-main"[\s\S]*?<\/button>/,
+  )?.[0] ?? "";
+
+  // The title and the preview share one text column so the preview never
+  // competes with the project label for row width.
+  assert.match(
+    sessionMain,
+    /<span className="thread-item-text">\s*<span className="thread-item-title">\{taskTitle\(session\.title\)\}<\/span>/,
+  );
+  // Absent while a transcript has no readable text.
+  assert.match(
+    sessionMain,
+    /\{session\.lastMessage \? \(\s*<span className="thread-item-preview">\{session\.lastMessage\}<\/span>\s*\) : null\}/,
+  );
+  assert.match(
+    globalStyles,
+    /\.thread-item-text\s*\{[^}]*display:\s*flex;[^}]*min-width:\s*0;[^}]*flex-direction:\s*column;/s,
+  );
+  assert.match(
+    globalStyles,
+    /\.thread-item-preview\s*\{[^}]*overflow:\s*hidden;[^}]*color:\s*var\(--ds-text-muted\);[^}]*font-size:\s*var\(--text-2xs\);[^}]*text-overflow:\s*ellipsis;[^}]*white-space:\s*nowrap;/s,
+  );
+});
+
 test("session rows use the hover card instead of a native title tooltip", () => {
   const sessionMain = sidebarSource.match(
     /className="thread-item-main"[\s\S]*?<\/button>/,

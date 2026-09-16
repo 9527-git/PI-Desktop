@@ -98,6 +98,10 @@ pub struct SessionSummary {
     /// current value of the session's last_seq allocator after rewrites.
     #[serde(default)]
     pub message_count: i64,
+    /// Newest user/assistant text, flattened and bounded for the sidebar
+    /// preview row. Absent when the transcript has no readable text yet.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub last_message: Option<String>,
     pub project_path: Option<String>,
     pub model_id: Option<String>,
     pub provider_id: Option<String>,
@@ -1055,9 +1059,28 @@ fn session_created_at(db: &Database, session_id: &str) -> Result<String> {
 
 const SUMMARY_SELECT: &str =
     "SELECT s.id, s.title, s.last_seq, p.path, s.model_id, s.provider_id, s.mode,
-            s.thinking_level, s.permission_mode, s.updated_at, s.created_at
+            s.thinking_level, s.permission_mode, s.updated_at, s.created_at,
+            (SELECT m.text FROM messages m
+              WHERE m.session_id = s.id AND m.role IN ('user', 'assistant')
+                AND m.text IS NOT NULL
+              ORDER BY m.seq DESC LIMIT 1) AS last_message
      FROM sessions s LEFT JOIN projects p ON p.id = s.project_id
      WHERE s.deleted_at IS NULL";
+
+/// Sidebar preview text: flatten one line and bound it. Mirrors
+/// [`first_user_title`]'s normalization with a longer budget.
+fn preview_text(raw: Option<String>) -> Option<String> {
+    let t = raw?.trim().replace('\n', " ");
+    let t = t.split_whitespace().collect::<Vec<_>>().join(" ");
+    if t.is_empty() {
+        return None;
+    }
+    let mut out = t.chars().take(120).collect::<String>();
+    if t.chars().count() > 120 {
+        out.push('…');
+    }
+    Some(out)
+}
 
 pub(crate) fn summary_from_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<SessionSummary> {
     Ok(SessionSummary {
@@ -1072,6 +1095,7 @@ pub(crate) fn summary_from_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<Sess
         permission_mode: row.get(8)?,
         updated_at: ms_to_ts(row.get(9)?),
         created_at: ms_to_ts(row.get(10)?),
+        last_message: preview_text(row.get(11)?),
     })
 }
 
@@ -1229,6 +1253,7 @@ pub fn create_session_with_options(
         id,
         title,
         message_count: 0,
+        last_message: None,
         project_path,
         model_id,
         provider_id,
@@ -1537,6 +1562,7 @@ pub fn fork_session_through(
         id,
         title,
         message_count: records.len() as i64,
+        last_message: None,
         project_path: source.summary.project_path,
         model_id: source.summary.model_id,
         provider_id: source.summary.provider_id,
@@ -3699,6 +3725,48 @@ mod tests {
     }
 
     #[test]
+    fn list_sessions_summarizes_the_newest_message_text() {
+        let db = test_db();
+        let summary = SessionSummary {
+            id: "preview-test".into(),
+            title: "Preview".into(),
+            message_count: 0,
+            project_path: None,
+            model_id: None,
+            last_message: None,
+            provider_id: None,
+            mode: "agent".into(),
+            thinking_level: "off".into(),
+            permission_mode: "inherit".into(),
+            created_at: "2025-01-01T00:00:00Z".into(),
+            updated_at: "2025-01-01T00:00:00Z".into(),
+        };
+        assert!(import_session(&db, &summary, &[]).unwrap());
+
+        // No readable text yet: the preview stays absent.
+        let rows = list_sessions(&db).unwrap();
+        assert!(rows[0].last_message.is_none());
+
+        let long = "a".repeat(200);
+        let mut user = user_msg("m1", "hello", "2025-01-01T00:00:01Z");
+        let mut assistant = user_msg("m2", &long, "2025-01-01T00:00:02Z");
+        assistant.role = "assistant".into();
+        replace_messages(&db, &summary.id, &[user.clone(), assistant]).unwrap();
+
+        let rows = list_sessions(&db).unwrap();
+        let preview = rows[0].last_message.clone().unwrap();
+        assert!(preview.starts_with("a"));
+        assert!(preview.chars().count() <= 121); // 120 chars + ellipsis
+        assert!(preview.ends_with('…'));
+
+        // Newlines collapse; a text-less transcript keeps the preview absent.
+        user.content = "line one\nline two".into();
+        replace_messages(&db, &summary.id, &[user]).unwrap();
+        let rows = list_sessions(&db).unwrap();
+        assert_eq!(rows[0].last_message.as_deref(), Some("line one line two"));
+    }
+
+    #[test]
     fn import_session_is_idempotent_and_preserves_timestamps() {
         let db = test_db();
         let summary = SessionSummary {
@@ -3707,6 +3775,7 @@ mod tests {
             message_count: 1,
             project_path: Some("/tmp/proj".into()),
             model_id: None,
+            last_message: None,
             provider_id: None,
             mode: "agent".into(),
             thinking_level: "off".into(),
@@ -3757,6 +3826,7 @@ mod tests {
             message_count: 0,
             project_path: Some("/tmp/project/".into()),
             model_id: None,
+            last_message: None,
             provider_id: None,
             mode: "agent".into(),
             thinking_level: "off".into(),
@@ -4288,6 +4358,7 @@ mod tests {
             message_count: 0,
             project_path: None,
             model_id: None,
+            last_message: None,
             provider_id: None,
             mode: "agent".into(),
             thinking_level: "medium".into(),

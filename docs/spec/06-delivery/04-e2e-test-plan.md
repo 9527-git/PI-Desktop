@@ -7204,6 +7204,8 @@ and identify the platform validation still needed.
 | Quality (manual compaction queue) | E2E-QUEUE-prompt-during-manual-compaction-is-queued-and-delivered |
 | C — Conversation & stream (transcript glow language) | E2E-CHAT-transcript-glow-language |
 | Quality (transcript glow language) | E2E-CHAT-transcript-glow-language |
+| C — Conversation & stream (cross-session rendering) | E2E-CHAT-other-sessions-render-without-switching |
+| Quality (cross-session rendering) | E2E-CHAT-other-sessions-render-without-switching |
 
 | Milestone | Scenarios |
 |---|---|
@@ -11978,4 +11980,26 @@ plugin-form fixtures in an isolated temporary directory at runtime.
   tool arguments stay literal. The reply's prose carries the same glow
   language.
 - **Specs:** `04-ux/07-ui-design-system.md` §4.6; D227; D268.
+- **Status:** Documented; run after integration into main.
+
+### E2E-CHAT-other-sessions-render-without-switching
+
+- **Preconditions:** Two or more sessions; one runs a turn while another is
+  selected. A subagent detail is open in the running session.
+- **Steps:** 1) While session A is selected, start a long turn in session B
+  from a second entry point. 2) Inspect the sidebar: session B's row shows a
+  one-line preview of its newest user/assistant text under the title. 3)
+  Switch to session B mid-run and confirm the live tail renders without a
+  rebuild blank. 4) Open a subagent detail in session B, then switch back to
+  session A and confirm the dock keeps showing the selected subagent.
+- **Expected:** The background session's streaming rows accumulate in the
+  renderer cache even when the renderer never held that session, so opening
+  it mid-run shows the live rows instead of only the durable read. The
+  subagent dock belongs to its selection, not to the visible session:
+  switching sessions keeps the dock open and re-finds its rows in the
+  destination pane's retained transcript; only leaving the chat page closes
+  it. Sidebar rows show the bounded last-message preview (host-truncated to
+  120 code points, CSS-ellipsized, muted `--text-2xs`), absent while a
+  transcript has no readable text.
+- **Specs:** `04-ux/07-ui-design-system.md` §16; D427.
 - **Status:** Documented; run after integration into main.

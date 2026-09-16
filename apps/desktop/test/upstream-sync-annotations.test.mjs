@@ -218,6 +218,36 @@ test("side-chat and background projections share upstream delta accumulation, in
   assert.equal(state.sideChatTranscripts.child, before);
 });
 
+test("a session the renderer never held seeds its live tail from the event itself (D427)", async () => {
+  const shared = await import("@pi-desktop/shared");
+  const transcript = await import("../src/lib/session-transcript.ts");
+  const { createSessionRuntime } = load("../src/stores/runtime/session-runtime.ts", {
+    "@pi-desktop/shared": shared,
+    "../../lib/api": { api: {} },
+    "../../lib/navigation-intent": { createNavigationIntentController: () => ({}) },
+    "../../lib/session-transcript": transcript,
+    "../../lib/sidebar-preferences": {},
+    "../../lib/sidebar-session-groups": {},
+    "../../lib/tool-display": { formatToolValue: JSON.stringify },
+    "../../lib/session-panes": panes,
+  });
+  const state = {
+    activeSessionId: "other", messages: [], retainedTranscripts: {}, sessionHistory: {},
+  };
+  const runtime = createSessionRuntime({ get: () => state, set: (update) => Object.assign(state, typeof update === "function" ? update(state) : update) });
+  const envelope = (event) => ({ sessionId: "child", event, ts: 1000 });
+  const message = { id: "m1", role: "assistant", content: "", status: "streaming" };
+  assert.equal(runtime.sessionTranscriptCache.get("child"), undefined, "no pane, no cache entry");
+  runtime.cacheBackgroundTranscriptEvent(envelope({ type: "message_start", message }));
+  runtime.cacheBackgroundTranscriptEvent(envelope({ type: "message_update", stream: "delta", deltaText: "live tail", message }));
+  const cached = runtime.sessionTranscriptCache.get("child");
+  assert.ok(cached, "the event itself seeds the cache for a never-held session");
+  assert.equal(cached[0]?.content, "live tail");
+  // Events without transcript content still write nothing for such a session.
+  runtime.cacheBackgroundTranscriptEvent(envelope({ type: "turn_end" }));
+  assert.strictEqual(runtime.sessionTranscriptCache.get("child"), cached);
+});
+
 test("delayed acknowledgement blocks repeat Enter for one session but not another, then releases", async () => {
   const { state, ack, calls } = queueHarness();
   const first = state.sendPrompt("", { text: "", fileReferences: [] });
