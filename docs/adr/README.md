@@ -85,7 +85,7 @@ Each ADR includes:
 | 0062 | Bounded Subagents Behind a Task Tool | Accepted for implementation (`maxTurns` clause withdrawn by 0253) |
 | 0063 | A Managed Surface for Global Subagent Definitions | Accepted for implementation (`maxTurns` field withdrawn by 0253) |
 | 0064 | Codex-parity context compaction | Accepted (amends 0061 / 0030) |
-| 0065 | Smooth shell layout and stream feedback | Accepted for implementation |
+| 0065 | Smooth shell layout and stream feedback | Accepted for implementation (clause 4 superseded by 0258) |
 | 0066 | Empty home direct bottom composer | Accepted for implementation (amends D111) |
 | 0067 | ChatGPT-inspired empty-home starter guidance | Superseded by D206 |
 | 0068 | Add a keyboard entry point for the work panel | Accepted for implementation |
@@ -280,3 +280,4 @@ Each ADR includes:
 | 0254 | [Continue native Pi sessions in their canonical JSONL](0254-native-pi-session-continuation.md) | Accepted (amends baseline D007; D421) |
 | 0256 | [Chat open/reveal for local paths outside the workspace](0256-chat-open-reveal-for-external-local-paths.md) | Accepted (amends D320 / D322 / ADR 0109 / ADR 0111; D424) |
 | 0257 | [Existence probe for transcript path rows](0257-transcript-path-existence-probe.md) | Accepted (amends ADR 0256; D424) |
+| 0258 | [Keep the docked conversation composer in normal flow](0258-in-flow-chat-composer.md) | Accepted (amends ADR 0065 clause 4 / D264) |

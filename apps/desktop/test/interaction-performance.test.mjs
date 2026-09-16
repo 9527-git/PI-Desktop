@@ -347,11 +347,9 @@ test("minimap hover magnification never measures geometry per dash", () => {
 });
 
 test("minimap re-measures dash centers when the rail's own box changes", () => {
-  // The rail's height is `calc(var(--composer-dock-height) + 16px)` and the
-  // composer republishes that variable on documentElement as its draft grows.
-  // That moves every dash without changing the marker set and without a window
-  // resize, so observing only the thread content left magnification tracking
-  // stale positions while the user typed a multi-line prompt.
+  // The rail's box follows the available thread height. A normal-flow composer
+  // changes that height without changing the marker set or the window, so the
+  // rail observer keeps magnification tracking current while a prompt grows.
   assert.match(minimap, /new ResizeObserver\(\(\) => \{[\s\S]*?measureMagnifyCenters\)/);
   const railObserver = minimap.slice(
     minimap.indexOf("const rail = railRef.current;\n    if (!rail || typeof ResizeObserver"),
@@ -363,11 +361,10 @@ test("minimap re-measures dash centers when the rail's own box changes", () => {
   assert.match(railObserver, /cancelAnimationFrame\(frame\)/);
   // `overflows` gates whether the rail is mounted, so the observer must reattach.
   assert.match(railObserver, /\}, \[measureMagnifyCenters, overflows\]\)/);
-  // The composer is the source of that variable.
-  assert.match(
-    composer,
-    /setProperty\(\s*"--composer-dock-height"/,
-  );
+  // The composer stays in normal flow; no document-wide height publication is
+  // needed for transcript layout.
+  assert.match(composer, /className=\{`composer-dock composer-dock-\$\{variant\}`\}/);
+  assert.doesNotMatch(composer, /--composer-dock-height/);
 });
 
 test("motion feedback is composited, bounded, and accessible", () => {

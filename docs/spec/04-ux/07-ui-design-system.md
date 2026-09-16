@@ -804,8 +804,8 @@ model):
   content block reachable by scrolling; the bottom composer remains visible
   and never covers the checklist
 - The home composer is a bottom-reserved sibling of the scroller. Thread mode
-  keeps its absolute bottom dock and reserves its measured height without a
-  full-width fade veil
+  keeps the composer as a normal-flow sibling of the transcript, so its measured
+  height reduces the scrollport without a full-width fade veil
 - Composer radius uses Codex `radius-3xl-base` (**20px** / `1.25rem`)
 - Empty-home composer height is content-driven: a one-line draft renders the
   compact shell, grows with the draft through seven visible rows, and then
@@ -831,8 +831,8 @@ model):
 - Floating composer plates use one solid semantic surface with no internal
   gradient: `--ds-bg-composer` in light and elevated-primary in dark. A
   hairline stroke plus the restrained `--elevation-prominent` shadow provides
-  separation; the transcript reserves the measured dock height instead of
-  painting a full-width gradient veil.
+  separation; normal flex flow reserves the composer's measured height instead
+  of painting a full-width gradient veil.
 - Dark elevated shell reads as elevated-primary (`#212121f5` / gray-800 96%)
   on `#181818` with standard elevation-prominent
 - Starter cards use a two-column grid at workstation widths and collapse to

@@ -13,13 +13,11 @@
   container-name: composer-stack;
 }
 
-/* Thread mode: floating bottom dock. The transcript already reserves the
- * composer's measured height, so a full-width gradient veil is unnecessary
- * and makes the lower half of the conversation look hazy. */
+/* Thread mode keeps the composer in the main flex column. Its rendered height
+ * therefore reduces the transcript viewport instead of covering its content. */
 .composer-dock-docked {
-  position: absolute;
-  inset-inline: 0;
-  bottom: 0;
+  position: relative;
+  flex: 0 0 auto;
   padding: 0 24px 16px;
   background: transparent;
 }

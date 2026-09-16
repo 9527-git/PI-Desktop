@@ -1677,7 +1677,7 @@ and identify the platform validation still needed.
 - **Milestone**: M2
 - **Status**: Draft
 
-#### E2E-090: Transcript bottom reserve tracks the docked composer height
+#### E2E-090: Transcript stays clear of the docked composer
 
 - **Preconditions**: Chat route active; a session with a transcript that
   exceeds one viewport so the last message sits near the docked composer.
@@ -1689,9 +1689,9 @@ and identify the platform validation still needed.
   confirm the gap shrinks back toward the tight ~16px reserve.
 - **Expected**: The last message sits close above the composer (a small,
   consistent gap) rather than far below it; the reserve follows the composer's
-  real height via `--composer-dock-height` so a taller multi-line draft pushes
-  the transcript up instead of covering it. The jump-to-latest button and the
-  minimap stay anchored just above the composer at every draft height.
+  normal-flow height so a taller multi-line draft reduces the transcript
+  viewport instead of covering it. The jump-to-latest button and the minimap stay
+  anchored just above the composer at every draft height.
 - **Specs linked**: `04-ux/08-component-spec.md` (§4.3 MainChat layout)
 - **Acceptance**: C (send/UI), Quality
 - **Milestone**: M2
@@ -7284,7 +7284,7 @@ This test plan spec is accepted when:
 ### US-UI-01 Codex-aligned shell chrome
 - Open the desktop app on macOS dark theme.
 - Expect charcoal main surface (`#181818`), left sidebar with current-project
-  and Temporary session groups, and a floating bottom composer
+  and Temporary session groups, and a bottom composer
   with mode/model controls and no workspace rail.
 - Expect no blue-slate marketing chrome; primary send control is a circular inverted button.
 

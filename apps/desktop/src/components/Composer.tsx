@@ -140,8 +140,6 @@ export function Composer({
   const [permissionOpen, setPermissionOpen] = useState(false);
   const enhancementInvalidateRef = useRef<() => void>(() => {});
   const composerShellRef = useRef<HTMLDivElement>(null);
-  const dockRef = useRef<HTMLDivElement>(null);
-  const publishedDockHeightRef = useRef(-1);
 
   const invalidatePromptEnhancement = () => {
     enhancementInvalidateRef.current();
@@ -467,33 +465,8 @@ export function Composer({
     );
   };
 
-  // Keep the transcript's bottom reserve in sync with the composer's real
-  // height (it grows with multi-line input) so the last message sits just
-  // above the box instead of far below it.
-  useEffect(() => {
-    const el = dockRef.current;
-    if (!el) return;
-    // Setting a custom property on documentElement invalidates style for the
-    // whole document, so an unchanged dock height must not be republished.
-    const publish = () => {
-      const h = Math.round(el.getBoundingClientRect().height);
-      if (h === publishedDockHeightRef.current) return;
-      publishedDockHeightRef.current = h;
-      document.documentElement.style.setProperty(
-        "--composer-dock-height",
-        `${h}px`,
-      );
-    };
-    publish();
-    if (typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(publish);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [variant]);
-
   return (
     <div
-      ref={dockRef}
       className={`composer-dock composer-dock-${variant}`}
       data-composer-dock={variant}
     >

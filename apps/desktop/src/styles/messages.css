@@ -1061,11 +1061,13 @@
   outline-offset: 1px;
 }
 
-/* A collapsible index floats above the composer; it reserves no transcript space. */
+/* A collapsible index floats above the composer; it reserves no transcript space.
+ * The docked composer is a normal-flow sibling, so the thread column already
+ * ends above it and the float anchors to that edge. */
 .response-annotation-float {
   position: absolute;
   right: 16px;
-  bottom: calc(var(--composer-dock-height, 150px) + 12px);
+  bottom: 12px;
   z-index: 35;
   max-width: calc(100% - 32px);
   border: 1px solid var(--ds-border-subtle);
@@ -1097,7 +1099,9 @@
   list-style: none;
   width: 300px;
   max-width: 100%;
-  max-height: min(280px, calc(100vh - var(--composer-dock-height, 150px) - 100px));
+  /* The thread column is the space above the composer, so a percentage cap
+   * keeps a long index inside it instead of guessing the dock height. */
+  max-height: min(280px, calc(100% - 24px));
   margin: 0;
   padding: 4px;
   overflow: auto;

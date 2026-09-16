@@ -60,6 +60,7 @@ ADR 记录那些不应被静默改变的架构选择。中文入口与英文索�
 | [ADR 0204：未签名 macOS 首次启动助手](/adr/0204-unsigned-macos-first-launch-helper) | 只清理 PI-Desktop 的 quarantine 属性，并用 Finder 一键启动可信的未签名应用（由 ADR 0232 修订） |
 | [ADR 0232：macOS DMG 只保留打开说明](/adr/0232-macos-dmg-text-only-opening-guidance) | DMG 只显示“如果打不开请看”说明，ZIP 保留首次启动助手 |
 | [ADR 0252：插件的宿主回合结束事件](/adr/0252-plugin-host-turn-end-event) | 宿主在每次已开始的回合结束时向插件宣告一次 `session:turnEnded`，携带回合身份与终止原因 |
+| [ADR 0258：线程输入框采用正常流布局](/adr/0258-in-flow-chat-composer) | 输入框作为会话面板后的正常流兄弟，消息区永不被输入框覆盖 |
 
 ## 完整索引
 
@@ -280,6 +281,7 @@ ADR 记录那些不应被静默改变的架构选择。中文入口与英文索�
 | active-turn-steering | [用 Alt+Enter 向当前回合补充指令](/adr/active-turn-steering) | 已接受 |
 | 0251 | [删除项目会一并删除其拥有的会话](/adr/0251-project-delete-with-owned-sessions) | 已接受 |
 | 0253 | [移除子智能体轮次上限](/adr/0253-remove-subagent-turn-limit) | 已接受（取代 0062 / 0063 / 0119 / 0126 / 0166 / 0210 中关于 `maxTurns` 的条款） |
+| 0258 | [线程输入框采用正常流布局](/adr/0258-in-flow-chat-composer) | 已接受（修订 ADR 0065 第 4 条 / D264） |
 
 ## 什么时候看 ADR
 

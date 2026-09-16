@@ -202,10 +202,12 @@
   overflow-anchor: none;
 }
 
-/* Floats above the docked composer fade when the user scrolls away from latest */
+/* Floats above the docked composer fade when the user scrolls away from latest.
+ * The composer is a sibling in normal flow, so the thread wrap already ends
+ * above it. */
 .jump-latest-btn {
   position: absolute;
-  bottom: calc(var(--composer-dock-height, 168px) + 12px);
+  bottom: 12px;
   left: 50%;
   translate: -50% 0;
   z-index: 5;
@@ -247,10 +249,10 @@
   width: min(100%, var(--chat-content-max-width));
   margin: 0 auto;
   transition: width var(--chat-width-transition);
-  /* Reserve exactly the composer's real height (+ a small gap) so the last
-   * message sits just above the box instead of far below it. The variable is
-   * published by Composer.tsx from the docked composer's measured height. */
-  padding: 20px 32px calc(var(--composer-dock-height, 228px) + 16px);
+  /* The docked composer is a normal-flow sibling of the session panes, so the
+   * scrollport already excludes its full rendered height. Keep only the reading
+   * gap here; multi-line drafts and queue cards cannot cover the latest reply. */
+  padding: 20px 32px 16px;
 }
 
 /* Holds enough scroll height for the bounded first commit of a session switch to
@@ -298,8 +300,7 @@
   gap: 24px;
   box-sizing: border-box;
   width: min(100%, var(--chat-content-max-width));
-  padding: calc(var(--ds-toolbar-height) + 20px) 28px
-    calc(var(--composer-dock-height, 228px) + 16px);
+  padding: calc(var(--ds-toolbar-height) + 20px) 28px 16px;
 }
 
 .transcript-skeleton-row {
@@ -367,12 +368,13 @@
  * centered inside the safe span between titlebar and docked composer. Dense
  * stacks reduce their gap and marker pitch instead of escaping that span.
  * Dashes grow horizontally with a Dock-style falloff driven by --magnify (set
- * from JS), so magnification never reflows the stack. */
+ * from JS), so magnification never reflows the stack. The rail ends above the
+ * composer because the composer occupies normal flex flow. */
 .minimap-rail {
   position: absolute;
   left: 8px;
   top: var(--ds-toolbar-height);
-  bottom: calc(var(--composer-dock-height, 200px) + 16px);
+  bottom: 16px;
   z-index: 6;
   display: flex;
   width: 26px;

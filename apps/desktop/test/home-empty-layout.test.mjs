@@ -107,6 +107,10 @@ test("home and docked composers share one width envelope", () => {
     styles.match(/\.composer-dock-home \.composer-stack\s*\{[^}]*\}/)?.[0] ?? "";
   assert.match(homeComposer, /width:\s*100%/);
   assert.match(homeComposer, /padding:\s*0 24px 16px/);
+  // The docked composer occupies normal flex flow, so its rendered height
+  // reduces the transcript viewport instead of covering its content.
+  assert.match(dockedComposer, /position:\s*relative;/);
+  assert.match(dockedComposer, /flex:\s*0 0 auto;/);
   assert.match(dockedComposer, /padding:\s*0 24px 16px/);
   assert.match(
     homeStack,
