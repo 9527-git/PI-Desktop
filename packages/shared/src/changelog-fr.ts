@@ -2,6 +2,19 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.21",
+    "date": "2026-09-16",
+    "highlights": [
+      "Les lignes de session de la barre latérale affichent un aperçu d'une ligne du message le plus récent.",
+      "Ouvrez une session en cours sans perdre sa réponse en streaming, et le panneau des sous-agents reste ouvert lors du changement de session.",
+      "Cliquer sur le nom ou les limites d'un modèle ouvre sa configuration au lieu de le supprimer silencieusement ; seule la case à cocher supprime un modèle.",
+      "Le compositeur ancré reste dans le flux normal, donc les réponses et le bouton d'aller au plus récent ne sont plus masqués dessous.",
+      "Chaque référence du texte s'ouvre via la cible d'aperçu partagée : les fichiers de l'espace de travail dans le panneau, les chemins externes via le système, et une image externe affiche une puce d'ouverture système au lieu d'une image cassée.",
+      "L'état de la transcription se lit d'un coup d'œil : les icônes d'outil se teintent selon l'état, un appel refusé devient violet, le marqueur d'exécution pulse, et une réponse en streaming garde un curseur clignotant.",
+      "Les noms de fichiers CJK sont correctement liés, et les liens de chemin conservent leurs numéros de ligne et ancres au lieu de découper un suffixe qui ne pourrait jamais s'ouvrir.",
+    ],
+  },
+  {
     "version": "0.14.20",
     "date": "2026-09-16",
     "highlights": [

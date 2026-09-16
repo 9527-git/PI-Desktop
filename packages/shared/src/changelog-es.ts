@@ -2,6 +2,19 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.21",
+    "date": "2026-09-16",
+    "highlights": [
+      "Las filas de sesión de la barra lateral muestran una vista previa de una línea del mensaje más reciente.",
+      "Abre una sesión en ejecución sin perder su respuesta en streaming, y el panel de subagentes permanece abierto al cambiar de sesión.",
+      "Hacer clic en el nombre o los límites de un modelo abre su configuración en lugar de eliminarlo en silencio; solo la casilla elimina un modelo.",
+      "El compositor acoplado permanece en el flujo normal, así que las respuestas y el botón de ir a lo más reciente nunca quedan ocultos debajo.",
+      "Cada referencia del texto se abre a través del destino de vista previa compartido: archivos del espacio de trabajo en el panel, rutas externas mediante el sistema operativo, y una imagen externa muestra un chip de apertura del sistema en lugar de una imagen rota.",
+      "El estado de la transcripción se lee de un vistazo: los iconos de herramienta se tiñen según el estado, una llamada denegada se vuelve púrpura, el marcador de ejecución pulsa y una respuesta en streaming conserva un cursor parpadeante.",
+      "Los nombres de archivo CJK se enlazan correctamente, y los enlaces de ruta conservan sus números de línea y anclas en lugar de recortar un sufijo que nunca podría abrirse.",
+    ],
+  },
+  {
     "version": "0.14.20",
     "date": "2026-09-16",
     "highlights": [

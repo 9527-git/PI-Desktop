@@ -2,6 +2,19 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.21",
+    "date": "2026-09-16",
+    "highlights": [
+      "Kenar çubuğu oturum satırları en yeni mesajın tek satırlık önizlemesini gösterir.",
+      "Çalışan bir oturumu, akışla gelen yanıtını kaybetmeden açın; oturum değiştirirken alt ajan paneli açık kalır.",
+      "Bir modelin adına veya sınırlarına tıklamak, modeli sessizce kaldırmak yerine yapılandırmasını açar; bir modeli yalnızca onay kutusu kaldırır.",
+      "Yerleşik Composer normal akışta kalır; yanıtlar ve en sona git düğmesi artık onun altında gizlenmez.",
+      "Metindeki her başvuru ortak önizleme hedefiyle açılır: çalışma alanı dosyaları panelde, dış yollar işletim sistemiyle açılır ve dış bir görsel bozuk görsel yerine sistemde aç çipi gösterir.",
+      "Transkript durumu bir bakışta okunur: araç simgeleri duruma göre renklenir, reddedilen çağrı mora döner, çalışma işareti nabız atar ve akış halindeki yanıt yanıp sönen bir imleç taşır.",
+      "CJK dosya adları doğru şekilde bağlanır ve yol bağlantıları, asla açılamayacak bir son eki kesmek yerine satır numaralarını ve bağlantı noktalarını korur.",
+    ],
+  },
+  {
     "version": "0.14.20",
     "date": "2026-09-16",
     "highlights": [

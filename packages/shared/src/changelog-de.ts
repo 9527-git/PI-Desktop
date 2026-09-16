@@ -2,6 +2,19 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.21",
+    "date": "2026-09-16",
+    "highlights": [
+      "Sitzungszeilen in der Seitenleiste zeigen eine einzeilige Vorschau der neuesten Nachricht.",
+      "Eine laufende Sitzung öffnen, ohne ihre gestreamte Antwort zu verlieren – und das Subagenten-Dock bleibt beim Sitzungswechsel geöffnet.",
+      "Ein Klick auf Modellname oder Limits öffnet dessen Konfiguration, statt das Modell still zu entfernen; nur das Kontrollkästchen entfernt ein Modell.",
+      "Der angedockte Composer bleibt im normalen Fluss; Antworten und die Spring-zum-Neuesten-Schaltfläche werden nicht mehr von ihm verdeckt.",
+      "Jeder Verweis im Fließtext öffnet über das gemeinsame Vorschauziel: Arbeitsbereichsdateien im Panel, Pfade außerhalb über das Betriebssystem, und ein Bild außerhalb zeigt einen System-Öffnen-Chip statt eines defekten Bilds.",
+      "Transkript-Status auf einen Blick: Werkzeugsymbole färben sich nach Zustand, ein abgelehnter Aufruf wird violett, die Laufmarkierung pulsiert, und eine streamende Antwort behält einen blinkenden Cursor.",
+      "CJK-Dateinamen werden korrekt verlinkt, und Pfadlinks behalten Zeilennummern und Anker, statt ein Suffix abzuschneiden, das nie geöffnet werden könnte.",
+    ],
+  },
+  {
     "version": "0.14.20",
     "date": "2026-09-16",
     "highlights": [

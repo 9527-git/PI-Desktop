@@ -29,6 +29,19 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.21",
+    date: "2026-09-16",
+    highlights: [
+      "Sidebar session rows show a one-line preview of the newest message.",
+      "Open a running session without losing its streamed reply, and the subagent dock stays open while you switch sessions.",
+      "Clicking a model's name or limits opens its configuration instead of silently removing the model; only the checkbox removes it.",
+      "The docked composer stays in normal flow, so replies and the jump-to-latest control are never hidden beneath it.",
+      "Every prose reference opens through the shared preview target: workspace files in the panel, outside paths through the OS, and an outside image shows an open-in-OS chip instead of a broken image.",
+      "Transcript status reads at a glance: tool icons tint by state, a denied call turns purple, the running marker pulses, and a streaming reply keeps a blinking caret.",
+      "CJK file names link correctly, and path links keep line numbers and anchors instead of chipping a suffix that could never open.",
+    ],
+  },
+  {
     version: "0.14.20",
     date: "2026-09-16",
     highlights: [
@@ -782,6 +795,19 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.21",
+    date: "2026-09-16",
+    highlights: [
+      "侧边栏会话行显示最新消息的一行预览。",
+      "打开运行中的会话不再丢失其流式回复，切换会话时子代理停靠面板保持展开。",
+      "点击模型名称或限制区域会打开其配置，而不是静默移除该模型；只有复选框才会移除模型。",
+      "停靠输入框回归正常布局流，回复内容和跳到最新按钮不再被它遮挡。",
+      "正文中的每个引用都通过共享预览目标打开：工作区文件在面板中打开，工作区外路径交给系统打开，工作区外图片显示系统打开按钮，而不是破图。",
+      "转录状态一目了然：工具图标随状态着色，被拒绝的调用转为紫色，运行标记脉冲，流式回复保留闪烁光标。",
+      "中文文件名可正确链接，路径链接保留行号与锚点，不再截出永远无法打开的后缀。",
+    ],
+  },
+  {
     version: "0.14.20",
     date: "2026-09-16",
     highlights: [
@@ -1533,6 +1559,19 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.21",
+    date: "2026-09-16",
+    highlights: [
+      "側邊欄會話列顯示最新訊息的一行預覽。",
+      "開啟執行中的會話不會再遺失其串流回覆，切換會話時子代理停靠面板保持展開。",
+      "點選模型名稱或限制區域會開啟其設定，而不是默默移除該模型；只有核取方塊才會移除模型。",
+      "停靠輸入框回歸正常版面流，回覆內容和跳到最新按鈕不再被它遮擋。",
+      "正文中的每個參照都透過共用預覽目標開啟：工作區檔案在面板中開啟，工作區外路徑交給系統開啟，工作區外圖片顯示系統開啟按鈕，而不是破圖。",
+      "轉錄狀態一目瞭然：工具圖示隨狀態著色，被拒絕的呼叫轉為紫色，執行標記脈衝，串流回覆保留閃爍游標。",
+      "中文檔名可正確連結，路徑連結保留行號與錨點，不再截出永遠無法開啟的後綴。",
+    ],
+  },
   {
     version: "0.14.20",
     date: "2026-09-16",
