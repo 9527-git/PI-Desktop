@@ -29,6 +29,17 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.22",
+    date: "2026-09-16",
+    highlights: [
+      "Activity group labels state status the way their rows do: the warning glow while the batch runs, success green once it finishes, and purple for thinking-only groups.",
+      "Generic `use` calls and `fork` rows join the blue tool family, and the live activity ticker renders inline markdown instead of raw source.",
+      "The conversation column grows into an 860px reading band — 868px composer, 820px message column — with a 760px fallback while the sidebar is collapsed.",
+      "Fullscreen lifts the width caps so the conversation fills the whole pane.",
+      "An open docked panel draws a hairline seam between the chat column and the panel.",
+    ],
+  },
+  {
     version: "0.14.21",
     date: "2026-09-16",
     highlights: [
@@ -795,6 +806,17 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.22",
+    date: "2026-09-16",
+    highlights: [
+      "处理组标签现在与行一样表达状态：批量运行期间显示警告色光晕，完成后转为成功绿，只含思考的组保持紫色。",
+      "通用 `use` 调用与 `fork` 行加入蓝色工具家族，实时活动提示渲染内联 Markdown，不再显示原始源码。",
+      "会话列加宽为 860px 阅读带——输入框 868px、消息列 820px——侧边栏折叠时保持 760px 回落宽度。",
+      "全屏时解除宽度上限，会话铺满整个窗格。",
+      "打开的停靠面板在聊天列与面板之间画出一条细分割线。",
+    ],
+  },
+  {
     version: "0.14.21",
     date: "2026-09-16",
     highlights: [
@@ -1559,6 +1581,17 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.22",
+    date: "2026-09-16",
+    highlights: [
+      "處理群組的標籤現在像資料列一樣表達狀態：批次執行期間顯示警告色光暈，完成後轉為成功綠，只含思考的群組保持紫色。",
+      "通用 `use` 呼叫與 `fork` 列加入藍色工具家族，即時活動提示渲染內聯 Markdown，不再顯示原始原始碼。",
+      "會話欄加寬為 860px 閱讀帶——輸入框 868px、訊息欄 820px——側邊欄摺疊時保持 760px 回落寬度。",
+      "全螢幕時解除寬度上限，會話鋪滿整個窗格。",
+      "開啟的停靠面板在聊天欄與面板之間畫出一條細分割線。",
+    ],
+  },
   {
     version: "0.14.21",
     date: "2026-09-16",

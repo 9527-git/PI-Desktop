@@ -2,6 +2,17 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.22",
+    "date": "2026-09-16",
+    "highlights": [
+      "Gruppenlabels im Transkript zeigen ihren Status wie die Zeilen: leuchtende Warnfarbe, während der Stapel läuft, Erfolgsgrün nach dem Abschluss, und violett für reine Denkgruppen.",
+      "Generische `use`-Aufrufe und `fork`-Zeilen gehören jetzt zur blauen Werkzeugfamilie, und der Live-Aktivitätsticker rendert Inline-Markdown statt Rohtext.",
+      "Die Konversationsspalte wächst zu einem 860px-Leseband – 868px-Composer, 820px-Nachrichtenspalte – und behält 760px als Rückfall bei eingeklappter Seitenleiste.",
+      "Der Vollbildmodus hebt die Breitengrenzen auf, sodass die Konversation den ganzen Bereich füllt.",
+      "Ein geöffnetes angedocktes Panel zeichnet eine Haarlinie zwischen Chatspalte und Panel.",
+    ],
+  },
+  {
     "version": "0.14.21",
     "date": "2026-09-16",
     "highlights": [

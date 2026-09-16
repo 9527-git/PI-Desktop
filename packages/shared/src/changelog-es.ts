@@ -2,6 +2,17 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.22",
+    "date": "2026-09-16",
+    "highlights": [
+      "Las etiquetas de grupo del transcript muestran su estado como sus filas: resplandor de advertencia mientras corre el lote, verde de éxito al terminar, y violeta para los grupos que solo piensan.",
+      "Las llamadas genéricas `use` y las filas `fork` se unen a la familia azul de herramientas, y el ticker de actividad en vivo renderiza Markdown en línea en lugar de código sin formato.",
+      "La columna de conversación se ensancha a una banda de lectura de 860px — compositor de 868px, columna de mensajes de 820px — y conserva 760px como reserva con la barra lateral colapsada.",
+      "La pantalla completa libera los límites de ancho para que la conversación llene todo el panel.",
+      "Un panel acoplado abierto dibuja una línea fina entre la columna del chat y el panel.",
+    ],
+  },
+  {
     "version": "0.14.21",
     "date": "2026-09-16",
     "highlights": [

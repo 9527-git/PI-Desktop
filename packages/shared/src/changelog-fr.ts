@@ -2,6 +2,17 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.22",
+    "date": "2026-09-16",
+    "highlights": [
+      "Les libellés de groupe du transcript expriment leur état comme leurs lignes : lueur d'avertissement pendant l'exécution du lot, vert de succès une fois terminé, et violet pour les groupes de pure réflexion.",
+      "Les appels génériques `use` et les lignes `fork` rejoignent la famille bleue des outils, et le fil d'activité en direct rend le Markdown en ligne au lieu du texte brut.",
+      "La colonne de conversation s'élargit en une bande de lecture de 860px — compositeur de 868px, colonne de messages de 820px — et conserve 760px en repli quand la barre latérale est réduite.",
+      "Le plein écran libère les limites de largeur pour que la conversation remplisse tout le volet.",
+      "Un panneau ancré ouvert trace une fine ligne entre la colonne de chat et le panneau.",
+    ],
+  },
+  {
     "version": "0.14.21",
     "date": "2026-09-16",
     "highlights": [

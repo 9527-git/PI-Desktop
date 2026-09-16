@@ -2,6 +2,17 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.22",
+    "date": "2026-09-16",
+    "highlights": [
+      "Transkriptteki grup etiketleri artık satırları gibi durum belirtir: yığın çalışırken uyarı parıltısı, bittiğinde başarı yeşili, yalnızca düşünen gruplar mor kalır.",
+      "Genel `use` çağrıları ve `fork` satırları mavi araç ailesine katılır ve canlı etkinlik şeridi ham kaynak yerine satır içi Markdown işler.",
+      "Sohbet sütunu 860px okuma bandına genişler — 868px besteci, 820px mesaj sütunu — kenar çubuğu daraltıldığında 760px yedek genişliği korur.",
+      "Tam ekran genişlik sınırlarını kaldırır ve sohbet bölmenin tamamını doldurur.",
+      "Açık yerleşik panel, sohbet sütunu ile panel arasına ince bir çizgi çizer.",
+    ],
+  },
+  {
     "version": "0.14.21",
     "date": "2026-09-16",
     "highlights": [
