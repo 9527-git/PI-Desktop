@@ -2,6 +2,18 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.20",
+    "date": "2026-09-16",
+    "highlights": [
+      "Tek satırlık araç, düşünce ve alt ajan özetleri satır içi markdown oluşturur; kodspanlar ve kalın metin, gerçek ters tırnak yerine sohbet metni gibi okunur.",
+      "İşlem satırlarının arka planı kalktı: araç etiketleri kendi tonunda parlıyor — okuma ve arama mavi, çalıştırma turuncu, yazma yeşil, düşünme mor.",
+      "Çalıştırma satırlarının durum etiketleri dolgulu rozetler yerine anlamsal renginde —yeşil, turuncu, kırmızı veya mor— parlıyor.",
+      "Sohbet metnindeki ve satır özetlerindeki satır içi kod, gri rozet yerine mavi olarak parlıyor.",
+      "Sohbet metnindeki ve satır özetlerindeki kalın metin mor olarak parlıyor ve mavi satır içi kodla kontrast oluşturuyor.",
+      "Dosya yolları sarı olarak parlıyor — sohbet metnindeki yol bağlantıları ve satır özetlerindeki yollar — URL'ler nötr alt çizgiyi koruyor; yollar, kod, kalın metin ve URL'ler birbirinden ayrılıyor.",
+    ],
+  },
+  {
     "version": "0.14.19",
     "date": "2026-09-15",
     "highlights": [

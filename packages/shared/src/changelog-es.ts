@@ -2,6 +2,18 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.20",
+    "date": "2026-09-16",
+    "highlights": [
+      "Los resúmenes de una línea de herramientas, pensamiento y subagentes muestran Markdown en línea: los fragmentos de código y la negrita se leen como en el texto del chat, no como acentos graves literales.",
+      "Los fondos de las filas de proceso desaparecen: las etiquetas de herramientas brillan con su tono — lectura y búsqueda en azul, ejecución en naranja, escritura en verde, pensamiento en púrpura.",
+      "Las etiquetas de estado de las filas de ejecución brillan con su color semántico —verde, naranja, rojo o púrpura— en lugar de chips rellenos.",
+      "El código en línea del texto del chat y de los resúmenes brilla en azul en lugar de llevar un chip gris.",
+      "El texto en negrita del chat y de los resúmenes brilla en púrpura, contrastando con el código en línea azul.",
+      "Las rutas de archivo brillan en amarillo — los enlaces de ruta en el chat y las rutas de los resúmenes — mientras las URLs conservan el subrayado neutro; rutas, código, negrita y URLs se distinguen por separado.",
+    ],
+  },
+  {
     "version": "0.14.19",
     "date": "2026-09-15",
     "highlights": [

@@ -2,6 +2,18 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.20",
+    "date": "2026-09-16",
+    "highlights": [
+      "Les résumés d'outils, de réflexion et de sous-agents sur une ligne affichent le Markdown en ligne : les extraits de code et le gras se lisent comme dans le texte du chat, plus de guillemets inversés littéraux.",
+      "Les fonds colorés des lignes de traitement disparaissent : les libellés d'outils brillent de leur teinte — lecture et recherche en bleu, exécution en orange, écriture en vert, réflexion en violet.",
+      "Les libellés d'état des lignes d'exécution brillent de leur couleur sémantique — vert, orange, rouge ou violet — au lieu de pastilles pleines.",
+      "Le code en ligne du texte du chat et des résumés brille en bleu au lieu d'une pastille grise.",
+      "Le texte en gras du chat et des résumés brille en violet, contrastant avec le code en ligne bleu.",
+      "Les chemins de fichiers brillent en jaune — les liens de chemin dans le chat et les chemins des résumés — tandis que les URLs gardent le soulignement neutre ; chemins, code, gras et URLs se distinguent séparément.",
+    ],
+  },
+  {
     "version": "0.14.19",
     "date": "2026-09-15",
     "highlights": [

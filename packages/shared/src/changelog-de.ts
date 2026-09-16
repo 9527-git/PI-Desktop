@@ -2,6 +2,18 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.20",
+    "date": "2026-09-16",
+    "highlights": [
+      "Einzeilige Werkzeug-, Denk- und Subagenten-Zusammenfassungen rendern Inline-Markdown – Code-Spans und Fettdruck erscheinen wie im Chat-Fließtext statt als literale Backticks.",
+      "Die Hintergrundfarben der Verarbeitungszeilen sind weg: Werkzeugbezeichnungen leuchten in ihrem Farbton – Lesen und Suchen blau, Ausführen orange, Schreiben grün, Denken violett.",
+      "Statusbeschriftungen von Ausführungszeilen leuchten in ihrer Semantikfarbe – Grün, Orange, Rot oder Lila – statt als ausgefüllte Chips.",
+      "Inline-Code im Chat-Text und in Zeilenzusammenfassungen leuchtet blau statt einen grauen Chip zu tragen.",
+      "Fetter Text im Chat-Fließtext und in Zeilenzusammenfassungen leuchtet violett und hebt sich vom blauen Inline-Code ab.",
+      "Dateipfade leuchten gelb – Pfad-Links im Chat-Text und Pfade in Zeilenzusammenfassungen –, während URLs die neutrale Unterstreichung behalten; Pfade, Code, Fettdruck und URLs sind jeweils eigens erkennbar.",
+    ],
+  },
+  {
     "version": "0.14.19",
     "date": "2026-09-15",
     "highlights": [

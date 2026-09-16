@@ -29,6 +29,18 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.20",
+    date: "2026-09-16",
+    highlights: [
+      "One-line tool, thinking, and subagent summaries render inline markdown — code spans and bold read like the chat prose instead of literal backticks.",
+      "Row background tints are gone: tool-family labels glow their own hue — reads and searches blue, runs orange, writes green, thinking purple.",
+      "Run-row state labels glow green, orange, red, or purple in their semantic colour instead of filled chips.",
+      "Inline code in the chat prose and row summaries glows blue instead of wearing a gray chip.",
+      "Bold text in the chat prose and row summaries glows purple, contrasting with the blue inline code.",
+      "File paths glow yellow — chat-prose path links and paths in row summaries — while URLs keep the neutral underline, so paths, code, bold, and URLs each read as their own content type.",
+    ],
+  },
+  {
     version: "0.14.19",
     date: "2026-09-15",
     highlights: [
@@ -770,6 +782,18 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.20",
+    date: "2026-09-16",
+    highlights: [
+      "工具、思考与子代理的单行摘要现在渲染内联 Markdown——代码 span 与粗体按正文样式显示，不再露出字面反引号。",
+      "处理行的底色移除，改为发光的彩色文字：读取与搜索为蓝、运行为橙、写入为绿、思考为紫。",
+      "运行行的状态标签改为发光语义色——绿、橙、红、紫——不再使用填充底块。",
+      "聊天正文与单行摘要中的行内代码改为发光蓝色，不再有灰色底块。",
+      "聊天正文与单行摘要中的粗体文字改为发光紫色，与行内代码的蓝色形成对比。",
+      "文件路径改为发光黄色——聊天正文的路径链接与单行摘要中的路径——URL 保持中性下划线，路径、代码、粗体、URL 各自可辨。",
+    ],
+  },
+  {
     version: "0.14.19",
     date: "2026-09-15",
     highlights: [
@@ -1509,6 +1533,18 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.20",
+    date: "2026-09-16",
+    highlights: [
+      "工具、思考與子代理的單行摘要現在渲染內聯 Markdown——程式碼 span 與粗體按正文樣式顯示，不再露出字面反引號。",
+      "處理行的底色移除，改為發光的彩色標籤：讀取與搜尋為藍、執行為橙、寫入為綠、思考為紫。",
+      "執行列的狀態標籤改為發光語意色——綠、橙、紅、紫——不再使用填充底塊。",
+      "聊天正文與單行摘要中的行內程式碼改為發光藍色，不再有灰色底塊。",
+      "聊天正文與單行摘要中的粗體文字改為發光紫色，與行內程式碼的藍色形成對比。",
+      "檔案路徑改為發光黃色——聊天正文的路徑連結與單行摘要中的路徑——URL 保持中性底線，路徑、程式碼、粗體、URL 各自可辨。",
+    ],
+  },
   {
     version: "0.14.19",
     date: "2026-09-15",
