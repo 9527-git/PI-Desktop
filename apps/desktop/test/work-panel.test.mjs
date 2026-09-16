@@ -177,6 +177,33 @@ test("work panel uses the fixed-window internal dock", () => {
   );
 });
 
+test("an open dock draws a hairline against the chat column (D429)", () => {
+  // The tone step alone stopped reading as a boundary once the reading band
+  // widened. The seam is painted by the main pane, not the dock: native plugin
+  // views composite above the renderer and would cover a stroke inside it.
+  const seamBlock =
+    globalStyles.match(
+      /\.app-shell:has\(> \.work-panel\) \.main-pane::after\s*\{[\s\S]*?\}/,
+    )?.[0] ?? "";
+  assert.match(seamBlock, /position:\s*absolute/);
+  assert.match(seamBlock, /inset-block:\s*0/);
+  assert.match(seamBlock, /right:\s*0/);
+  assert.match(seamBlock, /width:\s*1px/);
+  assert.match(seamBlock, /background:\s*var\(--ds-border-default\)/);
+  assert.match(seamBlock, /pointer-events:\s*none/);
+  // Above the topbar's z-index, so the line is not cut off at the header band.
+  const seamZ = Number(seamBlock.match(/z-index:\s*(\d+)/)?.[1] ?? 0);
+  const topbarZ = Number(
+    globalStyles.match(/\.conversation-topbar\s*\{[\s\S]*?z-index:\s*(\d+)/)?.[1] ??
+      0,
+  );
+  assert.ok(seamZ > topbarZ, "the seam must paint above the conversation topbar");
+  // The dock itself stays borderless: its box width feeds the native
+  // browser-view reservation, so the seam is never a stroke on the panel.
+  const panelBlock = globalStyles.match(/\.work-panel \{[^}]*\}/s)?.[0] ?? "";
+  assert.doesNotMatch(panelBlock, /border/);
+});
+
 test("work panel header exposes a scrollable tab strip and direct new-page action", () => {
   const headerIndex = panelSource.indexOf('className="work-panel-header"');
   const stripIndex = panelSource.indexOf('className="work-panel-tab-strip"');

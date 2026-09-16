@@ -690,7 +690,8 @@ reading surface of the workstation.
 ### 4.3 Layout
 
 - Background: bg-primary
-- Max content width: 720px (messages), centered
+- Max content width: 820px message column inside the 860px thread band (D429),
+  centered
 - The transcript keeps one stable scrollbar gutter on the trailing edge. It
   never reserves a matching left gutter, so the minimap and first message do
   not leave a decorative blank strip beside the session.
@@ -807,6 +808,7 @@ terminal surface; agent Bash output remains in the transcript.
 +---------------------------------------+
  ▌ active tab              • open, inactive
 ^ 10px transparent resize hit area on the left edge
+│ 1px seam against the chat column (D429)
 ```
 
 The header is a horizontally scrollable `tablist`. Each open New launcher,
@@ -817,9 +819,16 @@ overflow. Clicking it creates and activates a unique New launcher tab. The
 launcher body contains host-owned Review followed by every in-scope
 `contributes.views` entry as buttons; Files and Browser are not hardcoded in
 the renderer (ADR 0104). The header reserves a tokenized 60px right-side safe
-lane for the viewport-fixed work-panel toggle. The `+` trigger also sits in a
+lanes for the viewport-fixed work-panel toggle. The `+` trigger also sits in a
 separated action rail, so it keeps a distinct hit target with at least 24px of
 visual gap on every supported platform.
+
+The dock's left edge draws one 1px `--ds-border-default` hairline against the
+chat column (D429). It is painted by the main pane rather than the dock: the
+panel's box width feeds the native browser-view reservation, and native plugin
+views composite above the renderer. The seam rides the animated edge while the
+dock opens or closes and is absent whenever no dock is mounted; preview mode
+does not render the main pane, so it has no seam.
 
 With no resource the body remains open and becomes a concise **New** launcher.
 An explicit New tab uses the same data-driven tool list, so selecting a row
@@ -1462,10 +1471,15 @@ Single message render — either user (plaintext) or assistant (markdown streami
 
 ### 8.3 Layout
 
-- Max content band: 760px thread column; assistant body max 720px
+- Max content band: 860px thread column with an 820px message column inside
+  it; the composer envelope is 868px (D429)
 - When the sidebar is collapsed, the centered thread column and composer band
-  use a 640px ceiling. The outer main pane remains fluid and the width
+  use a 760px ceiling. The outer main pane remains fluid and the width
   transition follows the sidebar dock transition.
+- In window fullscreen (`data-fullscreen="true"` on the root) the band drops
+  its ceiling and fills the main pane; the transcript's own 32px inset and the
+  composer dock's 24px padding remain the gutters. This wins over the collapsed
+  rule, so a collapsed sidebar in fullscreen also fills the pane.
 - User: right-aligned, theme-neutral soft plate (`color-mix` on primary ink,
   never a fixed accent tint), borderless, `radius-lg-plus` with a tighter
   bottom-right corner, capped at `min(82%, 600px)` so short prompts read as
@@ -2426,8 +2440,8 @@ reasoning-level control.
   headings remove uppercase transformation and wide tracking so localized labels
   remain readable.
 - Width: Home and thread-docked composers share one `24px` horizontal gutter
-  and a `768px` maximum content envelope. The left-edge conversation minimap
-  is absolutely positioned outside that envelope, so its appearance or
+  and an `868px` maximum content envelope (D429). The left-edge conversation
+  minimap is absolutely positioned outside that envelope, so its appearance or
   disappearance never changes the composer shell width.
 - Visual parity: Home and thread-docked composers use the same
   `.composer-shell`, `.composer-input-wrap`, `.composer-input`, and
@@ -3530,7 +3544,8 @@ Sidebar footer                                        Popover (360px max)
 2. All interactive elements have visible focus rings (2px accent, offset 2px)
 3. Layout shell metrics (46px titlebar row, ~275/48 sidebar, 280 context,
    compact composer with 1–7-line draft growth) match spec
-4. Chat messages constrained to 720px max width
+4. Chat messages constrained to an 820px message column inside the 860px band
+   (760px collapsed, full-pane in fullscreen, D429)
 5. ToolCallCard shows status, args preview, result preview, duration per [01-ui-ia.md](01-ui-ia.md) §5
 6. PermissionCard shows tool name, risk, args, countdown, and three action buttons per [03-permission-ux.md](03-permission-ux.md)
 7. Composer: Enter sends when Enter-to-send is on; when it is off, Cmd/Ctrl+Enter

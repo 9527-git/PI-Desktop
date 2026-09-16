@@ -15,10 +15,11 @@
   height: 100%;
   min-height: 0;
   z-index: 20;
-  /* The dock is a step lighter than the conversation pane, and that tone
-     change is its only edge (D297): no divider against the chat column.
+  /* The dock is a step lighter than the conversation pane.
      `--ds-bg-dock` is a token, not a literal, so a contributed theme can move
-     the whole column (D419). */
+     the whole column (D419). The D429 seam against the chat column is drawn by
+     the main pane, not here: native plugin views composite above the renderer
+     and would cover a stroke inside the dock. */
   background: var(--ds-bg-dock);
   /*
    * Animate the allocated dock width as well as its small compositor slide.

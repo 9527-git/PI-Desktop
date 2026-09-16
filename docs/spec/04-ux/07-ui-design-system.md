@@ -219,7 +219,7 @@ opacity-only changes, so actions remain legible in dark and light themes.
 
 Light-surface polish (D148):
 
-- Docked work panel uses quiet inset paper (`#fafafa`) with a white header band and a combined create trigger in the header so the tool column stays on content without any divider (D297 removed the remaining edge rules).
+- Docked work panel uses quiet inset paper (`#fafafa`) with a white header band and a combined create trigger in the header so the tool column stays on content. Its left edge draws one hairline against the chat column (D429); the dock interior stays divider-free (D297).
 - The work-panel header keeps its add-tab action in a separated rail: a tokenized 60px safe lane reserves the viewport-fixed panel toggle, with at least 24px of visual separation between the two hit targets on supported window sizes.
 - Shared form fields, browser URL, settings segment tracks, and shortcut keycaps use `--ds-tile` fills with no stroke (D297); focus lifts to white with an accent-tinted ring. An Unbound shortcut uses a localized text state instead of an empty keycap and keeps its recorder and restore controls keyboard-focusable.
 - Settings toggles keep a near-black on-track and force a white knob in light mode.
@@ -610,9 +610,13 @@ shadow-lg:  0 8px 24px rgba(0,0,0,0.12)
 
 ### 6.4 Border rules
 
-In-flow surfaces draw no strokes (D297). Structure inside a page comes from
-three tonal layers plus spacing, and the border tokens are reserved for
-floating layers where an edge is an elevation cue rather than a partition.
+In-flow surfaces draw no strokes (D297), with one reintroduced exception: the
+open work panel's edge against the chat column (D429). It is a single 1px
+`--ds-border-default` hairline drawn by the main pane, because the dock's own
+box width feeds the native browser-view reservation and a border there would
+shift it. Structure elsewhere inside a page still comes from three tonal layers
+plus spacing, and the border tokens are reserved for floating layers where an
+edge is an elevation cue rather than a partition.
 
 | Layer | Token | Use |
 |---|---|---|
@@ -800,10 +804,11 @@ model):
 - Column `flex: 1; min-height: 0; overflow: hidden`
 - Inner scroller (`.home-scroll`) is the only vertical overflow surface for
   the hero and optional checklist
-- Stack (`.home-stack-inner`) uses content width **`min(100%, 768px)`** in the
-  expanded shell and **`min(100%, 640px)`** while the sidebar is collapsed,
+- Stack (`.home-stack-inner`) uses content width **`min(100%, 868px)`** in the
+  expanded shell and **`min(100%, 760px)`** while the sidebar is collapsed,
   with **`gap: 16px`** (workstation ceiling), and auto margins to center the
-  column when the viewport is tall
+  column when the viewport is tall. In fullscreen the stack fills the pane
+  (D429).
 - The content order is **hero → optional onboarding checklist**. Task entry
   starts directly in the bottom composer; no starter prompt grid or contextual
   quick-action row is rendered (D204/D206).
@@ -1009,7 +1014,7 @@ Codex parity decisions (D034/D070) supersede any older value here.
 | Composer shell minimum | ~80px | One-line draft + toolbar padding |
 | Composer toolbar | MainChat `≥450px` | Left/right control groups stay on one row and do not shrink; mode/permission labels stay single-line and ellipsize |
 | Composer draft height | 1–7 text lines | Auto-grow; internal scroll beyond line 7 |
-| Chat message max width | 720px assistant / 560px user plate | Prevent eye-span over-stretch; user turns stay compact |
+| Chat message max width | 820px assistant / 560px user plate inside an 860px band; 100% in fullscreen (D429) | Prevent eye-span over-stretch; user turns stay compact |
 | Window min width | 1040px | Enforced by Electron for the whole app; opening the panel never changes native bounds |
 | Window min height | 700px | Enforced by Electron |
 
@@ -1189,7 +1194,7 @@ Full component contract and usage rules: [08-component-spec.md §17](08-componen
 | **Compact list rows 28px height** | Sidebar session items, settings list rows |
 | **Button rows 32px height** | Standard buttons |
 | **Never exceed 24px vertical gap** | Even for "breathing room" — this is a workstation |
-| **Max content width 720px** | Chat messages, tool disclosure rows — prevent over-wide eye-span |
+| **Max content width 820px** | Chat messages, tool disclosure rows inside the 860px band (D429) — prevent over-wide eye-span |
 
 ## 14. Do / Don't
 

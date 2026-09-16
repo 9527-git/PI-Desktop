@@ -103,16 +103,31 @@ test("a collapsed sidebar uses a narrower centered chat content band", () => {
   );
 
   const mainPaneBlock = globalStyles.match(/\.main-pane\s*\{[\s\S]*?\}/)?.[0] ?? "";
-  assert.match(mainPaneBlock, /--chat-content-max-width:\s*760px/);
-  assert.match(mainPaneBlock, /--chat-composer-max-width:\s*768px/);
+  assert.match(mainPaneBlock, /--chat-content-max-width:\s*860px/);
+  assert.match(mainPaneBlock, /--chat-composer-max-width:\s*868px/);
+  assert.match(mainPaneBlock, /--chat-message-max-width:\s*820px/);
 
   const collapsedBlock =
     globalStyles.match(/\.app-shell\.sidebar-collapsed \.main-pane\s*\{[\s\S]*?\}/)?.[0] ?? "";
-  assert.match(collapsedBlock, /--chat-content-max-width:\s*640px/);
-  assert.match(collapsedBlock, /--chat-composer-max-width:\s*640px/);
+  assert.match(collapsedBlock, /--chat-content-max-width:\s*760px/);
+  assert.match(collapsedBlock, /--chat-composer-max-width:\s*760px/);
+  assert.match(collapsedBlock, /--chat-message-max-width:\s*760px/);
   assert.match(
     collapsedBlock,
     /--chat-width-transition:\s*var\(--motion-duration-fast\) var\(--motion-ease-in\)/,
+  );
+
+  // Fullscreen drops the centered band entirely. The collapsed rule carries the
+  // same specificity, so the fullscreen block must come later in the file.
+  const fullscreenBlock =
+    globalStyles.match(/:root\[data-fullscreen="true"\] \.main-pane\s*\{[\s\S]*?\}/)?.[0] ?? "";
+  assert.match(fullscreenBlock, /--chat-content-max-width:\s*100%/);
+  assert.match(fullscreenBlock, /--chat-composer-max-width:\s*100%/);
+  assert.match(fullscreenBlock, /--chat-message-max-width:\s*100%/);
+  assert.ok(
+    globalStyles.indexOf(':root[data-fullscreen="true"] .main-pane') >
+      globalStyles.indexOf(".app-shell.sidebar-collapsed .main-pane"),
+    "the fullscreen band override must follow the collapsed override",
   );
 
   const threadContentBlock =
@@ -129,7 +144,7 @@ test("a collapsed sidebar uses a narrower centered chat content band", () => {
     globalStyles.match(/^\.composer-stack\s*\{[\s\S]*?\}/m)?.[0] ?? "";
   assert.match(
     composerBlock,
-    /width:\s*min\(100%,\s*var\(--chat-composer-max-width,\s*768px\)\)/,
+    /width:\s*min\(100%,\s*var\(--chat-composer-max-width,\s*868px\)\)/,
   );
   assert.match(composerBlock, /transition:\s*width var\(--chat-width-transition/);
 });
