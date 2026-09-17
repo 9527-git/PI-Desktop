@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.23",
+    "date": "2026-09-17",
+    "highlights": [
+      "Los grupos de proyectos de la barra lateral llevan un color: se asigna automáticamente desde una paleta de diez colores y se ajusta en el menú Color del proyecto con la paleta, un campo #rrggbb y un restablecimiento Automático.",
+      "Las conversaciones heredan el color de su proyecto —incluidas las filas fijadas globalmente— y se recolorean al moverse; las sesiones temporales permanecen neutras.",
+      "Enviar ahora inyecta el mensaje en cola directamente en el turno en curso, en el siguiente límite de herramienta o respuesta, para que la instrucción llegue al instante sin detener la tarea.",
+      "La × de la fila en cola devuelve el mensaje y sus referencias de archivo al cuadro de entrada para editarlos, en lugar de descartarlos.",
+    ],
+  },
+  {
     "version": "0.14.22",
     "date": "2026-09-16",
     "highlights": [

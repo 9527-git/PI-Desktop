@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.23",
+    "date": "2026-09-17",
+    "highlights": [
+      "Projektgruppen in der Seitenleiste tragen eine Farbe: automatisch aus einer Zehn-Farben-Palette vergeben und im Farb-Popover des Projektmenüs über die Palette, ein #rrggbb-Feld und einen Automatisch-Reset anpassbar.",
+      "Unterhaltungen erben die Farbe ihres Projekts – auch global angeheftete Zeilen – und werden beim Verschieben neu eingefärbt; temporäre Sitzungen bleiben neutral.",
+      "„Jetzt senden“ fügt eine wartende Nachricht direkt in den laufenden Durchgang ein – an der nächsten Werkzeug- oder Antwortgrenze –, sodass die Anweisung sofort ankommt, ohne die Aufgabe zu stoppen.",
+      "Das × der Warteschlangenzeile gibt die Nachricht samt Dateiverweisen zum Bearbeiten in das Eingabefeld zurück, statt sie zu verwerfen.",
+    ],
+  },
+  {
     "version": "0.14.22",
     "date": "2026-09-16",
     "highlights": [

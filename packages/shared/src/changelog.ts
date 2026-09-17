@@ -29,6 +29,16 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.23",
+    date: "2026-09-17",
+    highlights: [
+      "Sidebar project groups carry a color: one assigned automatically from a ten-color palette, adjustable from the project menu's Color popover with the palette, a #rrggbb field, and an Automatic reset.",
+      "Conversations inherit their project's color — globally pinned rows included — and recolor when moved; temporary sessions stay neutral.",
+      "Send now injects a queued message straight into the running turn at its next tool or reply boundary, so guidance lands immediately without stopping the task.",
+      "The queued row's × returns the message and its file references to the input box for editing instead of discarding them.",
+    ],
+  },
+  {
     version: "0.14.22",
     date: "2026-09-16",
     highlights: [
@@ -806,6 +816,16 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.23",
+    date: "2026-09-17",
+    highlights: [
+      "侧边栏项目分组拥有颜色：自动从十色调色板分配，并可在项目菜单的“颜色”弹层中通过调色板、#rrggbb 输入框和“自动”重置调整。",
+      "会话继承所属项目的颜色（包括全局固定行），移动到其他项目时重新着色；临时会话保持中性。",
+      "“立即发送”把排队消息直接注入正在运行的回合，在下一个工具或回复边界生效，无需停止任务即可立即引导。",
+      "排队行的“×”把消息及其文件引用退回输入框重新编辑，而不是删除。",
+    ],
+  },
+  {
     version: "0.14.22",
     date: "2026-09-16",
     highlights: [
@@ -1581,6 +1601,16 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.23",
+    date: "2026-09-17",
+    highlights: [
+      "側邊欄專案群組擁有顏色：自動從十色調色盤分配，並可在專案選單的「顏色」彈層中透過調色盤、#rrggbb 欄位和「自動」重設調整。",
+      "對話繼承所屬專案的顏色（含全域固定列），移動到其他專案時重新著色；臨時對話保持中性。",
+      "「立即傳送」把排隊訊息直接注入正在執行的回合，在下一個工具或回覆邊界生效，不必停止任務即可立即引導。",
+      "排隊列的「×」把訊息與其檔案參照退回輸入框重新編輯，而不是刪除。",
+    ],
+  },
   {
     version: "0.14.22",
     date: "2026-09-16",

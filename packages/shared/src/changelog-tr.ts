@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.23",
+    "date": "2026-09-17",
+    "highlights": [
+      "Kenar çubuğundaki proje grupları bir renk taşır: on renkli paletten otomatik atanır ve proje menüsündeki Renk açılır penceresinden palet, #rrggbb alanı ve Otomatik sıfırlama ile ayarlanır.",
+      "Konuşmalar projelerinin rengini devralır — genel olarak sabitlenmiş satırlar dahil — ve taşındığında yeniden renklenir; geçici oturumlar nötr kalır.",
+      "Şimdi gönder, kuyruktaki mesajı çalışan tura doğrudan sonraki araç/yanıt sınırında enjekte eder; böylece görev durmadan yönlendirme anında ulaşır.",
+      "Kuyruk satırındaki ×, mesajı ve dosya başvurularını silmek yerine düzenleme için giriş kutusuna geri döndürür.",
+    ],
+  },
+  {
     "version": "0.14.22",
     "date": "2026-09-16",
     "highlights": [

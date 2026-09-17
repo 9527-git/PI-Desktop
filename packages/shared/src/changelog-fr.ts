@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.23",
+    "date": "2026-09-17",
+    "highlights": [
+      "Les groupes de projets de la barre latérale portent une couleur : attribuée automatiquement parmi une palette de dix couleurs et ajustable dans le menu Couleur du projet avec la palette, un champ #rrggbb et une réinitialisation Automatique.",
+      "Les conversations héritent de la couleur de leur projet — lignes épinglées globalement comprises — et se recolorent lors d'un déplacement ; les sessions temporaires restent neutres.",
+      "« Envoyer maintenant » injecte le message en file d'attente directement dans le tour en cours, à la prochaine limite d'outil ou de réponse, pour que la consigne arrive immédiatement sans arrêter la tâche.",
+      "Le × de la ligne en attente renvoie le message et ses références de fichiers dans la zone de saisie pour modification, au lieu de les supprimer.",
+    ],
+  },
+  {
     "version": "0.14.22",
     "date": "2026-09-16",
     "highlights": [
