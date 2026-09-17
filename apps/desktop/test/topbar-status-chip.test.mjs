@@ -97,6 +97,12 @@ test("the chip mirrors the sidebar dot language and honors reduced motion", () =
   assert.match(chrome, /@keyframes ct-status-pulse \{/);
   assert.match(
     chrome,
-    /prefers-reduced-motion: reduce\)[\s\S]*?\.ct-status-slot \{[^}]*transition: none;[\s\S]*?\.ct-status-dot \{[^}]*animation: none;/,
+    /prefers-reduced-motion: reduce\)[\s\S]*?\.ct-status-slot \{[^}]*transition: none;/,
+  );
+  // The reduced-motion dot rule must carry the same running/pending classes as
+  // the animation rules, or it loses on specificity and the dot keeps moving.
+  assert.match(
+    chrome,
+    /prefers-reduced-motion: reduce\)[\s\S]*?\.ct-status-chip\.ct-status-running \.ct-status-dot,\s*\.conversation-topbar \.ct-status-chip\.ct-status-pending \.ct-status-dot \{[^}]*animation: none;/,
   );
 });

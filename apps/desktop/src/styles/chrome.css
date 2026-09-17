@@ -627,7 +627,10 @@
   .conversation-topbar .ct-status-slot {
     transition: none;
   }
-  .conversation-topbar .ct-status-dot {
+  /* Match the running/pending dot rules' specificity, or the animations above
+     would win over this block regardless of order. */
+  .conversation-topbar .ct-status-chip.ct-status-running .ct-status-dot,
+  .conversation-topbar .ct-status-chip.ct-status-pending .ct-status-dot {
     animation: none;
   }
 }
