@@ -55,8 +55,10 @@ Electron E2E scripts (`scripts/e2e-*.mjs`).
    design's "omits it when the record has none" case is impossible and is
    replaced by a focused pass-through case. The runtime test uses
    `tokensBefore: expect.any(Number)`.
-3. Decision number is **D433** (D432 is the retry card on local `main`
-   `d57fc19e`); the ADR id is the slug `context-inspector-compact-action`.
+3. Decision number is **D434** (local `main` `40e13e0b` merged the conversation
+   topbar status chip as D433 after this branch was cut from `d57fc19e`, where
+   D432 was the newest; the ADR id is the slug
+   `context-inspector-compact-action`).
 
 ### File map
 
@@ -82,7 +84,7 @@ Electron E2E scripts (`scripts/e2e-*.mjs`).
 | `docs/spec/04-ux/09-interaction-patterns.md` + zh-CN | checkpoint "before" figure, action behavior |
 | `docs/spec/03-runtime/01-ipc-protocol.md` + zh-CN | `compaction_end.mark.tokensBefore` |
 | `docs/adr/context-inspector-compact-action.md` + `0103-…` + `0106-…` + indexes | ADR |
-| `docs/spec/08-meta/decisions-log.md` + zh-CN | D433 entry |
+| `docs/spec/08-meta/decisions-log.md` + zh-CN | D434 entry |
 | `docs/spec/06-delivery/04-e2e-test-plan.md` + zh-CN | E2E scenario + suite rows |
 
 ---
@@ -365,7 +367,7 @@ Add this test block at the end of the file:
 
 ```js
 test("the inspector card starts a compaction and reports it in place", () => {
-  // The card is both the entry point and the result surface (D433): the action
+  // The card is both the entry point and the result surface (D434): the action
   // row starts a manual compaction, the runtime's own activity phase drives the
   // busy presentation, and the checkpoint line gains the occupancy the
   // checkpoint replaced.
@@ -1262,7 +1264,7 @@ English and in the zh-CN mirror.
 grep -n "D43[0-9]" docs/spec/08-meta/decisions-log.md | tail -5
 ```
 
-Expected: the newest entry is `D432`. If another agent has since taken `D433`,
+Expected: the newest entry is `D432`. If another agent has since taken `D434`,
 use the next free number everywhere below and note the substitution in the
 commit message.
 
@@ -1278,7 +1280,7 @@ Create `docs/adr/context-inspector-compact-action.md` (slug-file convention, lik
 - Date: 2026-09-17
 - Deciders: PI-Desktop renderer and UX maintainers
 - Amends: [ADR 0103](0103-compact-context-usage-summary.md), [ADR 0106](0106-core-five-builtin-commands.md)
-- Related: ADR 0047, D225, D244, D433
+- Related: ADR 0047, D225, D244, D434
 
 ## Context
 
@@ -1335,13 +1337,13 @@ The repository records amendments in the amended ADR's own Status line
 In `docs/adr/0103-compact-context-usage-summary.md`, line 3 becomes:
 
 ```markdown
-- Status: Accepted (amended by D347 / ADR 0184 and D355 / ADR 0193; amended by D433 / [context-inspector-compact-action](context-inspector-compact-action.md))
+- Status: Accepted (amended by D347 / ADR 0184 and D355 / ADR 0193; amended by D434 / [context-inspector-compact-action](context-inspector-compact-action.md))
 ```
 
 In `docs/adr/0106-core-five-builtin-commands.md`, line 3 becomes:
 
 ```markdown
-- Status: Accepted (amended by D433 / [context-inspector-compact-action](context-inspector-compact-action.md): compaction is also reachable from the context usage card, not slash-first alone)
+- Status: Accepted (amended by D434 / [context-inspector-compact-action](context-inspector-compact-action.md): compaction is also reachable from the context usage card, not slash-first alone)
 ```
 
 - [ ] **Step 4: Index the ADR**
@@ -1350,7 +1352,7 @@ The English table is the full index (`| ID | Title | Status |`, slug ids allowed
 appended after the `0259` row at the end of the table in `docs/adr/README.md`):
 
 ```markdown
-| context-inspector-compact-action | [Compact the context from the usage inspector card](context-inspector-compact-action.md) | Accepted (amends ADR 0103 / ADR 0106; D433) |
+| context-inspector-compact-action | [Compact the context from the usage inspector card](context-inspector-compact-action.md) | Accepted (amends ADR 0103 / ADR 0106; D434) |
 ```
 
 The zh-CN file mirrors the same table under `## 完整索引`
@@ -1358,7 +1360,7 @@ The zh-CN file mirrors the same table under `## 完整索引`
 its last row (`| 0259 | … |`):
 
 ```markdown
-| context-inspector-compact-action | [从上下文用量卡片启动压缩](/adr/context-inspector-compact-action) | 已接受待实现（修订 ADR 0103 / ADR 0106；D433） |
+| context-inspector-compact-action | [从上下文用量卡片启动压缩](/adr/context-inspector-compact-action) | 已接受待实现（修订 ADR 0103 / ADR 0106；D434） |
 ```
 
 Do **not** touch the zh-CN `## 重点决策` table — it is a curated shortlist, not
@@ -1461,7 +1463,7 @@ mark block and prose paragraph:
 Append to `docs/spec/08-meta/decisions-log.md`:
 
 ```markdown
-## 2026-09-17 — Compact from the context inspector card (D433)
+## 2026-09-17 — Compact from the context inspector card (D434)
 
 The context usage inspector popover was read-only, so seeing the context fill
 up and acting on it were two different surfaces. The card now carries a bottom
@@ -1481,7 +1483,7 @@ change.
 Append the zh-CN mirror to `docs/zh-CN/spec/08-meta/decisions-log.md`:
 
 ```markdown
-## 2026-09-17 — 从上下文卡片启动压缩 (D433)
+## 2026-09-17 — 从上下文卡片启动压缩 (D434)
 
 上下文用量检查器此前是只读的，看到上下文变满和动手处理是两处界面。现在卡片底部新增操作行：左侧提示文案，右侧“压缩上下文”按钮，调用既有的 `compactContext()` store 动作与既有 `agent.compact` IPC —— 不新增渠道、不新增权限、不改运行时。忙碌状态直接取自运行时的 `activity.phase === "compacting"`；当有正在进行的回合或原生会话占用输入区时按钮禁用；压缩过程中卡片保持打开，更新后的检查点行即为原地反馈。`ContextCompactionMark` 新增可选 `tokensBefore`，取自宿主本就持久化的记录，使检查点行可以显示被替换掉的上下文占用；旧标记不含该字段时退化为单行。仅渲染器、文档与测试：不改 IPC 渠道、Host RPC、存储 schema、权限或持久化状态。
 ```
@@ -1565,7 +1567,7 @@ here and is not a failure of this task.
 
 ```bash
 git add docs
-git commit -m "docs(spec): record compact from the context inspector card as D433"
+git commit -m "docs(spec): record compact from the context inspector card as D434"
 ```
 
 ---
@@ -1608,7 +1610,7 @@ Then, from the primary checkout (`E:\pi-pro\PI-Desktop`):
 
 ```bash
 git checkout main
-git merge --no-ff feat/context-inspector-compact-action -m "merge: integrate compact from the context inspector (D433)"
+git merge --no-ff feat/context-inspector-compact-action -m "merge: integrate compact from the context inspector (D434)"
 ```
 
 Expected: a fast, conflict-free merge. If `main` moved, re-resolve inside the
@@ -1641,7 +1643,7 @@ git worktree prune
 - [ ] **Step 6: Handoff**
 
 Report: what changed; architecture/compatibility impact (none beyond additive
-optional field); specs/ADRs (ADR 0259-adjacent slug file + D433); validation
+optional field); specs/ADRs (ADR 0259-adjacent slug file + D434); validation
 commands and their results; E2E results per suite; commits; merge status; the
 remaining risk that `origin` is stale and nothing was pushed. A release bump
 (v0.14.25) happens only on an explicit request and must include the still

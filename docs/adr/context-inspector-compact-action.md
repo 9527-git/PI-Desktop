@@ -4,7 +4,7 @@
 - Date: 2026-09-17
 - Deciders: PI-Desktop renderer and UX maintainers
 - Amends: [ADR 0103](0103-compact-context-usage-summary.md), [ADR 0106](0106-core-five-builtin-commands.md)
-- Related: ADR 0047, D225, D244, D433
+- Related: ADR 0047, D225, D244, D434
 
 ## Context
 

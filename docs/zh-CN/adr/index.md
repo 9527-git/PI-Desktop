@@ -284,7 +284,7 @@ ADR 记录那些不应被静默改变的架构选择。中文入口与英文索�
 | 0253 | [移除子智能体轮次上限](/adr/0253-remove-subagent-turn-limit) | 已接受（取代 0062 / 0063 / 0119 / 0126 / 0166 / 0210 中关于 `maxTurns` 的条款） |
 | 0258 | [线程输入框采用正常流布局](/adr/0258-in-flow-chat-composer) | 已接受（修订 ADR 0065 第 4 条 / D264） |
 | 0259 | [排队行立即发送改为转向，编辑则回到输入框](/adr/0259-queue-row-steer-and-edit) | 已接受（修订 ADR 0118 的立即发送条款 / ADR 0213 第 4 条；D430） |
-| context-inspector-compact-action | [从上下文用量卡片启动压缩](/adr/context-inspector-compact-action) | 已接受待实现（修订 ADR 0103 / ADR 0106；D433） |
+| context-inspector-compact-action | [从上下文用量卡片启动压缩](/adr/context-inspector-compact-action) | 已接受待实现（修订 ADR 0103 / ADR 0106；D434） |
 
 ## 什么时候看 ADR
 

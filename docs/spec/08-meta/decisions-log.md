@@ -5410,7 +5410,7 @@ Validation contract: E2E-SIDEBAR-global-pinned-conversations.
   `active-turn-surface.test.mjs` pin the surface contract and
   `anchored-popover-position.test.mjs` the placement math.
 
-## 2026-09-17 — Compact from the context inspector card (D433)
+## 2026-09-17 — Compact from the context inspector card (D434)
 
 The context usage inspector popover was read-only, so seeing the context fill
 up and acting on it were two different surfaces. The card now carries a bottom
