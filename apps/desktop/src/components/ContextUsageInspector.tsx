@@ -257,12 +257,18 @@ export function ContextUsageInspector({
   }, [closeInspector, open]);
 
   // The panel is portaled to <body>, so Tab never reaches it from the composer
-  // toolbar. Taking focus on open puts the action row one Tab away, and the
-  // existing Escape path already returns focus to the trigger.
+  // toolbar, and it stays `visibility: hidden` until the placement lands — a
+  // hidden surface cannot take focus (see AnchoredMenu). Focus is taken once
+  // per open cycle, after the panel is visible; Escape already returns it to
+  // the trigger.
+  const placed = popoverPosition !== null;
   useEffect(() => {
-    if (!open) return;
-    popoverRef.current?.focus({ preventScroll: true });
-  }, [open]);
+    if (!open || !placed) return;
+    const frame = window.requestAnimationFrame(() => {
+      popoverRef.current?.focus({ preventScroll: true });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [open, placed]);
 
   const popover = open ? (
     <div
