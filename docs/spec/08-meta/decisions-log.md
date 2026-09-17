@@ -5458,3 +5458,22 @@ change.
   `04-ux/09-interaction-patterns.md` §3A, `03-runtime/01-ipc-protocol.md`, and
   E2E-CHAT-compact-from-context-inspector in `06-delivery/04-e2e-test-plan.md`;
   ADR `context-inspector-compact-action`.
+
+## 2026-09-17 — Provider model selection is additive (D435)
+
+In the provider editor's model picker, activating one discovered row used to
+toggle its binding: clicking a configured model's checkbox silently deleted
+its configuration. Every activation path — the id, the display name, the
+token-limits cell, the row padding, the checkbox, and keyboard activation —
+now resolves to one additive select: an absent model is added once, an
+existing one keeps its original object, order, alias and overrides, and its
+configuration opens (with the existing scroll-and-mark reveal). Case variants
+cannot introduce duplicates. Removal is the explicit Remove action in the
+chosen pane; the separately labelled bulk select/clear keeps its scope. The
+row is extracted into `DiscoveredModelRow` so the copy-only drag guard has one
+executable home. Renderer, docs, and tests only: no IPC, host, storage, or
+permission change. Supersedes the D426 amendment of ADR 0192.
+- See `03-runtime/13-model-catalog-and-selection.md`,
+  `04-ux/08-component-spec.md` §19.4, ADR `0192-model-alias.md`, and
+  E2E-005A / E2E-201 in `06-delivery/04-e2e-test-plan.md`
+  (`pnpm test:e2e:provider-model-selection`).

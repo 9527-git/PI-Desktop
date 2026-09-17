@@ -4311,3 +4311,11 @@ the retained upstream work-panel lifecycle. See
   §3A、`03-runtime/01-ipc-protocol.md` 与
   `06-delivery/04-e2e-test-plan.md` 的 E2E-CHAT-compact-from-context-inspector；
   ADR `context-inspector-compact-action`。
+
+## 2026-09-17 —— 提供商模型选择改为加性操作（D435）
+
+在提供商编辑器的模型选择器里，激活一个发现的模型行过去是切换开关：点击已配置模型的复选框会静默删除其配置。现在所有激活路径——id、显示名、上限数值单元格、行内空白、复选框与键盘激活——都收敛为同一个加性选中：缺失的模型只添加一次，已存在的保留其原对象、顺序、别名与覆盖，并打开其配置（保留既有的滚动定位与短暂标记）；大小写变体不会产生重复。删除只保留右侧已选面板的显式「移除」操作；单独标注的批量选择/清空保持其作用范围。该行抽取为 `DiscoveredModelRow`，使“行内拖选仅复制”的守卫有唯一的可执行归属。仅渲染器、文档与测试：不改 IPC、host、存储或权限。取代 ADR 0192 的 D426 修订。
+- 见 `03-runtime/13-model-catalog-and-selection.md`、
+  `04-ux/08-component-spec.md` §19.4、ADR `0192-model-alias.md`，以及
+  `06-delivery/04-e2e-test-plan.md` 的 E2E-005A / E2E-201
+  （`pnpm test:e2e:provider-model-selection`）。
