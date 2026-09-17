@@ -21,9 +21,9 @@ import {
   resolveContextUsageDisplay,
 } from "../lib/context-usage";
 import {
-  placeContextInspector,
-  type ContextInspectorPlacement,
-} from "../lib/context-inspector-position";
+  placeAnchoredPopover,
+  type AnchoredPopoverPlacement,
+} from "../lib/anchored-popover-position";
 
 function formatTokenCount(value: number): string {
   if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(value >= 10_000_000 ? 0 : 1)}M`;
@@ -65,7 +65,7 @@ export function ContextUsageInspector({
   const popoverRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [popoverPosition, setPopoverPosition] =
-    useState<ContextInspectorPlacement | null>(null);
+    useState<AnchoredPopoverPlacement | null>(null);
   const context = calculateContextUsage(usage, contextWindow);
   // The display preference flips the leading figure only; capacity colors
   // still follow remaining space so the warning state keeps one meaning.
@@ -142,8 +142,8 @@ export function ContextUsageInspector({
     // surfaces composite above every renderer layer, so whatever part of the
     // popover crosses that edge is covered whatever z-index it carries (D357).
     const paneRect = trigger.closest(".main-pane")?.getBoundingClientRect();
-    const placement = placeContextInspector({
-      trigger: {
+    const placement = placeAnchoredPopover({
+      anchor: {
         left: triggerRect.left,
         top: triggerRect.top,
         bottom: triggerRect.bottom,

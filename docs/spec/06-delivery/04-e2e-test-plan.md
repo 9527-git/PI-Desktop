@@ -906,7 +906,10 @@ and identify the platform validation still needed.
   `Recovering empty response…`, `Retrying model request`, or `Waiting for`
   a named subagent with its latest coarse action — with a monotonic elapsed
   time matching the active phase. A multi-subagent wait lists each running
-  target. It uses the same compact inline treatment as `Working…`, never adds
+  target. A retrying row reveals its floating error card on hover or focus:
+  opaque over the transcript, unclipped when the row sits at the transcript
+  top, and clamped inside the conversation pane. It uses the same compact
+  inline treatment as `Working…`, never adds
   a duplicate progress card, and clears when assistant output or a terminal
   event arrives. The Stop action remains available throughout.
 - **Specs linked**: `03-runtime/01-ipc-protocol.md`,

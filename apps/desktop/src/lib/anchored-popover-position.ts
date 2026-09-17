@@ -1,12 +1,13 @@
 /**
- * Placement for the composer's context-usage popover (D357).
+ * Placement for body-portaled anchored popovers.
  *
- * The popover is portaled to `document.body`, positioned in viewport
- * coordinates, and floats above pane stacking (`z-command-palette`). None of
- * that protects it from the work panel: the panel's embedded browser and plugin
- * views are native `WebContentsView`s that composite above every renderer
- * layer, so whatever part of the popover crosses the pane's right edge is
- * covered no matter which `z-index` the popover carries.
+ * Consumers: the composer's context-usage popover (D357) and the transcript's
+ * retry-reason tooltip. Both portal to `document.body`, positioned in viewport
+ * coordinates, and float above pane stacking (`z-command-palette`). None of
+ * that protects them from the work panel: the panel's embedded browser and
+ * plugin views are native `WebContentsView`s that composite above every
+ * renderer layer, so whatever part of a popover crosses the pane's right edge
+ * is covered no matter which `z-index` the popover carries.
  *
  * The clamp therefore uses the conversation pane — which ends exactly where the
  * panel begins — instead of the viewport, and reports the widest box the pane
@@ -14,23 +15,23 @@
  * either.
  */
 
-export const CONTEXT_INSPECTOR_MARGIN = 16;
-export const CONTEXT_INSPECTOR_GAP = 8;
+export const ANCHORED_POPOVER_MARGIN = 16;
+export const ANCHORED_POPOVER_GAP = 8;
 
-/** The trigger's viewport rect; only the edges placement reads are required. */
-export type ContextInspectorTrigger = {
+/** The anchor's viewport rect; only the edges placement reads are required. */
+export type AnchoredPopoverAnchor = {
   left: number;
   top: number;
   bottom: number;
 };
 
 /** Horizontal extent of the box the popover has to stay inside. */
-export type ContextInspectorBox = {
+export type AnchoredPopoverPane = {
   left: number;
   right: number;
 };
 
-export type ContextInspectorPlacement = {
+export type AnchoredPopoverPlacement = {
   top: number;
   left: number;
   /** Caps the popover's own `width` so a narrow pane cannot overflow. */
@@ -38,26 +39,26 @@ export type ContextInspectorPlacement = {
 };
 
 /**
- * Place the popover above the trigger when it fits, below it otherwise, and
- * inside `pane` on the horizontal axis. Returns `null` when the box has no
- * usable width, which the caller treats as "leave the popover closed".
+ * Place the popover above the anchor when it fits, below it otherwise, and
+ * inside `pane` on the horizontal axis. Returns `null` when the pane has no
+ * usable width, which the caller treats as "leave the popover hidden".
  */
-export function placeContextInspector({
-  trigger,
+export function placeAnchoredPopover({
+  anchor,
   popover,
   pane,
   viewport,
-  margin = CONTEXT_INSPECTOR_MARGIN,
-  gap = CONTEXT_INSPECTOR_GAP,
+  margin = ANCHORED_POPOVER_MARGIN,
+  gap = ANCHORED_POPOVER_GAP,
 }: {
-  trigger: ContextInspectorTrigger;
+  anchor: AnchoredPopoverAnchor;
   popover: { width: number; height: number };
   /** The conversation pane; `null` falls back to the viewport. */
-  pane: ContextInspectorBox | null;
+  pane: AnchoredPopoverPane | null;
   viewport: { width: number; height: number };
   margin?: number;
   gap?: number;
-}): ContextInspectorPlacement | null {
+}): AnchoredPopoverPlacement | null {
   const left = (pane ? pane.left : 0) + margin;
   const right = (pane ? pane.right : viewport.width) - margin;
   const maxWidth = Math.floor(right - left);
@@ -67,10 +68,10 @@ export function placeContextInspector({
   // run under the panel; the widest placement still ends at the pane's edge.
   const width = Math.min(popover.width, maxWidth);
   const maximumLeft = Math.max(left, right - width);
-  const clampedLeft = Math.min(Math.max(left, trigger.left), maximumLeft);
+  const clampedLeft = Math.min(Math.max(left, anchor.left), maximumLeft);
 
-  const above = trigger.top - popover.height - gap;
-  const below = trigger.bottom + gap;
+  const above = anchor.top - popover.height - gap;
+  const below = anchor.bottom + gap;
   const maximumTop = Math.max(
     margin,
     viewport.height - popover.height - margin,

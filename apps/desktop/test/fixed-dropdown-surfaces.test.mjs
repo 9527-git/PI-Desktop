@@ -47,6 +47,7 @@ const dropdownSurfaces = [
   "composer-autocomplete",
   "context-inspector-popover",
   "home-project-switcher-menu",
+  "run-activity-error-popover",
 ];
 
 function findSurfaceRule(className) {

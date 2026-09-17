@@ -1,14 +1,19 @@
-import { readStoreSource, readTranscriptSource } from "./helpers/source-contracts.mjs";
+import {
+  readStoreSource,
+  readTranscriptModule,
+  readTranscriptSource,
+} from "./helpers/source-contracts.mjs";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const read = (path) => readFile(new URL(path, import.meta.url), "utf8");
 
-const [store, transcript, messagesStyles, proseStyles, en, zh] =
+const [store, transcript, retryPopover, messagesStyles, proseStyles, en, zh] =
   await Promise.all([
     readStoreSource(),
     readTranscriptSource(),
+    readTranscriptModule("RetryErrorPopover.tsx"),
     read("../src/styles/messages.css"),
     read("../src/styles/prose.css"),
     read("../../../packages/i18n/src/locales/en/index.ts"),
@@ -36,7 +41,11 @@ test("active turns show immediate and phase-specific feedback without a progress
   assert.match(transcript, /activity\.error/);
   assert.match(transcript, /run-activity-error-popover message-error/);
   assert.match(transcript, /role="tooltip"/);
-  assert.match(transcript, /aria-describedby=\{retryErrorDetailsId\}/);
+  assert.match(retryPopover, /createPortal\([\s\S]*document\.body/);
+  assert.match(retryPopover, /aria-describedby=\{detailsId\}/);
+  assert.match(retryPopover, /aria-label=\{description\}/);
+  assert.match(retryPopover, /onPointerEnter=\{\(\) => setOpen\(true\)\}/);
+  assert.match(retryPopover, /onFocus=\{\(\) => setOpen\(true\)\}/);
   assert.match(transcript, /state\.agentStatuses\[sessionId\]\?\.activity/);
   assert.match(transcript, /const specializedActivity = agentActivity/);
   assert.match(transcript, /!hasSpecializedActivity/);
@@ -73,11 +82,19 @@ test("active turns show immediate and phase-specific feedback without a progress
   assert.match(messagesStyles, /\.run-activity-indicator\[data-phase="compacting"\]/);
   assert.match(messagesStyles, /\.run-activity-indicator\[data-phase="recovering"\]/);
   assert.match(messagesStyles, /\.run-activity-indicator\[data-phase="retrying"\]/);
-  assert.match(messagesStyles, /\.run-activity-error-popover\.message-error/);
   assert.match(
     messagesStyles,
-    /\.run-activity-retry-reason:hover[\s\S]*\.run-activity-error-popover/,
+    /\.run-activity-error-popover\.message-error\s*\{[\s\S]*?position:\s*fixed/,
   );
+  assert.match(
+    messagesStyles,
+    /\.run-activity-error-popover\.message-error\s*\{[\s\S]*?background:\s*color-mix\([^;]*--ds-bg-elevated-opaque/,
+  );
+  assert.match(
+    messagesStyles,
+    /\.run-activity-error-popover\.message-error\.is-open\s*\{[\s\S]*?visibility:\s*visible/,
+  );
+  assert.doesNotMatch(messagesStyles, /\.run-activity-retry-reason:hover\s+\.run-activity-error-popover/);
   assert.match(messagesStyles, /\.run-activity-indicator\[data-phase="waiting-subagents"\]/);
   assert.match(messagesStyles, /\.working-indicator-mark > span\s*\{[\s\S]*?animation:\s*working-indicator-dot\s+1s/);
   assert.doesNotMatch(proseStyles, /\.working-indicator\s*\{|\.shimmer-text\s*\{/);
