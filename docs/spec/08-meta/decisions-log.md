@@ -5386,3 +5386,26 @@ Validation contract: E2E-SIDEBAR-global-pinned-conversations.
 - See `04-ux/06-settings-ia.md` §1 / §4 and US-UI-44 in
   `06-delivery/04-e2e-test-plan.md`; `settings-drag-region.test.mjs` pins the
   top-band placement.
+
+## 2026-09-17 — Retry reason card floats above the transcript (D432)
+
+- The retrying row's error card leaves the transcript's layout flow. It was an
+  `absolute` surface inside the transcript scroller, so a short conversation
+  clipped it at the top, and it inherited the in-flow `.message-error` tint,
+  which let the transcript read through the floating copy. It is now a
+  body-portaled fixed surface on the opaque elevated plate with a dialog
+  shadow.
+- Placement is shared with the context-usage popover: the algorithm moves to
+  `lib/anchored-popover-position.ts` and serves both surfaces — clamp inside
+  the conversation pane (never under the work panel's native views), prefer
+  above the anchor, flip below when the anchor sits near the pane top, and cap
+  the width when the pane is narrow. Window resize, scroll, and pane/card
+  resizes re-run placement.
+- Hover/focus reveal, `role="tooltip"`, the `aria-describedby` relationship,
+  the localized summary with code/HTTP status, and the bounded provider message
+  are unchanged. Renderer plus docs plus tests: no IPC channel, host RPC,
+  storage schema, permission, or persisted-state change.
+- See `04-ux/08-component-spec.md` §4.4 and E2E-008c in
+  `06-delivery/04-e2e-test-plan.md`; `fixed-dropdown-surfaces.test.mjs` and
+  `active-turn-surface.test.mjs` pin the surface contract and
+  `anchored-popover-position.test.mjs` the placement math.
