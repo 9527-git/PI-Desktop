@@ -32,6 +32,11 @@ export type CaptureRigMethods = {
   openNewWorkPanelTab: () => void;
   setWorkPanelWidth: (width: number) => void;
   seedTranscript: (count?: number) => void;
+  seedContextInspectorCompaction: (options?: {
+    mark?: "compacted" | "legacy" | "none";
+    phase?: "idle" | "compacting";
+    running?: boolean;
+  }) => void;
   seedReviewChanges: (count?: number) => void;
   seedRunRows: (count?: number) => void;
   seedDelegationRows: (count?: number) => void;
@@ -64,6 +69,7 @@ export function installCaptureRig(): CaptureRig {
   const originalListUserSubagents = api.listUserSubagents;
   const originalSubagentCatalog = api.subagentCatalog;
   const originalListProjects = api.listProjects;
+  const originalCompact = api.compact;
   const methods: CaptureRigMethods = {
     openWorkPanelArtifact: (
       kind: "review" | "browser" | "file",
@@ -155,6 +161,89 @@ export function installCaptureRig(): CaptureRig {
         }),
       );
       useAppStore.setState({ messages });
+    },
+    seedContextInspectorCompaction: (options = {}) => {
+      // Capture-only inspector fixture (context popover scenes and the
+      // E2E-CHAT-compact-from-context-inspector run). `api.compact` is
+      // replaced with a recorder because the synthetic transcript never
+      // reaches the host, so a real round trip would fail by construction.
+      if (!window.__PI_CAPTURE__) return;
+      const { mark = "compacted", phase = "idle", running = false } = options;
+      const sessionId =
+        useAppStore.getState().activeSessionId ?? "capture-inspector-session";
+      const base = Date.parse("2026-07-20T09:00:00Z");
+      const busy = phase === "compacting" || running;
+      // The E2E asserts the recorded call names this session.
+      (window as { __PI_INSPECTOR_SESSION__?: string }).__PI_INSPECTOR_SESSION__ =
+        sessionId;
+      api.compact = async (request) => {
+        (window as { __PI_COMPACT_CALLS__?: unknown[] }).__PI_COMPACT_CALLS__ = [
+          ...((window as { __PI_COMPACT_CALLS__?: unknown[] })
+            .__PI_COMPACT_CALLS__ ?? []),
+          request,
+        ];
+      };
+      useAppStore.setState((state) => ({
+        activeSessionId: sessionId,
+        messages: [
+          {
+            id: "capture-inspector-user",
+            role: "user",
+            content: "把压缩入口加到上下文卡片里",
+            createdAt: new Date(base).toISOString(),
+            status: "complete" as const,
+          },
+          {
+            id: "capture-inspector-assistant",
+            role: "assistant",
+            content: "先看一眼卡片现在的结构。",
+            createdAt: new Date(base + 60_000).toISOString(),
+            status: "complete" as const,
+            responseDurationMs: 76_000,
+            usage: {
+              inputTokens: 38_000,
+              outputTokens: 6_200,
+              totalTokens: 44_200,
+              cacheReadTokens: 30_000,
+            },
+          },
+        ],
+        sessionCompactions: {
+          ...state.sessionCompactions,
+          [sessionId]:
+            mark === "none"
+              ? []
+              : [
+                  {
+                    id: "capture-checkpoint-1",
+                    throughMessageId: "capture-inspector-assistant",
+                    generation: 3,
+                    summaryTokens: 4_200,
+                    summarized: true,
+                    ...(mark === "compacted" ? { tokensBefore: 92_000 } : {}),
+                  },
+                ],
+        },
+        agentStatuses: {
+          ...state.agentStatuses,
+          [sessionId]: {
+            sessionId,
+            isRunning: busy,
+            pendingToolConfirmations: 0,
+            ...(phase === "compacting"
+              ? {
+                  activity: {
+                    phase: "compacting" as const,
+                    since: Date.now(),
+                    reason: "manual" as const,
+                  },
+                }
+              : {}),
+          },
+        },
+        isRunning: busy,
+        runningSessions: { ...state.runningSessions, [sessionId]: busy },
+      }));
     },
     seedReviewChanges: (count = 4) => {
       // Capture-only review fixture (inline change rows + Review tab scenes).
@@ -1104,6 +1193,7 @@ export function installCaptureRig(): CaptureRig {
       api.listUserSubagents = originalListUserSubagents;
       api.subagentCatalog = originalSubagentCatalog;
       api.listProjects = originalListProjects;
+      api.compact = originalCompact;
     },
   };
 }

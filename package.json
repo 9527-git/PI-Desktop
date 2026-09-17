@@ -28,6 +28,7 @@
     "test:e2e:native-side-chat": "node scripts/e2e-native-side-chat.mjs",
     "test:e2e:boot": "node scripts/e2e-electron-boot.mjs",
     "test:e2e:layout": "node scripts/e2e-three-column-layout.mjs",
+    "test:e2e:inspector-compact": "node scripts/e2e-context-inspector-compact.mjs",
     "test:e2e:supervision": "node scripts/e2e-supervision.mjs",
     "test:e2e:subagents": "node scripts/e2e-subagents.mjs",
     "test:e2e:subagent-models": "node scripts/e2e-subagent-models.mjs",
