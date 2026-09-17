@@ -29,6 +29,7 @@ import {
 } from "../../lib/model-limit-presets";
 import { Button, Field, Input, Tooltip, TooltipButton, cx } from "../ui";
 import { IconClose, IconHelp, IconPlus, IconRefresh, IconSearch } from "../icons";
+import { DiscoveredModelRow } from "./DiscoveredModelRow";
 import { filterChosenModels, hidesAddedBinding } from "./model-chosen-filter";
 import { describeModelsFetchError } from "./model-fetch-error";
 import type { ProviderModelsState } from "./useProviderModels";
@@ -285,21 +286,26 @@ export function ModelSelectionPanes({
     if (hidesAddedBinding(added, chosenQuery, rows)) setChosenQuery("");
   };
 
-  const toggleModel = (row: ModelRow) => {
-    const wanted = row.id.toLowerCase();
-    const alreadyChosen = models.some(
-      (binding) => binding.id.toLowerCase() === wanted,
+  /**
+   * Activate one discovered row: add it if absent, otherwise open what is
+   * already configured. Deliberately not a toggle - selecting a model in the
+   * left pane must never delete a binding, so removal stays an explicit action
+   * in the chosen pane. The selection helper is idempotent, so an absent model
+   * is added once even if React invokes the updater twice in one batch, and an
+   * existing binding keeps its original object, order and overrides.
+   */
+  const selectModel = (row: ModelRow) => {
+    if (busy) return;
+    const existing = models.find(
+      (entry) => entry.id.toLowerCase() === row.id.toLowerCase(),
     );
-    if (!alreadyChosen) {
-      setExpandedModelId((open) => open ?? row.id);
-      keepAddedModelVisible([bindingForRow(row)]);
-    }
-    setModels((current) => {
-      if (current.some((binding) => binding.id.toLowerCase() === wanted)) {
-        return current.filter((binding) => binding.id.toLowerCase() !== wanted);
-      }
-      return [...current, bindingForRow(row)];
-    });
+    const binding = existing ?? bindingForRow(row);
+    // Open the stored id so the right pane reveals exactly what is configured.
+    setExpandedModelId(binding.id);
+    keepAddedModelVisible([binding]);
+    setModels((current) => applyVisibleModelSelection(current, [row], true));
+    // A configured model keeps the scroll-and-mark reveal on repeat activation.
+    if (existing) revealModelConfig(row);
   };
 
   const toggleVisibleModels = (select: boolean) => {
@@ -380,67 +386,15 @@ export function ModelSelectionPanes({
       <div className="provider-models-placeholder">{t("settings.noModelMatches")}</div>
     ) : (
       <ul className="provider-models-list">
-        {visibleRows.map((row) => {
-          const chosen = selected.has(row.id.toLowerCase());
-          return (
-            <li className="provider-models-row" key={row.id}>
-              <label
-                className="provider-models-row-label"
-                onClick={(event) => {
-                  // Keyboard activation reports detail 0 and is not a pointer
-                  // click, so it keeps the checkbox's native toggle.
-                  if (event.detail === 0) return;
-                  // The checkbox is an explicit toggle target; its native
-                  // activation must run even when a copied selection is still
-                  // active.
-                  if (event.target instanceof HTMLInputElement) return;
-                  // A drag-selection inside this row is a copy gesture, not an
-                  // activation of the row.
-                  const selection = window.getSelection();
-                  const label = event.currentTarget;
-                  if (
-                    selection &&
-                    !selection.isCollapsed &&
-                    label.contains(selection.anchorNode) &&
-                    label.contains(selection.focusNode)
-                  ) {
-                    event.preventDefault();
-                    return;
-                  }
-                  // Cancelling the click keeps the label from activating the
-                  // checkbox, so a click outside the checkbox never drops the
-                  // model: the row's pointer cursor always opens or picks,
-                  // never removes. A configured row opens its settings; an
-                  // unconfigured one is picked.
-                  event.preventDefault();
-                  if (busy) return;
-                  if (chosen) revealModelConfig(row);
-                  else toggleModel(row);
-                }}
-              >
-                <input
-                  type="checkbox"
-                  className="provider-models-check"
-                  checked={chosen}
-                  disabled={busy}
-                  spellCheck={false}
-                  autoCorrect="off"
-                  autoCapitalize="off"
-                  onChange={() => toggleModel(row)}
-                />
-                <span className="provider-models-row-copy selectable">
-                  <span className="provider-models-row-id font-mono">{row.id}</span>
-                  {row.displayName && row.displayName !== row.id ? (
-                    <span className="provider-models-row-name">{row.displayName}</span>
-                  ) : null}
-                </span>
-                <span className="provider-models-row-limits">
-                  {formatTokenCount(row.contextWindow)} · {formatTokenCount(row.maxTokens)}
-                </span>
-              </label>
-            </li>
-          );
-        })}
+        {visibleRows.map((row) => (
+          <DiscoveredModelRow
+            key={row.id}
+            row={row}
+            chosen={selected.has(row.id.toLowerCase())}
+            busy={busy}
+            onSelect={() => selectModel(row)}
+          />
+        ))}
       </ul>
     );
 
