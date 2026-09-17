@@ -43,6 +43,7 @@ export function ContextUsageInspector({
   responseDurationMs,
   responseOutputTokens,
   responseOutputEstimated = false,
+  compactBlocked = false,
 }: {
   usage: MessageUsage;
   turnUsage: MessageUsage;
@@ -51,6 +52,8 @@ export function ContextUsageInspector({
   responseDurationMs?: number;
   responseOutputTokens?: number;
   responseOutputEstimated?: boolean;
+  /** A live turn or a native session owns the composer; compaction must wait. */
+  compactBlocked?: boolean;
 }) {
   const { t } = useTranslation();
   const panelId = useId();
@@ -61,6 +64,15 @@ export function ContextUsageInspector({
       ? state.sessionCompactions[state.activeSessionId]?.at(-1)
       : undefined,
   );
+  // Compaction is a turn-boundary operation and the runtime owns the busy
+  // signal, so the card holds no local in-flight state of its own.
+  const compacting = useAppStore(
+    (state) =>
+      (state.activeSessionId
+        ? state.agentStatuses[state.activeSessionId]?.activity?.phase
+        : undefined) === "compacting",
+  );
+  const compactContext = useAppStore((state) => state.compactContext);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -173,6 +185,7 @@ export function ContextUsageInspector({
     return () => window.cancelAnimationFrame(frame);
   }, [
     compaction,
+    compacting,
     context.usedTokens,
     contextWindow,
     open,
@@ -243,6 +256,20 @@ export function ContextUsageInspector({
     };
   }, [closeInspector, open]);
 
+  // The panel is portaled to <body>, so Tab never reaches it from the composer
+  // toolbar, and it stays `visibility: hidden` until the placement lands — a
+  // hidden surface cannot take focus (see AnchoredMenu). Focus is taken once
+  // per open cycle, after the panel is visible; Escape already returns it to
+  // the trigger.
+  const placed = popoverPosition !== null;
+  useEffect(() => {
+    if (!open || !placed) return;
+    const frame = window.requestAnimationFrame(() => {
+      popoverRef.current?.focus({ preventScroll: true });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [open, placed]);
+
   const popover = open ? (
     <div
       ref={popoverRef}
@@ -250,6 +277,7 @@ export function ContextUsageInspector({
       id={panelId}
       role="dialog"
       aria-label={t("chat.usageContextLabel")}
+      tabIndex={-1}
       style={
         popoverPosition
           ? {
@@ -360,6 +388,35 @@ export function ContextUsageInspector({
           <strong>~{formatTokenCount(compaction.summaryTokens)}</strong>
         </div>
       ) : null}
+      {compaction?.tokensBefore !== undefined ? (
+        <div className="context-inspector-compaction context-inspector-compaction-before">
+          <span>{t("chat.usageCompactionBefore")}</span>
+          <strong>~{formatTokenCount(compaction.tokensBefore)}</strong>
+        </div>
+      ) : null}
+      <div className="context-inspector-actions">
+        <span className="context-inspector-actions-hint">
+          {t(compacting ? "chat.usageCompactBusyHint" : "chat.usageCompactHint")}
+        </span>
+        <TooltipButton
+          type="button"
+          className="btn btn-primary context-inspector-compact-action"
+          tooltip={t("chat.usageCompactAction")}
+          ariaLabel={t(compacting ? "chat.usageCompactBusy" : "chat.usageCompactAction")}
+          aria-busy={compacting}
+          disabled={compactBlocked || compacting}
+          onClick={() => void compactContext()}
+        >
+          {compacting ? (
+            <>
+              <span className="tool-spinner" aria-hidden="true" />
+              <span>{t("chat.usageCompactBusy")}</span>
+            </>
+          ) : (
+            <span>{t("chat.usageCompactAction")}</span>
+          )}
+        </TooltipButton>
+      </div>
     </div>
   ) : null;
 

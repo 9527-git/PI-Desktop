@@ -282,3 +282,4 @@ Each ADR includes:
 | 0257 | [Existence probe for transcript path rows](0257-transcript-path-existence-probe.md) | Accepted (amends ADR 0256; D424) |
 | 0258 | [Keep the docked conversation composer in normal flow](0258-in-flow-chat-composer.md) | Accepted (amends ADR 0065 clause 4 / D264) |
 | 0259 | [Send a queued row by steering and return it to the composer on edit](0259-queue-row-steer-and-edit.md) | Accepted (amends ADR 0118 send-now clause / ADR 0213 clause 4; D430) |
+| context-inspector-compact-action | [Compact the context from the usage inspector card](context-inspector-compact-action.md) | Accepted (amends ADR 0103 / ADR 0106; D434) |

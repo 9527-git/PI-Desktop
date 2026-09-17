@@ -650,7 +650,9 @@ type AgentEvent =
      willRetry: boolean; fallback?: "retained_tail";
      mark?: { id: string; throughMessageId: string;
               generation: number; summaryTokens: number;
-              summarized: boolean };
+              summarized: boolean;
+              /** Context occupancy the checkpoint replaced. */
+              tokensBefore?: number };
      error?: { code: string; message: string } }
  | { type: "error"; error: AppError }
  | { type: "status"; status: AgentStatus };
@@ -707,6 +709,11 @@ installed), `summaryTokens` (the summary's estimated context cost), and
 summary). The record itself is not carried — its summary and retained tail are
 far larger than an event should be — and is instead read from
 `SessionDetail.compactions` on session open or fork.
+
+`mark.tokensBefore` is the occupancy the checkpoint replaced, copied from the
+durable record's `tokensBefore`. It is additive and optional: a mark from an
+older runtime omits it and the inspector hides the "before this compaction"
+line.
 
 Automatic summary failures may still produce a successful lifecycle event with
 `fallback: "retained_tail"`; this means a durable, aggressively bounded tail

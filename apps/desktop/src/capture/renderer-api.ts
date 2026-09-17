@@ -46,6 +46,7 @@ const CAPTURE_RIG_METHODS = [
   "openNewWorkPanelTab",
   "setWorkPanelWidth",
   "seedTranscript",
+  "seedContextInspectorCompaction",
   "seedReviewChanges",
   "seedRunRows",
   "seedDelegationRows",

@@ -367,6 +367,12 @@ export const fr = {
     "usageNoTools": "Aucun appel d'outil dans ce tour",
     "usageUnknownTool": "Outil inconnu",
     "usageCompaction": "Compacté {{times}}× · résumé",
+    "usageCompactionBefore": "Avant ce compactage",
+    "usageCompactAction": "Compacter le contexte",
+    "usageCompactBusy": "Compactage…",
+    "usageCompactHint":
+      "Le compactage crée un résumé de point de contrôle et conserve les messages récents",
+    "usageCompactBusyHint": "Génération du résumé de point de contrôle…",
     "compactionRow": "Contexte compacté · #{{times}}",
     "compactionRowSummary": "résumé ≈{{tokens}} jetons",
     "compactionRowNoSummary": "aucun résumé généré",

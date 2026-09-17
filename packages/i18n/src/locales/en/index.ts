@@ -374,6 +374,12 @@ export const en = {
     usageNoTools: "No tool calls in this turn",
     usageUnknownTool: "Unknown tool",
     usageCompaction: "Compacted {{times}}× · summary",
+    usageCompactionBefore: "Before this compaction",
+    usageCompactAction: "Compact context",
+    usageCompactBusy: "Compacting…",
+    usageCompactHint:
+      "Compaction creates a checkpoint summary and keeps recent messages",
+    usageCompactBusyHint: "Generating checkpoint summary…",
     compactionRow: "Context compacted · #{{times}}",
     compactionRowSummary: "summary ≈{{tokens}} tokens",
     compactionRowNoSummary: "no summary generated",

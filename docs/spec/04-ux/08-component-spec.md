@@ -1625,7 +1625,14 @@ Single message render — either user (plaintext) or assistant (markdown streami
   installed context checkpoint,
   the panel adds one muted summary line for the compaction count and newest
   summary's estimated token cost; the transcript still shows one row per
-  compaction (D203).
+  compaction (D203). The closing action row is the one exception to the
+  no-inner-rules rule (D297): one hairline separates it from the rows above.
+  The row puts a muted hint and the `Compact context` button below that
+  hairline: the button starts a manual compaction through the existing
+  `compactContext()` store action, and stays disabled while a live turn or a
+  native session owns the composer. While the runtime reports
+  `activity.phase === "compacting"` the button shows a spinner with the busy
+  label and the hint switches to the checkpoint-summary copy.
 - Gap: 12px vertical padding between consecutive message rows (denser than
   consumer chat, closer to WorkBuddy task transcript); assistant turns add a
   little extra bottom air so a completed answer separates from the next prompt
@@ -1669,6 +1676,10 @@ message its checkpoint covers.
   `aria-expanded`, and an `aria-controls` relationship to the panel, and opens
   the same compact summary on click or keyboard activation; Escape or a click
   outside closes it and returns focus to the trigger
+- The compact action exposes the action label as its accessible name, carries
+  `aria-busy="true"` while a compaction runs, and reports the blocked state
+  through `disabled`. Opening the card moves focus into the portaled panel so
+  the action is reachable without a pointer.
 - The inspector panel is portaled to the document body and positioned in
   viewport coordinates, but its horizontal clamp is the conversation pane: the
   work panel's native browser and plugin surfaces composite above every

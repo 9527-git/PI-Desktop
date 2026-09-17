@@ -4884,6 +4884,8 @@ IPC 请求无法关闭。
 | 品质（回合摘要卡片） | E2E-CHAT-turn-summary-card |
 | C — 对话与流式（手动压缩队列） | E2E-QUEUE-prompt-during-manual-compaction-is-queued-and-delivered |
 | 品质（手动压缩队列） | E2E-QUEUE-prompt-during-manual-compaction-is-queued-and-delivered |
+| C — 对话与流式（检查器压缩操作） | E2E-CHAT-compact-from-context-inspector |
+| 品质（检查器压缩操作） | E2E-CHAT-compact-from-context-inspector |
 | C — 对话与流式（转录发光语言） | E2E-CHAT-transcript-glow-language |
 | 品质（转录发光语言） | E2E-CHAT-transcript-glow-language |
 | C — 对话与流式（跨会话渲染） | E2E-CHAT-other-sessions-render-without-switching |
@@ -7298,3 +7300,12 @@ runner 会在运行时的隔离临时目录中生成六个插件形态 fixture�
 - **验收**：质量
 - **里程碑**：M5
 - **状态**：单元覆盖（`work-panel.test.mjs`）；渲染交互场景草稿
+
+### E2E-CHAT-compact-from-context-inspector：从上下文用量卡片启动压缩
+
+- **前提条件**：一个带历史记录的聊天会话处于活动且空闲状态；最新检查点记录可能带有、也可能不带有压缩前的占用。
+- **步骤**：1) 打开上下文用量弹窗。2) 检查卡片底部操作行。3) 点击“压缩上下文”。4) 在运行时报告压缩阶段时观察按钮与弹窗。5) 分别在回合进行中、检查点记录不含占用、以及完全没有检查点三种情况下重复。
+- **预期**：空闲卡片显示提示文案与可点击按钮。点击会以当前会话调用 `agent.compact`，弹窗保持打开。`activity.phase === "compacting"` 期间按钮禁用、带 `aria-busy="true"`，并显示加载图标与忙碌文案。回合进行中时按钮禁用且保持空闲文案。仅当最新标记含 `tokensBefore` 时检查点行显示压缩前占用，否则退化为仅摘要行；没有检查点时操作行仍然渲染。
+- **链接规格**：`04-ux/08-component-spec.md`、`04-ux/09-interaction-patterns.md`、`03-runtime/01-ipc-protocol.md`、ADR context-inspector-compact-action
+- **验收**：C —— 对话与流式；品质
+- **状态**：自动化（CDP）—— `pnpm test:e2e:inspector-compact`

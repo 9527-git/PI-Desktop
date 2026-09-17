@@ -563,7 +563,9 @@ type AgentEvent =
      willRetry: boolean; fallback?: "retained_tail";
      mark?: { id: string; throughMessageId: string;
               generation: number; summaryTokens: number;
-              summarized: boolean };
+              summarized: boolean;
+              /** 该检查点替换掉的上下文占用。 */
+              tokensBefore?: number };
      error?: { code: string; message: string } }
  | { type: "error"; error: AppError }
  | { type: "status"; status: AgentStatus };
@@ -597,6 +599,8 @@ type AgentEvent =
 总结）。记录本身不被携带——它的摘要和保留尾部被携带
 远远大于事件应有的大小——而是从
 `SessionDetail.compactions` 会话打开或分叉。
+
+`mark.tokensBefore` 为该检查点替换掉的上下文占用，直接取自持久化记录的 `tokensBefore`。该字段为可选的新增字段：旧运行时产生的标记不含它，此时检查器隐藏“本次压缩前占用”一行。
 
 自动摘要失败仍可能产生成功的生命周期事件
 `fallback: "retained_tail"`；这意味着有一个耐用的、有边界的尾巴

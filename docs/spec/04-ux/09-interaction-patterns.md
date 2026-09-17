@@ -749,8 +749,12 @@ may be retained while exactly one workspace supplies the visible shell context.
   the summary's estimated token cost (or that no summary was generated). The row
   has no actions and is not selectable.
 - The context usage inspector keeps one muted line for the newest checkpoint,
-  shown while its panel is open — the count and summary cost sit below the
-  compact model/tool usage summaries without adding explanatory copy.
+  shown while its panel is open — the count, the summary cost, and, when the
+  newest checkpoint record carries it, the context occupancy the checkpoint
+  replaced ("Before this compaction") sit below the compact model/tool usage
+  summaries without adding explanatory copy. The card stays open across a
+  compaction started from it: the busy label, the updated checkpoint line, and
+  the before figure are the in-place feedback.
 
 ## 4. Long content collapse / expand
 

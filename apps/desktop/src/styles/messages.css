@@ -1602,6 +1602,48 @@
   font-weight: var(--font-weight-medium);
 }
 
+/* The before-figure belongs to the checkpoint line above it, so it sits
+ * closer than the popover's spaced sections (D297). */
+.context-inspector-compaction-before {
+  margin-top: 6px;
+}
+
+/* One full-width action row: a muted hint and the compact action, set apart
+ * from the readout above by space and a hairline. */
+.context-inspector-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  border-top: 1px solid var(--ds-border-subtle);
+  padding-top: 12px;
+}
+
+.context-inspector-actions-hint {
+  flex: 1;
+  min-width: 0;
+  color: var(--ds-text-muted);
+  font-size: var(--text-2xs);
+  line-height: var(--leading-compact-plus);
+}
+
+/* The descendant form out-specifies `.btn` (ui-kit.css loads after
+ * messages.css); as a single class it would lose the padding and type size. */
+.context-inspector-actions .context-inspector-compact-action {
+  flex: 0 0 auto;
+  padding: 4px 10px;
+  font-size: var(--text-xs);
+  white-space: nowrap;
+}
+
+/* `.tool-spinner` is right-aligned for tool rows; inside the button it leads
+ * the label, and on the accent fill it reads from the label's own color. */
+.context-inspector-compact-action .tool-spinner {
+  margin-left: 0;
+  border-color: color-mix(in oklab, currentColor 45%, transparent);
+  border-top-color: currentColor;
+}
+
 /* One transcript row per compaction: a quiet centred label the eye can skip.
  * The flanking pseudo-elements only centre it — no rule is drawn (D297). */
 .transcript-compaction-row {

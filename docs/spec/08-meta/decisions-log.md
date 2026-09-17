@@ -5438,3 +5438,23 @@ Validation contract: E2E-SIDEBAR-global-pinned-conversations.
   `06-delivery/04-e2e-test-plan.md`; `topbar-status-chip.test.mjs` pins the
   priority rule, the markup contract, and the style contract, and
   `scripts/e2e-topbar-status-chip.mjs` drives the built app over CDP.
+
+## 2026-09-17 — Compact from the context inspector card (D434)
+
+The context usage inspector popover was read-only, so seeing the context fill
+up and acting on it were two different surfaces. The card now carries a bottom
+action row: a muted hint and a `Compact context` button that calls the existing
+`compactContext()` store action and the existing `agent.compact` IPC — no new
+channel, no new permission, no runtime change. The busy state is the runtime's
+own `activity.phase === "compacting"`, the button is blocked while a live turn
+or a native session owns the composer, and the popover stays open so the
+updated checkpoint line is the in-place feedback. `ContextCompactionMark` gains
+optional `tokensBefore`, filled from the durable record the host already
+stores, so the checkpoint line can show the occupancy the checkpoint replaced;
+older marks omit it and degrade to the single line. Renderer, docs, and tests
+only: no IPC channel, Host RPC, storage schema, permission, or persisted-state
+change.
+- See `04-ux/08-component-spec.md` §8.3/§8.5,
+  `04-ux/09-interaction-patterns.md` §3A, `03-runtime/01-ipc-protocol.md`, and
+  E2E-CHAT-compact-from-context-inspector in `06-delivery/04-e2e-test-plan.md`;
+  ADR `context-inspector-compact-action`.

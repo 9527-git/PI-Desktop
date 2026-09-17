@@ -1,6 +1,6 @@
 # ADR 0103: Compact context usage summary
 
-- Status: Accepted (amended by D347 / ADR 0184 and D355 / ADR 0193)
+- Status: Accepted (amended by D347 / ADR 0184 and D355 / ADR 0193; amended by D434 / [context-inspector-compact-action](context-inspector-compact-action.md))
 - Date: 2026-08-18
 - Deciders: PI-Desktop renderer and UX maintainers
 - Amends: D103, D184, ADR 0047

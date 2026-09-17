@@ -5135,6 +5135,7 @@ describe("DesktopAgentRuntime inline context compaction", () => {
           generation: 1,
           summaryTokens: 7,
           summarized: true,
+          tokensBefore: expect.any(Number),
         },
       }),
     );
