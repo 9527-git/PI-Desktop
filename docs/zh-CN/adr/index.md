@@ -61,6 +61,7 @@ ADR 记录那些不应被静默改变的架构选择。中文入口与英文索�
 | [ADR 0232：macOS DMG 只保留打开说明](/adr/0232-macos-dmg-text-only-opening-guidance) | DMG 只显示“如果打不开请看”说明，ZIP 保留首次启动助手 |
 | [ADR 0252：插件的宿主回合结束事件](/adr/0252-plugin-host-turn-end-event) | 宿主在每次已开始的回合结束时向插件宣告一次 `session:turnEnded`，携带回合身份与终止原因 |
 | [ADR 0258：线程输入框采用正常流布局](/adr/0258-in-flow-chat-composer) | 输入框作为会话面板后的正常流兄弟，消息区永不被输入框覆盖 |
+| [ADR 0259：排队行立即发送改为转向，编辑则回到输入框](/adr/0259-queue-row-steer-and-edit) | 运行中点立即发送会把该行注入当前回合作为引导，点 × 则把文本与文件引用退回输入框重新编辑 |
 
 ## 完整索引
 
@@ -186,7 +187,7 @@ ADR 记录那些不应被静默改变的架构选择。中文入口与英文索�
 | 0115 | [插件剪贴板历史由宿主拥有并保存在内存中](/adr/0115-plugin-clipboard-history-is-host-owned) | 已接受（于 2026-08-21 修订） |
 | 0116 | [将 OpenCode Go 作为固定 provider 预设](/adr/0116-opencode-go-provider-preset) | 已接受（已修订：会话路由请求头） |
 | 0117 | [原生最小化时保留 Windows 任务栏条目](/adr/0117-windows-taskbar-native-minimize) | 已接受 |
-| 0118 | [队列中的提示由渲染器拥有，并在回合边界停止运行](/adr/0118-renderer-owned-queued-prompts) | 已接受 |
+| 0118 | [队列中的提示由渲染器拥有，并在回合边界停止运行](/adr/0118-renderer-owned-queued-prompts) | 已接受（队列归属已被 ADR 0213 取代；立即发送条款由 ADR 0259 修订） |
 | 0119 | [事件驱动的子智能体超时](/adr/0119-event-driven-subagent-timeouts) | 已接受待实现 |
 | 0120 | [有界的会话历史窗口](/adr/0120-bounded-session-history-windows) | 已接受 |
 | 0121 | [输入框提示增强保持一次性且由主进程拥有](/adr/0121-one-shot-composer-prompt-enhancement) | 已接受 |
@@ -282,6 +283,7 @@ ADR 记录那些不应被静默改变的架构选择。中文入口与英文索�
 | 0251 | [删除项目会一并删除其拥有的会话](/adr/0251-project-delete-with-owned-sessions) | 已接受 |
 | 0253 | [移除子智能体轮次上限](/adr/0253-remove-subagent-turn-limit) | 已接受（取代 0062 / 0063 / 0119 / 0126 / 0166 / 0210 中关于 `maxTurns` 的条款） |
 | 0258 | [线程输入框采用正常流布局](/adr/0258-in-flow-chat-composer) | 已接受（修订 ADR 0065 第 4 条 / D264） |
+| 0259 | [排队行立即发送改为转向，编辑则回到输入框](/adr/0259-queue-row-steer-and-edit) | 已接受（修订 ADR 0118 的立即发送条款 / ADR 0213 第 4 条；D430） |
 
 ## 什么时候看 ADR
 

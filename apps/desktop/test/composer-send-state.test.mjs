@@ -116,9 +116,79 @@ test("running prompts use a removable per-session FIFO queue", () => {
   assert.match(store, /event\.type === "agent_end"[\s\S]*refreshQueuedPrompts\(envelope\.sessionId\)/);
   assert.doesNotMatch(store, /drainQueuedPrompts/);
   assert.match(composer, /data-testid="queued-prompt"/);
-  assert.match(composer, /removeQueuedPrompt\(item\.id\)/);
+  assert.match(composer, /editQueuedPrompt\(item\.id\)/);
   assert.match(composer, /sendQueuedNow\(item\.id\)/);
   assert.match(composer, /approvalPending[\s\S]*item\.sendNowRequested/);
+});
+
+test("Send now steers the queued row into the running turn instead of stopping it (D430)", () => {
+  const sendQueuedNow = queueSlice.slice(
+    queueSlice.indexOf("sendQueuedNow: async (promptId)"),
+    queueSlice.indexOf("refreshQueuedPrompts: async"),
+  );
+  assert.ok(sendQueuedNow.length > 0, "sendQueuedNow not found");
+  // While the session runs, the row is injected at the turn's next boundary
+  // and leaves the queue only once the host accepts the steering message.
+  const runningBranch =
+    sendQueuedNow.match(
+      /if \(get\(\)\.runningSessions\[sessionId\]\) \{[\s\S]*?\n      \}/,
+    )?.[0] ?? "";
+  assert.ok(runningBranch.length > 0, "running branch not found");
+  assert.match(
+    runningBranch,
+    /await get\(\)\.steerPrompt\(item\.content, item\.draft, \{\s*quiet: true,?\s*\}\)/,
+  );
+  assert.match(runningBranch, /get\(\)\.removeQueuedPrompt\(promptId, sessionId\)/);
+  assert.doesNotMatch(sendQueuedNow, /api\.stop\(/);
+  // A steer the host cannot accept keeps the promoted row, which then starts
+  // as the next turn rather than being dropped.
+  assert.match(sendQueuedNow, /await api\.prioritizeQueuedPrompt\(promptId\)/);
+
+  const steerPrompt = queueSlice.slice(
+    queueSlice.indexOf("steerPrompt: async"),
+    queueSlice.indexOf("sendPrompt: async (content, draft, requestedSessionId)"),
+  );
+  assert.ok(steerPrompt.length > 0, "steerPrompt not found");
+  // Quiet steering leaves a queued row queued: neither a raced precondition
+  // nor a TURN_NOT_FOUND reports itself.
+  assert.match(
+    steerPrompt,
+    /if \(!options\?\.quiet\) \{\s*get\(\)\.showToast\(i18n\.t\("chat\.steeringUnavailable"\), \{ variant: "info" \}\);\s*\}/,
+  );
+  assert.match(
+    steerPrompt,
+    /failure\.code === "TURN_NOT_FOUND"[\s\S]*?if \(!options\?\.quiet\) \{\s*get\(\)\.showToast\(i18n\.t\("chat\.steeringUnavailable"\), \{ variant: "error" \}\);\s*\}/,
+  );
+});
+
+test("a queued row's × returns it to the composer for editing (D430)", () => {
+  const editQueuedPrompt = queueSlice.slice(
+    queueSlice.indexOf("editQueuedPrompt: (promptId)"),
+    queueSlice.indexOf("sendQueuedNow: async"),
+  );
+  assert.ok(editQueuedPrompt.length > 0, "editQueuedPrompt not found");
+  // The row's captured draft — what the user actually wrote, tokens included —
+  // becomes the composer input, and the row is dropped from the queue.
+  assert.match(
+    editQueuedPrompt,
+    /const restored: ComposerPrefill = \{\s*sessionId,\s*text: item\.draft\.text,\s*fileReferences: item\.draft\.fileReferences\.map\(/,
+  );
+  assert.match(
+    editQueuedPrompt,
+    /get\(\)\.removeQueuedPrompt\(promptId, sessionId\);\s*set\(\{ composerPrefill: restored \}\);/,
+  );
+  // A row already on its way to the front is not editable.
+  assert.match(
+    editQueuedPrompt,
+    /if \(!item \|\| item\.id\.startsWith\("pending:"\) \|\| item\.sendNowRequested\) return;/,
+  );
+  // The container owns the input guard: a non-empty draft keeps the row queued.
+  assert.match(
+    composer,
+    /const handleEditQueuedPrompt = \(id: string\) => \{\s*if \(readLiveDraft\(\)\.trim\(\) \|\| activeFileReferences\.length\) \{\s*showToast\(t\("chat\.editQueuedPromptBusy"\), \{ variant: "info" \}\);\s*return;\s*\}\s*editQueuedPrompt\(id\);\s*\};/,
+  );
+  assert.match(composer, /editQueuedPrompt=\{handleEditQueuedPrompt\}/);
+  assert.doesNotMatch(composer, /removeQueuedPrompt=\{removeQueuedPrompt\}/);
 });
 
 test("new task persists or reuses an empty session and keeps the run flag scoped", () => {

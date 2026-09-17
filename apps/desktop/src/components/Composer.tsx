@@ -80,7 +80,7 @@ export function Composer({
   const { t } = useTranslation();
   const sendPrompt = useAppStore((s) => s.sendPrompt);
   const steerPrompt = useAppStore((s) => s.steerPrompt);
-  const removeQueuedPrompt = useAppStore((s) => s.removeQueuedPrompt);
+  const editQueuedPrompt = useAppStore((s) => s.editQueuedPrompt);
   const sendQueuedNow = useAppStore((s) => s.sendQueuedNow);
   const abort = useAppStore((s) => s.abort);
   const isRunning = useAppStore((s) => s.isRunning);
@@ -180,6 +180,7 @@ export function Composer({
     restoreDraftForKey,
     persistDraft,
     commitEditorDom,
+    readLiveDraft,
     insertNewlineInEditor,
     handleInput,
   } = draft;
@@ -226,6 +227,15 @@ export function Composer({
     value,
     activeFileReferences,
   );
+  // Editing a queued row returns its captured draft to the input, so the
+  // input must be empty first; the live editor is the only current source.
+  const handleEditQueuedPrompt = (id: string) => {
+    if (readLiveDraft().trim() || activeFileReferences.length) {
+      showToast(t("chat.editQueuedPromptBusy"), { variant: "info" });
+      return;
+    }
+    editQueuedPrompt(id);
+  };
   const placeholderKeys = PLACEHOLDER_KEYS[variant];
   const placeholderKey =
     placeholderKeys[placeholderIndex % placeholderKeys.length] ?? placeholderKeys[0];
@@ -485,7 +495,7 @@ export function Composer({
         <ComposerStatus
           t={t}
           queuedPrompts={queuedPrompts}
-          removeQueuedPrompt={removeQueuedPrompt}
+          editQueuedPrompt={handleEditQueuedPrompt}
           sendQueuedNow={sendQueuedNow}
           approvalPending={approvalPending}
           runActive={runActive}

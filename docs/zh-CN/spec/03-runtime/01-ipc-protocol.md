@@ -234,9 +234,11 @@ type AgentStopResponse = {
 `completed`；该请求不会中止提供商流、取消正在运行的工具，也不会开启第二个
 并发回合。空闲会话返回 `requested: false`。
 
-渲染器按会话持有可移除的、仅存于内存的排队提示词列表。它只在排队项的
-**立即发送** 操作时调用该渠道，并在终止事件之后通过常规的 `agent/prompt`
-流程释放该项。
+renderer 不再调用该渠道：编辑器 Stop 使用 `agent/abort`，排队行的
+**立即发送** 也绝不停止回合。每会话 prompt 队列由 Host 拥有
+（`agent/queue/*`，§5.6）；会话运行中时，立即发送把条目以转向方式注入活动
+回合（§5.1a），只有空闲会话才把它提前以便立即开始。本地 MCP 控制面的
+优雅 `agentStop` 操作仍是该渠道的调用方。
 
 ### 5.3 abort
 
@@ -467,8 +469,9 @@ type QueuedTurnSummary = { id: string; sessionId: string; content: string; attac
 
 `push` 在会话已有八条时返回带 `queueFull` 的 `AGENT_BUSY`，同一 key 配不同输入时返回
 `IDEMPOTENCY_CONFLICT`。`prioritize` 把条目移到队列头部而不触碰运行中的回合，renderer 的
-“立即发送”随后请求优雅停止，使该条目在下一个边界启动。`remove` 取消尚未开始的条目。恢复
-的队列在桌面以 owner 身份接入之前保持挂起，因此重启绝不无人值守地启动工作。
+“立即发送”随后把该条目以转向方式注入活动回合（§5.1a），并且只有注入被接受后才把它移出
+队列；若回合在注入被接受前结束，被提前的条目会作为下一回合启动。`remove` 取消尚未开始的
+条目。恢复的队列在桌面以 owner 身份接入之前保持挂起，因此重启绝不无人值守地启动工作。
 
 ### 5.7 会话协作投影
 

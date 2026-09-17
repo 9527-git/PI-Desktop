@@ -137,6 +137,8 @@ runbook 写明 feature flag、配对撤销路径、远端机器上的数据保�
   `turn_queue` 与其 RPC 方法（D386 / ADR 0213）。
 - R1 已交付：renderer 的内存 prompt 队列已退役；composer 经 `agent/queue/push` 推入，
   镜像 `agent/event/queueChanged`，“立即发送”即 `turn/prioritize` 加优雅停止。
+  *（由 D430 / ADR 0259 修订：桌面的立即发送改为把被提前的行以转向方式注入运行中的
+  回合，不再请求优雅停止。）*
 - R1 未完成：运行时级别的逐回合权限上限（当前被限制的回合在桥接层直接拒绝）。
 - R2 及之后：尚未开始。
 

@@ -1196,10 +1196,16 @@ and identify the platform validation still needed.
   (`aria-label="Stop generating"`) and no Send button is present; type a draft
   and verify the same slot becomes Send (`aria-label="Send"`) with no Stop
   button present. Send two more prompts and inspect the queue above the
-  composer. 3) Remove the second queued row and switch to B. 4) Send a prompt
-  in B, then return to A before either run completes. 5) Choose Send now on A's
-  remaining queued row. 6) Observe A through the current tool/reply boundary
-  and then the next turn. 7) Start another run in A, clear the draft to expose
+  composer. 3) With the composer empty, click the × on the second queued row
+  and verify its text and file references return to the composer input and the
+  row leaves the queue; edit the draft, then type fresh text and click × on
+  another queued row and verify the edit is refused with a toast while the row
+  stays queued; clear the composer again and switch to B. 4) Send a prompt in
+  B, then return to A before either run completes. 5) Choose Send now on A's
+  remaining queued row. 6) Observe A: the prompt is injected into the running
+  turn as steering at the next tool/reply boundary without stopping the reply,
+  and the row leaves the queue only once the host accepts the injection.
+  7) Start another run in A, clear the draft to expose
   the single Stop button, press Stop, and inspect the queue. 8) Repeat with
   two queued prompts, let the active turn finish without Send now, and delay
   its host `session.endTurn` response until after `agent_end` is delivered.
@@ -1208,11 +1214,16 @@ and identify the platform validation still needed.
 - **Expected**: The single submit slot contains exactly one button in every
   state: disabled Send while idle and empty, enabled Send while running with
   content (which queues the prompt), and Stop while running with an empty
-  draft. A's two prompts appear in FIFO order, the removed row never sends,
-  and B's queue remains independent. Send now requests a graceful stop: the
-  current batch completes with a normal `agent_end`/completed turn, then the
-  selected row starts before any remaining FIFO rows without `AGENT_BUSY`.
-  Immediate Stop aborts the current reply and preserves A's queued row;
+  draft. A's two prompts appear in FIFO order, and B's queue remains
+  independent. Clicking a queued row's × returns its text and file references
+  to an empty composer for re-editing and the row leaves the queue; the edit is
+  refused with a toast while the composer holds a draft, and the row stays
+  queued. Send now injects the selected prompt into the running turn as
+  steering at the next tool/reply boundary without stopping the reply or the
+  current tools; the row leaves the queue only once the host accepts the
+  injection, and a turn that ends before acceptance leaves the promoted row to
+  start as the next turn instead. Immediate Stop aborts the current reply and
+  preserves A's queued row;
   switching sessions preserves both queues. Ordinary completion, provider
   failure, and abort all resume queued sending automatically after durable
   finalization releases the session. No queued prompt starts while finalization
@@ -1222,7 +1233,7 @@ and identify the platform validation still needed.
   pending preserves queued work without starting another turn.
 - **Specs linked**: `03-runtime/01-ipc-protocol.md` (§5.2),
   `04-ux/08-component-spec.md` (§11),
-  `04-ux/09-interaction-patterns.md` (§3.4), ADR 0118, ADR 0213
+  `04-ux/09-interaction-patterns.md` (§3.4), ADR 0118, ADR 0213, ADR 0259
 - **Acceptance**: C (chat, stream, and session isolation), Quality
 - **Milestone**: M6+
 - **Status**: Source-level regression and deterministic desktop finalization /

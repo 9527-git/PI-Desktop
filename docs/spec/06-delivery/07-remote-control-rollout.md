@@ -399,7 +399,9 @@ Recorded on the `feat/remote-agent-host` branch, 2026-09-10:
 - R1 shipped: the renderer's in-memory prompt queue is retired; the
   composer pushes through `agent/queue/push`, mirrors
   `agent/event/queueChanged`, and "send now" is `turn/prioritize` plus a
-  graceful stop.
+  graceful stop. *(Amended by D430 / ADR 0259: the desktop's send now
+  steers the promoted row into the running turn and no longer requests a
+  graceful stop.)*
 - R1 open: a runtime-level per-turn permission ceiling (a capped turn
   currently fails closed in the bridge).
 - R2 and later: not started.

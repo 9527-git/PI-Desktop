@@ -2463,9 +2463,10 @@ reasoning-level control.
   visible copy is a keyed opacity fade while the native `placeholder` value
   remains in the textarea for assistive technology.
 - Queue rows: while a session is running, each accepted prompt is held in a
-  renderer-owned FIFO list above the shell. Rows show the visible prompt (or
-  file-reference names), expose independent Remove and Send now actions, and
-  increase the normal-flow composer height without covering transcript rows.
+  host-owned FIFO list above the shell. Rows show the visible prompt (or
+  file-reference names), expose Send now and an edit action that returns the
+  row to the composer, and increase the normal-flow composer height without
+  covering transcript rows.
 
 ### 11.4 States
 
@@ -2526,9 +2527,16 @@ reasoning-level control.
   different session's queue is not affected by switching sessions. Running
   with an empty draft and no saved annotations changes this same submit slot to
   Stop. Clear both draft and annotations to expose the immediate-stop action.
-- Send now: moves the selected row to the head, requests `agent/stop`, and
-  releases it after the current reply/tool batch completes normally. It then
-  starts before the remaining FIFO rows. When idle, Send now sends immediately.
+- Send now: moves the selected row to the head, then injects it into the
+  running turn as steering at the next model request or tool boundary without
+  stopping the reply or its tools. The row leaves the queue once the host
+  accepts the message; a turn that ends before acceptance leaves the promoted
+  row to start before the remaining FIFO rows. When idle, Send now sends
+  immediately.
+- Edit: the row's × returns its captured draft — text plus inline file
+  references — to the composer for editing and drops the row from the queue.
+  With content already in the composer the action is refused by a toast and the
+  row keeps its place; a row already promoted by Send now cannot be edited.
 - Stop: the single submit slot is shown only while a turn is running and the
   draft is empty and there are no saved annotations. It stops the running turn
   and cancels pending permission.
@@ -2538,8 +2546,9 @@ reasoning-level control.
   returns to the textarea and file references return as leaf-name chips; their
   canonical paths never become textarea text. After a reply begins, Abort keeps
   the partial transcript and restores no draft.
-- Stop never clears queued prompts. Removing a row is explicit, and queue state
-  is renderer-local and intentionally not persisted across restart.
+- Stop never clears queued prompts. The row's × returns a row to the composer
+  rather than discarding it, and the Host-owned queue survives application
+  restart per ADR 0213.
 - `turn_end` is not an idle signal. Send and host persistence remain blocked
   through subsequent tool turns and blocking automatic checkpoint generation
   until `agent_end` or `error`; the draft and runtime selectors stay editable
@@ -2654,7 +2663,7 @@ reasoning-level control.
 - Send button: `aria-label="Send message"`
 - Stop button: `aria-label="Stop generating"`
 - Queued prompt list: `aria-label="Queued messages"`; each row has an
-  accessible Remove button and a Send now button.
+  accessible edit button that returns it to the composer and a Send now button.
 - Native file-system drag-over highlights the complete Composer shell with an
   outline that does not change layout; dropping a folder leaves its complete
   path visible in the editable draft, and dropping regular files exposes the

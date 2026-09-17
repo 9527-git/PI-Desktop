@@ -440,6 +440,7 @@ section mirrors only marketplace/catalog items still blocking nothing.
 | D152 | Direct runtime stream rendering | **Assistant content renders each runtime stream chunk directly through the incremental Markdown block cache. The renderer does not add a requestAnimationFrame typewriter state loop. KaTeX's Vite-inlined fonts remain local-only assets and are admitted by the narrow `font-src 'self' data:` CSP directive.** | The duplicate animation loop could trip React's nested-update guard during sustained streams, while the previous CSP blocked bundled math fonts and produced console errors. |
 | D153 | Reasoning sessions default to maximum thinking | *(superseded by D303)* **A newly created session whose inherited default model supports reasoning starts at the highest canonical entry in that model's pi-published `supportedThinkingLevels`. Non-reasoning models and missing capability metadata start at `off`; existing sessions retain their durable choice. This refines D096 without adding a provider override.** | Reasoning-capable models should use their strongest available effort by default while preserving explicit per-session choices and pi-ai's model authority. |
 | D428 | Docked conversation composer stays in normal flow | **The thread-mode Composer is a normal-flow flex sibling after the session panes, not an absolute overlay. The thread content keeps a 16px reading gap; the thread viewport, jump control, minimap, and settle veil all end above the composer. Draft growth, queue rows, ask cards, and Plan/Goal approval surfaces reflow the viewport in the same layout pass and cannot cover transcript content. This supersedes ADR 0065 clause 4 and the composer-dock-height publication part of D264.** | The measured document-level height publisher lagged the first paint and coupled four CSS consumers to multiple fallbacks. Normal flow removes the publish/subscribe race and makes the no-overlap invariant structural. |
+| D430 | Queue rows steer on Send now and return to the composer on edit | **Amend ADR 0118's send-now clause and ADR 0213 clause 4 in the renderer: a queued row's Send now promotes the row to the head of the Host-owned queue and, while the session is running, injects its content through the steering contract (`agent/steer` with the running turn's expected id and the row's prepared attachments) instead of requesting a graceful stop; the row leaves the queue only after the host accepts the injection, and a turn that ends first leaves the promoted row to start as the next turn. The row's × returns its captured draft — the user's text plus structured file references — to an empty composer through the composer-prefill channel instead of discarding it, refused with a toast while the live composer already holds content or the row's Send now is in flight. `steerPrompt` gains a quiet option that suppresses only the toasts meaning "the row stays queued", and `removeQueuedPrompt` takes an optional session id. Renderer plus catalogs only: `chat.removeQueuedPrompt` is replaced by `chat.editQueuedPrompt` / `chat.editQueuedPromptBusy`. See ADR 0259 and E2E-011f.** | Send now made the user wait for the current boundary before the instruction could land, and × discarded the message instead of letting the user revise it. |
 | D264 | Composer typing avoids full sorts and redundant DOM writes | **The `@` file menu picks its visible rows with a bounded top-K selection over the match list instead of sorting every match; the selection returns exactly the row set and order a full sort produced, and the small, kind-grouped command list keeps its full sort. Composer editor auto-resize remains idempotent; its former `--composer-dock-height` publication is superseded by D428. The `height: auto` measurement probe is taken only when the box may need to shrink. Growth through seven rows, internal scrolling past the seventh, and contraction on delete or submit are unchanged. Draft-file-reference state and cursor identity stay stable when unchanged. No IPC, storage, host-protocol, or schema change.** | The `@` menu and editor path needed measured latency improvements; D428 removes the unrelated document-wide dock-height publisher while preserving the editor resize contract. |
 
 
@@ -5334,3 +5335,37 @@ Validation contract: E2E-SIDEBAR-global-pinned-conversations.
   §4.3 / §5.2, `04-ux/01-ui-ia.md` (main pane), and
   E2E-CHAT-fullscreen-widens-reading-band /
   E2E-WORKPANEL-open-dock-draws-chat-column-seam.
+
+## 2026-09-17 — Queue rows steer on Send now and return to the composer on edit (D430)
+
+- Send now no longer stops the turn. The row is promoted to the head of the
+  Host-owned queue (`agent/queue/prioritize`) and, while the session is
+  running, its content is injected through the existing steering path: the
+  optimistic user row is inserted with `steering: true`, `api.steer` carries
+  the running turn's expected id and the row's prepared attachments, and the
+  host delivers the text at the turn's next model-request/tool boundary
+  without aborting the stream or cancelling running tools.
+- A message cannot be lost. The promoted row is removed only after `api.steer`
+  resolves; a steer that races the turn's end fails with `TURN_NOT_FOUND` and
+  the row keeps its promoted place, so it starts as the next turn ahead of the
+  remaining FIFO rows. The idle path still promotes the entry and lets the
+  host start it.
+- `steerPrompt` takes an options argument with `quiet: true`, used only by Send
+  now, which suppresses exactly the two toasts that mean "the row stays queued"
+  (steering unavailable, turn no longer found); other failures still toast.
+- A queued row's × returns the message. The row's captured draft — the text
+  the user wrote, not the annotation-stripped content the host would send, plus
+  its structured file references — is handed back through the composer-prefill
+  channel and becomes an editable draft, and the row leaves the host queue. The
+  action is refused with a toast while the live composer holds text or file
+  references, and while the row's own Send now is in flight.
+- `removeQueuedPrompt` accepts an optional session id so both actions act on
+  the session captured at click time rather than whatever is active after an
+  await. Renderer plus catalogs only: no IPC channel, host RPC, storage schema,
+  permission, or persisted-state change. `chat.removeQueuedPrompt` is replaced
+  by `chat.editQueuedPrompt` and `chat.editQueuedPromptBusy` in all eight
+  locales.
+- Decision D430 amends ADR 0118's send-now clause and ADR 0213 clause 4 and is
+  recorded as ADR 0259. See `04-ux/09-interaction-patterns.md` §3.4,
+  `04-ux/08-component-spec.md` §11, `03-runtime/01-ipc-protocol.md` §5.2/§5.6,
+  `03-runtime/10-session-state-machine.md` §3/§5, and E2E-011f.

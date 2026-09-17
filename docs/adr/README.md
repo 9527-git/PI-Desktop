@@ -138,7 +138,7 @@ Each ADR includes:
 | 0115 | Keep plugin clipboard history host-owned and in memory | Accepted (amended 2026-08-21) |
 | 0116 | Add OpenCode Go as a Fixed Provider Preset | Accepted (amended: session routing headers) |
 | 0117 | Preserve the Windows taskbar entry for native minimize | Accepted |
-| 0118 | Keep queued prompts renderer-owned and stop runs at turn boundaries | Accepted |
+| 0118 | Keep queued prompts renderer-owned and stop runs at turn boundaries | Accepted (queue ownership superseded by 0213; send-now clause amended by 0259) |
 | 0119 | Event-Driven Subagent Timeouts | Accepted for implementation (killing policy amended by 0166; `maxTurns` clauses withdrawn by 0253) |
 | 0120 | Bounded Session History Windows | Accepted |
 | 0121 | Keep Composer prompt enhancement one-shot and main-owned | Accepted |
@@ -231,7 +231,7 @@ Each ADR includes:
 | 0210 | Subagent output-token cap | Accepted (extends 0062 / 0063; `maxTurns` clauses withdrawn by 0253; issue #171 / PR #193) |
 | 0211 | Plan-safe plugin actions for read-only inspection | Accepted (amends 0052 / 0053 / 0170; D384) |
 | 0212 | Remove diagnostic timing log streams | Accepted (amends 0046 / D183) |
-| 0213 | Persist the Host-owned turn queue in host-core | Accepted |
+| 0213 | Persist the Host-owned turn queue in host-core | Accepted (clause 4 send-now amended by 0259) |
 | 0214 | Trusted extensions run in the Agent sidecar | Accepted (v1 implemented; amended by D388 / ADR 0215) |
 | 0215 | Agent extensions are a plugin contribution | Accepted (implemented) |
 | 0216 | Truncate regenerates under the RPC lock | Accepted (amends 0060 / 0127; issue #211) |
@@ -281,3 +281,4 @@ Each ADR includes:
 | 0256 | [Chat open/reveal for local paths outside the workspace](0256-chat-open-reveal-for-external-local-paths.md) | Accepted (amends D320 / D322 / ADR 0109 / ADR 0111; D424) |
 | 0257 | [Existence probe for transcript path rows](0257-transcript-path-existence-probe.md) | Accepted (amends ADR 0256; D424) |
 | 0258 | [Keep the docked conversation composer in normal flow](0258-in-flow-chat-composer.md) | Accepted (amends ADR 0065 clause 4 / D264) |
+| 0259 | [Send a queued row by steering and return it to the composer on edit](0259-queue-row-steer-and-edit.md) | Accepted (amends ADR 0118 send-now clause / ADR 0213 clause 4; D430) |

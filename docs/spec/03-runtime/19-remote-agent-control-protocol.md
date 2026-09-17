@@ -770,7 +770,8 @@ The three operations share this shape and each returns the current turn state.
 - `turn/cancel` removes a queued turn and marks it `canceled`; on a started
   turn it returns `CONFLICT`.
 - `turn/prioritize` moves a queued turn to the head of its session's queue
-  (the desktop's "send now") and emits `turn.queued` with the new position;
+  (the desktop's "send now" promotes its row this way before steering it
+  into the running turn) and emits `turn.queued` with the new position;
   it never touches the running turn, so a client that wants the entry to
   start at the next boundary also calls `turn/stop`. On a started turn it
   returns `CONFLICT`.
