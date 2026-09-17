@@ -1179,7 +1179,7 @@ Full component contract and usage rules: [08-component-spec.md §17](08-componen
 
 ### 12.3 Streaming indicator
 
-- Running agent: transcript working feedback + subtle pulse on the left border of the latest assistant message; the topbar remains free of a duplicate status dot
+- Running agent: transcript working feedback + subtle pulse on the left border of the latest assistant message; the conversation topbar carries the labeled D433 status chip (`● 处理中` / `● 待确认`) instead of a bare duplicate status dot
 - Completed: spinner replaced by success icon for 2s, then fades
 - Error: spinner replaced by error icon, persistent until dismissed
 
