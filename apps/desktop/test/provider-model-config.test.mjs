@@ -243,20 +243,22 @@ test("model ids are copyable and a configured model can carry an alias", () => {
 });
 
 test("a model name is never the toggle, and it opens what it configures", () => {
-  // The id, the name, the row padding and the limits cell are one open
-  // gesture: a click there must never reach the checkbox's toggle. The click
-  // handler that owns the row sits between the label and its checkbox.
-  const rowClick = pickerSource.slice(
-    pickerSource.indexOf('className="provider-models-row-label"'),
-    pickerSource.indexOf('className="provider-models-check"'),
+  // Since D435 every left-pane activation is additive and lives in the
+  // extracted row: the label owns one click handler between it and the
+  // checkbox, and the checkbox routes to the same non-destructive select.
+  assert.match(pickerSource, /<DiscoveredModelRow\b/);
+  const rowClick = rowSource.slice(
+    rowSource.indexOf('className="provider-models-row-label"'),
+    rowSource.indexOf('className="provider-models-check"'),
   );
   assert.match(rowClick, /event\.preventDefault\(\)/);
   assert.match(rowClick, /if \(busy\) return;/);
-  // A plain click on a configured row opens its settings; only an
-  // unconfigured row is picked by that same gesture.
-  assert.match(rowClick, /if \(chosen\) revealModelConfig\(row\);\s*else toggleModel\(row\)/);
-  // The checkbox stays the one control that picks or drops the model.
-  assert.match(pickerSource, /onChange=\{\(\) => toggleModel\(row\)\}/);
+  // A configured row opens its settings; an unconfigured one is picked; and
+  // neither the row nor the checkbox ever drops a binding.
+  assert.match(rowClick, /onSelect\(\)/);
+  assert.match(rowSource, /onChange=\{onSelect\}/);
+  assert.doesNotMatch(rowSource, /toggleModel/);
+  assert.doesNotMatch(pickerSource, /toggleModel/);
   // A drag-copy that happens to end inside the text stays a copy.
   assert.match(rowClick, /selection\.isCollapsed/);
 
