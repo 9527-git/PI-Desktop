@@ -30,9 +30,13 @@ daily use:
    published display name. An absent or blank alias leaves the published name
    unchanged, so clearing the field restores catalog naming.
 4. Model ids and names in the configuration page opt back into text selection
-   (`.selectable`), so drag-to-copy keeps working. *(Amended by D426: the
-   checkbox is the row's only toggle — a click outside it opens a configured
-   model's settings or picks an unconfigured one, and never removes it.)*
+   (`.selectable`). A drag-selection in the clicked row is copy-only.
+   *(Supersedes the D426 amendment: individual left-list activation — including
+   the checkbox, keyboard and synthetic clicks — adds an absent model or opens
+   its existing settings; it never removes a binding. Repeated selection
+   preserves aliases, overrides and ordering. Single-model removal is an
+   explicit chosen-pane action. The separately labelled bulk select/clear
+   operation remains available.)*
 5. Host-core persists and normalizes the alias inside the existing provider
    `config_json` `models` array: a blank or absent alias is dropped, and an
    alias longer than 60 characters is rejected with `MODEL_ALIAS_TOO_LONG`. No
@@ -54,5 +58,6 @@ daily use:
 - **A separate alias registry keyed by model id:** an alias belongs to one
   provider row's configuration; a global map would collide across providers
   that serve the same id.
-- **Make the whole row selectable and drop click-to-toggle:** removes the fast
-  multi-select gesture the page is built around.
+- **Use individual checkbox deselection as removal:** confuses selecting an
+  existing model for editing with deleting its configuration. Keep individual
+  activation additive and reserve removal for the dedicated action instead.

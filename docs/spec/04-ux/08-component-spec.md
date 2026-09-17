@@ -3391,12 +3391,18 @@ compatibility remains owned by pi-ai.
 
 ### 19.4 Interactions
 - Add provider opens a modal dialog that stays inside the overlay (it can shrink below its 1040px preferred width). Focused credential fields keep their 2px accent ring fully visible: the scrolling body reserves that gutter instead of clipping the ring. Cancel/close resets fields and dismisses the dialog
-- The model picker searches and toggles multiple models without using a native
+- The model picker searches and selects multiple models without using a native
   multiple select. Its portaled menu closes on outside press, Escape, scroll,
-  and resize; a row checkbox immediately adds or removes its configuration
-  row. Configuration rows stay compact until expanded, and one row at a time is
-  expanded: expanding a row, from its Advanced control or from its name in the
-  left list, collapses whichever other row was open.
+  and resize. Activating an individual left-pane row, including its checkbox,
+  adds an absent model or opens the existing configuration; it never removes a
+  binding. Repeated, double, keyboard and synthetic clicks preserve the
+  configured order, default model, aliases and advanced overrides. A
+  right-pane filter is cleared only when it hides the activated model.
+  Single-model removal uses the explicit Remove action in the right pane; the
+  separate bulk select/clear action below remains unchanged. Configuration
+  rows stay compact until expanded, and one row at a time is expanded:
+  expanding a row, from its Advanced control or from its name in the left
+  list, collapses whichever other row was open.
 - The left-pane list header carries a checkbox that selects or clears every
   currently visible row. A search filter narrows which rows "all" means;
   already-chosen bindings keep their advanced overrides. The checkbox is
@@ -3420,16 +3426,17 @@ compatibility remains owned by pi-ai.
   top-level option list, selects it, and applies 128,000 context / 8,192 max
   output / no thinking defaults. Removing its selection does not delete the
   custom option.
-- The checkbox is the row's only toggle. Every click outside it is an open
-  gesture, so the row's pointer cursor never removes the model: the id, the
-  name, the row padding, and the limits cell all open a configured model's
-  configuration row in the right pane and scroll it into view, and a click on
-  a model that is not configured yet picks it. Removal stays with the
-  checkbox and the right pane's remove button. The id and name are still
-  selectable text inside the otherwise non-selectable shell; a click that
-  carries a text selection stays a copy. The row the left list pointed at is
-  marked briefly for as long as that highlight runs; under reduced motion the
-  mark is a static outline rather than an animation (ADR 0192).
+- Every activation of a left-pane row is additive: the id, the name, the row
+  padding, the limits cell, the checkbox, and keyboard activation open a
+  configured model's configuration row in the right pane — scrolling it into
+  view and marking it briefly for as long as that highlight runs; under
+  reduced motion the mark is a static outline — or pick a model that is not
+  configured yet, and never remove one. Removal stays with the right pane's
+  remove button and the separately labelled bulk select/clear action. The id
+  and name are selectable text inside the otherwise non-selectable shell; a
+  drag-selection in the clicked row is copy-only, and native label activation
+  must not forward a row click into a destructive checkbox toggle. Selection
+  is disabled while saving (ADR 0192).
 - The alias is a display label only: a non-empty alias names the model in the
   composer chip and the picker, while the configuration row and the transcript
   badge keep the real ID. Clearing the field restores the catalog's published

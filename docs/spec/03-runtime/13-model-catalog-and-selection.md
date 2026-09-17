@@ -34,6 +34,14 @@ entitled to it.
   and then replaces it with the live answer.
 - Filtering that list is client-side: it is a short live list, not a catalog, so
   no host search is involved.
+- Activating an individual discovered model is additive, not a removal toggle.
+  Its text, row padding, limits and checkbox all add the model if absent or
+  open its existing configuration. Repeated, double, keyboard and synthetic
+  clicks preserve every existing binding, including its position, alias and
+  overrides; case variants cannot add duplicates. If the chosen-pane filter
+  hides the activated model, clear that filter before showing its settings.
+  Removing one model requires its explicit Remove action in the chosen pane.
+  The separately labelled bulk select/clear control retains its existing scope.
 - The list header has a checkbox that selects or clears every currently visible
   row in one step, so a long service list does not have to be ticked one by one.
   While a search filter is active, "all" means the matching rows only; models

@@ -19,6 +19,7 @@ const hookSource = await read("../src/components/settings/useProviderModels.ts")
 const pageSource = await read("../src/components/settings/ModelConfigPage.tsx");
 const vendorDialogSource = await read("../src/components/settings/VendorAccountDialog.tsx");
 const pickerSource = await read("../src/components/settings/ModelSelectionPanes.tsx");
+const rowSource = await read("../src/components/settings/DiscoveredModelRow.tsx");
 const filterSource = await read("../src/components/settings/model-chosen-filter.ts");
 const vendorAccountsSource = await read("../src/components/settings/VendorAccountsSection.tsx");
 const apiSource = await read("../src/lib/api.ts");
@@ -218,21 +219,20 @@ test("the rejected catalog-browser styles are gone from the cascade", () => {
 });
 
 test("model ids are copyable and a configured model can carry an alias", () => {
-  // The shell is non-selectable, so the id/name text opts back in.
-  assert.match(pickerSource, /provider-models-row-copy selectable/);
+  assert.match(rowSource, /provider-models-row-copy selectable/);
   assert.match(pickerSource, /provider-chosen-row-id font-mono selectable/);
-  // A drag-selection inside the row is a copy gesture, not a checkbox toggle.
-  // The guard is row-scoped, so a stale selection elsewhere on the page cannot
-  // cancel a plain click or the Space key's synthetic click.
-  assert.match(pickerSource, /selection\.isCollapsed/);
-  assert.match(pickerSource, /label\.contains\(selection\.anchorNode\)/);
-  assert.match(pickerSource, /label\.contains\(selection\.focusNode\)/);
-  // Keyboard activation reports detail 0 and must still toggle.
-  assert.match(pickerSource, /event\.detail === 0/);
-  // A selection left behind by copying must not block an explicit checkbox click.
-  assert.match(pickerSource, /event\.target instanceof HTMLInputElement/);
-  assert.match(pickerSource, /event\.preventDefault\(\)/);
-  assert.doesNotMatch(pickerSource, /window\.getSelection\(\)\?\.toString\(\)/);
+  // A drag-selection inside the row is copy-only: the guard is row-scoped, so a
+  // stale selection elsewhere cannot cancel a click or a keyboard activation.
+  assert.match(rowSource, /selection\.isCollapsed/);
+  assert.match(rowSource, /label\.contains\(selection\.anchorNode\)/);
+  assert.match(rowSource, /label\.contains\(selection\.focusNode\)/);
+  // Non-checkbox activation cancels the label's native forwarding and routes to
+  // the same additive select, detail-0 included: never a checkbox toggle.
+  assert.match(rowSource, /event\.preventDefault\(\)/);
+  assert.match(rowSource, /onSelect\(\)/);
+  assert.doesNotMatch(rowSource, /event\.detail === 0/);
+  assert.match(rowSource, /event\.target instanceof HTMLInputElement/);
+  assert.doesNotMatch(rowSource, /window\.getSelection\(\)\?\.toString\(\)/);
   // The alias is edited in the Advanced body and shown beside the id.
   assert.match(pickerSource, /settings\.modelAlias/);
   assert.match(pickerSource, /updateBinding\(binding\.id, \{/);

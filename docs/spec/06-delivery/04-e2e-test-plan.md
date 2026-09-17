@@ -122,6 +122,8 @@ The minimum selection is:
   `pnpm test:e2e:boot`.
 - Session-list refresh or model capability lookup: `pnpm test:e2e` and
   `pnpm test:e2e:boot`, including the synthetic large-list responsiveness check.
+- Individual provider model selection: `pnpm test:e2e:provider-model-selection`
+  (real React/Chromium pointer and keyboard activation, stubbed provider API).
 - Composer clipboard representation and text insertion: `pnpm test:e2e:composer-paste`.
 - Transcript render boundaries and cross-part delegation display: `pnpm test:e2e:transcript`.
 - Plan host/runtime behavior: `pnpm test:e2e` and `pnpm test:e2e:plan`.
@@ -435,12 +437,32 @@ and identify the platform validation still needed.
 #### E2E-005A: Edit provider model bindings and migrate a legacy model
 
 - **Preconditions**: One provider saved with two model bindings; one fixture provider row exists with only the legacy `default_model_id` and no `config_json.models`; one fixture row carries an unknown or legacy `apiStyle` string.
-- **Steps**: 1) Reopen the saved provider; confirm the single form opens with its cached model list painted immediately, and that the API key field explains an unchanged key is kept. 2) Confirm the live probe then refreshes that list without a retyped key, because the stored secret is reused. 3) Confirm both existing bindings are still chosen and check-marked, with their limits, thinking chips and defaults intact. Click one chosen row's id and then its row padding and confirm each opens that model's configuration row in the right pane instead of removing the model; removal stays with the checkbox. 4) Enable a level the fixture catalog does not publish, edit one row's limits and save. 5) Reopen the fixture provider and confirm its legacy model appears as one chosen row with 128,000 context, 8,192 max output and all seven thinking choices available but unselected. 6) Reopen the unknown-style fixture and confirm the editor renders with Chat Completions selected instead of an error boundary; save it and confirm the repaired style is persisted. 7) Save the fixture provider without changing the model. 8) Make the edited provider the global default, reopen it, remove its first model so a different binding becomes the head, and save. 9) Take the service offline or revoke the key, reopen the provider, and confirm the cached rows stay visible with a compact classified discovery error rather than an empty list or a raw host dump.
-- **Expected**: Editing never drops an unmodified binding. A click outside the checkbox never drops a chosen model: the row's pointer cursor opens its configuration row, and only the checkbox removes it. An explicitly enabled level remains saved even when the catalog does not publish it, so the Composer reads the same binding rather than silently narrowing it; a binding whose model discovery is unavailable keeps its stored levels untouched. Legacy read materializes one binding without losing the old model ID; the subsequent write stores `config_json.models` and keeps `defaultModelId` equal to the first binding for older readers. An unknown or legacy `apiStyle` is treated as a compatibility input: the editor falls back to Chat Completions, remains usable, and repairs the stored value on save. When the edited provider is the global default and its first model changed, `settings.defaultModelId` is re-synced to the new head binding. A failed live probe degrades to the cached list plus a compact classified error, never to a blank picker or a raw HTTP/JSON dump, and a catalog fallback is never written into the model cache.
+- **Steps**: 1) Reopen the saved provider; confirm the single form opens with its cached model list painted immediately, and that the API key field explains an unchanged key is kept. 2) Confirm the live probe then refreshes that list without a retyped key, because the stored secret is reused. 3) Confirm both existing bindings are still chosen and check-marked, with their limits, thinking chips and defaults intact. Click one chosen row's id and then its row padding and confirm each opens that model's configuration row in the right pane instead of removing the model; the checkbox keeps the binding and opens the same configuration. 4) Enable a level the fixture catalog does not publish, edit one row's limits and save. 5) Reopen the fixture provider and confirm its legacy model appears as one chosen row with 128,000 context, 8,192 max output and all seven thinking choices available but unselected. 6) Reopen the unknown-style fixture and confirm the editor renders with Chat Completions selected instead of an error boundary; save it and confirm the repaired style is persisted. 7) Save the fixture provider without changing the model. 8) Make the edited provider the global default, reopen it, remove its first model so a different binding becomes the head, and save. 9) Take the service offline or revoke the key, reopen the provider, and confirm the cached rows stay visible with a compact classified discovery error rather than an empty list or a raw host dump.
+- **Single-model regression substeps**: In English and Simplified Chinese,
+  click an already configured model's id, display name, token limits, padding
+  and checkbox; repeat, double-click and press Space on the checkbox. Confirm
+  every activation keeps the binding and opens its right-pane configuration.
+  Filter that pane so the target is hidden and confirm activation reveals it;
+  keep a matching filter intact. Drag-copy an id, then activate a checkbox with
+  that old selection still present. Add an unconfigured model repeatedly and
+  confirm exactly one binding is added. While saving, neither row nor checkbox
+  clicks change models. Save and reopen without changing the model set, then
+  use the right-pane Remove action and verify only that model is removed.
+- **Expected**: Editing never drops an unmodified binding. No left-list
+  activation drops a chosen model: the row's pointer cursor and the checkbox
+  alike open its configuration row, and only the right pane's Remove action
+  removes it. An explicitly enabled level remains saved even when the catalog does not publish it, so the Composer reads the same binding rather than silently narrowing it; a binding whose model discovery is unavailable keeps its stored levels untouched. Legacy read materializes one binding without losing the old model ID; the subsequent write stores `config_json.models` and keeps `defaultModelId` equal to the first binding for older readers. An unknown or legacy `apiStyle` is treated as a compatibility input: the editor falls back to Chat Completions, remains usable, and repairs the stored value on save. When the edited provider is the global default and its first model changed, `settings.defaultModelId` is re-synced to the new head binding. A failed live probe degrades to the cached list plus a compact classified error, never to a blank picker or a raw HTTP/JSON dump, and a catalog fallback is never written into the model cache.
+  Individual selection never changes the number/order of existing bindings,
+  aliases, limits, thinking/capability overrides or the head/default model.
+  Case-variant discovery ids do not replace or duplicate saved bindings.
+  The separately labelled bulk select/clear action retains its behavior.
 - **Specs linked**: `03-runtime/11-provider-model-system.md`, `03-runtime/12-provider-config-schema.md`, `03-runtime/13-model-catalog-and-selection.md`, ADR 0114
 - **Acceptance**: F (provider persistence and migration)
 - **Milestone**: M2
-- **Status**: Unit-covered host migration; manual UI journey
+- **Status**: Unit-covered host migration; provider editor selection/save payload
+  automated by `pnpm test:e2e:provider-model-selection` (provider API stubbed;
+  host persistence and live credentials are not exercised). Migration/restart
+  and live-service journeys remain manual.
 
 #### E2E-005K: Preserve explicit extended thinking levels on the wire
 
@@ -10291,8 +10313,9 @@ are withdrawn with ADR 0165.
   least one of which the catalog publishes with a display name.
 - **Steps**: 1) Open Settings → Model configuration and reopen the provider.
   2) Drag-select a model id in the live model list and copy it; confirm the
-  clipboard holds the id and the row's checkbox did not toggle. 3) Click the
-  same row's checkbox without selecting text; confirm it still toggles.
+  clipboard holds the id and the row's checkbox stays unchanged. 3) Click the
+  same row's text, padding and checkbox repeatedly, then press Space while the
+  checkbox has focus; confirm the binding remains and its configuration opens.
   4) Expand Advanced on a chosen row and type a short alias. 5) Save and open
   the Composer model picker; confirm the alias names that model while the other
   row keeps its published name. 6) Search the picker by the alias and by the
@@ -10310,17 +10333,20 @@ are withdrawn with ADR 0165.
 - **Expected**: The alias is a display label only — the provider request still
   carries `models[].id`, and the configuration row keeps showing the real id
   beside the alias chip. Model ids and names are selectable inside the
-  non-selectable shell, and a click that carries a selection never toggles the
-  row checkbox. The checkbox is the row's only toggle: a click outside it never
-  drops a chosen model — it opens that model's configuration row and marks the
-  row briefly — while a click on a model that is not configured yet picks it. A
-  blank or cleared alias falls back to the catalog display name.
+  non-selectable shell, and a drag-selection is copy-only. Activating an
+  individual model, including its checkbox, never removes its configuration —
+  a configured model opens its configuration row (marked briefly), an
+  unconfigured one is picked, and the dedicated right-pane Remove action is
+  the only removal. A blank or cleared alias falls back to the catalog
+  display name.
 - **Specs linked**: `03-runtime/12-provider-config-schema.md`,
   `04-ux/08-component-spec.md`, ADR 0192
 - **Acceptance**: B (model configuration), Quality
 - **Milestone**: M2
 - **Status**: Unit-covered (`composer-models.test.mjs`,
-  `provider-model-config.test.mjs`); rendered UI journey Draft (run only in a capable environment when this surface changes)
+  `provider-model-config.test.mjs`); provider editor copy/selection/save payload
+  covered by `pnpm test:e2e:provider-model-selection` with a stubbed API.
+  Composer display, real clipboard, host validation and restart remain manual.
 
 #### E2E-202: Subagent thinking follows its exact model binding
 
