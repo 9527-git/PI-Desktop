@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.25",
+    "date": "2026-09-17",
+    "highlights": [
+      "La carte du motif de relance s'affiche en flottant sur un fond opaque, contrainte au panneau : le motif n'est plus transparent ni rogné.",
+      "Le titre de la conversation affiche une pastille d'état pendant qu'un tour s'exécute ou attend votre confirmation.",
+      "La carte d'utilisation du contexte gagne une action « Compacter le contexte » : elle lance une compaction manuelle et annonce le point de contrôle — avec l'occupation qu'il remplace — sur place.",
+      "Sélectionner un modèle d'un service d'IA ne le supprime plus : chaque clic sur une ligne découverte l'ajoute ou ouvre ses réglages, et la suppression passe par l'action explicite « Retirer ».",
+    ],
+  },
+  {
     "version": "0.14.24",
     "date": "2026-09-17",
     "highlights": [

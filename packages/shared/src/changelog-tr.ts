@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.25",
+    "date": "2026-09-17",
+    "highlights": [
+      "Yeniden deneme kartı artık opak bir yüzeyde, panele hizalanmış olarak sohbetin üzerinde durur; neden artık yarı saydam veya kırpılmış görünmez.",
+      "Sohbet başlığı, turu çalışırken veya onayınızı beklerken bir durum rozeti gösterir.",
+      "Bağlam kullanımı kartına 'Bağlamı sıkıştır' eylemi eklendi: manuel sıkıştırmayı başlatır ve kontrol noktasını — yerini aldığı dolulukla birlikte — yerinde bildirir.",
+      "Bir yapay zekâ servisinin modelini seçmek artık onu silmez: keşfedilen satıra yapılan her tıklama onu ekler veya ayarlarını açar; kaldırma yalnızca açık 'Kaldır' eylemiyle yapılır.",
+    ],
+  },
+  {
     "version": "0.14.24",
     "date": "2026-09-17",
     "highlights": [

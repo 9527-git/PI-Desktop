@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.25",
+    "date": "2026-09-17",
+    "highlights": [
+      "La tarjeta del motivo de reintento flota sobre la conversación con un fondo opaco y ajustada al panel, de modo que el motivo ya no se ve transparente ni recortado.",
+      "El título de la conversación muestra una insignia de estado mientras su turno se ejecuta o espera tu confirmación.",
+      "La tarjeta de uso de contexto incorpora la acción «Compactar contexto»: inicia una compactación manual e informa del punto de control —con la ocupación que reemplazó— en el mismo lugar.",
+      "Seleccionar un modelo de un servicio de IA ya no lo elimina: cada clic en una fila descubierta lo añade o abre su configuración, y eliminar exige la acción explícita «Quitar».",
+    ],
+  },
+  {
     "version": "0.14.24",
     "date": "2026-09-17",
     "highlights": [

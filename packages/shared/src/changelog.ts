@@ -29,6 +29,16 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.25",
+    date: "2026-09-17",
+    highlights: [
+      "The retry reason card floats above the conversation on an opaque plate, clamped to the pane, so its reason is no longer transparent or clipped.",
+      "The conversation title shows a status chip while its turn is running or waiting for your confirmation.",
+      "The context usage card gains a Compact context action: it starts a manual compaction and reports the checkpoint — with the occupancy it replaced — in place.",
+      "Selecting an AI service's model never deletes it: every click on a discovered row adds it or opens its settings, and removal is the explicit Remove action.",
+    ],
+  },
+  {
     version: "0.14.24",
     date: "2026-09-17",
     highlights: [
@@ -823,6 +833,16 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.25",
+    date: "2026-09-17",
+    highlights: [
+      "重试原因卡片改为浮在不透明底板上并夹紧在窗格内，原因说明不再透明或被裁切。",
+      "会话标题在回合运行中或等待确认时显示状态胶囊。",
+      "上下文用量卡片新增「压缩上下文」操作：直接发起手动压缩，并在原处报告检查点及其替换前的占用。",
+      "选择 AI 服务的模型不再误删：点击发现的模型行只会添加或打开其设置，删除走显式的「移除」操作。",
+    ],
+  },
+  {
     version: "0.14.24",
     date: "2026-09-17",
     highlights: [
@@ -1615,6 +1635,16 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.25",
+    date: "2026-09-17",
+    highlights: [
+      "重試原因卡片改為浮在不透明底板上並夾在窗格內，原因說明不再透明或被裁切。",
+      "對話標題在回合執行中或等待確認時顯示狀態膠囊。",
+      "上下文用量卡片新增「壓縮上下文」操作：直接發起手動壓縮，並在原處回報檢查點及其替換前的佔用。",
+      "選擇 AI 服務的模型不再誤刪：點擊找到的模型列只會新增或開啟其設定，刪除走明確的「移除」操作。",
+    ],
+  },
   {
     version: "0.14.24",
     date: "2026-09-17",

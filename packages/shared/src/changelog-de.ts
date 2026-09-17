@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.25",
+    "date": "2026-09-17",
+    "highlights": [
+      "Die Karte mit dem Wiederholungsgrund schwebt auf einer opaken Fläche über dem Gespräch und bleibt im Fensterbereich – der Grund erscheint weder transparent noch abgeschnitten.",
+      "Der Unterhaltungstitel zeigt ein Status-Badge, während ein Durchgang läuft oder auf deine Bestätigung wartet.",
+      "Die Kontextanzeige erhält die Aktion „Kontext komprimieren“: Sie startet eine manuelle Komprimierung und meldet den Kontrollpunkt – samt der Belegung, die er ersetzt hat – direkt auf der Karte.",
+      "Das Auswählen eines Modells eines KI-Dienstes löscht nichts mehr: Jeder Klick auf eine gefundene Zeile fügt das Modell hinzu oder öffnet seine Einstellungen; Entfernen läuft über die eigene Aktion „Entfernen“.",
+    ],
+  },
+  {
     "version": "0.14.24",
     "date": "2026-09-17",
     "highlights": [
