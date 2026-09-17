@@ -256,6 +256,14 @@ export function ContextUsageInspector({
     };
   }, [closeInspector, open]);
 
+  // The panel is portaled to <body>, so Tab never reaches it from the composer
+  // toolbar. Taking focus on open puts the action row one Tab away, and the
+  // existing Escape path already returns focus to the trigger.
+  useEffect(() => {
+    if (!open) return;
+    popoverRef.current?.focus({ preventScroll: true });
+  }, [open]);
+
   const popover = open ? (
     <div
       ref={popoverRef}
@@ -263,6 +271,7 @@ export function ContextUsageInspector({
       id={panelId}
       role="dialog"
       aria-label={t("chat.usageContextLabel")}
+      tabIndex={-1}
       style={
         popoverPosition
           ? {
@@ -387,7 +396,7 @@ export function ContextUsageInspector({
           type="button"
           className="btn btn-primary context-inspector-compact-action"
           tooltip={t("chat.usageCompactAction")}
-          ariaLabel={t("chat.usageCompactAction")}
+          ariaLabel={t(compacting ? "chat.usageCompactBusy" : "chat.usageCompactAction")}
           aria-busy={compacting}
           disabled={compactBlocked || compacting}
           onClick={() => void compactContext()}

@@ -1627,7 +1627,9 @@
   line-height: var(--leading-compact-plus);
 }
 
-.context-inspector-compact-action {
+/* The descendant form out-specifies `.btn` (ui-kit.css loads after
+ * messages.css); as a single class it would lose the padding and type size. */
+.context-inspector-actions .context-inspector-compact-action {
   flex: 0 0 auto;
   padding: 4px 10px;
   font-size: var(--text-xs);

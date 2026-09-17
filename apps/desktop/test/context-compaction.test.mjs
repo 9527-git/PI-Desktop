@@ -338,6 +338,12 @@ test("the inspector card starts a compaction and reports it in place", () => {
   assert.match(turns, /previous\.mark\.tokensBefore === next\.mark\.tokensBefore/);
   assert.match(styles, /\.context-inspector-actions \{/);
   assert.match(styles, /\.context-inspector-compact-action \{/);
+  // The single-class form would lose the cascade to `.btn` (ui-kit.css loads
+  // after messages.css), so the sizing override must out-specify it.
+  assert.match(
+    styles,
+    /\.context-inspector-actions \.context-inspector-compact-action \{/,
+  );
   assert.match(enLocale, /usageCompactAction: "Compact context"/);
   assert.match(enLocale, /usageCompactionBefore: "Before this compaction"/);
   assert.match(zhCnLocale, /usageCompactAction: "压缩上下文"/);
