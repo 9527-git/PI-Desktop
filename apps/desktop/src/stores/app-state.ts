@@ -206,13 +206,18 @@ export type AppState = {
     draft?: ComposerDraftSnapshot,
     targetSessionId?: string,
   ) => Promise<boolean>;
-  steerPrompt: (content: string, draft?: ComposerDraftSnapshot) => Promise<boolean>;
+  steerPrompt: (
+    content: string,
+    draft?: ComposerDraftSnapshot,
+    options?: { quiet?: boolean },
+  ) => Promise<boolean>;
   enqueuePrompt: (
     content: string,
     draft?: ComposerDraftSnapshot,
     sessionId?: string,
   ) => Promise<boolean>;
-  removeQueuedPrompt: (promptId: string) => void;
+  removeQueuedPrompt: (promptId: string, sessionId?: string) => void;
+  editQueuedPrompt: (promptId: string) => void;
   sendQueuedNow: (promptId: string) => Promise<void>;
   refreshQueuedPrompts: (sessionId: string) => Promise<void>;
   applyQueueChanged: (event: AgentQueueChangedEvent) => void;

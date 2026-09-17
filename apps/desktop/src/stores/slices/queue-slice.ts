@@ -17,7 +17,7 @@ import {
   removeQueuedPrompt,
   type QueuedPrompt,
 } from "../../lib/queued-prompts";
-import type { ComposerDraftSnapshot } from "../../lib/composer-smart-stop";
+import type { ComposerDraftSnapshot, ComposerPrefill } from "../../lib/composer-smart-stop";
 import { optimisticUserMessage } from "../../lib/session-transcript";
 import type { AppState } from "../app-state";
 import {
@@ -63,6 +63,7 @@ export function createQueueSlice({
   AppState,
   | "enqueuePrompt"
   | "removeQueuedPrompt"
+  | "editQueuedPrompt"
   | "sendQueuedNow"
   | "refreshQueuedPrompts"
   | "applyQueueChanged"
@@ -172,8 +173,8 @@ export function createQueueSlice({
         });
     },
 
-    removeQueuedPrompt: (promptId) => {
-      const sessionId = get().activeSessionId;
+    removeQueuedPrompt: (promptId, requestedSessionId) => {
+      const sessionId = requestedSessionId ?? get().activeSessionId;
       if (!sessionId) return;
       set((state) => ({
         queuedPrompts: removeQueuedPrompt(
@@ -193,6 +194,29 @@ export function createQueueSlice({
       });
     },
 
+    /** Return one waiting row to the composer as an editable draft. */
+    editQueuedPrompt: (promptId) => {
+      const sessionId = get().activeSessionId;
+      if (!sessionId) return;
+      const item = queuedPromptForSession(
+        get().queuedPrompts,
+        sessionId,
+        promptId,
+      );
+      if (!item || item.id.startsWith("pending:") || item.sendNowRequested) return;
+      // The row's capture is what the user wrote, while `item.content` is the
+      // annotation-stripped text the host would send.
+      const restored: ComposerPrefill = {
+        sessionId,
+        text: item.draft.text,
+        fileReferences: item.draft.fileReferences.map((reference) => ({
+          ...reference,
+        })),
+      };
+      get().removeQueuedPrompt(promptId, sessionId);
+      set({ composerPrefill: restored });
+    },
+
     sendQueuedNow: async (promptId) => {
       const sessionId = get().activeSessionId;
       if (!sessionId) return;
@@ -202,6 +226,8 @@ export function createQueueSlice({
         promptId,
       );
       if (!item || item.id.startsWith("pending:") || item.sendNowRequested) return;
+      // Every send-now path moves the row to the head; the running path then
+      // injects it, and the queued path lets it start first.
       set((state) => ({
         queuedPrompts: prioritizeQueuedPrompt(
           state.queuedPrompts,
@@ -209,19 +235,22 @@ export function createQueueSlice({
           promptId,
         ),
       }));
+      if (get().runningSessions[sessionId]) {
+        // Send now steers instead of stopping the turn: the host injects the
+        // text at the current turn's next boundary, and the row leaves the
+        // queue only once that injection is accepted (D430).
+        const steered = await get().steerPrompt(item.content, item.draft, {
+          quiet: true,
+        });
+        if (steered) {
+          get().removeQueuedPrompt(promptId, sessionId);
+          return;
+        }
+        // The turn ended before the host accepted the injection, so the row
+        // keeps its promoted place and starts as the next turn instead.
+      }
       try {
         await api.prioritizeQueuedPrompt(promptId);
-        if (get().runningSessions[sessionId]) {
-          const result = await api.stop(sessionId);
-          if (!result.requested) {
-            set((state) => ({
-              queuedPrompts: clearQueuedPromptSendNow(
-                state.queuedPrompts,
-                sessionId,
-              ),
-            }));
-          }
-        }
       } catch (error) {
         set((state) => ({
           queuedPrompts: clearQueuedPromptSendNow(
@@ -233,6 +262,7 @@ export function createQueueSlice({
           error instanceof Error ? error.message : String(error),
           { variant: "error" },
         );
+        void get().refreshQueuedPrompts(sessionId);
       }
     },
 
@@ -249,7 +279,7 @@ export function createQueueSlice({
       applyQueueEntries(event.sessionId, event.entries);
     },
 
-    steerPrompt: async (content, draft) => {
+    steerPrompt: async (content, draft, options) => {
       const state = get();
       const sessionId = state.activeSessionId;
       const expectedTurnId = sessionId ? state.agentStatuses[sessionId]?.currentTurnId : undefined;
@@ -257,7 +287,11 @@ export function createQueueSlice({
         !sessionId || !expectedTurnId || !state.runningSessions[sessionId] ||
         state.pendingPlans[sessionId]?.status === "pending"
       ) {
-        get().showToast(i18n.t("chat.steeringUnavailable"), { variant: "info" });
+        // A queued row that cannot steer stays queued, so its caller asks for
+        // the quiet path instead of reporting the race to the user.
+        if (!options?.quiet) {
+          get().showToast(i18n.t("chat.steeringUnavailable"), { variant: "info" });
+        }
         return false;
       }
       const message = optimisticUserMessage(
@@ -274,12 +308,13 @@ export function createQueueSlice({
       } catch (error) {
         runtime.retractOptimisticUserMessage(sessionId, message);
         const failure = messageErrorFromUnknown(error);
-        get().showToast(
-          failure.code === "TURN_NOT_FOUND"
-            ? i18n.t("chat.steeringUnavailable")
-            : failure.message,
-          { variant: "error" },
-        );
+        if (failure.code === "TURN_NOT_FOUND") {
+          if (!options?.quiet) {
+            get().showToast(i18n.t("chat.steeringUnavailable"), { variant: "error" });
+          }
+          return false;
+        }
+        get().showToast(failure.message, { variant: "error" });
         return false;
       }
     },

@@ -1,6 +1,6 @@
 # ADR 0213: Persist the Host-owned turn queue in host-core
 
-- Status: Accepted
+- Status: Accepted (amended by ADR 0259 / D430: the desktop's send now steers a running turn)
 - Date: 2026-09-10
 - Decision: D386
 - Related: ADR 0205 (D375), `03-runtime/04-data-storage.md` §4.6b,
@@ -43,6 +43,9 @@ table and RPC surface, not a file the module writes.
 4. **The renderer's in-memory queue is retired.** The composer pushes
    through `agent/queue/push`, mirrors `agent/event/queueChanged`, and its
    "send now" is `agent/queue/prioritize` followed by a graceful stop.
+   *(Amended by ADR 0259 / D430: while the session is running, send now then
+   steers the entry into the active turn and no longer requests a graceful
+   stop; the promoted entry is removed only after the injection is accepted.)*
 
 ## Consequences
 

@@ -673,12 +673,20 @@ may be retained while exactly one workspace supplies the visible shell context.
   actions. Accepted follow-ups clear the composer and
   append to that session's Host-owned, persisted FIFO queue; session switching
   never moves or clears another session's queue.
-- The queue renders above the composer. Each row has an independently
-  keyboard-reachable Remove action and a Send now action.
-- Send now moves its row to the head and requests the new `agent/stop` channel.
-  The current assistant response and completed tool batch finish normally;
-  after `agent_end` and durable turn finalization, the promoted row is
-  dispatched through the normal `agent/prompt` flow before the remaining rows.
+- The queue renders above the composer. Each row carries two independently
+  keyboard-reachable actions: a × that returns the row to the composer for
+  editing, and Send now.
+- The × action is refused with a toast while the composer already holds text
+  or file attachments, and the row keeps its place. When accepted, the row
+  leaves the queue — locally and at the Host — and its captured draft, text
+  plus inline file references, becomes the composer input. A row already
+  promoted by Send now is not editable.
+- Send now moves its row to the head. While the session is running it injects
+  the row into the current turn as steering instead of stopping the turn: the
+  response and in-flight tools continue, and the row leaves the queue only
+  after the Host accepts the steering message, which reaches the turn at its
+  next model request or tool boundary (see §3.5). If the turn ends before that
+  acceptance, the promoted row keeps its place and starts as the next turn.
   An idle Send now dispatches immediately.
 - Without Send now, the next FIFO row starts automatically after the active
   turn completes, fails, or is aborted. A terminal event can arrive before
@@ -1433,8 +1441,9 @@ This does not prevent state changes — it makes them instant.
 1. All keyboard shortcuts in §1 are functional and do not conflict with system shortcuts
 2. Enter sends when Enter-to-send is on; when it is off, Cmd/Ctrl+Enter sends and Enter/Shift+Enter insert a newline
 3. Abort immediately cancels running turn and pending permissions without confirmation dialog
-3a. Send stays enabled while running, queues prompts per session, and Send now
-    finishes the current boundary before releasing its prioritized prompt
+3a. Send stays enabled while running and queues prompts per session; Send now
+    steers the promoted row into the running turn's next boundary, and the
+    queued row's × returns it to the composer for editing
 4. Long content (>50 lines for messages, >10 for args, >20 for results) is collapsed by default with expand link
 5. Tool results that were cut short show a truncation marker or chip per D306; a filled Read window of a longer file does not
 6. Permission interrupt inserts inline card, disables composer, shows countdown, and re-enables after resolution

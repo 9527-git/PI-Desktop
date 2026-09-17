@@ -100,7 +100,8 @@ turn that has ended.
    entry to the head on `agent/queue/prioritize`, so normal user sends do not
    surface `AGENT_BUSY`.
 3. A graceful stop completes the current assistant/tool boundary as a normal
-   `completed` turn before the renderer releases a queued prompt.
+   `completed` turn; queued entries drain after that terminal event like any
+   other completed turn.
 4. Abort from running or waiting_permission is allowed. Renderer smart Stop
    removes an unanswered root user row and restores its session/turn-scoped
    pre-serialization composer snapshot; once assistant text, thinking, or any
@@ -222,7 +223,8 @@ transcript-file line first, index transaction second.
 7. a message-scoped fork excludes later rows and begins with no source runtime
    or provider-cache state
 8. a running session can queue removable FIFO prompts per session; Send now
-   completes the current turn at the next boundary, while immediate Abort
+   injects the selected entry into the running turn as steering at its next
+   tool/reply boundary without stopping the turn, while immediate Abort
    leaves the queue intact
 9. Plan, Goal, and Agent use one pi Agent; the Composer-left mode chip, UI
    entry, and

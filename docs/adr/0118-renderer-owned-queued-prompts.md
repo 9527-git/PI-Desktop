@@ -1,6 +1,6 @@
 # ADR 0118: Keep queued prompts renderer-owned and stop runs at turn boundaries
 
-- Status: Accepted (Implemented 2026-08-24)
+- Status: Accepted (Implemented 2026-08-24; queue ownership superseded by ADR 0213; the send-now clause is amended by ADR 0259 / D430)
 - Date: 2026-08-24
 - Related: Issue #11, ADR 0073
 
@@ -28,7 +28,10 @@ preserving the host's single-running-turn invariant. Send now moves its item
 to the head and calls the additive `agent/stop` IPC. The sidecar maps that
 request to pi-agent-core's `shouldStopAfterTurn` hook, so the current reply and
 completed tool batch finish normally and the durable turn closes as
-`completed` before the prioritized item starts.
+`completed` before the prioritized item starts. *(Amended by ADR 0259 / D430:
+the queue is Host-owned per ADR 0213, and a Send now during a running turn
+injects the item into that turn as steering instead of requesting a graceful
+stop.)*
 
 Immediate abort remains separate: it cancels the active runtime immediately
 and leaves queued items untouched for explicit later sending.

@@ -283,9 +283,12 @@ finalized as `completed`; the request does not abort the provider stream,
 cancel running tools, or open a second concurrent turn. An idle session returns
 `requested: false`.
 
-The renderer owns the removable, in-memory queued-prompt list per session. It
-calls this channel only for a queued item's **Send now** action and releases
-that item through the ordinary `agent/prompt` flow after the terminal event.
+The renderer no longer calls this channel: a composer Stop uses `agent/abort`,
+and a queued row's **Send now** never stops a turn. The per-session prompt
+queue is Host-owned (`agent/queue/*`, §5.6); while the session is running,
+Send now steers the entry into the active turn (§5.1a), and only an idle
+session promotes it for an immediate start. The local MCP control plane's
+graceful `agentStop` operation remains the caller.
 
 ### 5.3 abort
 
@@ -539,8 +542,10 @@ type QueuedTurnSummary = {
 `push` returns `AGENT_BUSY` with `queueFull` once a session holds eight
 entries and `IDEMPOTENCY_CONFLICT` when a key is reused with other input.
 `prioritize` moves an entry to the head without touching the running turn;
-the renderer's "send now" then requests a graceful stop so the entry starts
-at the next boundary. `remove` cancels an entry that has not started. A
+the renderer's "send now" then steers the entry into the active turn (§5.1a)
+and drops it from the queue only once that injection is accepted. A turn that
+ends before acceptance leaves the promoted entry to start as the next turn.
+`remove` cancels an entry that has not started. A
 restored queue stays held until the desktop attaches as the owner, so a
 reboot never starts work unattended.
 

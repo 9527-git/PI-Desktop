@@ -442,6 +442,7 @@
 | D152 | 直接运行时流渲染 | **辅助内容直接通过增量 Markdown 块缓存渲染每个运行时流块。渲染器不添加 requestAnimationFrame 打字机状态循环。 KaTeX 的 Vite 内联字体仍然是本地资源，并被狭窄的 `font-src 'self' data:` CSP 指令所允许。** | 重复的动画循环可能会在持续流期间触发 React 的嵌套更新防护，而之前的 CSP 会阻止捆绑的数学字体并产生控制台错误。 |
 | D153 | 推理会话默认为最大思考 | *（由 D303 取代）* **新创建的会话（其继承的默认模型支持推理）从该模型的 pi 发布的 `supportedThinkingLevels` 中的最高规范条目开始。非推理模型和缺失的能力元数据从 `off` 开始；现有会议保留其持久选择。这改进了 D096，而无需添加提供程序覆盖。** | 具有推理能力的模型应该默认使用最强大的可用努力，同时保留明确的每会话选择和 pi-ai 的模型权威。 |
 | D428 | 停靠的对话输入框采用正常流布局 | **线程模式的 Composer 是会话面板后的正常流 flex 兄弟，而不是绝对定位覆盖层。thread-content 只保留 16px 阅读间隙；线程视口、跳转按钮、小地图和稳定遮罩都在输入框上方结束。因此草稿增长、队列行、询问卡片和 Plan/Goal 审批表面会在同一次布局中调整视口，不会覆盖转录本内容。本决定取代 ADR 0065 第 4 条以及 D264 中发布 composer-dock-height 的部分。** | 文档级高度发布器的首帧总是落后一轮布局，并且让四个 CSS 使用点依赖多个 fallback；正常流兄弟移除了发布/订阅竞态，让不重叠成为结构不变量。 |
+| D430 | 排队行的立即发送改为转向，编辑则退回输入框 | **在渲染器修订 ADR 0118 的立即发送条款与 ADR 0213 第 4 条：排队行的「立即发送」把该行提前到 Host 拥有队列的头部，并在会话运行中时经既有转向契约注入其内容（`agent/steer`，携带运行中回合的 expected id 与该行准备好的附件），而不是请求优雅停止；只有 Host 接受注入后该行才离开队列，若回合在注入被接受前结束，被提前的行改为作为下一回合启动。行的 × 把它捕获的草稿——用户写下的文本加结构化文件引用——经 composer-prefill 渠道退回空输入框而不是丢弃，当活动输入框已有内容或该行的立即发送正在途中时以 toast 拒绝。`steerPrompt` 新增 quiet 选项，只抑制「该行留在队列里」含义的 toast；`removeQueuedPrompt` 接受可选会话 id。仅渲染器与语言目录：`chat.removeQueuedPrompt` 由 `chat.editQueuedPrompt` / `chat.editQueuedPromptBusy` 取代。见 ADR 0259 与 E2E-011f。** | 立即发送迫使使用者等待当前边界结束后指令才能落地，而 × 把消息丢掉而不是让人修改。 |
 | D264 | Composer 输入避开全量排序与冗余 DOM 写入 | **`@` 文件菜单用有界 top-K 选择从匹配列表中挑出可见行，而不再排序全部匹配；较小的命令列表保留完整排序。Composer 编辑器自动调整高度仍然幂等；原先的 composer-dock-height 发布由 D428 取代。height: auto 测量探针仅在文本框可能需要收缩时读取，七行上限和 delete/submit 后的收缩保持不变。** | `@` 菜单和编辑器路径需要降低输入延迟；D428 移除无关的文档级停靠高度发布，同时保留编辑器自身的调整大小契约。 |
 
 
@@ -4226,3 +4227,29 @@ the retained upstream work-panel lifecycle. See
   §4.3 / §5.2、`04-ux/01-ui-ia.md`（主窗格）与
   E2E-CHAT-fullscreen-widens-reading-band /
   E2E-WORKPANEL-open-dock-draws-chat-column-seam。
+
+## 2026-09-17 —— 排队行的立即发送改为转向，编辑则退回输入框（D430）
+
+- 立即发送不再停止回合。该行被提前到 Host 拥有队列的头部
+  （`agent/queue/prioritize`），且会话运行中时其内容经既有转向路径注入：
+  乐观用户行以 `steering: true` 插入，`api.steer` 携带运行中回合的 expected
+  id 与该行准备好的附件，Host 在该回合的下一个模型请求/工具边界投递文本，
+  不中止提供商流也不取消正在运行的工具。
+- 消息不会丢失。被提前的行只在 `api.steer` 返回后移除；与回合结束竞态的
+  转向以 `TURN_NOT_FOUND` 失败，该行保持被提前的位置，作为下一回合先于其余
+  FIFO 行启动。空闲路径仍只是提前条目，由 Host 启动它。
+- `steerPrompt` 新增带 `quiet: true` 的选项参数，仅供立即发送使用，精确抑制
+  两条表示「该行留在队列里」的 toast（转向不可用、回合已结束）；其他失败仍然
+  弹出 toast。
+- 排队行的 × 把消息退回。行捕获的草稿——用户写下的文本，而不是 Host 将要
+  发送的已剥离标注内容，加上其结构化文件引用——经 composer-prefill 渠道交回，
+  成为可编辑草稿，同时该行离开 Host 队列。当活动输入框已有文本或文件引用、或
+  该行自身的立即发送正在途中时，该操作以 toast 拒绝。
+- `removeQueuedPrompt` 接受可选会话 id，因此两个动作都作用于点击时捕获的
+  会话，而不是 await 之后恰好的活动会话。仅渲染器与语言目录：不改 IPC 渠道、
+  Host RPC、存储 schema、权限或持久化状态。`chat.removeQueuedPrompt` 在所有
+  八种语言中由 `chat.editQueuedPrompt` 与 `chat.editQueuedPromptBusy` 取代。
+- 决策 D430 修订 ADR 0118 的立即发送条款与 ADR 0213 第 4 条，并记录为
+  ADR 0259。见 `04-ux/09-interaction-patterns.md` §3.4、
+  `04-ux/08-component-spec.md` §11、`03-runtime/01-ipc-protocol.md` §5.2/§5.6、
+  `03-runtime/10-session-state-machine.md` §3/§5 与 E2E-011f。

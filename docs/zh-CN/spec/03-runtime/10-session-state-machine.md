@@ -97,51 +97,52 @@ accept_prompt
    条目；Agent Host 模块在 `agent_end` 之后释放一条，恢复的队列挂起到 owner 接入，
    `agent/queue/prioritize` 把条目移到队列头部，因此正常的用户发送不会看到
    `AGENT_BUSY`。
-3. 允许中止运行或 waiting_permission。 Renderer 智能停止
+3. 优雅停止把当前助手/工具边界完成为正常的 `completed` 回合；队列条目在该终止事件之后像其他已完成的回合一样释放。
+4. 允许中止运行或 waiting_permission。 Renderer 智能停止
    删除未应答的 root 用户行并恢复其 session/turn-scoped
    预序列化输入框快照；曾经助理文字、思考或任何
    工具行开始，中止保留部分转录本并恢复不
    草稿。
-4. 权限超时变为工具被拒绝，然后代理可以根据运行时处理继续或结束
-5. 终端回合状态持久后，会话状态返回空闲状态。父级终态错误会中止残留委托，因此“继续”不会变成 `AGENT_BUSY`（D352）
-6. 更改渲染器的活动 project/session 不会转换或中止
+5. 权限超时变为工具被拒绝，然后代理可以根据运行时处理继续或结束
+6. 终端回合状态持久后，会话状态返回空闲状态。父级终态错误会中止残留委托，因此“继续”不会变成 `AGENT_BUSY`（D352）
+7. 更改渲染器的活动 project/session 不会转换或中止
    任何后台会话
-7. 工具转换保留原始会话的持久项目根；
+8. 工具转换保留原始会话的持久项目根；
    它从不采用新活动项目的根
-8. `session.endTurn` 仅将 `running` 转至终端。在那个同
+9. `session.endTurn` 仅将 `running` 转至终端。在那个同
    事务，未见的 `completed` 插入 `task.completed`，未见的 `error`
    插入 `task.failed`，并且结果已在焦点当前中可见
    聊天或任何 `aborted` 回合不会插入任何通知 (D117)。重复终端
    调用是无操作的。
-9. 仅当源空闲时才允许分叉。孩子开始无所事事
+10. 仅当源空闲时才允许分叉。孩子开始无所事事
    没有回合或等待许可状态。 Electron 返回 `AGENT_BUSY` 的
 主动运行时保护并规范主机的持续运行轮流
    `CONFLICT` 回退到相同的 IPC 错误。两条路径均不产生部分
    孩子。
-10. 提供 `throughMessageId` 仅更改快照边界。助理
+11. 提供 `throughMessageId` 仅更改快照边界。助理
     Fork/Edit 仍然创建一个新的空闲会话 ID，没有共享轮次，
     权限等待、运行时或提供商缓存状态 (D134)。
-11. `EnterPlanMode`、`EnterGoalMode`、`SubmitPlan` 和 `SubmitGoal` 必须是
+12. `EnterPlanMode`、`EnterGoalMode`、`SubmitPlan` 和 `SubmitGoal` 必须是
     他们中唯一的工具调用
     助理批次。提交工具在新的文件中保留精确的 Markdown 字节
     主机拥有的 `.pi/<kind>/*.md` 工件并创建一个待处理的
     `plan_approvals` 行及其 `kind` 加上结构化的 title/question 和
     神器领域。针对另一种模式调用的提交工具失败
     与 `PLAN_KIND_MISMATCH` 并且什么也不写。
-12. 只有匹配的 `plans.resolve` 才能解决待处理的提案。批准
+13. 只有匹配的 `plans.resolve` 才能解决待处理的提案。批准
     以原子方式将持久模式更改为 Agent，存储选定的显式
     权限模式，分配执行ID，并更改行的
     `execution_state` 至 `queued`。
-13. 批准和拒绝是唯一的解决方案操作。拒绝和到期
+14. 批准和拒绝是唯一的解决方案操作。拒绝和到期
     关闭挂起的行，然后将活动状态返回到可编辑状态
     同合同模式规划状态
     并且不授予任何执行工具。待处理的中断也会执行相同的操作；一个
     批准后 queued/running 中断仍保持 Agent。
-14. 第二次提示，Plan 或 Goal 提交、配置更改或执行
+15. 第二次提示，Plan 或 Goal 提交、配置更改或执行
     是
 在会话处于活动状态、等待批准时被拒绝，或者
     queued/running 执行。仅当空闲时才接受配置。
-15. 同一合同模式的后续转变可能会修改
+16. 同一合同模式的后续转变可能会修改
     rejected/expired/interrupted 检查点和
     必须创建一个新的不可变工件而不是覆盖早期的工件
     快照。
@@ -198,22 +199,23 @@ accept_prompt
    生一个孩子
 7. 消息范围的分叉排除后面的行并且从没有源运行时开始
    或提供商缓存状态
-8. Plan、Goal 和 Agent 使用 1 个 pi Agent； Composer-左模式芯片、UI
+8. 运行中的会话可以按会话排队可移除的 FIFO 提示词；立即发送把选中的条目以转向方式注入运行中的回合，在它的下一个工具/回复边界生效而不停止该回合；立即 Abort 则保持队列不变
+9. Plan、Goal 和 Agent 使用 1 个 pi Agent； Composer-左模式芯片、UI
    条目，以及
    `queued`/reject/expiry/interruption 收敛于相同的规划状态，并且
 批准恢复
    Agent 模式下的 Agent
-9. 合约模式策略仅通过选择的权限模式允许Bash
+10. 合约模式策略仅通过选择的权限模式允许Bash
    和
    在 Goal 中拒绝 Write/Edit/plugins，无论 `auto` 或会话授权如何
    与 Plan 完全相同
-10. SubmitPlan/SubmitGoal 使用以下命令写入精确唯一的 `.pi/<kind>/*.md` 工件
+11. SubmitPlan/SubmitGoal 使用以下命令写入精确唯一的 `.pi/<kind>/*.md` 工件
     hash/size，
     保持 title/question 结构化，并且只有 approve/reject 可以解析其
     `plan_approvals` 行
-11.到期使用`PLAN_APPROVAL_TIMEOUT`；启动中断、shell故障、
+12.到期使用`PLAN_APPROVAL_TIMEOUT`；启动中断、shell故障、
     进程恢复失败关闭，并且重新启动不会重放挂起，
     排队或正在运行的工作
-12. Goal 执行在结束前报告每个接受标准的结果
+13. Goal 执行在结束前报告每个接受标准的结果
     转牌圈，并且 scheduled/unattended Goal 跑路被拒绝
     `PLAN_REQUIRES_INTERACTIVE_SESSION` 与 Plan 完全相同

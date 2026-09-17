@@ -8,7 +8,7 @@ import { requestTextWithoutAnnotations } from "../../../lib/response-annotations
 export type ComposerStatusProps = {
   t: TFunction;
   queuedPrompts: readonly QueuedPrompt[];
-  removeQueuedPrompt: (id: string) => void;
+  editQueuedPrompt: (id: string) => void;
   sendQueuedNow: (id: string) => Promise<void>;
   approvalPending: boolean;
   runActive: boolean;
@@ -24,7 +24,7 @@ export type ComposerStatusProps = {
 export function ComposerStatus({
   t,
   queuedPrompts,
-  removeQueuedPrompt,
+  editQueuedPrompt,
   sendQueuedNow,
   approvalPending,
   runActive,
@@ -61,9 +61,10 @@ export function ComposerStatus({
                 <TooltipButton
                   type="button"
                   className="composer-queued-prompt-action"
-                  tooltip={t("chat.removeQueuedPrompt")}
-                  ariaLabel={t("chat.removeQueuedPrompt")}
-                  onClick={() => removeQueuedPrompt(item.id)}
+                  tooltip={t("chat.editQueuedPrompt")}
+                  ariaLabel={t("chat.editQueuedPrompt")}
+                  disabled={approvalPending || item.sendNowRequested === true}
+                  onClick={() => editQueuedPrompt(item.id)}
                 >
                   <IconX size={13} aria-hidden />
                 </TooltipButton>
