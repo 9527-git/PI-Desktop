@@ -40,5 +40,6 @@ export function contextCompactionMark(
     generation: checkpointGeneration(record.details),
     summaryTokens: estimateSummaryTokens(record.summary ?? ""),
     summarized: checkpointSummarized(record.details),
+    tokensBefore: record.tokensBefore,
   };
 }

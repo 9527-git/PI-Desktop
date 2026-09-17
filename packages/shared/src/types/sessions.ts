@@ -109,6 +109,12 @@ export type ContextCompactionMark = ContextCompactionStatus & {
   throughMessageId: string;
   /** False when the window rolled over without asking for a summary. */
   summarized: boolean;
+  /**
+   * Context occupancy the checkpoint replaced. The durable record always
+   * carries it; optional here because a mark can also arrive from a runtime
+   * build older than the reader (version skew during dev).
+   */
+  tokensBefore?: number;
 };
 
 export type ContextCompactionReason = "manual" | "threshold" | "overflow";

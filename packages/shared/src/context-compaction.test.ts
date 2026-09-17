@@ -52,7 +52,14 @@ describe("contextCompactionMark", () => {
       generation: 3,
       summaryTokens: 100,
       summarized: true,
+      tokensBefore: 120_000,
     });
+  });
+
+  it("carries the occupancy the checkpoint replaced", () => {
+    expect(
+      contextCompactionMark(record({ tokensBefore: 92_000 })).tokensBefore,
+    ).toBe(92_000);
   });
 
   it("marks a rollover checkpoint as carrying no real summary", () => {

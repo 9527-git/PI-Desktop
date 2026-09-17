@@ -330,7 +330,8 @@ function reuseTranscriptEntry(
         previous.mark.throughMessageId === next.mark.throughMessageId &&
         previous.mark.generation === next.mark.generation &&
         previous.mark.summaryTokens === next.mark.summaryTokens &&
-        previous.mark.summarized === next.mark.summarized)
+        previous.mark.summarized === next.mark.summarized &&
+        previous.mark.tokensBefore === next.mark.tokensBefore)
       ? previous
       : next;
   }

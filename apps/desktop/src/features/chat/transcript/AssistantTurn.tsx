@@ -88,7 +88,8 @@ export function compactionMarksEqual(
     previous.throughMessageId === next.throughMessageId &&
     previous.generation === next.generation &&
     previous.summaryTokens === next.summaryTokens &&
-    previous.summarized === next.summarized
+    previous.summarized === next.summarized &&
+    previous.tokensBefore === next.tokensBefore
   );
 }
 
