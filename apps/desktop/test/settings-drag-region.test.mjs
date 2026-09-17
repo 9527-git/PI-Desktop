@@ -53,3 +53,15 @@ test("settings drag region does not capture control clicks", () => {
   assert.match(settingsSource, /className="settings-search-wrap no-drag"/);
   assert.match(settingsSource, /className="settings-nav-scroll no-drag"/);
 });
+
+test("settings back to app sits in the rail's top band above the search pill", () => {
+  // Upstream 9b52e2c8 pinned this action into a rail footer; this line keeps
+  // it in the top band above the search pill (D431), so the rail's drag strip
+  // and the control grid keep their existing contract.
+  assert.match(
+    settingsSource,
+    /className="settings-nav-top drag"[\s\S]*?className="settings-back no-drag"[\s\S]*?className="settings-search-wrap no-drag"/,
+  );
+  assert.doesNotMatch(settingsSource, /settings-nav-footer/);
+  assert.doesNotMatch(globalStyles, /\.settings-nav-footer\s*\{/);
+});

@@ -5369,3 +5369,20 @@ Validation contract: E2E-SIDEBAR-global-pinned-conversations.
   recorded as ADR 0259. See `04-ux/09-interaction-patterns.md` §3.4,
   `04-ux/08-component-spec.md` §11, `03-runtime/01-ipc-protocol.md` §5.2/§5.6,
   `03-runtime/10-session-state-machine.md` §3/§5, and E2E-011f.
+
+## 2026-09-17 — Back to app returns to the settings rail top (D431)
+
+- The settings rail's **Back to app** action moves back into the top band above
+  the **Search settings…** pill, restoring the arrangement that predates
+  upstream commit 9b52e2c8: the chevron + label control uses the top band's own
+  metrics (`3px 6px 3px 2px` padding, no fixed height) and stays explicitly
+  non-draggable. The pinned footer band and its alignment with the main
+  sidebar's footer icon row are removed; this intentionally diverges from the
+  upstream footer.
+- The rail keeps its explicit column layout, so a window too short for every
+  destination still scrolls the directory instead of clipping it.
+- Renderer plus docs plus one source-contract test: no IPC channel, host RPC,
+  storage schema, permission, or persisted-state change.
+- See `04-ux/06-settings-ia.md` §1 / §4 and US-UI-44 in
+  `06-delivery/04-e2e-test-plan.md`; `settings-drag-region.test.mjs` pins the
+  top-band placement.

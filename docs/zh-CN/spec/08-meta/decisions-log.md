@@ -4253,3 +4253,16 @@ the retained upstream work-panel lifecycle. See
   ADR 0259。见 `04-ux/09-interaction-patterns.md` §3.4、
   `04-ux/08-component-spec.md` §11、`03-runtime/01-ipc-protocol.md` §5.2/§5.6、
   `03-runtime/10-session-state-machine.md` §3/§5 与 E2E-011f。
+
+## 2026-09-17 —— 返回应用程序回到设置导轨顶部（D431）
+
+- 设置导轨的**返回应用程序**操作移回顶部带、位于**搜索设置...**药丸上方，恢复上游
+  提交 9b52e2c8 之前的布局：箭头+文字控件使用顶部带自身的度量
+  （内边距 `3px 6px 3px 2px`，无固定高度），并保持明确不可拖动。固定底栏及其与
+  主侧边栏底部图标行的对齐被移除；这有意偏离上游的底栏。
+- 导轨保留显式列布局，窗口过矮而放不下全部目的地时目录仍然滚动，而不是被裁剪。
+- 仅渲染器、文档与一个源码契约测试：不改 IPC 渠道、Host RPC、存储 schema、
+  权限或持久化状态。
+- 见 `04-ux/06-settings-ia.md` §1 / §4 与
+  `06-delivery/04-e2e-test-plan.md` 的 US-UI-44；`settings-drag-region.test.mjs`
+  固定顶部带的位置。
