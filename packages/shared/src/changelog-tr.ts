@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.24",
+    "date": "2026-09-17",
+    "highlights": [
+      "Ayarlar, Uygulamaya dön eylemini yine raypın en üstüne, arama alanının hemen üstüne yerleştirir.",
+    ],
+  },
+  {
     "version": "0.14.23",
     "date": "2026-09-17",
     "highlights": [

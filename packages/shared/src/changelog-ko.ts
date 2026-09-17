@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    version: "0.14.24",
+    date: "2026-09-17",
+    highlights: [
+      "설정의 '앱으로 돌아가기'가 다시 레일 상단, 검색 필드 바로 위에 표시됩니다.",
+    ],
+  },
+  {
     version: "0.14.23",
     date: "2026-09-17",
     highlights: [

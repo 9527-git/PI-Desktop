@@ -29,6 +29,13 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.24",
+    date: "2026-09-17",
+    highlights: [
+      "Settings puts Back to app at the top of the rail again, directly above the search pill.",
+    ],
+  },
+  {
     version: "0.14.23",
     date: "2026-09-17",
     highlights: [
@@ -816,6 +823,13 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.24",
+    date: "2026-09-17",
+    highlights: [
+      "设置的“返回应用”重新回到导航栏顶部，位于搜索框正上方。",
+    ],
+  },
+  {
     version: "0.14.23",
     date: "2026-09-17",
     highlights: [
@@ -1601,6 +1615,13 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.24",
+    date: "2026-09-17",
+    highlights: [
+      "設定的「返回應用」重新回到導覽列頂端，位於搜尋框正上方。",
+    ],
+  },
   {
     version: "0.14.23",
     date: "2026-09-17",

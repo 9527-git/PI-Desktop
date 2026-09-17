@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.24",
+    "date": "2026-09-17",
+    "highlights": [
+      "Ajustes vuelve a colocar Volver a la aplicación en la parte superior de la barra, justo encima del buscador.",
+    ],
+  },
+  {
     "version": "0.14.23",
     "date": "2026-09-17",
     "highlights": [

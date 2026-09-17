@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.24",
+    "date": "2026-09-17",
+    "highlights": [
+      "In den Einstellungen steht „Zurück zur App“ wieder oben in der Leiste, direkt über dem Suchfeld.",
+    ],
+  },
+  {
     "version": "0.14.23",
     "date": "2026-09-17",
     "highlights": [
