@@ -367,6 +367,12 @@ export const es = {
     "usageNoTools": "Ninguna herramienta llama en este turno",
     "usageUnknownTool": "Herramienta desconocida",
     "usageCompaction": "Compactado {{times}}× · resumen",
+    "usageCompactionBefore": "Antes de esta compactación",
+    "usageCompactAction": "Compactar contexto",
+    "usageCompactBusy": "Compactando…",
+    "usageCompactHint":
+      "La compactación crea un resumen de punto de control y conserva los mensajes recientes",
+    "usageCompactBusyHint": "Generando el resumen del punto de control…",
     "compactionRow": "Contexto compactado · #{{times}}",
     "compactionRowSummary": "resumen ≈{{tokens}} tokens",
     "compactionRowNoSummary": "no se generó ningún resumen",

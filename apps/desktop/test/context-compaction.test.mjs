@@ -2,6 +2,7 @@ import {
   readStoreSource,
   readStoreModule,
   readTranscriptSource,
+  readComposerSource,
   readMainSource,
   readSharedTypesSource,
 } from "./helpers/source-contracts.mjs";
@@ -30,6 +31,8 @@ const [
   turns,
   styles,
   enLocale,
+  composer,
+  zhCnLocale,
 ] = await Promise.all([
   read("../../../packages/shared/src/protocol.ts"),
   readSharedTypesSource(),
@@ -48,6 +51,8 @@ const [
   read("../src/lib/assistant-turns.ts"),
   loadStyles(),
   read("../../../packages/i18n/src/locales/en/index.ts"),
+  readComposerSource(),
+  read("../../../packages/i18n/src/locales/zh-CN/index.ts"),
 ]);
 
 test("context compaction is wired through protocol v11 and the manual IPC path", () => {
@@ -300,4 +305,41 @@ test("the transcript shows one row per compaction, the inspector the newest", ()
   assert.match(inspector, /chat\.usageCompaction/);
   assert.match(enLocale, /usageCompaction:/);
   assert.match(enLocale, /compactionRow:/);
+});
+
+test("the inspector card starts a compaction and reports it in place", () => {
+  // The card is both the entry point and the result surface (D433): the action
+  // row starts a manual compaction, the runtime's own activity phase drives the
+  // busy presentation, and the checkpoint line gains the occupancy the
+  // checkpoint replaced.
+  assert.match(inspector, /compactBlocked = false/);
+  assert.match(
+    inspector,
+    /state\.agentStatuses\[state\.activeSessionId\]\?\.activity\?\.phase/,
+  );
+  assert.match(inspector, /=== "compacting"/);
+  assert.match(inspector, /state\.compactContext/);
+  assert.match(inspector, /className="context-inspector-actions"/);
+  assert.match(inspector, /chat\.usageCompactHint/);
+  assert.match(inspector, /chat\.usageCompactBusyHint/);
+  assert.match(inspector, /chat\.usageCompactAction/);
+  assert.match(inspector, /chat\.usageCompactBusy/);
+  assert.match(inspector, /aria-busy=\{compacting\}/);
+  assert.match(inspector, /disabled=\{compactBlocked \|\| compacting\}/);
+  assert.match(inspector, /onClick=\{\(\) => void compactContext\(\)\}/);
+  assert.match(inspector, /compaction\?\.tokensBefore !== undefined/);
+  assert.match(inspector, /chat\.usageCompactionBefore/);
+  // The composer hands the card the run/approval block, so a compaction can
+  // never race a live turn or a native session.
+  assert.match(composer, /compactBlocked=\{controlsBlocked \|\| runActive\}/);
+  // The mark carries the figure and both memo comparisons follow it.
+  assert.match(types, /tokensBefore\?: number/);
+  assert.match(transcript, /previous\.tokensBefore === next\.tokensBefore/);
+  assert.match(turns, /previous\.mark\.tokensBefore === next\.mark\.tokensBefore/);
+  assert.match(styles, /\.context-inspector-actions \{/);
+  assert.match(styles, /\.context-inspector-compact-action \{/);
+  assert.match(enLocale, /usageCompactAction: "Compact context"/);
+  assert.match(enLocale, /usageCompactionBefore: "Before this compaction"/);
+  assert.match(zhCnLocale, /usageCompactAction: "压缩上下文"/);
+  assert.match(zhCnLocale, /usageCompactionBefore: "本次压缩前占用"/);
 });

@@ -231,7 +231,12 @@ export function ComposerToolbar({
       </div>
 
       <div className="composer-right">
-        {contextUsage ? <ContextUsageInspector {...contextUsage} /> : null}
+        {contextUsage ? (
+          <ContextUsageInspector
+            {...contextUsage}
+            compactBlocked={controlsBlocked || runActive}
+          />
+        ) : null}
         <ComposerModelPicker
           t={t}
           controller={modelMenu}

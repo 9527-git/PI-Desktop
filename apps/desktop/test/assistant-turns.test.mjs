@@ -334,6 +334,40 @@ test("every checkpoint gets its own row, and an orphaned one gets none", () => {
   );
 });
 
+test("a compaction whose only change is the before-figure rebuilds its row", () => {
+  const mark = {
+    id: "checkpoint-1",
+    throughMessageId: "assistant",
+    generation: 2,
+    summaryTokens: 40,
+    summarized: true,
+    tokensBefore: 92_000,
+  };
+  const messages = [
+    message("user", "user", "hello"),
+    message("assistant", "assistant", "hi"),
+  ];
+  const first = buildTranscriptEntries(messages, [mark]);
+  const same = reuseTranscriptEntries(
+    first.entries,
+    buildTranscriptEntries(messages, [mark]).entries,
+  );
+  assert.equal(same, first.entries, "an unchanged mark keeps its rows");
+  const changed = reuseTranscriptEntries(
+    first.entries,
+    buildTranscriptEntries(messages, [
+      { ...mark, tokensBefore: 92_500 },
+    ]).entries,
+  );
+  const index = first.entries.findIndex((entry) => entry.kind === "compaction");
+  assert.ok(index >= 0, "a compaction row is expected");
+  assert.notEqual(
+    changed[index],
+    first.entries[index],
+    "a changed before-figure must not be memoized away",
+  );
+});
+
 test("delegate runs compare by rows so memoized groups still update", () => {
   const rowA = message("a", "tool", "one", { toolCallId: "a" });
   const rowB = message("b", "tool", "two", { toolCallId: "b" });

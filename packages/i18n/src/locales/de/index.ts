@@ -367,6 +367,12 @@ export const de = {
     "usageNoTools": "Keine Tool-Aufrufe in dieser Runde",
     "usageUnknownTool": "Unbekanntes Tool",
     "usageCompaction": "Verdichtet {{times}}× · Zusammenfassung",
+    "usageCompactionBefore": "Vor dieser Verdichtung",
+    "usageCompactAction": "Kontext verdichten",
+    "usageCompactBusy": "Wird verdichtet…",
+    "usageCompactHint":
+      "Verdichtung erstellt eine Checkpoint-Zusammenfassung und behält die neuesten Nachrichten",
+    "usageCompactBusyHint": "Checkpoint-Zusammenfassung wird erstellt…",
     "compactionRow": "Kontext komprimiert · #{{times}}",
     "compactionRowSummary": "Zusammenfassung ≈{{tokens}} Token",
     "compactionRowNoSummary": "keine Zusammenfassung generiert",

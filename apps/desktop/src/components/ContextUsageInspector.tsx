@@ -43,6 +43,7 @@ export function ContextUsageInspector({
   responseDurationMs,
   responseOutputTokens,
   responseOutputEstimated = false,
+  compactBlocked = false,
 }: {
   usage: MessageUsage;
   turnUsage: MessageUsage;
@@ -51,6 +52,8 @@ export function ContextUsageInspector({
   responseDurationMs?: number;
   responseOutputTokens?: number;
   responseOutputEstimated?: boolean;
+  /** A live turn or a native session owns the composer; compaction must wait. */
+  compactBlocked?: boolean;
 }) {
   const { t } = useTranslation();
   const panelId = useId();
@@ -61,6 +64,15 @@ export function ContextUsageInspector({
       ? state.sessionCompactions[state.activeSessionId]?.at(-1)
       : undefined,
   );
+  // Compaction is a turn-boundary operation and the runtime owns the busy
+  // signal, so the card holds no local in-flight state of its own.
+  const compacting = useAppStore(
+    (state) =>
+      (state.activeSessionId
+        ? state.agentStatuses[state.activeSessionId]?.activity?.phase
+        : undefined) === "compacting",
+  );
+  const compactContext = useAppStore((state) => state.compactContext);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -173,6 +185,7 @@ export function ContextUsageInspector({
     return () => window.cancelAnimationFrame(frame);
   }, [
     compaction,
+    compacting,
     context.usedTokens,
     contextWindow,
     open,
@@ -360,6 +373,35 @@ export function ContextUsageInspector({
           <strong>~{formatTokenCount(compaction.summaryTokens)}</strong>
         </div>
       ) : null}
+      {compaction?.tokensBefore !== undefined ? (
+        <div className="context-inspector-compaction context-inspector-compaction-before">
+          <span>{t("chat.usageCompactionBefore")}</span>
+          <strong>~{formatTokenCount(compaction.tokensBefore)}</strong>
+        </div>
+      ) : null}
+      <div className="context-inspector-actions">
+        <span className="context-inspector-actions-hint">
+          {t(compacting ? "chat.usageCompactBusyHint" : "chat.usageCompactHint")}
+        </span>
+        <TooltipButton
+          type="button"
+          className="btn btn-primary context-inspector-compact-action"
+          tooltip={t("chat.usageCompactAction")}
+          ariaLabel={t("chat.usageCompactAction")}
+          aria-busy={compacting}
+          disabled={compactBlocked || compacting}
+          onClick={() => void compactContext()}
+        >
+          {compacting ? (
+            <>
+              <span className="tool-spinner" aria-hidden="true" />
+              <span>{t("chat.usageCompactBusy")}</span>
+            </>
+          ) : (
+            <span>{t("chat.usageCompactAction")}</span>
+          )}
+        </TooltipButton>
+      </div>
     </div>
   ) : null;
 

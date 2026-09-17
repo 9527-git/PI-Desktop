@@ -376,6 +376,12 @@ export const tr = {
     usageNoTools: "Bu turda araç çağrısı yok",
     usageUnknownTool: "Bilinmeyen araç",
     usageCompaction: "{{times}}× sıkıştırıldı · özet",
+    usageCompactionBefore: "Bu sıkıştırmadan önce",
+    usageCompactAction: "Bağlamı sıkıştır",
+    usageCompactBusy: "Sıkıştırılıyor…",
+    usageCompactHint:
+      "Sıkıştırma bir kontrol noktası özeti oluşturur ve son mesajları korur",
+    usageCompactBusyHint: "Kontrol noktası özeti oluşturuluyor…",
     compactionRow: "Bağlam sıkıştırıldı · #{{times}}",
     compactionRowSummary: "özet ≈{{tokens}} token",
     compactionRowNoSummary: "özet oluşturulmadı",
