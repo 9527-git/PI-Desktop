@@ -59,6 +59,11 @@
   --ds-bg-elevated-opaque: var(--gray-750);
   --ds-bg-hover: color-mix(in oklab, var(--gray-0) 6%, transparent);
   --ds-bg-active: color-mix(in oklab, var(--gray-0) 10%, transparent);
+  /* Sidebar project tint: how strongly a project color shows through its group
+     block at rest, and again on row hover and active states. */
+  --ds-project-tint: 13%;
+  --ds-project-tint-hover: 20%;
+  --ds-project-tint-active: 32%;
   /* Codex elevated-primary #212121f5 / color-mix(gray-800 96%, transparent) */
   --ds-bg-composer: color-mix(in oklab, var(--gray-800) 96%, transparent);
   /*
@@ -173,6 +178,10 @@
   --ds-bg-elevated-opaque: #ffffff;
   --ds-bg-hover: color-mix(in oklab, #1a1c1f 5%, transparent);
   --ds-bg-active: color-mix(in oklab, #1a1c1f 8%, transparent);
+  /* Project colors read stronger on light paper: ease the tint back. */
+  --ds-project-tint: 10%;
+  --ds-project-tint-hover: 16%;
+  --ds-project-tint-active: 26%;
   --ds-bg-composer: #ffffff;
   --ds-sidebar-glass-tint: color-mix(in oklab, var(--ds-bg-sidebar) 55%, transparent);
   --ds-sidebar-glass-sheen-top: color-mix(in oklab, #ffffff 45%, transparent);

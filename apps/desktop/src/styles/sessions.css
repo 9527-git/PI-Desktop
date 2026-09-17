@@ -571,6 +571,65 @@
   height: 6px;
 }
 
+/* Project color picker: palette swatches, a hex field, and the automatic
+   reset. Swatch fills paint the raw palette color; sidebar surfaces only ever
+   mix it into the background. */
+.sidebar-color-menu {
+  min-width: min(224px, calc(100vw - 16px));
+}
+
+.sidebar-color-swatches {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  padding: 2px 4px 8px;
+}
+
+.sidebar-popover .sidebar-color-swatch {
+  width: 28px;
+  height: 28px;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  padding: 0;
+}
+
+.sidebar-color-swatch.selected {
+  box-shadow: 0 0 0 2px var(--ds-bg-elevated-opaque), 0 0 0 4px var(--ds-text-secondary);
+}
+
+.sidebar-color-swatch.selected::after {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--ds-bg-elevated-opaque);
+  content: "";
+}
+
+.sidebar-color-custom {
+  display: block;
+  padding: 0 4px 6px;
+}
+
+.sidebar-color-hex {
+  width: 100%;
+  border: 1px solid var(--ds-border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  background: var(--ds-bg-primary);
+  color: var(--ds-text-primary);
+  font-size: var(--text-sm-plus);
+  font-family: var(--font-mono);
+}
+
+.sidebar-color-hex::placeholder {
+  color: var(--ds-text-muted);
+}
+
+.sidebar-color-hex:focus-visible {
+  outline: 1px solid var(--ds-accent);
+  outline-offset: -1px;
+}
+
 .sidebar-session-group-title.project-toggle {
   gap: 5px;
 }

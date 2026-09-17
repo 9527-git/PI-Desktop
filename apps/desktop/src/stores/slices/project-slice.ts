@@ -30,6 +30,7 @@ import {
   sessionIsPinned,
   sortProjects,
   sortSessions,
+  normalizeProjectColor,
   normalizeProjectName,
   type ProjectMeta,
   type ProjectSort,
@@ -188,6 +189,8 @@ export function createProjectSlice({
   | "toggleProjectCollapsed"
   | "setProjectSort"
   | "reorderProjects"
+  | "setProjectColor"
+  | "applyProjectColors"
   | "getVisibleSessions"
   | "getSortedProjects"
 > {
@@ -774,6 +777,42 @@ export function createProjectSlice({
           projectMeta[key] = { ...(projectMeta[key] || {}), order: index };
         });
         return { projectMeta, projectSort: "manual" };
+      });
+      persistCurrentSidebar(get);
+    },
+
+    setProjectColor: (path, color) => {
+      const key = normalizeProjectPath(path);
+      if (!key) return;
+      const normalized = color === null ? undefined : normalizeProjectColor(color);
+      if (color !== null && !normalized) return;
+      set((state) => {
+        const meta = { ...(state.projectMeta[key] || {}) };
+        if (normalized) meta.color = normalized;
+        else delete meta.color;
+        return { projectMeta: { ...state.projectMeta, [key]: meta } };
+      });
+      persistCurrentSidebar(get);
+    },
+
+    applyProjectColors: (colors) => {
+      const additions: Array<[string, string]> = [];
+      for (const [path, color] of Object.entries(colors)) {
+        const key = normalizeProjectPath(path);
+        const normalized = normalizeProjectColor(color);
+        if (!key || !normalized) continue;
+        // An explicit choice (or an earlier assignment) always wins.
+        if (get().projectMeta[key]?.color) continue;
+        additions.push([key, normalized]);
+      }
+      if (additions.length === 0) return;
+      set((state) => {
+        const projectMeta = { ...state.projectMeta };
+        for (const [key, color] of additions) {
+          if (projectMeta[key]?.color) continue;
+          projectMeta[key] = { ...(projectMeta[key] || {}), color };
+        }
+        return { projectMeta };
       });
       persistCurrentSidebar(get);
     },

@@ -4809,6 +4809,9 @@ IPC 请求无法关闭。
 | D — 工作区（删除项目） | E2E-PROJECT-delete-removes-project-and-owned-sessions |
 | F — 持久化（删除项目） | E2E-PROJECT-delete-removes-project-and-owned-sessions |
 | 品质（删除项目） | E2E-PROJECT-delete-removes-project-and-owned-sessions |
+| D — 工作区（项目颜色） | E2E-SIDEBAR-project-color-assignment, E2E-SIDEBAR-session-inherits-project-color |
+| F — 持久化（项目颜色） | E2E-SIDEBAR-project-color-assignment |
+| 品质（项目颜色） | E2E-SIDEBAR-project-color-assignment, E2E-SIDEBAR-session-inherits-project-color |
 | D — 工作区（外部路径移交） | E2E-CHAT-external-path-open-reveal |
 | 安全性（外部路径移交） | E2E-CHAT-external-path-open-reveal |
 | 品质（外部路径移交） | E2E-CHAT-external-path-open-reveal |
@@ -4842,6 +4845,7 @@ IPC 请求无法关闭。
 | MVP 后远程控制 | E2E-221、E2E-222、E2E-223、E2E-224、E2E-225、E2E-226、E2E-227、E2E-228、E2E-229、E2E-230、E2E-231、E2E-232 |
 | 受信任扩展（R7 v1） | E2E-241、E2E-242、E2E-243、E2E-244、E2E-245、E2E-PLUGIN-imported-pi-package-skills、E2E-PLUGIN-import-extension-installs-dependencies、E2E-PLUGIN-import-extension-reports-missing-dependency |
 | M6+（删除项目） | E2E-PROJECT-delete-removes-project-and-owned-sessions |
+| M6+（项目颜色） | E2E-SIDEBAR-project-color-assignment, E2E-SIDEBAR-session-inherits-project-color |
 | C — 对话和直播（旧版子代理回合上限） | E2E-SUBAGENT-legacy-turn-limit-frontmatter-is-ignored |
 | 品质（旧版子代理回合上限） | E2E-SUBAGENT-legacy-turn-limit-frontmatter-is-ignored |
 
@@ -5347,6 +5351,53 @@ IPC 请求无法关闭。
   恢复它。成绩单和项目绑定保持不变。
 - 传统的 `manual` 首选项加载时不会出现拖动重新排序
   可供性。
+
+### E2E-SIDEBAR-project-color-assignment
+
+- **前提条件**：三个位于不同路径的持久项目 A、B、C，每个至少有一个会话；侧边栏偏好中没有
+  存储的项目颜色；浅色与深色主题均可用。
+- **步骤**：
+  1. 在保留 A、B、C 的情况下启动，检查每个项目分组的图标与区块背景。
+  2. 退出应用，再保留一个项目 D，重新启动后再次检查 A、B、C。
+  3. 打开某个项目的溢出菜单，选择颜色，点击另一个调色板色块，然后在输入框中键入一个
+     合法的自定义 `#rrggbb` 值，再键入一个非法值，例如 `#12zz34` 或 `#abc`。
+  4. 在同一个弹出层中选择“自动”，然后重新打开该弹出层。
+  5. 重新启动并再次检查该分组；然后切换主题并重复检查。
+- **预期**：每个保留的项目都会自动显示调色板颜色，重启前后皆如此，且无需任何用户操作；
+  不同项目倾向于使用不同的调色板条目，而超出十个调色板条目的项目仍会得到确定的调色板
+  颜色。D 出现后项目的颜色保持不变，因为自动结果在首次解析时即被存储，而不是根据当前
+  项目集合重新计算。分组图标使用原始颜色，整个分组区块（标题加行）带有该颜色的低透明度
+  底色；悬停与激活的行状态在同一区块内加深、且与该底色可区分，作为放置目标时保留自身的
+  强调样式。点击色块会立即更新分组与存储的偏好，弹出层保持打开，该色块显示圆环与圆点。
+  合法的自定义值会被应用并规范化为小写；非法值不会改变颜色、存储的偏好和当前选中的
+  色块。“自动”会让项目回到其自动调色板颜色并清除显式选择，重新打开的弹出层显示这一
+  结果。存储的偏好中只包含 `#rrggbb` 值，绝不包含宿主拥有的数据；任何会话、转录本或
+  项目记录都不会改变。底色随主题变化，在浅色主题下更浅。
+- **链接规格**：`04-ux/01-ui-ia.md`（§3.2）、`04-ux/07-ui-design-system.md`、
+  `04-ux/08-component-spec.md`
+- **验收**：D（工作区）、F（持久化）、品质
+- **里程碑**：M6+（当前增量）
+- **状态**：源契约覆盖（`sidebar-project-colors.test.mjs`）；渲染桌面旅程草稿
+
+### E2E-SIDEBAR-session-inherits-project-color
+
+- **前提条件**：项目 A 与 B 具有不同颜色，各自至少有一个会话；A 中有一个全局固定的会话，
+  另有一个无路径的临时会话。可使用“显示存档”。
+- **步骤**：
+  1. 检查某个项目分组的会话行，然后悬停并激活其中一个。
+  2. 检查全局“固定”区块，然后归档一个项目会话并在“显示存档”下检查它。
+  3. 将 B 中的一个会话拖放到 A 的分组上并松开。
+  4. 从项目菜单更改 A 的颜色，检查 B 中未变化的行以及被移动的会话。
+  5. 在浅色主题下重复行检查。
+- **预期**：会话行以所属项目的颜色作为低透明度背景渲染；悬停与激活的行在该颜色内加深，
+  而不是回落到中性的悬停填充，作为放置目标的行保留自身的强调样式。A 中会话的全局固定行
+  带有 A 的颜色，而临时固定行保持中性。被移动的会话立即显示 A 的颜色，无需任何按会话的
+  设置；若移回则恢复为 B 的颜色。已归档的行与可见行表现一致。更改一个项目的颜色绝不会
+  影响另一个项目的行。任何菜单中都不存在按会话的颜色控件，也不会更改任何宿主拥有的数据。
+- **链接规格**：`04-ux/01-ui-ia.md`（§3.2）、`04-ux/09-interaction-patterns.md`
+- **验收**：D（工作区）、品质
+- **里程碑**：M6+（当前增量）
+- **状态**：源契约覆盖（`sidebar-project-colors.test.mjs`）；渲染桌面旅程草稿
 
 ### E2E-PROJECT-delete-removes-project-and-owned-sessions
 

@@ -282,6 +282,10 @@ export type AppState = {
   closeProject: (path: string) => Promise<void>;
   setProjectSort: (sort: ProjectSort) => void;
   reorderProjects: (paths: string[]) => void;
+  /** Set (or clear, with `null`) one project's sidebar color. */
+  setProjectColor: (path: string, color: string | null) => void;
+  /** Persist automatically assigned colors for projects that still lack one. */
+  applyProjectColors: (colors: Record<string, string>) => void;
   getVisibleSessions: (options?: {
     projectPath?: string | null;
     includeArchived?: boolean;

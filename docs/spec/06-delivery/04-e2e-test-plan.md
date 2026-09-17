@@ -7241,6 +7241,9 @@ and identify the platform validation still needed.
 | D — Workspace (project delete) | E2E-PROJECT-delete-removes-project-and-owned-sessions |
 | F — Persistence (project delete) | E2E-PROJECT-delete-removes-project-and-owned-sessions |
 | Quality (project delete) | E2E-PROJECT-delete-removes-project-and-owned-sessions |
+| D — Workspace (project color) | E2E-SIDEBAR-project-color-assignment, E2E-SIDEBAR-session-inherits-project-color |
+| F — Persistence (project color) | E2E-SIDEBAR-project-color-assignment |
+| Quality (project color) | E2E-SIDEBAR-project-color-assignment, E2E-SIDEBAR-session-inherits-project-color |
 | D — Workspace (external path handoff) | E2E-CHAT-external-path-open-reveal |
 | Security (external path handoff) | E2E-CHAT-external-path-open-reveal |
 | Quality (external path handoff) | E2E-CHAT-external-path-open-reveal |
@@ -7274,6 +7277,7 @@ and identify the platform validation still needed.
 | Post-MVP remote control | E2E-221, E2E-222, E2E-223, E2E-224, E2E-225, E2E-226, E2E-227, E2E-228, E2E-229, E2E-230, E2E-231, E2E-232 |
 | Trusted extensions (R7 v1) | E2E-241, E2E-242, E2E-243, E2E-244, E2E-245, E2E-PLUGIN-imported-pi-package-skills, E2E-PLUGIN-import-extension-installs-dependencies, E2E-PLUGIN-import-extension-reports-missing-dependency |
 | M6+ (Project delete) | E2E-PROJECT-delete-removes-project-and-owned-sessions |
+| M6+ (project color) | E2E-SIDEBAR-project-color-assignment, E2E-SIDEBAR-session-inherits-project-color |
 | C — Conversation & stream (legacy subagent turn limit) | E2E-SUBAGENT-legacy-turn-limit-frontmatter-is-ignored |
 | Quality (legacy subagent turn limit) | E2E-SUBAGENT-legacy-turn-limit-frontmatter-is-ignored |
 
@@ -7867,6 +7871,76 @@ This test plan spec is accepted when:
   Projects, and the footer remain reachable in light/dark themes at minimum
   supported window size. Existing hover cards, context menus, drag/drop, and
   project pinning retain their normal behavior.
+
+### E2E-SIDEBAR-project-color-assignment
+
+- **Preconditions**: Three durable projects A, B, and C on distinct paths, each
+  with at least one conversation; the sidebar preferences contain no stored
+  project colors; both light and dark themes are available.
+- **Steps**:
+  1. Launch with A, B, and C retained and inspect each project group's icon
+     and block background.
+  2. Quit, retain one more project D, relaunch, and inspect A, B, and C again.
+  3. Open a project's overflow menu, choose Color, click another palette
+     swatch, then type a valid custom `#rrggbb` value in the field, then type
+     an invalid value such as `#12zz34` or `#abc`.
+  4. Choose Automatic in the same popover, then reopen the popover.
+  5. Relaunch and inspect the group again; then switch the theme and repeat
+     the inspection.
+- **Expected**: Every retained project shows a palette color automatically,
+  before and after a relaunch, without any user action; distinct projects
+  prefer distinct palette entries while a project beyond the ten palette
+  entries still receives a deterministic palette color. A project's color is
+  unchanged after D appears, because the automatic result is stored on first
+  resolution instead of being recomputed from the current project set. The
+  group icon renders the raw color while the whole group block (header plus
+  rows) carries a low-opacity tint of it; hover and active row states deepen
+  within the block and remain distinguishable from it, and an active drop
+  target keeps its own accent. Clicking a swatch updates the group and the
+  stored preference immediately, and the popover stays open with that swatch
+  ringed and dotted. A valid custom value is applied and normalized to lower
+  case; an invalid value leaves the color, the stored preference, and the
+  selected swatch unchanged. Automatic returns the project to its automatic
+  palette color and clears the explicit choice, and the reopened popover shows
+  the resulting color. The stored preference only ever contains `#rrggbb`
+  values and never host-owned data; no session, transcript, or project record
+  changes. The tint follows the theme, staying lighter in the light theme.
+- **Specs linked**: `04-ux/01-ui-ia.md` (§3.2), `04-ux/07-ui-design-system.md`,
+  `04-ux/08-component-spec.md`
+- **Acceptance**: D (workspace), F (persistence), Quality
+- **Milestone**: M6+ (current increment)
+- **Status**: Source-contract covered (`sidebar-project-colors.test.mjs`);
+  rendered desktop journey Draft
+
+### E2E-SIDEBAR-session-inherits-project-color
+
+- **Preconditions**: Projects A and B with different colors, at least one
+  conversation in each, one globally pinned conversation in A, and one
+  path-less temporary conversation. Show archived is available.
+- **Steps**:
+  1. Inspect a project group's conversation rows, then hover and activate one
+     of them.
+  2. Inspect the global Pinned section, then archive a project conversation
+     and inspect it under Show archived.
+  3. Drag a conversation from B onto A's group and release.
+  4. Change A's color from the project menu and inspect B's unchanged rows and
+     the moved conversation.
+  5. Repeat the row inspection in the light theme.
+- **Expected**: Conversation rows render on the owning project's color as a
+  low-opacity background; hover and the active row deepen within that color
+  instead of falling back to the neutral hover fill, and a row that is an
+  active drop target keeps its accent. The globally pinned row for a
+  conversation in A carries A's color, while the temporary pin stays neutral.
+  A moved conversation immediately shows A's color with no per-session
+  setting, and it returns to B's color if moved back. Archived rows behave
+  like visible ones. Changing one project's color never alters another
+  project's rows. No per-conversation color control exists in any menu, and
+  no host-owned data changes.
+- **Specs linked**: `04-ux/01-ui-ia.md` (§3.2), `04-ux/09-interaction-patterns.md`
+- **Acceptance**: D (workspace), Quality
+- **Milestone**: M6+ (current increment)
+- **Status**: Source-contract covered (`sidebar-project-colors.test.mjs`);
+  rendered desktop journey Draft
 
 ### E2E-PROJECT-delete-removes-project-and-owned-sessions
 

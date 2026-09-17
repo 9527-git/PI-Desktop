@@ -31,6 +31,8 @@ export type ProjectMeta = {
   archived?: boolean;
   collapsed?: boolean;
   order?: number;
+  /** `#rrggbb` sidebar color; unset means "assign automatically from the path". */
+  color?: string;
 };
 export type SidebarPreferences = {
   sessionMeta: Record<string, SessionMeta>;
@@ -105,6 +107,12 @@ export function normalizeProjectName(value: unknown): string | undefined {
   if (!name || Array.from(name).length > MAX_PROJECT_NAME_CHARS) return undefined;
   return name;
 }
+/** Accepts only `#rrggbb` (case-insensitive) and returns the lowercase form. */
+export function normalizeProjectColor(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const color = value.trim().toLowerCase();
+  return /^#[0-9a-f]{6}$/.test(color) ? color : undefined;
+}
 function cleanSessionMeta(value: unknown): Record<string, SessionMeta> {
   if (!object(value)) return {};
   const output: Record<string, SessionMeta> = {};
@@ -135,11 +143,13 @@ function cleanProjectMeta(value: unknown): Record<string, ProjectMeta> {
     const archived = bool(raw.archived);
     const collapsed = bool(raw.collapsed);
     const order = manualOrder(raw.order);
+    const color = normalizeProjectColor(raw.color);
     if (name !== undefined) item.name = name;
     if (pinned !== undefined) item.pinned = pinned;
     if (archived !== undefined) item.archived = archived;
     if (collapsed !== undefined) item.collapsed = collapsed;
     if (order !== undefined) item.order = order;
+    if (color !== undefined) item.color = color;
     if (Object.keys(item).length) output[path] = item;
   }
   return output;
