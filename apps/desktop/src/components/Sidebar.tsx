@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
   type AnimationEventHandler as ReactAnimationEventHandler,
+  type CSSProperties,
   type DragEvent as ReactDragEvent,
   type KeyboardEvent as ReactKeyboardEvent,
   type MouseEvent as ReactMouseEvent,
@@ -49,9 +50,14 @@ import type {
 } from "../lib/sidebar-preferences";
 import {
   clampSidebarWidth,
+  normalizeProjectColor,
   SIDEBAR_WIDTH_MAX,
   SIDEBAR_WIDTH_MIN,
 } from "../lib/sidebar-preferences";
+import {
+  PROJECT_COLOR_PALETTE,
+  resolveProjectColor,
+} from "../lib/project-colors";
 import { BrandLogo } from "./BrandLogo";
 import { NotificationCenter } from "./NotificationCenter";
 import { ProjectEditDialog } from "./ProjectEditDialog";
@@ -72,6 +78,7 @@ import {
   IconFolder,
   IconMore,
   IconNewProject,
+  IconPalette,
   IconPin,
   IconPencil,
   IconSidebar,
@@ -92,6 +99,11 @@ type ProjectEntry = {
   /** Best-effort git branch from the project workspace, if known. */
   branch?: string;
 };
+
+/** Sidebar rows consume the project color through one inline CSS variable. */
+function projectColorStyle(color?: string): CSSProperties | undefined {
+  return color ? ({ "--project-color": color } as CSSProperties) : undefined;
+}
 
 const VIEWPORT_PADDING = 8;
 const SIDEBAR_RESIZE_STEP = 16;
@@ -254,6 +266,8 @@ export function Sidebar({
   const setProjectCollapsed = useAppStore((s) => s.setProjectCollapsed);
   const setProjectSort = useAppStore((s) => s.setProjectSort);
   const reorderProjects = useAppStore((s) => s.reorderProjects);
+  const setProjectColor = useAppStore((s) => s.setProjectColor);
+  const applyProjectColors = useAppStore((s) => s.applyProjectColors);
   const showToast = useAppStore((s) => s.showToast);
   const version = useAppStore((s) => s.version);
   const setSettingsTab = useAppStore((s) => s.setSettingsTab);
@@ -266,6 +280,8 @@ export function Sidebar({
   const [editProjectFor, setEditProjectFor] = useState<ProjectEntry | null>(null);
   const [deleteProjectFor, setDeleteProjectFor] = useState<ProjectEntry | null>(null);
   const [projectMenu, setProjectMenu] = useState<string | null>(null);
+  const [colorMenu, setColorMenu] = useState<string | null>(null);
+  const [colorDraft, setColorDraft] = useState("");
   const [sectionMenu, setSectionMenu] = useState<"sessions" | "projects" | null>(null);
   const [menuPosition, setMenuPosition] = useState<{
     top: number;
@@ -416,6 +432,7 @@ export function Sidebar({
     setSortOpen(false);
     setSessionMenu(null);
     setProjectMenu(null);
+    setColorMenu(null);
     setSectionMenu(null);
     setMenuPosition(null);
     if (restoreFocus && trigger) requestAnimationFrame(() => trigger.focus());
@@ -449,6 +466,7 @@ export function Sidebar({
       menuTriggerRef.current = trigger;
       setSortOpen(false);
       setProjectMenu(null);
+      setColorMenu(null);
       setSectionMenu(null);
       hideSessionHoverCard();
       setSessionMenu(sessionId);
@@ -461,10 +479,22 @@ export function Sidebar({
       menuTriggerRef.current = trigger;
       setSortOpen(false);
       setSessionMenu(null);
+      setColorMenu(null);
       setSectionMenu(null);
       setProjectMenu(projectKey);
     },
     [],
+  );
+
+  const openProjectColorMenu = useCallback(
+    (projectKey: string, currentColor: string, x: number, y: number) => {
+      menuTriggerRef.current = null;
+      setProjectMenu(null);
+      setColorDraft(currentColor);
+      placeMenuAtPoint(x, y);
+      setColorMenu(projectKey);
+    },
+    [placeMenuAtPoint],
   );
 
   const openSectionMenu = useCallback(
@@ -473,6 +503,7 @@ export function Sidebar({
       setSortOpen(false);
       setSessionMenu(null);
       setProjectMenu(null);
+      setColorMenu(null);
       placeMenuAtPoint(x, y);
       setSectionMenu(section);
     },
@@ -480,7 +511,7 @@ export function Sidebar({
   );
 
   useEffect(() => {
-    if (!sortOpen && !sessionMenu && !projectMenu && !sectionMenu) return;
+    if (!sortOpen && !sessionMenu && !projectMenu && !colorMenu && !sectionMenu) return;
     const onPointer = (e: PointerEvent) => {
       // Right-click must not dismiss first; contextmenu handlers reopen create menus.
       if (e.button === 2 || (e.pointerType === "mouse" && e.buttons === 2)) return;
@@ -503,12 +534,12 @@ export function Sidebar({
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("resize", onViewportChange);
     };
-  }, [sortOpen, sessionMenu, projectMenu, sectionMenu, closeMenus]);
+  }, [sortOpen, sessionMenu, projectMenu, colorMenu, sectionMenu, closeMenus]);
 
   useEffect(() => {
-    if (!sessionMenu && !projectMenu && !sectionMenu && !sortOpen) return;
+    if (!sessionMenu && !projectMenu && !colorMenu && !sectionMenu && !sortOpen) return;
     requestAnimationFrame(() => menuFirstItemRef.current?.focus());
-  }, [sessionMenu, projectMenu, sectionMenu, sortOpen]);
+  }, [sessionMenu, projectMenu, colorMenu, sectionMenu, sortOpen]);
 
   // Footer utility bar: settings / plugins / notifications + build chip.
 
@@ -708,6 +739,28 @@ export function Sidebar({
     sessionMeta,
     compareSessions,
   ]);
+
+  // Explicit preference first, otherwise a stable hash slot with forward
+  // probing so the open projects stay visually distinct from each other.
+  const projectColors = useMemo(() => {
+    const used = new Set<string>();
+    const byKey = new Map<string, string>();
+    const auto: Record<string, string> = {};
+    for (const entry of projectEntries) {
+      const resolved = resolveProjectColor(entry.key, entry.meta.color, used);
+      used.add(resolved.color);
+      byKey.set(entry.key, resolved.color);
+      if (resolved.auto) auto[entry.key] = resolved.color;
+    }
+    return { byKey, auto };
+  }, [projectEntries]);
+
+  // Persist the first automatic assignment so the color cannot drift later.
+  useEffect(() => {
+    if (Object.keys(projectColors.auto).length > 0) {
+      applyProjectColors(projectColors.auto);
+    }
+  }, [projectColors, applyProjectColors]);
 
   // Look up project entries by normalized path so session rows can fetch the
   // workspace name (and any other project metadata) for the hover card.
@@ -1422,6 +1475,12 @@ export function Sidebar({
         ?? projectName(normalizedProjectPath, projectMetaFor(normalizedProjectPath, projectMeta).name)
       : t("nav.hoverCardTemporarySpace");
     const active = page === "chat" && selectedSessionId === session.id;
+    // Pinned rows live outside their project group, so they carry the owning
+    // project's color inline; temporary sessions stay neutral.
+    const rowColor =
+      options?.global && normalizedProjectPath
+        ? projectColors.byKey.get(normalizedProjectPath)
+        : undefined;
     const archived = sessionArchived(session, meta);
     const running = Boolean(runningSessions[session.id]);
     const hasPendingPermission = (pendingPermissions[session.id]?.length ?? 0) > 0;
@@ -1434,7 +1493,8 @@ export function Sidebar({
     return (
       <div
         key={session.id}
-        className={`thread-item ${active ? "active" : ""} ${archived ? "archived" : ""} ${draggingSessionId === session.id ? "is-dragging" : ""}`}
+        className={`thread-item ${active ? "active" : ""} ${archived ? "archived" : ""} ${draggingSessionId === session.id ? "is-dragging" : ""} ${rowColor ? "colored" : ""}`}
+        style={projectColorStyle(rowColor)}
         data-sidebar-session-row={session.id}
         draggable={!running}
         onDragStart={(event) => {
@@ -1577,8 +1637,10 @@ export function Sidebar({
       <section
         key={entry.key}
         className={`sidebar-session-group project-group ${entry.active ? "active" : ""} ${entry.meta.archived ? "archived" : ""} ${dropProjectKey === entry.key ? "is-drop-target" : ""} ${draggingProjectKey === entry.key ? "is-dragging" : ""} ${dropIndicator?.key === entry.key ? (dropIndicator.insertAfter ? "is-drop-after" : "is-drop-before") : ""}`}
+        style={projectColorStyle(projectColors.byKey.get(entry.key))}
         aria-labelledby={projectId}
         data-sidebar-project-group={entry.key}
+        data-project-color={projectColors.byKey.get(entry.key)}
         onDragOver={(event) => {
           onProjectDropTargetOver(event, entry);
         }}
@@ -1652,7 +1714,7 @@ export function Sidebar({
                 aria-hidden
               />
             ) : (
-              <IconFolder size={13} aria-hidden />
+              <IconFolder size={13} className="sidebar-project-icon" aria-hidden />
             )}
             <span>{entry.name}</span>
             {entry.active ? <span className="sidebar-project-active-dot" aria-label={t("project.active", { defaultValue: "Active" })} /> : null}
@@ -1711,7 +1773,7 @@ export function Sidebar({
     if (
       !menuPosition ||
       typeof document === "undefined" ||
-      (!sessionMenu && !projectMenu && !sectionMenu && !sortOpen)
+      (!sessionMenu && !projectMenu && !colorMenu && !sectionMenu && !sortOpen)
     ) {
       return null;
     }
@@ -1746,6 +1808,90 @@ export function Sidebar({
           >
             <Icon size={14} />
             <span>{label}</span>
+          </button>
+        </div>,
+        document.body,
+      );
+    }
+    if (colorMenu) {
+      const colorEntry = projectEntries.find((item) => item.key === colorMenu);
+      if (!colorEntry) return null;
+      const selectedColor = projectColors.byKey.get(colorMenu) ?? "";
+      return createPortal(
+        <div
+          className="sidebar-popover sidebar-color-menu sidebar-floating-menu"
+          role="menu"
+          data-sidebar-color-menu={colorMenu}
+          onKeyDown={onMenuKeyDown}
+          style={{
+            top: menuPosition.top,
+            left: menuPosition.left,
+          }}
+        >
+          <div className="sidebar-popover-title">
+            {t("project.colorTitle", {
+              name: colorEntry.name,
+              defaultValue: "{{name}} color",
+            })}
+          </div>
+          <div className="sidebar-color-swatches">
+            {PROJECT_COLOR_PALETTE.map((option, index) => (
+              <button
+                ref={index === 0 ? menuFirstItemRef : undefined}
+                key={option.id}
+                type="button"
+                role="menuitemradio"
+                aria-checked={selectedColor === option.hex}
+                aria-label={option.hex}
+                title={option.hex}
+                className={`sidebar-color-swatch ${selectedColor === option.hex ? "selected" : ""}`}
+                data-color={option.hex}
+                style={{ background: option.hex }}
+                onClick={() => {
+                  setProjectColor(colorMenu, option.hex);
+                  setColorDraft(option.hex);
+                }}
+              />
+            ))}
+          </div>
+          <label className="sidebar-color-custom">
+            <input
+              className="sidebar-color-hex"
+              type="text"
+              spellCheck={false}
+              autoComplete="off"
+              value={colorDraft}
+              placeholder="#RRGGBB"
+              aria-label={t("project.customColor", { defaultValue: "Custom color" })}
+              onChange={(event) => {
+                const next = event.target.value;
+                setColorDraft(next);
+                const normalized = normalizeProjectColor(next);
+                if (normalized) setProjectColor(colorMenu, normalized);
+              }}
+              onBlur={() =>
+                setColorDraft(normalizeProjectColor(colorDraft) ?? selectedColor)
+              }
+              onKeyDown={(event) => {
+                // Text editing owns every key except the menu-level ones.
+                if (event.key === "Escape" || event.key === "Enter" || event.key === "Tab") {
+                  return;
+                }
+                event.stopPropagation();
+              }}
+            />
+          </label>
+          <button
+            type="button"
+            role="menuitem"
+            className="sidebar-color-automatic"
+            data-action="reset-project-color"
+            onClick={() => {
+              setProjectColor(colorMenu, null);
+              setColorDraft("");
+            }}
+          >
+            {t("project.colorAutomatic", { defaultValue: "Automatic" })}
           </button>
         </div>,
         document.body,
@@ -1911,6 +2057,23 @@ export function Sidebar({
             >
               <IconPencil size={14} />
               {t("project.edit", { defaultValue: "Edit project" })}
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              data-action="edit-project-color"
+              onClick={(event) => {
+                const rect = event.currentTarget.getBoundingClientRect();
+                openProjectColorMenu(
+                  entry.key,
+                  projectColors.byKey.get(entry.key) ?? "",
+                  rect.right,
+                  rect.top,
+                );
+              }}
+            >
+              <IconPalette size={14} />
+              {t("project.color", { defaultValue: "Color" })}
             </button>
             <button
               type="button"

@@ -87,6 +87,77 @@
   position: relative;
 }
 
+/* Project color. The group block carries the owning project's tint (set inline
+   as --project-color), the icon keeps the raw color, and row states deepen
+   within the block instead of falling back to the neutral gray. */
+.sidebar-session-group.project-group {
+  border-radius: var(--radius-sm);
+  padding: 1px 2px;
+  background: color-mix(
+    in oklab,
+    var(--project-color, transparent) var(--ds-project-tint),
+    transparent
+  );
+}
+
+.sidebar-session-group.project-group .sidebar-session-group-title .sidebar-project-icon,
+.sidebar-session-group.project-group .sidebar-session-group-title .sidebar-project-pin {
+  color: var(--project-color);
+}
+
+/* The header deepens with its rows while hovering; a drop target keeps the
+   accent treatment instead. */
+.sidebar-session-group.project-group:not(.is-drop-target) .sidebar-session-group-title.project-toggle:hover,
+.sidebar-session-group.project-group:not(.is-drop-target) .sidebar-session-group-title.project-toggle:focus-visible {
+  background: color-mix(
+    in oklab,
+    var(--project-color) var(--ds-project-tint-hover),
+    transparent
+  );
+}
+
+.sidebar-session-group.project-group .thread-item:hover {
+  background: color-mix(
+    in oklab,
+    var(--project-color) var(--ds-project-tint-hover),
+    transparent
+  );
+}
+
+.sidebar-session-group.project-group .thread-item.active {
+  background: color-mix(
+    in oklab,
+    var(--project-color) var(--ds-project-tint-active),
+    transparent
+  );
+}
+
+/* Globally pinned rows sit outside their project group, so they carry the
+   owning project's color themselves. Temporary sessions stay neutral. */
+.thread-item.colored {
+  background: color-mix(
+    in oklab,
+    var(--project-color) var(--ds-project-tint),
+    transparent
+  );
+}
+
+.thread-item.colored:hover {
+  background: color-mix(
+    in oklab,
+    var(--project-color) var(--ds-project-tint-hover),
+    transparent
+  );
+}
+
+.thread-item.colored.active {
+  background: color-mix(
+    in oklab,
+    var(--project-color) var(--ds-project-tint-active),
+    transparent
+  );
+}
+
 .sidebar-session-group-header {
   display: flex;
   min-height: 28px;

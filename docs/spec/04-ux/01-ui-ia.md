@@ -186,6 +186,23 @@ destination, chat as the home surface, tools and permissions inline.
 - **Identity**: each project group is keyed by a host-owned logical group id;
   each root path remains canonical and is never inferred from an ambiguous
   folder basename. Legacy single-folder projects are compatibility groups.
+- **Color**: every project group carries a presentation color that
+  distinguishes it from its neighbors. A project without an explicit choice
+  receives one automatically from a fixed ten-color palette, keyed by its
+  normalized path with probing past colors already in use; the automatic
+  result is stored in the renderer sidebar preferences on first resolution so
+  it stays stable as projects are added, removed, or reordered. The group
+  icon renders the raw color and the whole group block (header plus rows)
+  carries a low-opacity tint of it, with hover and active row states deepening
+  within the block and an active drop target keeping its accent. Conversations
+  inherit the owning project's color and recolor when they move to another
+  project; globally pinned rows carry the owning project's color while
+  path-less temporary conversations stay neutral. There are no
+  per-conversation colors. The project menu's Color action opens a popover
+  with the ten palette swatches, a `#rrggbb` field (non-matching input is
+  ignored), and an Automatic row that clears the explicit choice. The color
+  is local presentation state, never host-owned data, and is not synchronized
+  across devices.
 - **Header**: project name, active state, disclosure, new-task action, and an
   overflow menu. The directory title is one full-row disclosure target;
   collapse/expand affects only child visibility, and adjacent groups form one
@@ -194,8 +211,9 @@ destination, chat as the home surface, tools and permissions inline.
   the group.
 - **Project actions**: open folder reveals the primary project directory; Edit
   project changes the host-owned logical group name and adjusts eligible
-  non-primary roots (keeping renderer metadata in sync); pin/unpin changes
-  presentation priority; archive/restore hides or restores the group in the
+  non-primary roots (keeping renderer metadata in sync); Color opens the
+  project color popover; pin/unpin changes presentation priority;
+  archive/restore hides or restores the group in the
   default view; close removes the retained primary tab without deleting or
   archiving group roots, sessions, or memory. Expanded Project archive details
   list every group root.
