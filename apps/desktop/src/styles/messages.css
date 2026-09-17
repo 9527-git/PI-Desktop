@@ -333,14 +333,19 @@
 
 /* The retry reason borrows the assistant error card's hierarchy without
    adding a second transcript row. It is hover/focus-only so the active row
-   remains compact at rest. */
+   remains compact at rest. The card portals to the body layer as a fixed
+   surface: the transcript scroller clipped the absolutely positioned card at
+   the top of a short conversation, and the in-flow tint's transparency let
+   the transcript read through the floating copy. Placements stay clamped to
+   the conversation pane so the work panel's native surfaces stay above it
+   (#246). */
 .run-activity-error-popover.message-error {
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 0;
-  z-index: 8;
+  position: fixed;
+  z-index: 60;
   display: block;
   width: min(360px, calc(100vw - 32px));
+  border: 1px solid var(--ds-border-default);
+  background: color-mix(in oklab, var(--ds-error) 7%, var(--ds-bg-elevated-opaque));
   padding: 10px 12px;
   box-shadow: var(--ds-shadow-dialog);
   opacity: 0;
@@ -353,8 +358,7 @@
     visibility 0s linear var(--motion-duration-fast);
 }
 
-.run-activity-retry-reason:hover .run-activity-error-popover,
-.run-activity-retry-reason:focus-visible .run-activity-error-popover {
+.run-activity-error-popover.message-error.is-open {
   opacity: 1;
   pointer-events: none;
   transform: translateY(0);
@@ -375,13 +379,6 @@
 @media (prefers-reduced-motion: reduce) {
   .run-activity-error-popover.message-error {
     transition: none;
-  }
-}
-
-@media (max-width: 560px) {
-  .run-activity-error-popover.message-error {
-    left: auto;
-    right: 0;
   }
 }
 

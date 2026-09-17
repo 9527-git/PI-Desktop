@@ -7,14 +7,17 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
 register(pathToFileURL(join(here, "helpers/ts-import-hooks.mjs")));
-const { CONTEXT_INSPECTOR_MARGIN, placeContextInspector } = await import(
-  "../src/lib/context-inspector-position.ts"
+const { ANCHORED_POPOVER_MARGIN, placeAnchoredPopover } = await import(
+  "../src/lib/anchored-popover-position.ts"
 );
 
-const inspectorSource = await readFile(
-  new URL("../src/components/ContextUsageInspector.tsx", import.meta.url),
-  "utf8",
+const transcriptSources = await Promise.all(
+  [
+    "../src/components/ContextUsageInspector.tsx",
+    "../src/features/chat/transcript/RetryErrorPopover.tsx",
+  ].map((path) => readFile(new URL(path, import.meta.url), "utf8")),
 );
+const [inspectorSource, retryPopoverSource] = transcriptSources;
 const chatShellStyles = await readFile(
   new URL("../src/styles/chat-shell.css", import.meta.url),
   "utf8",
@@ -25,20 +28,20 @@ const VIEWPORT = { width: 1440, height: 900 };
 const PANE = { left: 276, right: 1120 };
 const POPOVER = { width: 376, height: 220 };
 
-const place = (trigger, pane = PANE, popover = POPOVER) =>
-  placeContextInspector({ trigger, popover, pane, viewport: VIEWPORT });
+const place = (anchor, pane = PANE, popover = POPOVER) =>
+  placeAnchoredPopover({ anchor, popover, pane, viewport: VIEWPORT });
 const placedWidth = (placement) =>
   Math.min(POPOVER.width, placement.maxWidth);
 
 test("the popover never crosses the pane edge into the work panel", () => {
-  // Trigger parked against the pane's right edge, which is where it sits while
+  // Anchor parked against the pane's right edge, which is where it sits while
   // the work panel is open: the popover must not reach the panel's column, or
   // the panel's native browser/plugin surface would paint over it.
   const placement = place({ left: 1080, top: 700, bottom: 728 });
   assert.ok(placement);
   assert.ok(
     placement.left + placedWidth(placement) <=
-      PANE.right - CONTEXT_INSPECTOR_MARGIN,
+      PANE.right - ANCHORED_POPOVER_MARGIN,
     "the popover must end inside the conversation pane",
   );
 });
@@ -48,15 +51,15 @@ test("a pane narrower than the popover caps the popover instead of overflowing",
   const narrow = { left: 0, right: 320 };
   const placement = place({ left: 300, top: 700, bottom: 728 }, narrow);
   assert.ok(placement);
-  assert.equal(placement.maxWidth, 320 - CONTEXT_INSPECTOR_MARGIN * 2);
-  assert.equal(placement.left, CONTEXT_INSPECTOR_MARGIN);
+  assert.equal(placement.maxWidth, 320 - ANCHORED_POPOVER_MARGIN * 2);
+  assert.equal(placement.left, ANCHORED_POPOVER_MARGIN);
   assert.ok(
     placement.left + placement.maxWidth <=
-      narrow.right - CONTEXT_INSPECTOR_MARGIN,
+      narrow.right - ANCHORED_POPOVER_MARGIN,
   );
 });
 
-test("a trigger that already fits keeps its own left edge", () => {
+test("an anchor that already fits keeps its own left edge", () => {
   const placement = place({ left: 600, top: 700, bottom: 728 });
   assert.ok(placement);
   assert.equal(placement.left, 600);
@@ -66,13 +69,15 @@ test("a trigger that already fits keeps its own left edge", () => {
 test("the popover clamps to the pane's left edge, not the window's", () => {
   const placement = place({ left: 4, top: 700, bottom: 728 });
   assert.ok(placement);
-  assert.equal(placement.left, PANE.left + CONTEXT_INSPECTOR_MARGIN);
+  assert.equal(placement.left, PANE.left + ANCHORED_POPOVER_MARGIN);
 });
 
-test("the popover opens above the trigger and falls back below it", () => {
+test("the popover opens above the anchor and falls back below it", () => {
   const above = place({ left: 600, top: 700, bottom: 728 });
   assert.equal(above.top, 700 - POPOVER.height - 8);
 
+  // A row at the top of a short conversation has no room above it; the card
+  // flips below instead of being clipped by the transcript scroller.
   const below = place({ left: 600, top: 100, bottom: 128 });
   assert.equal(below.top, 128 + 8);
 });
@@ -89,18 +94,20 @@ test("a missing pane falls back to the viewport", () => {
   assert.ok(placement);
   assert.ok(
     placement.left + placedWidth(placement) <=
-      VIEWPORT.width - CONTEXT_INSPECTOR_MARGIN,
+      VIEWPORT.width - ANCHORED_POPOVER_MARGIN,
   );
 });
 
-test("the inspector clamps against the conversation pane, not the viewport", () => {
-  assert.match(inspectorSource, /trigger\.closest\("\.main-pane"\)/);
-  assert.match(inspectorSource, /placeContextInspector\(\{/);
-  assert.doesNotMatch(
-    inspectorSource,
-    /window\.innerWidth - popoverRect\.width/,
-    "the horizontal clamp must come from the pane, not the viewport",
-  );
+test("both anchored surfaces clamp against the conversation pane, not the viewport", () => {
+  for (const source of [inspectorSource, retryPopoverSource]) {
+    assert.match(source, /closest\("\.main-pane"\)/);
+    assert.match(source, /placeAnchoredPopover\(\{/);
+    assert.doesNotMatch(
+      source,
+      /window\.innerWidth - \w+\.width/,
+      "the horizontal clamp must come from the pane, not the viewport",
+    );
+  }
   // The landmark the clamp queries has to stay declared by the shell stylesheet.
   assert.match(chatShellStyles, /\.main-pane\s*\{/);
 });

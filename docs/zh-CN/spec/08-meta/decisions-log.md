@@ -4266,3 +4266,21 @@ the retained upstream work-panel lifecycle. See
 - 见 `04-ux/06-settings-ia.md` §1 / §4 与
   `06-delivery/04-e2e-test-plan.md` 的 US-UI-44；`settings-drag-region.test.mjs`
   固定顶部带的位置。
+
+## 2026-09-17 —— 重试原因卡片悬浮于记录之上（D432）
+
+- 重试行错误卡脱离记录的布局流。它原先是记录滚动器内的 `absolute` 表面，
+  短会话会在顶部把它裁剪掉，而且它继承了流内的 `.message-error` 淡色底，
+  使记录文字透过悬浮副本可读。现在它是经 body 传送的固定表面，铺在不透明的
+  高层底板上并带对话框阴影。
+- 定位与上下文用量弹卡共享：算法移到 `lib/anchored-popover-position.ts`，
+  同时服务两个表面——夹紧在会话窗格内（绝不压到工作面板的原生视图下）、
+  优先显示在锚点上方、锚点贴近窗格顶部时翻转到下方、窗格过窄时收紧宽度。
+  窗口缩放、滚动以及窗格／卡片尺寸变化都会重新定位。
+- 悬停／聚焦显示、`role="tooltip"`、`aria-describedby` 关联、本地化摘要与
+  代码／HTTP 状态、有界的提供商消息均保持不变。仅渲染器、文档与测试：
+  不改 IPC 渠道、Host RPC、存储 schema、权限或持久化状态。
+- 见 `04-ux/08-component-spec.md` §4.4 与
+  `06-delivery/04-e2e-test-plan.md` 的 E2E-008c；`fixed-dropdown-surfaces.test.mjs`
+  与 `active-turn-surface.test.mjs` 固定表面契约，
+  `anchored-popover-position.test.mjs` 固定定位算法。
