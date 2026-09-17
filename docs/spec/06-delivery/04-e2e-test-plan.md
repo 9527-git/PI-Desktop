@@ -7266,6 +7266,8 @@ and identify the platform validation still needed.
 | Quality (turn summary card) | E2E-CHAT-turn-summary-card |
 | C — Conversation & stream (manual compaction queue) | E2E-QUEUE-prompt-during-manual-compaction-is-queued-and-delivered |
 | Quality (manual compaction queue) | E2E-QUEUE-prompt-during-manual-compaction-is-queued-and-delivered |
+| C — Conversation & stream (inspector compact action) | E2E-CHAT-compact-from-context-inspector |
+| Quality (inspector compact action) | E2E-CHAT-compact-from-context-inspector |
 | C — Conversation & stream (transcript glow language) | E2E-CHAT-transcript-glow-language |
 | Quality (transcript glow language) | E2E-CHAT-transcript-glow-language |
 | C — Conversation & stream (cross-session rendering) | E2E-CHAT-other-sessions-render-without-switching |
@@ -12143,3 +12145,25 @@ plugin-form fixtures in an isolated temporary directory at runtime.
   transcript has no readable text.
 - **Specs:** `04-ux/07-ui-design-system.md` §16; D427.
 - **Status:** Documented; run after integration into main.
+
+#### E2E-CHAT-compact-from-context-inspector: Compact from the context usage card
+
+- **Preconditions**: A chat session with history is active and idle; the
+  newest checkpoint record may or may not carry its pre-compaction occupancy.
+- **Steps**: 1) Open the context usage popover. 2) Inspect the action row at
+  the bottom of the card. 3) Click `Compact context`. 4) Observe the button
+  and the popover while the runtime reports the compacting phase. 5) Repeat
+  with a running turn, with a checkpoint whose record carries no occupancy,
+  and with no checkpoint at all.
+- **Expected**: The idle card shows the hint copy and an enabled button. The
+  click calls `agent.compact` for the active session and the popover stays
+  open. While `activity.phase === "compacting"` the button is disabled, carries
+  `aria-busy="true"`, and shows a spinner with the busy label and hint. While a
+  turn is live the button is disabled and keeps the idle copy. The checkpoint
+  line shows the pre-compaction occupancy only when the newest mark carries
+  `tokensBefore`; otherwise it degrades to the summary line alone, and with no
+  checkpoint the action row still renders.
+- **Specs linked**: `04-ux/08-component-spec.md`, `04-ux/09-interaction-patterns.md`,
+  `03-runtime/01-ipc-protocol.md`, ADR context-inspector-compact-action
+- **Acceptance**: C — Conversation & stream; Quality
+- **Status**: Automated (CDP) — `pnpm test:e2e:inspector-compact`

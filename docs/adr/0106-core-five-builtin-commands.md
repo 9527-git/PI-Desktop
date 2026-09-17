@@ -1,6 +1,6 @@
 # ADR 0106: Keep only five core builtin commands
 
-- Status: Accepted
+- Status: Accepted (amended by D433 / [context-inspector-compact-action](context-inspector-compact-action.md): compaction is also reachable from the context usage card, not slash-first alone)
 - Date: 2026-08-19
 - Deciders: PI-Desktop core
 - Related: D250, ADR 0024, ADR 0034, `04-ux/04-builtin-commands.md`

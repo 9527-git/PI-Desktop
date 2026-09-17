@@ -45,6 +45,10 @@ Electron E2E scripts (`scripts/e2e-*.mjs`).
    `apps/desktop/src/lib/assistant-turns.ts:327-336` (`reuseTranscriptEntry`).
    Both sites must follow `tokensBefore`, otherwise a mark whose only change is
    the new figure is memoized away and the "before" line never renders.
+   Behavioral coverage for both comparators lives in
+   `apps/desktop/test/assistant-turns.test.mjs`, which exercises the exported
+   `reuseTranscriptEntries` (the memo comparator itself is not directly
+   testable from a plain source test).
 2. `ContextCompactionRecord.tokensBefore` is **required** (`packages/shared/src/types/sessions.ts:81`,
    Rust `tokens_before: i64`), so `contextCompactionMark()` assigns it directly
    and the shared test's exact `toEqual` gains `tokensBefore: 120_000`. The
@@ -69,6 +73,7 @@ Electron E2E scripts (`scripts/e2e-*.mjs`).
 | `apps/desktop/src/styles/messages.css` | action row + before-line styles |
 | `packages/i18n/src/locales/*/index.ts` | 5 new `chat.*` keys × 8 locales |
 | `apps/desktop/test/context-compaction.test.mjs` | source-contract test for the above |
+| `apps/desktop/test/assistant-turns.test.mjs` | behavioral reuse test for the new mark field |
 | `apps/desktop/src/capture/capture-rig.ts` | new `seedContextInspectorCompaction` fixture |
 | `apps/desktop/src/capture/renderer-api.ts` | whitelists the new fixture |
 | `scripts/e2e-context-inspector-compact.mjs` | CDP E2E for `E2E-CHAT-compact-from-context-inspector` |

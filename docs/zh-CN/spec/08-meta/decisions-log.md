@@ -4284,3 +4284,11 @@ the retained upstream work-panel lifecycle. See
   `06-delivery/04-e2e-test-plan.md` 的 E2E-008c；`fixed-dropdown-surfaces.test.mjs`
   与 `active-turn-surface.test.mjs` 固定表面契约，
   `anchored-popover-position.test.mjs` 固定定位算法。
+
+## 2026-09-17 —— 从上下文卡片启动压缩（D433）
+
+上下文用量检查器此前是只读的，看到上下文变满和动手处理是两处界面。现在卡片底部新增操作行：左侧提示文案，右侧“压缩上下文”按钮，调用既有的 `compactContext()` store 动作与既有 `agent.compact` IPC —— 不新增渠道、不新增权限、不改运行时。忙碌状态直接取自运行时的 `activity.phase === "compacting"`；当有正在进行的回合或原生会话占用输入区时按钮禁用；压缩过程中卡片保持打开，更新后的检查点行即为原地反馈。`ContextCompactionMark` 新增可选 `tokensBefore`，取自宿主本就持久化的记录，使检查点行可以显示被替换掉的上下文占用；旧标记不含该字段时退化为单行。仅渲染器、文档与测试：不改 IPC 渠道、Host RPC、存储 schema、权限或持久化状态。
+- 见 `04-ux/08-component-spec.md` §8.3/§8.5、`04-ux/09-interaction-patterns.md`
+  §3A、`03-runtime/01-ipc-protocol.md` 与
+  `06-delivery/04-e2e-test-plan.md` 的 E2E-CHAT-compact-from-context-inspector；
+  ADR `context-inspector-compact-action`。
