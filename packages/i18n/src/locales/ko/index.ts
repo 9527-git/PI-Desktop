@@ -539,6 +539,8 @@ export const ko = {
     thinkingUnavailable: "이 모델에서는 생각 기능을 사용할 수 없습니다.",
     thinkingEnable: "생각 기능 켜기",
     untitledTask: "새 작업",
+    topbarStatusRunning: "처리 중",
+    topbarStatusPending: "입력 필요",
   },
   sideChat: {
     readOnly: "이 네이티브 Pi 세션은 현재 읽기 전용입니다.",

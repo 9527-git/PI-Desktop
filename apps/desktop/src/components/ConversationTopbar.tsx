@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { conversationStatus } from "../lib/conversation-status";
 import { useAppStore } from "../stores/app-store";
 import {
   IconSidebar,
@@ -46,6 +47,10 @@ export function ConversationTopbar({
   const activeSessionId = useAppStore((s) => s.activeSessionId);
   const sessions = useAppStore((s) => s.sessions);
   const workspace = useAppStore((s) => s.workspace);
+  const runningSessions = useAppStore((s) => s.runningSessions);
+  const pendingPermissions = useAppStore((s) => s.pendingPermissions);
+  const pendingAsks = useAppStore((s) => s.pendingAsks);
+  const pendingPlans = useAppStore((s) => s.pendingPlans);
 
   const activeSession = sessions.find((session) => session.id === activeSessionId);
 
@@ -54,6 +59,16 @@ export function ConversationTopbar({
     : activeSession?.title || t("chat.untitledTask");
   const taskTitle = truncateTopbarTitle(fullTaskTitle);
   const project = projectName(workspace?.path, workspace?.name);
+
+  const status = activeSessionId
+    ? conversationStatus({
+        running: Boolean(runningSessions[activeSessionId]),
+        hasPendingPermission:
+          (pendingPermissions[activeSessionId]?.length ?? 0) > 0,
+        hasPendingAsk: (pendingAsks[activeSessionId]?.length ?? 0) > 0,
+        hasPendingPlan: pendingPlans[activeSessionId]?.status === "pending",
+      })
+    : null;
 
   return (
     <div
@@ -85,6 +100,20 @@ export function ConversationTopbar({
           className="ct-title-wrap"
           title={project ? `${project} · ${fullTaskTitle}` : fullTaskTitle}
         >
+          <div
+            className="ct-status-slot"
+            data-state={status ?? "hidden"}
+            role="status"
+          >
+            {status ? (
+              <span className={`ct-status-chip ct-status-${status}`}>
+                <span className="ct-status-dot" aria-hidden="true" />
+                {status === "pending"
+                  ? t("chat.topbarStatusPending")
+                  : t("chat.topbarStatusRunning")}
+              </span>
+            ) : null}
+          </div>
           <span className="ct-title">{taskTitle}</span>
         </div>
       </div>

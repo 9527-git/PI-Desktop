@@ -535,6 +535,8 @@ export const zhCN = {
     thinkingUnavailable: "当前模型不支持思考过程。",
     thinkingEnable: "开启思考",
     untitledTask: "新建任务",
+    topbarStatusRunning: "处理中",
+    topbarStatusPending: "待确认",
   },
   sideChat: {
     readOnly: "该原生 Pi 会话当前为只读状态。",

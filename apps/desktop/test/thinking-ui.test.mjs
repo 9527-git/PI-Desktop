@@ -103,12 +103,15 @@ test("Composer owns the mode and model controls", () => {
   assert.match(composerModelPickerSource, /composer-menu-back/);
 });
 
-test("conversation topbar keeps the title and actions free of a running indicator", () => {
+test("conversation topbar keeps the title and actions free of a duplicate running indicator", () => {
   assert.doesNotMatch(topbarSource, /IconFolder|IconChevronRight/);
   assert.doesNotMatch(topbarSource, /className="ct-project"/);
   assert.doesNotMatch(topbarSource, /className="ct-title-chevron"/);
   assert.match(topbarSource, /className="ct-title"/);
-  assert.doesNotMatch(topbarSource, /runningSessions|const isRunning|ct-running|role="status"/);
+  // D433 replaces the removed bare dot with the ct-status-* chip; the old
+  // ct-running shape must not come back alongside it, and the topbar still
+  // reports no run state beyond the title-cluster chip.
+  assert.doesNotMatch(topbarSource, /ct-running(?:-dot)?\b/);
   assert.match(stylesSource, /\.conversation-topbar \.ct-title-wrap[\s\S]*?align-items: center/);
   assert.match(
     stylesSource,

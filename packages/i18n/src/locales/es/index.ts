@@ -529,7 +529,9 @@ export const es = {
     "thinkingHide": "Ocultar pensamiento",
     "thinkingUnavailable": "Pensamiento no está disponible para este modelo.",
     "thinkingEnable": "Habilitar el pensamiento",
-    "untitledTask": "Nueva tarea"
+    "untitledTask": "Nueva tarea",
+    "topbarStatusRunning": "En curso",
+    "topbarStatusPending": "Pendiente"
   },
   "sideChat": {
     readOnly: "Esta sesión nativa de Pi es de solo lectura en este momento.",

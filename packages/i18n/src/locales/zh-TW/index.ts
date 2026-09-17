@@ -535,6 +535,8 @@ export const zhTW = {
     thinkingUnavailable: "當前模型不支援思考過程。",
     thinkingEnable: "開啟思考",
     untitledTask: "新建任務",
+    topbarStatusRunning: "處理中",
+    topbarStatusPending: "待確認",
   },
   sideChat: {
     readOnly: "此原生 Pi 工作階段目前為唯讀狀態。",

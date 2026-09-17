@@ -4284,3 +4284,22 @@ the retained upstream work-panel lifecycle. See
   `06-delivery/04-e2e-test-plan.md` 的 E2E-008c；`fixed-dropdown-surfaces.test.mjs`
   与 `active-turn-surface.test.mjs` 固定表面契约，
   `anchored-popover-position.test.mjs` 固定定位算法。
+
+## 2026-09-17 —— 对话顶部栏状态胶囊（D433）
+
+- 对话顶部栏在任务标题左侧显示状态胶囊：活动会话的回合运行中显示 `● 处理中`
+  （橙色、呼吸灯），智能体在等待人工决定时显示 `● 待确认`（紫色、脉冲灯），
+  空闲时不显示。胶囊复用侧边栏在同一状态下的圆点语言，两个表面共用一套色彩约定。
+- `待确认` 是活动会话上全部人工介入来源的并集：权限队列非空、ask 工具队列非空，
+  或存在待批准的 Plan/Goal（`pendingPlans[sessionId].status === "pending"`）。
+  它的优先级高于 `处理中`：被阻塞的智能体需要用户，而运行中的智能体只需要时间。
+- 胶囊位于标题簇内，不是控件（无点击目标、无工具提示、不退出拖拽区域），并以
+  `role="status"` 实时区域暴露，可见文字即其可访问文本。槽位同时动画 `max-width`
+  与不透明度，时长 `--motion-duration-normal`，因此状态出现或消失时标题是滑动
+  而不是跳变；`prefers-reduced-motion: reduce` 同时禁用该过渡与圆点动画。
+- 侧边栏指示器有意保持不变：仍仅覆盖权限，并保留其形状区分图标（D135）。
+  胶囊读取同一组按会话的状态映射；只有会话表面扩大了待确认集合。
+- 仅渲染器、文档与测试：不改 IPC 渠道、Host RPC、存储 schema、权限或持久化状态。
+- 见 `04-ux/08-component-spec.md` §2 与 `06-delivery/04-e2e-test-plan.md` 的
+  E2E-CHAT-topbar-status-chip；`topbar-status-chip.test.mjs` 固定优先级、标记与样式
+  契约，`scripts/e2e-topbar-status-chip.mjs` 通过 CDP 驱动已构建的应用。

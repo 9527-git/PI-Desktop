@@ -539,6 +539,8 @@ export const tr = {
     thinkingUnavailable: "Bu model için düşünme yok.",
     thinkingEnable: "Düşünmeyi aç",
     untitledTask: "Yeni görev",
+    topbarStatusRunning: "Çalışıyor",
+    topbarStatusPending: "Girdi bekliyor",
   },
   sideChat: {
     readOnly: "Bu yerel Pi oturumu şu anda salt okunur.",

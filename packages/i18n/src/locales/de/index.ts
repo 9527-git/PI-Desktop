@@ -529,7 +529,9 @@ export const de = {
     "thinkingHide": "Denken ausblenden",
     "thinkingUnavailable": "Denken ist für dieses Modell nicht verfügbar.",
     "thinkingEnable": "Denken aktivieren",
-    "untitledTask": "Neue Aufgabe"
+    "untitledTask": "Neue Aufgabe",
+    "topbarStatusRunning": "Läuft",
+    "topbarStatusPending": "Eingabe nötig"
   },
   "sideChat": {
     readOnly: "Diese native Pi-Sitzung ist derzeit schreibgeschützt.",
