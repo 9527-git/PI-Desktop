@@ -5409,3 +5409,32 @@ Validation contract: E2E-SIDEBAR-global-pinned-conversations.
   `06-delivery/04-e2e-test-plan.md`; `fixed-dropdown-surfaces.test.mjs` and
   `active-turn-surface.test.mjs` pin the surface contract and
   `anchored-popover-position.test.mjs` the placement math.
+
+## 2026-09-17 — Conversation topbar status chip (D433)
+
+- The conversation top bar shows a status chip immediately left of the task
+  title: `● 处理中` (orange, breathing) while the active session's turn runs,
+  `● 待确认` (purple, pulsing) while the agent waits on a human decision, and
+  nothing when the session is idle. The chip reuses the sidebar's dot language
+  for the same states, so one color code covers both surfaces.
+- `待确认` is the union of every human-intervention source on the active
+  session: a non-empty permission queue, a non-empty asktool queue, or a
+  pending Plan/Goal approval (`pendingPlans[sessionId].status === "pending"`).
+  It outranks `处理中`, because a blocked agent needs the user, while a running
+  agent only needs time.
+- The chip sits inside the title cluster, is not a control (no click target,
+  no tooltip, no opt-out of the drag region), and is exposed as a
+  `role="status"` live region whose text is the visible label. The slot
+  animates `max-width` plus opacity over `--motion-duration-normal` so the
+  title slides rather than jumping when the state appears or clears;
+  `prefers-reduced-motion: reduce` disables both the transition and the dot
+  animation.
+- The sidebar's indicator is deliberately unchanged: it stays permission-only
+  and keeps its shape-distinct iconography (D135). The chip reads the same
+  per-session maps; only the conversation surface widens the pending set.
+- Renderer plus docs plus tests: no IPC channel, host RPC, storage schema,
+  permission, or persisted-state change.
+- See `04-ux/08-component-spec.md` §2 and E2E-CHAT-topbar-status-chip in
+  `06-delivery/04-e2e-test-plan.md`; `topbar-status-chip.test.mjs` pins the
+  priority rule, the markup contract, and the style contract, and
+  `scripts/e2e-topbar-status-chip.mjs` drives the built app over CDP.
