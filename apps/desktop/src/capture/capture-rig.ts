@@ -188,6 +188,7 @@ export function installCaptureRig(): CaptureRig {
             .__PI_COMPACT_CALLS__ ?? []),
           request,
         ];
+        return { accepted: true };
       };
       useAppStore.setState((state) => ({
         activeSessionId: sessionId,
