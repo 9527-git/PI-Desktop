@@ -11,14 +11,10 @@ Settings is a **full-window page** that replaces the app sidebar + main chrome (
   section.
 
 - Left settings rail only (sidebar surface `#f4f4f4` light / `#000` dark), **~275px** (Codex gold at 1200-wide)
-- Top of rail: traffic-light clearance and the pill **Search settings…**
-- The **Back to app** (`返回应用`) action is pinned to the foot of the rail, not
-  the top: it keeps its chevron + label form as a 32px control, and it shares
-  the horizontal band of the main shell's sidebar footer icon row (settings /
-  plugins / notifications), so the action does not jump vertically when the
-  full-page takeover opens or closes. The directory above it scrolls when the
-  window is too short for every destination, so a pinned action never covers a
-  row
+- Top of rail: traffic-light clearance, the **Back to app** (`返回应用`) action,
+  then the pill **Search settings…**: the action sits above the search pill and
+  returns to the chat shell. The directory below scrolls when the window is too
+  short for every destination
 - The 46px top band is a native window drag region across both the rail and the
   content pane, but it is drawn in two parts so each keeps its own surface: the
   rail drags via its own top strip on the rail surface, and the content pane's
@@ -565,17 +561,17 @@ system while preserving their different data ownership:
   to the catalog controls; it is not a separate Settings destination.
 - Project archive is indexed by Settings search and is not duplicated as a home
   sidebar destination or standalone global-search page
-- Back to app returns to chat shell from the rail's pinned footer action
+- Back to app returns to chat shell
 
 ## 4. Acceptance
 
 1. Opening Settings hides the coding app sidebar (full-page takeover)
-2. Rail shows the search pill at the top, the back-to-app action pinned at the
-   foot on the main sidebar's footer icon line, and exactly General / 常规, AI,
-   Shortcuts / 快捷键, Instructions / 指令, Models / 模型, Skills / 技能, MCP,
-   Subagents / 子智能体, Import / 导入, Projects / 项目, and Info / 信息 in
-   that order. The rows are grouped under Preferences / 偏好, Agent / 智能体,
-   Workspace / 工作区, and System / 系统. There is no Usage / 用量 destination.
+2. Rail shows the back-to-app action and the search pill at the top, and
+   exactly General / 常规, AI, Shortcuts / 快捷键, Instructions / 指令,
+   Models / 模型, Skills / 技能, MCP, Subagents / 子智能体, Import / 导入,
+   Projects / 项目, and Info / 信息 in that order. The rows are grouped under
+   Preferences / 偏好, Agent / 智能体, Workspace / 工作区, and System / 系统.
+   There is no Usage / 用量 destination.
 3. Appearance is part of General and has no standalone rail destination
 4. Providers is part of Agent and has no standalone rail destination
 5. Plugins has no Settings destination; the app-shell Plugins page supports
