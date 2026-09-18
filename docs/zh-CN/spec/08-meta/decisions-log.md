@@ -4435,3 +4435,31 @@ D433 之后收到用户反馈：状态灯应位于侧边栏（项目列表下方
   E2E-SIDEBAR-status-dot-pending-union；`sidebar-session-status.test.mjs`
   固定并集优先级与样式/标签契约，`scripts/e2e-sidebar-status-dot.mjs` 通过
   CDP 驱动已构建的应用。
+
+## 2026-09-18 —— 需要关注的状态在侧边栏行上也以文字呈现（D445）
+
+v0.14.33 构建之后收到用户反馈：状态灯没有可读的文字说明。侧边栏圆点（D135）
+一直把含义放在工具提示与可访问名称里，而本产品唯一可见的状态句子长在 D433
+的顶部栏胶囊上——D444 把它删除后，迁移指示器顺带把文字也带走了。D445 按用户
+的目光所在，把文字恢复在会话行上。
+
+- 两个需要关注的状态现在把本地化状态词渲染成一个小号彩色标签，紧挨在会话标题
+  之前——运行中行用 `nav.sessionRunning`（`--ds-warning` 橙），每个待确认行用
+  `nav.sessionNeedsInput`（`--ds-purple` 紫），权限、ask 与 Plan/Goal 审批一致，
+  因此 D444 的并集仍共享同一措辞。该词复用圆点已经暴露的同一字符串，圆点与文字
+  不可能漂移，八个语言包都无需新增键。
+- 安静状态保持仅有圆点。已选择、已完成、失败仍只用 D135 的环/对勾/警示几何，
+  不附加内联词，好让这个标签始终表示「这一行在找你」，而不是在长列表的每一行上
+  变成常驻噪声。
+- 该标签是圆点的视觉孪生体而非第二个指示器：它标记 `aria-hidden`，因此读屏器
+  每行仍只播报一个可访问名称，圆点保留自身的 `aria-label` 与工具提示。它使用行
+  预览所在的紧凑层级（`--text-2xs`、字重 600），并放在新的标题行里，标题的省略
+  号行为不变（`min-width: 0`，标签不参与压缩）。
+- 仅渲染器、文档与测试：不改 IPC 渠道、Host RPC、存储 schema、权限或持久化
+  状态，store 映射也无变化——标签读取圆点本就已消费的
+  `sidebarSessionStatus` 结果。
+- 见 `04-ux/07-ui-design-system.md` §4.5、`04-ux/08-component-spec.md` §2 与 §3，
+  以及 `06-delivery/04-e2e-test-plan.md` 的 E2E-SIDEBAR-status-dot-pending-union；
+  `sidebar-session-status.test.mjs` 固定标记结构与令牌契约，
+  `scripts/e2e-sidebar-status-dot.mjs` 现在通过 CDP 断言每个关注行的可见文字等于
+  其圆点的可访问名称、使用圆点自身令牌（两种主题都验），且选中行没有该文字。

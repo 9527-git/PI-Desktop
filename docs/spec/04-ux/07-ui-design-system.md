@@ -249,9 +249,9 @@ token rather than introducing a decorative palette:
 
 | State | Semantic color | Shape / motion | Meaning |
 |---|---|---|---|
-| Needs input | purple | filled dot with a restrained pulse | a permission request, asktool question, or Plan/Goal approval awaits the user |
+| Needs input | purple | filled dot with a restrained pulse, plus an inline status word | a permission request, asktool question, or Plan/Goal approval awaits the user |
 | Selected | neutral accent | static outlined ring | current conversation |
-| In progress | warning orange | filled dot with a restrained breathing pulse | agent is producing or executing |
+| In progress | warning orange | filled dot with a restrained breathing pulse, plus an inline status word | agent is producing or executing |
 | Completed | success green | check mark | latest unread task turn completed |
 | Failed | error red | circled alert mark | latest unread task turn failed |
 
@@ -268,6 +268,15 @@ mark cannot return after a notification refresh or app restart. Outcomes already
 marked read never produce a terminal mark. Reduced-motion mode disables the
 breathing and pulse animations while retaining each dot's fill and localized
 accessible name (`nav.sessionNeedsInput` for the needs-input state).
+
+The two attention states also spell their state out. In progress and needs input
+render their localized word (`nav.sessionRunning` / `nav.sessionNeedsInput`) as
+a small colored label inline before the session title, tinted with the same
+`--ds-warning` / `--ds-purple` token as the dot, so a glance at the list reads as
+text rather than as color decoding (D445). The word is the dot's visual twin —
+`aria-hidden`, identical copy, same token — and the quiet states (selected,
+completed, failed) stay dot-only so the label keeps meaning "this row needs your
+attention". Both themes resolve word and dot to their own tokens.
 
 ### 4.6 Chat transcript status semantics
 

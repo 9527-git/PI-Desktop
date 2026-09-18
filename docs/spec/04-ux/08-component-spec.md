@@ -219,8 +219,9 @@ does not duplicate it. Keyboard shortcuts and the application menu remain
 available.)
 
 The top bar carries no per-session status indicator. Run and needs-input state
-lives on the sidebar session row dot (D444, §3), so the title cluster stays a
-single, calm lane. The conversation top bar renders for the chat route only;
+lives on the sidebar session row status indicator — leading dot plus inline
+status word (D444, D445, §3) — so the title cluster stays a single, calm lane.
+The conversation top bar renders for the chat route only;
 Pull requests, Scheduled, Plugins, and Settings keep the frameless drag band. It
 owns the task title and window actions only. Project scope remains in the title
 tooltip instead of adding another visible label. The Composer owns the
@@ -293,8 +294,10 @@ Agent/Plan/Goal control and the combined model × reasoning selection (§11).
 - Composer stop control has `aria-label="Stop generating"`
 - The top bar exposes no status live region; per-session run and needs-input
   state is announced from the sidebar row dot's accessible label instead
-  (D444, §3). The Composer submit control and transcript working feedback
-  remain the primary running-state cues.
+  (D444, §3). The inline status word on that row is the dot's visual twin and is
+  `aria-hidden`, so a screen reader still hears one label per row (D445). The
+  Composer submit control and transcript working feedback remain the primary
+  running-state cues.
 
 ### 2.6 MVP constraints
 
@@ -364,6 +367,7 @@ tier; weight, indentation, and disclosure icons preserve their hierarchy:
 |---|---|---|
 | Footer action icons | `--text-base` (14px) | Settings, Extensions, notifications; left side of footer |
 | Session / thread titles | `--text-md` (13px) | Compact list content |
+| Inline session status word | `--text-2xs` (11px) | Secondary annotation before the title, same tier as the row preview; only the in-progress and needs-input rows carry it (D445) |
 | Project / group titles, empty copy | `--text-md` (13px) | Hierarchy comes from weight and indentation |
 | Section labels (`PINNED`, `SESSIONS`, `PROJECTS`) | `--text-sm` (12px) | Uppercase secondary labels; global pin project context uses the same size |
 | Footer profile name + profile menu items | `--text-base` (14px) | Identity cluster matches nav body |
@@ -382,10 +386,10 @@ visually distinct from list content.
 | Collapsed | Icon rail — hover shows tooltip with session title |
 | Active session | Accent-blue outlined status ring plus active row background |
 | Selecting session | Destination row receives the active treatment immediately while transcript/workspace resolution continues |
-| Session needs input | Purple pulsing dot when a permission request, asktool question, or Plan/Goal approval awaits the user; outranks in-progress; static under reduced motion (D444) |
-| Session in progress | Orange breathing dot; static under reduced motion |
-| Session completed | Green check mark from the latest unread task notification when the row is not selected |
-| Session failed | Red circled alert mark from the latest unread task notification when the row is not selected |
+| Session needs input | Purple pulsing dot **plus** the purple status word (`nav.sessionNeedsInput`) inline before the title, when a permission request, asktool question, or Plan/Goal approval awaits the user; outranks in-progress; dot static under reduced motion (D444, D445) |
+| Session in progress | Orange breathing dot **plus** the orange status word (`nav.sessionRunning`) inline before the title; dot static under reduced motion (D445) |
+| Session completed | Green check mark from the latest unread task notification when the row is not selected; dot only, no inline word (D445) |
+| Session failed | Red circled alert mark from the latest unread task notification when the row is not selected; dot only, no inline word (D445) |
 | Hover session | bg-tertiary background |
 | Active project | Header carries active state; topbar follows that workspace; composer exposes no workspace identity |
 | Collapsed project | Header remains visible; unpinned child conversations are hidden; global pins remain visible |
@@ -557,7 +561,9 @@ visually distinct from list content.
 - Session groups use semantic `section` containers
 - Active session: `aria-current="true"`
 - Every visible session indicator has a localized accessible name and tooltip;
-  color is reinforced by ring, dot, check, or alert geometry
+  color is reinforced by ring, dot, check, or alert geometry, and the two
+  attention states add a localized status word inline before the title so their
+  meaning never rests on hue alone (D445)
 - Project directory rows expose `aria-expanded` and `aria-controls`; menu
   check/radio items expose `aria-checked`
 - Hover-hidden section and project actions remain in the tab order and reveal

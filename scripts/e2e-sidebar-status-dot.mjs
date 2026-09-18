@@ -14,6 +14,12 @@
  *   - prefers-reduced-motion disables every dot animation;
  *   - both themes resolve the dots to their own warning/purple tokens.
  *
+ * and the D445 contract on top of it — the two attention states also spell the
+ * status out as a colored word inline before the session title (running in the
+ * warning token, every needs-input source in the purple one, with the exact
+ * text the dot exposes as its accessible name), while the quiet states stay
+ * dot-only.
+ *
  * Screenshots land in PI_DESKTOP_E2E_ARTIFACT_DIR (or a temp dir) for visual
  * inspection.
  *
@@ -153,6 +159,7 @@ function probeExpression(ids) {
     if (!status) return { present: false };
     const before = getComputedStyle(status, "::before");
     const cs = getComputedStyle(status);
+    const label = row.querySelector(".thread-item-status-label");
     return {
       present: true,
       stateClass: [...status.classList].find((c) => c !== "thread-item-status") ?? null,
@@ -162,6 +169,12 @@ function probeExpression(ids) {
       beforeAnimation: before.animationName,
       beforeBorderTopColor: before.borderTopColor,
       width: Math.round(status.getBoundingClientRect().width),
+      inlineLabel: label ? label.textContent.trim() : null,
+      inlineLabelColor: label ? getComputedStyle(label).color : null,
+      inlineLabelClass: label
+        ? [...label.classList].find((c) => c !== "thread-item-status-label") ?? null
+        : null,
+      titleShown: !!row.querySelector(".thread-item-title"),
     };
   };
   const topbar = document.querySelector(".conversation-topbar");
@@ -383,7 +396,49 @@ async function main() {
       JSON.stringify(base.rows.selected),
     );
 
-    // 4. The topbar carries no status slot/chip of its own (D444 relocation).
+    // 4. D445: both attention states also spell the status out in words, inline
+    //    before the title and in the dot's own token, while quiet states stay
+    //    dot-only.
+    check(
+      base.rows.running.inlineLabel === base.rows.running.label &&
+        !!base.rows.running.inlineLabel &&
+        base.rows.running.inlineLabelClass === "running" &&
+        base.rows.running.inlineLabelColor === base.warningToken &&
+        base.rows.running.titleShown,
+      "the running row shows its status word inline in the warning token",
+      JSON.stringify({
+        inline: base.rows.running.inlineLabel,
+        dot: base.rows.running.label,
+        cls: base.rows.running.inlineLabelClass,
+        color: base.rows.running.inlineLabelColor,
+      }),
+    );
+    for (const source of ["permission", "ask", "plan"]) {
+      const row = base.rows[source];
+      check(
+        row.inlineLabel === row.label &&
+          !!row.inlineLabel &&
+          row.inlineLabelClass === "permission" &&
+          row.inlineLabelColor === base.purpleToken &&
+          row.titleShown,
+        `a pending ${source} row shows the shared needs-input word inline`,
+        JSON.stringify({
+          inline: row.inlineLabel,
+          cls: row.inlineLabelClass,
+          color: row.inlineLabelColor,
+        }),
+      );
+    }
+    check(
+      base.rows.selected.inlineLabel === null && base.rows.selected.titleShown,
+      "the selected row keeps its dot only, with no inline status word",
+      JSON.stringify({
+        inline: base.rows.selected.inlineLabel,
+        title: base.rows.selected.titleShown,
+      }),
+    );
+
+    // 5. The topbar carries no status slot/chip of its own (D444 relocation).
     check(
       base.topbarHasStatusSlot === false && base.topbarHasChip === false,
       "the conversation topbar has no status chip",
@@ -395,7 +450,7 @@ async function main() {
 
     await screenshot("sidebar-status-union-dark");
 
-    // 5. Both themes resolve the dots to their own tokens.
+    // 6. Both themes resolve the dots and status words to their own tokens.
     for (const theme of ["light", "dark"]) {
       await cdp.evaluate(`window.__PI_DESKTOP__.setThemeAttr("${theme}")`);
       await delay(250);
@@ -403,14 +458,18 @@ async function main() {
       const themed = await probe(ids);
       check(
         themed.rows.running.beforeBackground === themed.warningToken &&
-          themed.rows.permission.beforeBackground === themed.purpleToken,
-        `the ${theme} theme paints the running and needs-input dots in their own tokens`,
+          themed.rows.permission.beforeBackground === themed.purpleToken &&
+          themed.rows.running.inlineLabelColor === themed.warningToken &&
+          themed.rows.permission.inlineLabelColor === themed.purpleToken,
+        `the ${theme} theme paints the running and needs-input dots and words in their own tokens`,
         JSON.stringify({
           theme,
           running: themed.rows.running.beforeBackground,
           warning: themed.warningToken,
           permission: themed.rows.permission.beforeBackground,
           purple: themed.purpleToken,
+          runningWord: themed.rows.running.inlineLabelColor,
+          permissionWord: themed.rows.permission.inlineLabelColor,
         }),
       );
       await screenshot(`sidebar-status-union-${theme}`);
@@ -418,7 +477,7 @@ async function main() {
     await cdp.evaluate(`window.__PI_DESKTOP__.setThemeAttr("dark")`);
     await delay(200);
 
-    // 6. Reduced motion disables every dot animation.
+    // 7. Reduced motion disables every dot animation.
     await cdp.send("Emulation.setEmulatedMedia", {
       features: [{ name: "prefers-reduced-motion", value: "reduce" }],
     });

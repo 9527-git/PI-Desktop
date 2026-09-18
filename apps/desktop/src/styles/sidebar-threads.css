@@ -37,6 +37,37 @@
   white-space: nowrap;
 }
 
+/* D445: the title line carries an inline colored status word before the task
+   title for the attention states (running / needs input). The leading dot
+   keeps its tooltip and accessible name; the label is its visual twin. */
+.thread-item-title-row {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.thread-item-title-row .thread-item-title {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.thread-item-status-label {
+  flex: 0 0 auto;
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  line-height: var(--leading-compact);
+  white-space: nowrap;
+}
+
+.thread-item-status-label.running {
+  color: var(--ds-warning);
+}
+
+.thread-item-status-label.permission {
+  color: var(--ds-purple);
+}
+
 .thread-item-text {
   display: flex;
   min-width: 0;

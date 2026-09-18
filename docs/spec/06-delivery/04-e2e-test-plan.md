@@ -1597,8 +1597,9 @@ and identify the platform validation still needed.
   app plus a host-core binary are available (the CDP runner supplies its own
   throwaway profile and seeds the rows through the capture rig).
 - **Steps**: 1) Seed one row per state — selected, running, permission, ask,
-  Plan/Goal approval. 2) Inspect each row's leading status dot. 3) Repeat the
-  running and needs-input rows in light and dark themes. 4) Re-inspect under
+  Plan/Goal approval. 2) Inspect each row's leading status dot and any inline
+  status word before its title. 3) Repeat the running and needs-input rows in
+  light and dark themes. 4) Re-inspect under
   `prefers-reduced-motion: reduce`, then after clearing it. 5) Confirm the
   conversation topbar carries no status slot or chip.
 - **Expected**: The running row shows an orange breathing dot (`--ds-warning`,
@@ -1609,7 +1610,12 @@ and identify the platform validation still needed.
   The needs-input dot outranks running. The selected row keeps its static accent
   ring. Both themes resolve each dot to their own warning/purple token. With
   `prefers-reduced-motion: reduce` every dot animation is off, and clearing the
-  preference restores them. The conversation topbar has no `.ct-status-slot` or
+  preference restores them. On top of that, per D445 the running row and all
+  three needs-input rows also show a colored status word inline before the
+  session title, with the exact text the dot exposes as its accessible name and
+  in the dot's own token (`--ds-warning` for running, `--ds-purple` for every
+  intervention source, in both themes), while the selected row shows no inline
+  word and the title still renders. The conversation topbar has no `.ct-status-slot` or
   `.ct-status-chip`. No IPC, host, or persisted state is touched.
 - **Specs linked**: `04-ux/07-ui-design-system.md` §4.5, `04-ux/08-component-spec.md` §2/§3
 - **Acceptance**: Quality

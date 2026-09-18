@@ -956,7 +956,7 @@ export function Sidebar({
     () => temporarySessions.filter((session) => !pinnedSessionIds.has(session.id)),
     [temporarySessions, pinnedSessionIds],
   );
-  const renderSessionStatus = (status: SidebarSessionStatus) => {
+  const sessionStatusLabel = (status: SidebarSessionStatus) => {
     const labelKey =
       status === "running"
         ? "nav.sessionRunning"
@@ -977,7 +977,11 @@ export function Sidebar({
             : status === "failed"
               ? "Failed"
               : "Needs your input";
-    const label = t(labelKey, { defaultValue: fallback });
+    return t(labelKey, { defaultValue: fallback });
+  };
+
+  const renderSessionStatus = (status: SidebarSessionStatus) => {
+    const label = sessionStatusLabel(status);
     return (
       <span className={`thread-item-status ${status}`} aria-label={label} title={label}>
         {status === "completed" ? <IconCheck size={10} aria-hidden /> : null}
@@ -1546,7 +1550,14 @@ export function Sidebar({
             <span className="thread-item-source" title="Native Pi session">Pi</span>
           ) : null}
           <span className="thread-item-text">
-            <span className="thread-item-title">{taskTitle(session.title)}</span>
+            <span className="thread-item-title-row">
+              {status === "running" || status === "permission" ? (
+                <span className={`thread-item-status-label ${status}`} aria-hidden>
+                  {sessionStatusLabel(status)}
+                </span>
+              ) : null}
+              <span className="thread-item-title">{taskTitle(session.title)}</span>
+            </span>
             {session.lastMessage ? (
               <span className="thread-item-preview">{session.lastMessage}</span>
             ) : null}
