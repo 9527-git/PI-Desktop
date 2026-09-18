@@ -3412,7 +3412,7 @@ compatibility remains owned by pi-ai.
   visible row. A search filter narrows which rows "all" means; already-chosen
   bindings keep their advanced overrides. The checkbox is checked when every
   visible row is chosen, unchecked when none are, and indeterminate when the
-  visible set is mixed. It is add-only by design (D439): checking adds the
+  visible set is mixed. It is add-only by design (D440): checking adds the
   visible rows, and unchecking is a no-op — in fallback mode
   (`modelsFallbackNote`) the visible rows are exactly the configured models,
   so a bulk clear could only drop bindings the live answer may never list
@@ -3456,7 +3456,7 @@ compatibility remains owned by pi-ai.
   older consumers, and refreshes the list
 - Test connection calls `providers.testConnection` and toasts success/failure
 - The named service's endpoint line and an editing provider's API-key field
-  carry quick-copy buttons (D439). The endpoint button copies the full base
+  carry quick-copy buttons (D440). The endpoint button copies the full base
   URL through the renderer clipboard. The key button acts through the
   `providers.copySecret` main-process channel: main reads the stored secret
   from host-core and writes the system clipboard itself, so the key never

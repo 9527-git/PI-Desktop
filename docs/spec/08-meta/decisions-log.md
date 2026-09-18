@@ -5534,7 +5534,7 @@ docs, and tests only: no IPC, host, storage, or permission change.
   E2E-PROVIDER-fallback-hides-select-all in `06-delivery/04-e2e-test-plan.md`;
   source contract coverage in `provider-model-selection-safe.test.mjs`.
 
-## 2026-09-18 — Select-all is add-only; quick copy for endpoint and key (D439)
+## 2026-09-18 — Select-all is add-only; quick copy for endpoint and key (D440)
 
 User feedback on D438: the header select-all checkbox should stay visible —
 hiding it removed a shortcut people use — but it must never be able to delete
