@@ -10397,6 +10397,30 @@ are withdrawn with ADR 0165.
   covered by `pnpm test:e2e:provider-model-selection` with a stubbed API.
   Composer display, real clipboard, host validation and restart remain manual.
 
+#### E2E-PROVIDER-fallback-hides-select-all: The fallback list offers no bulk clear
+
+- **Preconditions**: A provider whose live model probe fails or returns an
+  empty list, so the editor's left list renders the fallback note
+  (`modelsFallbackNote`) with exactly the configured models; at least two
+  model bindings are saved.
+- **Steps**: 1) Open Settings → Model configuration and edit the provider.
+  2) Confirm the left list shows the fallback note and that no select-all
+  checkbox is rendered beside the list title. 3) Click every left row
+  (id, padding, checkbox) and confirm each configured model stays checked and
+  nothing is removed. 4) Remove one model through the right pane's explicit
+  Remove, then save and reopen: the other bindings persist.
+- **Expected**: In fallback mode the visible rows are the configured models
+  themselves, so the header select-all — whose only possible action in the
+  all-selected steady state is a bulk clear of bindings the live answer may
+  never list again — is not rendered. Removal stays with the right pane's
+  explicit Remove; a model dropped this way may become unlistable in fallback
+  mode, which is why no bulk destructive control exists there.
+- **Specs linked**: `04-ux/08-component-spec.md` §19.4, ADR 0192, D438
+- **Acceptance**: B (model configuration)
+- **Milestone**: M2
+- **Status**: Source-contract covered (`provider-model-selection-safe.test.mjs`);
+  UI journey verified via CDP against the user-data copy.
+
 #### E2E-202: Subagent thinking follows its exact model binding
 
 - **Preconditions**: A configured provider has a model binding marked

@@ -5511,3 +5511,25 @@ only: no IPC channel, Host RPC, storage schema, or permission change.
 - See `04-ux/06-settings-ia.md` §Info and
   E2E-UPDATES-auto-check-toggle in `06-delivery/04-e2e-test-plan.md`;
   source contract coverage in `auto-update.test.mjs`.
+only: no IPC channel, Host RPC, storage schema, or permission change.
+- See `04-ux/06-settings-ia.md` §Info and
+  E2E-UPDATES-auto-check-toggle in `06-delivery/04-e2e-test-plan.md`;
+  source contract coverage in `auto-update.test.mjs`.
+
+## 2026-09-18 — The fallback model list offers no bulk clear (D438)
+
+After D435 the provider editor still allowed a one-click wipe of the model
+bindings: in fallback mode the left list's visible rows are exactly the
+configured models (the probe cache may hold only a subset), so the header
+select-all checkbox, in its all-selected steady state, had "deselect all =
+clear every visible row" as its only possible action — and any cleared
+binding absent from the probe cache vanished from the list with no way to
+check it again. Observed as "after checking, one model remains; the others
+are gone". Fix: when `discovery.source === "fallback"` the header checkbox is
+not rendered; the left list becomes purely additive and removal stays with
+the right pane's explicit Remove. The select-all in remote/catalog mode is
+unchanged (a cleared row can be re-checked from the same list). Renderer,
+docs, and tests only: no IPC, host, storage, or permission change.
+- See `04-ux/08-component-spec.md` §19.4 and
+  E2E-PROVIDER-fallback-hides-select-all in `06-delivery/04-e2e-test-plan.md`;
+  source contract coverage in `provider-model-selection-safe.test.mjs`.

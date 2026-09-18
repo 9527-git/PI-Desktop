@@ -3412,7 +3412,12 @@ compatibility remains owned by pi-ai.
   currently visible row. A search filter narrows which rows "all" means;
   already-chosen bindings keep their advanced overrides. The checkbox is
   checked when every visible row is chosen, unchecked when none are, and
-  indeterminate when the visible set is mixed.
+  indeterminate when the visible set is mixed. When the list is in fallback
+  mode (`modelsFallbackNote` — the visible rows are exactly the configured
+  models), the header checkbox is not rendered: with everything already
+  chosen its only possible action is a bulk clear of bindings the live answer
+  may never list again, so removal stays with the right pane's explicit
+  Remove.
 - The same header has a compact Fetch list action that re-probes the service
   immediately. It stays disabled when no discoverable endpoint is ready, while
   a probe is in flight, or while saving. Idle-with-a-valid-URL (the edit

@@ -4333,3 +4333,21 @@ the retained upstream work-panel lifecycle. See
 - 见 `04-ux/06-settings-ia.md` §信息 与
   `06-delivery/04-e2e-test-plan.md` 的 E2E-UPDATES-auto-check-toggle；
   源码契约覆盖见 `auto-update.test.mjs`。
+完成的助手回复现在同时展示每轮的开销与发生时间：既有的回合结束 meta 行新增紧凑的输入、输出胶囊，以及（当提供商上报时）缓存读取、缓存写入胶囊，按回合内消息汇总，tooltip 中显示完整精度数值；其后是回复时间（今天显示时钟时间，否则显示本地化短日期加时间，跨年才带年份）。用户消息在气泡下新增时间胶囊；流式中的回合不显示用量胶囊，没有用量数据的回合仍保留模型胶囊与时间。渲染复用 `MessageMeta` 与既有 `chat.usage*` i18n 键；时间戳 helper 位于 `lib/message-time.ts`。仅渲染器、文档与测试：不改 IPC、host、存储或权限。
+- 见 `04-ux/08-component-spec.md` §8.3 与
+  `06-delivery/04-e2e-test-plan.md` 的 E2E-CHAT-turn-usage-and-timestamps；
+  源码契约覆盖见 `turn-usage-meta.test.mjs`。
+
+## 2026-09-18 —— 自动更新检查改为用户可控（D437）
+
+此前更新器无条件执行 GitHub feed 检查（启动 15 秒后首查，之后每 6 小时一次），用户无法关闭。设置 → 信息页在软件更新行正上方新增“自动检查更新”开关行，持久化为可选的 `AppSettings.autoUpdateCheck` 值（缺省即开启，既有安装保持现有行为）。主进程在 updater 旁镜像该标志（`applyUpdateCheckSetting`，启动读取已存设置及每次设置写入后应用），updater 在每次定时器触发时读取，切换后无需重启即生效。门控只覆盖自动发现：软件更新行、侧栏版本徽章、应用菜单的手动检查永不被拦截。仅渲染器、主进程、文档与测试：不改 IPC 渠道、Host RPC、存储 schema 或权限。
+- 见 `04-ux/06-settings-ia.md` §信息 与
+  `06-delivery/04-e2e-test-plan.md` 的 E2E-UPDATES-auto-check-toggle；
+  源码契约覆盖见 `auto-update.test.mjs`。
+
+## 2026-09-18 —— fallback 模型列表不再提供批量清空（D438）
+
+D435 之后用户仍能在提供商编辑器里一键清空模型：fallback 模式下左列表的可见行恰好就是已配置的模型（探测缓存可能只含其中一部分），列表头部全选框在全员已选的稳态下唯一可能的动作就是「取消全选 = 清空全部可见行」，而且被清掉的、不在探测缓存里的绑定会从列表里彻底消失、无法再勾回来——实测表现为「勾选后只剩一个，别的模型没有了」。修复：`discovery.source === "fallback"` 时不渲染该头部复选框，左列表成为纯加性视图，删除只保留右侧已选面板的显式「移除」。remote/catalog 模式的全选框保持不变（清空后同一列表仍可勾回）。仅渲染器、文档与测试：不改 IPC、host、存储或权限。
+- 见 `04-ux/08-component-spec.md` §19.4 与
+  `06-delivery/04-e2e-test-plan.md` 的 E2E-PROVIDER-fallback-hides-select-all；
+  源码契约覆盖见 `provider-model-selection-safe.test.mjs`。
