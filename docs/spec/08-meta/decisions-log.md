@@ -5533,3 +5533,19 @@ docs, and tests only: no IPC, host, storage, or permission change.
 - See `04-ux/08-component-spec.md` §19.4 and
   E2E-PROVIDER-fallback-hides-select-all in `06-delivery/04-e2e-test-plan.md`;
   source contract coverage in `provider-model-selection-safe.test.mjs`.
+
+## 2026-09-18 — The sidebar build chip shows the running version only (D439)
+
+The sidebar footer's build chip doubled as an update advertisement: an
+actionable update swapped the label to the new version, accented the text,
+lit an accent dot, and routed the click into Settings, so the version footer
+never said which version was actually running. The chip is now a quiet
+version display: it always shows the running version, keeps the plain muted
+style, and clicking it fires the existing manual check. New-version discovery
+stays with the update banner and Settings → Info, which already carry the
+full status, notes, and actions. The `has-update` class and accent-dot styles
+are removed with the behavior. Renderer, docs, and tests only: no IPC, host,
+storage, or permission change.
+- See `04-ux/07-ui-design-system.md` §Sidebar footer,
+  `04-ux/08-component-spec.md` §sidebar, and the rewritten build-chip
+  contract in `sidebar-footer.test.mjs`.

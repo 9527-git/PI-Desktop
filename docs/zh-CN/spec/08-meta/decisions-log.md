@@ -4351,3 +4351,14 @@ D435 之后用户仍能在提供商编辑器里一键清空模型：fallback 模
 - 见 `04-ux/08-component-spec.md` §19.4 与
   `06-delivery/04-e2e-test-plan.md` 的 E2E-PROVIDER-fallback-hides-select-all；
   源码契约覆盖见 `provider-model-selection-safe.test.mjs`。
+
+## 2026-09-18 —— 侧栏版本徽章只显示当前版本（D439）
+
+侧栏底部的版本徽章过去兼任更新广告位：有可用更新时把文字换成新版本号、加亮文字、点亮重音圆点、
+并把点击跳转到设置页，导致版本页脚反而不显示实际运行的版本。现在徽章是安静的版本显示：始终显示
+当前运行版本、保持朴素样式，点击执行既有的手动检查更新。新版本发现仍由更新横幅与设置 → 信息页
+承担（那里已有完整状态、发版日志与操作）。`has-update` 类与重音圆点样式随行为一并移除。
+仅渲染器、文档与测试：不改 IPC、host、存储或权限。
+- 见 `04-ux/07-ui-design-system.md` §侧边栏页脚、
+  `04-ux/08-component-spec.md` §侧边栏，以及 `sidebar-footer.test.mjs` 中重写的
+  build-chip 契约。

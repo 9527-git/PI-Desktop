@@ -93,17 +93,23 @@ test("footer action buttons share the notification trigger's hit target", () => 
   assert.match(block, /transition:[^;]*var\(--motion-duration-fast\)/);
 });
 
-test("build chip surfaces the version and only dots an actionable update", () => {
+test("build chip is a quiet version display with a manual check on click", () => {
   assert.match(sidebarSource, /const update = useUpdateState\(\)/);
   assert.match(
     sidebarSource,
-    /update\?\.status === "available" \|\| update\?\.status === "downloaded"/,
+    /const buildLabel = appVersion\s*\n\s*\? `v\$\{appVersion\}`/,
+    "the chip always shows the running version",
   );
-  assert.match(sidebarSource, /className="footer-build-dot"/);
-  // An actionable update routes to the Settings row that can act on it.
-  assert.match(sidebarSource, /setSettingsAnchor\("updates\.title"\)/);
-  assert.match(sidebarSource, /setSettingsTab\("about"\)/);
+  assert.doesNotMatch(
+    sidebarSource,
+    /availableVersion/,
+    "the chip never advertises a new version",
+  );
+  assert.doesNotMatch(sidebarSource, /footer-build-dot|has-update/);
   assert.match(sidebarSource, /api\.updatesCheck\(\)/);
-  const dot = globalStyles.match(/\.footer-build-dot\s*\{[^}]+\}/)?.[0] ?? "";
-  assert.match(dot, /background:\s*var\(--ds-accent\)/);
+  assert.doesNotMatch(
+    globalStyles,
+    /\.footer-build-dot|\.footer-build\.has-update/,
+    "the accent-dot styles are gone with the behavior",
+  );
 });
