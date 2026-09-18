@@ -1347,6 +1347,11 @@
   text-overflow: ellipsis;
 }
 
+.message-meta-chip.usage,
+.message-meta-chip.time {
+  font-variant-numeric: tabular-nums;
+}
+
 .context-inspector {
   position: relative;
   display: inline-flex;

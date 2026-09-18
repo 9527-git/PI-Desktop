@@ -27,6 +27,7 @@ import {
   FileRefChip,
   LinkifiedText,
   MessageAttachmentImage,
+  MessageMeta,
 } from "./shared";
 
 export const MessageRow = memo(function MessageRow({
@@ -200,6 +201,9 @@ export const MessageRow = memo(function MessageRow({
               </div>
             )}
           </div>
+        ) : null}
+        {!editing && message.createdAt ? (
+          <MessageMeta timestamp={message.createdAt} />
         ) : null}
         {!editing && !transcriptReadOnly && (hasAnswer || showRevisionPager) ? (
           <div className="message-actions">

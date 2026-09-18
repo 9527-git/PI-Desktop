@@ -24,6 +24,7 @@ import { isHtmlFilePath, splitChatText } from "../../../lib/chat-links";
 import type { SourcePositionProps } from "../../../lib/markdown-source";
 import { getToolAction, type ToolAction } from "../../../lib/tool-display";
 import { calculateTokenRate } from "../../../lib/context-usage";
+import { formatMessageTimestamp } from "../../../lib/message-time";
 import { useAppStore } from "../../../stores/app-store";
 import { Markdown, useCopy } from "../../../components/Markdown";
 import { MarkdownInline } from "../../../components/MarkdownInline";
@@ -103,19 +104,24 @@ export function MessageMeta({
   usage,
   responseDurationMs,
   responseOutputTokens,
+  timestamp,
 }: {
   modelId?: string;
   usage?: MessageUsage;
   responseDurationMs?: number;
   responseOutputTokens?: number;
+  timestamp?: string;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const throughput = calculateTokenRate(
     responseOutputTokens ?? usage?.outputTokens ?? 0,
     responseDurationMs,
   );
   const showThroughput = !usage && throughput !== undefined;
-  if (!modelId && !showThroughput) {
+  const time = timestamp
+    ? formatMessageTimestamp(timestamp, i18n.language)
+    : "";
+  if (!modelId && !showThroughput && !usage && !time) {
     return null;
   }
   return (
@@ -125,11 +131,53 @@ export function MessageMeta({
           {modelId}
         </span>
       ) : null}
+      {usage ? (
+        <>
+          <span
+            className="message-meta-chip usage"
+            title={`${t("chat.usageInput")} ${usage.inputTokens}`}
+          >
+            {t("chat.usageInput")} {formatTokenCount(usage.inputTokens)}
+          </span>
+          <span
+            className="message-meta-chip usage"
+            title={`${t("chat.usageOutput")} ${usage.outputTokens}`}
+          >
+            {t("chat.usageOutput")} {formatTokenCount(usage.outputTokens)}
+          </span>
+          {usage.cacheReadTokens ? (
+            <span
+              className="message-meta-chip usage"
+              title={`${t("chat.usageCacheRead")} ${usage.cacheReadTokens}`}
+            >
+              {t("chat.usageCacheRead")}{" "}
+              {formatTokenCount(usage.cacheReadTokens)}
+            </span>
+          ) : null}
+          {usage.cacheWriteTokens ? (
+            <span
+              className="message-meta-chip usage"
+              title={`${t("chat.usageCacheWrite")} ${usage.cacheWriteTokens}`}
+            >
+              {t("chat.usageCacheWrite")}{" "}
+              {formatTokenCount(usage.cacheWriteTokens)}
+            </span>
+          ) : null}
+        </>
+      ) : null}
       {showThroughput ? (
         <span className="message-meta-chip throughput">
           {t("chat.usageThroughputEstimated", {
             count: formatTokenCount(throughput),
           })}
+        </span>
+      ) : null}
+      {time ? (
+        <span
+          className="message-meta-chip time"
+          title={new Date(timestamp as string).toLocaleString(i18n.language)}
+        >
+          {time}
         </span>
       ) : null}
     </div>

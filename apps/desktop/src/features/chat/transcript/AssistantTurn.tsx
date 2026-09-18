@@ -252,6 +252,7 @@ export const AssistantTurn = memo(function AssistantTurn({
   const responseDurationMs = assistantTurnResponseDuration(entry);
   const responseOutputTokens = assistantTurnResponseOutputTokens(entry);
   const modelId = metaMessage?.modelId ?? latestUsageMessage?.modelId;
+  const turnTimestamp = messages[messages.length - 1]?.createdAt;
   const hasError = messages.some((message) => Boolean(message.error));
   const complete =
     !isActive && !hasError && Boolean(content) && Boolean(actionMessage);
@@ -342,6 +343,7 @@ export const AssistantTurn = memo(function AssistantTurn({
             usage={usage}
             responseDurationMs={responseDurationMs}
             responseOutputTokens={responseOutputTokens}
+            timestamp={turnTimestamp}
           />
         ) : null}
         {(content || hasError) && actionMessage && !transcriptReadOnly ? (
