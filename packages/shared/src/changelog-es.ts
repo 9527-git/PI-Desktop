@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.29",
+    "date": "2026-09-18",
+    "highlights": [
+      "Las casillas de los modelos vuelven a alternar de verdad: desmarcar conserva la fila y sus ajustes, y volver a marcar antes de cerrar los restaura.",
+      "Eliminar un modelo ahora lo elimina de verdad: la fila desaparece de la lista y no vuelve tras guardar y reabrir; la entrada Mostrar bajo la lista restaura los modelos ocultos en cualquier momento.",
+    ],
+  },
+  {
     "version": "0.14.28",
     "date": "2026-09-18",
     "highlights": [

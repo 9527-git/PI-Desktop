@@ -29,6 +29,14 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.29",
+    date: "2026-09-18",
+    highlights: [
+      "Model checkboxes toggle again: unchecking keeps the row listed with its settings, and re-checking before closing restores them.",
+      "Deleting a model now truly deletes it: the row disappears from the list and stays gone after you save and reopen; the Show entry under the list restores hidden models anytime.",
+    ],
+  },
+  {
     version: "0.14.28",
     date: "2026-09-18",
     highlights: [
@@ -858,6 +866,14 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.29",
+    date: "2026-09-18",
+    highlights: [
+      "模型复选框恢复真正的勾选/取消：取消勾选保留行与已配置的参数，关弹窗前重新勾选即可恢复。",
+      "删除模型现在真正删除：该行从列表消失，保存重开后也不会回来；列表下方的「显示」可随时恢复隐藏的模型。",
+    ],
+  },
+  {
     version: "0.14.28",
     date: "2026-09-18",
     highlights: [
@@ -1685,6 +1701,14 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.29",
+    date: "2026-09-18",
+    highlights: [
+      "模型核取方塊恢復真正的勾選／取消勾選：取消勾選保留列與已設定的參數，關閉對話框前重新勾選即可恢復。",
+      "刪除模型現在真正刪除：該列從清單消失，儲存重開後也不會回來；清單下方的「顯示」可隨時恢復隱藏的模型。",
+    ],
+  },
   {
     version: "0.14.28",
     date: "2026-09-18",

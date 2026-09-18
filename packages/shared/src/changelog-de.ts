@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.29",
+    "date": "2026-09-18",
+    "highlights": [
+      "Modell-Kontrollkästchen schalten wieder wirklich um: Das Abwählen behält Zeile und Einstellungen, und das erneute Anwählen vor dem Schließen stellt sie wieder her.",
+      "Löschen löscht jetzt wirklich: Die Zeile verschwindet aus der Liste und kommt nach dem Speichern und erneuten Öffnen nicht zurück; der Eintrag „Anzeigen“ unter der Liste stellt versteckte Modelle jederzeit wieder her.",
+    ],
+  },
+  {
     "version": "0.14.28",
     "date": "2026-09-18",
     "highlights": [

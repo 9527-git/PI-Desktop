@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.29",
+    "date": "2026-09-18",
+    "highlights": [
+      "Les cases à cocher des modèles basculent à nouveau réellement : décocher conserve la ligne et ses réglages, et recocher avant de fermer les restaure.",
+      "Supprimer un modèle le supprime vraiment : la ligne disparaît de la liste et ne revient pas après enregistrement et réouverture ; l'entrée Afficher sous la liste restaure les modèles masqués à tout moment.",
+    ],
+  },
+  {
     "version": "0.14.28",
     "date": "2026-09-18",
     "highlights": [

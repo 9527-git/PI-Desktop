@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.29",
+    "date": "2026-09-18",
+    "highlights": [
+      "Model onay kutuları yeniden gerçek bir anahtar gibi çalışıyor: işareti kaldırmak satırı ve ayarları korur, kapatmadan önce yeniden işaretlemek bunları geri getirir.",
+      "Model silmek artık gerçekten siliyor: satır listeden kaybolur ve kaydedip yeniden açtıktan sonra geri gelmez; listenin altındaki Göster girdisi gizli modelleri istediğiniz zaman geri getirir.",
+    ],
+  },
+  {
     version: "0.14.28",
     date: "2026-09-18",
     highlights: [

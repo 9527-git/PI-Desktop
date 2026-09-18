@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.29",
+    "date": "2026-09-18",
+    "highlights": [
+      "모델 체크박스가 다시 실제 토글로 동작합니다: 체크 해제해도 행과 설정이 유지되며, 닫기 전에 다시 체크하면 복원됩니다.",
+      "모델 삭제가 이제 실제로 삭제됩니다: 행이 목록에서 사라지고 저장 후 다시 열어도 돌아오지 않으며, 목록 아래 표시 항목으로 숨긴 모델을 언제든 복원할 수 있습니다.",
+    ],
+  },
+  {
     version: "0.14.28",
     date: "2026-09-18",
     highlights: [
