@@ -10397,29 +10397,58 @@ are withdrawn with ADR 0165.
   covered by `pnpm test:e2e:provider-model-selection` with a stubbed API.
   Composer display, real clipboard, host validation and restart remain manual.
 
-#### E2E-PROVIDER-fallback-hides-select-all: The fallback list offers no bulk clear
+#### E2E-PROVIDER-select-all-never-clears: The header select-all adds and never deletes
+
+(Renamed from E2E-PROVIDER-fallback-hides-select-all, D438, when D440 reversed
+the hiding approach and kept the checkbox visible but add-only.)
 
 - **Preconditions**: A provider whose live model probe fails or returns an
   empty list, so the editor's left list renders the fallback note
   (`modelsFallbackNote`) with exactly the configured models; at least two
   model bindings are saved.
 - **Steps**: 1) Open Settings → Model configuration and edit the provider.
-  2) Confirm the left list shows the fallback note and that no select-all
-  checkbox is rendered beside the list title. 3) Click every left row
-  (id, padding, checkbox) and confirm each configured model stays checked and
-  nothing is removed. 4) Remove one model through the right pane's explicit
-  Remove, then save and reopen: the other bindings persist.
-- **Expected**: In fallback mode the visible rows are the configured models
-  themselves, so the header select-all — whose only possible action in the
-  all-selected steady state is a bulk clear of bindings the live answer may
-  never list again — is not rendered. Removal stays with the right pane's
-  explicit Remove; a model dropped this way may become unlistable in fallback
-  mode, which is why no bulk destructive control exists there.
-- **Specs linked**: `04-ux/08-component-spec.md` §19.4, ADR 0192, D438
+  2) Confirm the left list shows the fallback note and the select-all checkbox
+  is rendered beside the list title. 3) Uncheck the select-all checkbox and
+  confirm nothing is removed: every configured model stays checked (unchecking
+  is a no-op). 4) Type a search filter that hides one configured model, then
+  check the select-all: only visible rows are affected, and the hidden
+  configured model keeps its binding. 5) Click every left row (id, padding,
+  checkbox) and confirm each configured model stays checked and nothing is
+  removed. 6) Remove one model through the right pane's explicit Remove, then
+  save and reopen: the other bindings persist.
+- **Expected**: The header select-all is add-only in every mode (D440): it
+  can add visible rows but has no clear path, so a fallback list — exactly
+  the configured models — can never be bulk-wiped by the control that caused
+  the regression. Removal stays with the right pane's explicit Remove; a model
+  dropped this way may become unlistable in fallback mode, which is why no
+  bulk destructive control exists anywhere.
+- **Specs linked**: `04-ux/08-component-spec.md` §19.4, ADR 0192, D440
 - **Acceptance**: B (model configuration)
 - **Milestone**: M2
 - **Status**: Source-contract covered (`provider-model-selection-safe.test.mjs`);
-  UI journey verified via CDP against the user-data copy.
+  UI journey verified via CDP against the user-data copy for the D438
+  reproduction; the add-only rewrite reuses the same journey.
+
+#### E2E-PROVIDER-copy-endpoint-and-key: Quick copy in the provider editor
+
+- **Preconditions**: A named AI service saved with an API key (and, for the
+  negative case, a provider edited down to no stored key).
+- **Steps**: 1) Edit the provider and confirm the endpoint line carries a
+  copy button. 2) Press it and paste elsewhere: the full base URL is on the
+  clipboard. 3) Confirm the API-key field carries a copy button in edit mode.
+  4) Press it and paste: the stored key is on the clipboard, and a success
+  toast appeared. 5) For a provider without a stored key, press the key copy
+  button: a miss toast appears and the clipboard keeps its previous content.
+- **Expected**: The endpoint copy writes the full base URL through the
+  renderer clipboard. The key copy never sends the secret to the renderer:
+  the `providers.copySecret` main-process channel reads the stored secret
+  from host-core and writes the Electron clipboard itself, so the value
+  cannot leak through renderer state or devtools; a missing key toasts a miss.
+- **Specs linked**: `04-ux/08-component-spec.md` §19.4, D440
+- **Acceptance**: B (model configuration)
+- **Milestone**: M2
+- **Status**: Manual; the main-process boundary (value never returned over
+  IPC) is pinned by the channel contract in `packages/shared/src/protocol.ts`.
 
 #### E2E-202: Subagent thinking follows its exact model binding
 

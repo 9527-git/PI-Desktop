@@ -5549,3 +5549,25 @@ storage, or permission change.
 - See `04-ux/07-ui-design-system.md` §Sidebar footer,
   `04-ux/08-component-spec.md` §sidebar, and the rewritten build-chip
   contract in `sidebar-footer.test.mjs`.
+
+## 2026-09-18 — Select-all is add-only; quick copy for endpoint and key (D440)
+
+User feedback on D438: the header select-all checkbox should stay visible —
+hiding it removed a shortcut people use — but it must never be able to delete
+models. The checkbox is rendered again in every mode (fallback included) and
+is now add-only: checking adds every visible row, unchecking is a no-op, and
+the shared `applyVisibleModelSelection` helper lost its clear branch entirely,
+so no bulk path can drop bindings; removal stays with the right pane's
+explicit Remove. The same request added quick copy to the provider editor:
+the named service's endpoint line gets a copy button (full base URL via the
+renderer clipboard), and an editing provider's API-key field gets one that
+copies the stored key through a new main-process channel
+(`providers.copySecret`): main reads the secret from host-core and writes the
+Electron clipboard itself, so the key never crosses the IPC boundary to the
+renderer; a missing stored key toasts a miss. The now-unused "deselect all"
+string was removed from all eight locales. Renderer + main IPC + docs + tests
+only: no host, storage, or permission change.
+- See `04-ux/08-component-spec.md` §19.4,
+  E2E-PROVIDER-select-all-never-clears and
+  E2E-PROVIDER-copy-endpoint-and-key in `06-delivery/04-e2e-test-plan.md`;
+  source contract coverage in `provider-model-selection-safe.test.mjs`.

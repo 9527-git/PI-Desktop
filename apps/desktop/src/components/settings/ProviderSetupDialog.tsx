@@ -18,7 +18,9 @@ import {
 } from "@pi-desktop/shared";
 import { api } from "../../lib/api";
 import { pairsToRecord, recordToPairs } from "../extensions/KeyValueRows";
-import { Button, Field, Input, Select } from "../ui";
+import { Button, Field, Input, Select, TooltipButton } from "../ui";
+import { IconCheck, IconCopy } from "../icons";
+import { useAppStore } from "../../stores/app-store";
 import { ProviderHeadersEditor } from "./ProviderHeadersEditor";
 import { useProviderModels } from "./useProviderModels";
 import { ModelSelectionPanes, useModelSelection } from "./ModelSelectionPanes";
@@ -173,6 +175,9 @@ export function ProviderSetupDialog({
   const [error, setError] = useState("");
   const [testResult, setTestResult] = useState("");
   const [baseUrlTouched, setBaseUrlTouched] = useState(false);
+  const showToast = useAppStore((s) => s.showToast);
+  const [keyCopied, setKeyCopied] = useState(false);
+  const keyCopyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const namedPreset = NAMED_ENDPOINT_PRESETS.find((preset) => preset.id === service);
   const named = Boolean(namedPreset);
@@ -213,7 +218,10 @@ export function ProviderSetupDialog({
       onClose();
     };
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      if (keyCopyTimer.current) clearTimeout(keyCopyTimer.current);
+    };
   }, [advancedOpen, onClose, saving]);
 
   const nameRef = useRef<HTMLInputElement>(null);
@@ -247,6 +255,38 @@ export function ProviderSetupDialog({
     setBaseUrlTouched(true);
     const normalized = normalizeBaseUrlInput(baseUrl, resolvedApiStyle);
     if (normalized !== baseUrl) setBaseUrl(normalized);
+  };
+
+  const copyEndpoint = async () => {
+    try {
+      await navigator.clipboard.writeText(resolvedBaseUrl);
+      showToast(t("settings.copiedToClipboard"), { variant: "success" });
+    } catch (cause) {
+      showToast(cause instanceof Error ? cause.message : String(cause), {
+        variant: "error",
+      });
+    }
+  };
+
+  // The stored key is copied by the main process; the renderer never receives
+  // the value, so there is nothing to leak through state or devtools.
+  const copyApiKey = async () => {
+    if (!provider) return;
+    try {
+      const result = await api.copyProviderSecret(provider.id);
+      if (result?.ok) {
+        setKeyCopied(true);
+        if (keyCopyTimer.current) clearTimeout(keyCopyTimer.current);
+        keyCopyTimer.current = setTimeout(() => setKeyCopied(false), 1600);
+        showToast(t("settings.copiedToClipboard"), { variant: "success" });
+      } else {
+        showToast(t("settings.noSavedApiKey"), { variant: "error" });
+      }
+    } catch (cause) {
+      showToast(cause instanceof Error ? cause.message : String(cause), {
+        variant: "error",
+      });
+    }
   };
 
   const testConnection = async () => {
@@ -424,23 +464,43 @@ export function ProviderSetupDialog({
                     label={t("settings.apiKey")}
                     hint={editing ? t("settings.apiKeyKeepHint") : undefined}
                   >
-                    <Input
-                      ref={apiKeyRef}
-                      type="password"
-                      value={apiKey}
-                      placeholder="sk-…"
-                      className="font-mono text-sm-plus"
-                      autoComplete="off"
-                      autoFocus
-                      onChange={(event) => setApiKey(event.target.value)}
-                    />
+                    <div className="provider-setup-key-row">
+                      <Input
+                        ref={apiKeyRef}
+                        type="password"
+                        value={apiKey}
+                        placeholder="sk-…"
+                        className="font-mono text-sm-plus"
+                        autoComplete="off"
+                        autoFocus
+                        onChange={(event) => setApiKey(event.target.value)}
+                      />
+                      {editing ? (
+                        <CopyKeyButton
+                          copied={keyCopied}
+                          label={t("settings.copyApiKey")}
+                          onClick={() => void copyApiKey()}
+                        />
+                      ) : null}
+                    </div>
                   </Field>
                 ) : null}
               </div>
 
               {named && resolvedBaseUrl ? (
                 <div className="provider-setup-host" title={resolvedBaseUrl}>
-                  {endpointHost(resolvedBaseUrl)}
+                  <span className="provider-setup-host-text">
+                    {endpointHost(resolvedBaseUrl)}
+                  </span>
+                  <TooltipButton
+                    type="button"
+                    className="provider-setup-copy"
+                    ariaLabel={t("settings.copyBaseUrl")}
+                    tooltip={t("settings.copyBaseUrl")}
+                    onClick={() => void copyEndpoint()}
+                  >
+                    <IconCopy size={12} />
+                  </TooltipButton>
                 </div>
               ) : null}
 
@@ -489,15 +549,24 @@ export function ProviderSetupDialog({
                       label={t("settings.apiKey")}
                       hint={editing ? t("settings.apiKeyKeepHint") : undefined}
                     >
-                      <Input
-                        ref={apiKeyRef}
-                        type="password"
-                        value={apiKey}
-                        placeholder="sk-…"
-                        className="font-mono text-sm-plus"
-                        autoComplete="off"
-                        onChange={(event) => setApiKey(event.target.value)}
-                      />
+                      <div className="provider-setup-key-row">
+                        <Input
+                          ref={apiKeyRef}
+                          type="password"
+                          value={apiKey}
+                          placeholder="sk-…"
+                          className="font-mono text-sm-plus"
+                          autoComplete="off"
+                          onChange={(event) => setApiKey(event.target.value)}
+                        />
+                        {editing ? (
+                          <CopyKeyButton
+                            copied={keyCopied}
+                            label={t("settings.copyApiKey")}
+                            onClick={() => void copyApiKey()}
+                          />
+                        ) : null}
+                      </div>
                     </Field>
                     <Field label={t("settings.apiStyle")}>
                       <Select
@@ -579,5 +648,27 @@ export function ProviderSetupDialog({
         </div>
       ) : null}
     </div>
+  );
+}
+
+function CopyKeyButton({
+  copied,
+  label,
+  onClick,
+}: {
+  copied: boolean;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <TooltipButton
+      type="button"
+      className="provider-setup-copy"
+      ariaLabel={label}
+      tooltip={label}
+      onClick={onClick}
+    >
+      {copied ? <IconCheck size={12} /> : <IconCopy size={12} />}
+    </TooltipButton>
   );
 }

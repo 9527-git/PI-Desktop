@@ -3405,20 +3405,19 @@ compatibility remains owned by pi-ai.
   configured order, default model, aliases and advanced overrides. A
   right-pane filter is cleared only when it hides the activated model.
   Single-model removal uses the explicit Remove action in the right pane; the
-  separate bulk select/clear action below remains unchanged. Configuration
+  header's add-only select-all below remains unchanged. Configuration
   rows stay compact until expanded, and one row at a time is expanded:
   expanding a row, from its Advanced control or from its name in the left
   list, collapses whichever other row was open.
-- The left-pane list header carries a checkbox that selects or clears every
-  currently visible row. A search filter narrows which rows "all" means;
-  already-chosen bindings keep their advanced overrides. The checkbox is
-  checked when every visible row is chosen, unchecked when none are, and
-  indeterminate when the visible set is mixed. When the list is in fallback
-  mode (`modelsFallbackNote` — the visible rows are exactly the configured
-  models), the header checkbox is not rendered: with everything already
-  chosen its only possible action is a bulk clear of bindings the live answer
-  may never list again, so removal stays with the right pane's explicit
-  Remove.
+- The left-pane list header carries a checkbox that adds every currently
+  visible row. A search filter narrows which rows "all" means; already-chosen
+  bindings keep their advanced overrides. The checkbox is checked when every
+  visible row is chosen, unchecked when none are, and indeterminate when the
+  visible set is mixed. It is add-only by design (D440): checking adds the
+  visible rows, and unchecking is a no-op — in fallback mode
+  (`modelsFallbackNote`) the visible rows are exactly the configured models,
+  so a bulk clear could only drop bindings the live answer may never list
+  again. Removal stays with the right pane's explicit Remove.
 - The same header has a compact Fetch list action that re-probes the service
   immediately. It stays disabled when no discoverable endpoint is ready, while
   a probe is in flight, or while saving. Idle-with-a-valid-URL (the edit
@@ -3443,7 +3442,8 @@ compatibility remains owned by pi-ai.
   view and marking it briefly for as long as that highlight runs; under
   reduced motion the mark is a static outline — or pick a model that is not
   configured yet, and never remove one. Removal stays with the right pane's
-  remove button and the separately labelled bulk select/clear action. The id
+  remove button; the header select-all is add-only and cannot drop bindings.
+  The id
   and name are selectable text inside the otherwise non-selectable shell; a
   drag-selection in the clicked row is copy-only, and native label activation
   must not forward a row click into a destructive checkbox toggle. Selection
@@ -3456,6 +3456,13 @@ compatibility remains owned by pi-ai.
   the secret, sets the first configured model as the legacy/default model for
   older consumers, and refreshes the list
 - Test connection calls `providers.testConnection` and toasts success/failure
+- The named service's endpoint line and an editing provider's API-key field
+  carry quick-copy buttons (D440). The endpoint button copies the full base
+  URL through the renderer clipboard. The key button acts through the
+  `providers.copySecret` main-process channel: main reads the stored secret
+  from host-core and writes the system clipboard itself, so the key never
+  crosses the IPC boundary to the renderer; with no stored key the action
+  toasts a miss instead of a success
 - Edit account saves `oauthAccountLabel`, `defaultModelId`, and the full
   `models: ModelBinding[]` with explicit thinking selections through
   `providers.update`, exactly like the provider dialog; the account's default

@@ -418,6 +418,9 @@ export const api = {
     ),
   deleteProvider: (id: string) => invoke(IPC.invoke.providersDelete, id),
   testProvider: (id: string) => invoke(IPC.invoke.providersTest, id),
+  /** Copy the stored key to the clipboard in the main process; the value is not returned. */
+  copyProviderSecret: (id: string) =>
+    invoke<{ ok: boolean }>(IPC.invoke.providersCopySecret, id),
   /**
    * Discover models from the provider's own endpoint. Saved providers pass
    * providerId (stored secret is reused); the setup form may pass raw config
