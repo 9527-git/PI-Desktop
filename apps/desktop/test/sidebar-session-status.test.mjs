@@ -130,6 +130,17 @@ test("renders semantic, shape-distinct sidebar status indicators", () => {
   assert.match(styles, /thread-item-status\.selected::before[\s\S]*--ds-accent/);
   assert.match(styles, /thread-item-status\.completed[\s\S]*--ds-success/);
   assert.match(styles, /thread-item-status\.failed[\s\S]*--ds-error/);
+  // D445: running and needs-input rows also carry a visible colored word
+  // inline before the title; quiet states (selected/completed/failed) do not.
+  assert.match(
+    sidebar,
+    /status === "running" \|\| status === "permission"[\s\S]*thread-item-status-label/,
+  );
+  assert.match(sidebar, /thread-item-title-row[\s\S]*thread-item-status-label[\s\S]*thread-item-title/);
+  assert.match(sidebar, /thread-item-status-label \$\{status\}\}[\s\S]*aria-hidden/);
+  assert.match(styles, /thread-item-status-label\.running[\s\S]*--ds-warning/);
+  assert.match(styles, /thread-item-status-label\.permission[\s\S]*--ds-purple/);
+  assert.match(styles, /thread-item-title-row[\s\S]*min-width: 0/);
   assert.match(
     styles,
     /prefers-reduced-motion: reduce[\s\S]*thread-item-status\.running::before[\s\S]*animation: none/,

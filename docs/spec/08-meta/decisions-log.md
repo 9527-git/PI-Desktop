@@ -5708,3 +5708,39 @@ placement while keeping its union semantics.
   `06-delivery/04-e2e-test-plan.md`; `sidebar-session-status.test.mjs` pins the
   union priority and the style/label contract, and
   `scripts/e2e-sidebar-status-dot.mjs` drives the built app over CDP.
+
+## 2026-09-18 — Attention states also read as words on the sidebar row (D445)
+
+User feedback after D444 and the v0.14.33 build: the status light had no
+readable label. The sidebar dot (D135) had always carried its meaning in a
+tooltip and an accessible name, and the only visible status sentence in this
+product lived on the D433 topbar chip that D444 removed — so relocating the
+indicator silently took the words with it. D445 restores them where the user
+looks: inline on the session row.
+
+- The two attention states now render their localized status word as a small
+  colored label immediately before the session title — `nav.sessionRunning` in
+  `--ds-warning` for a running row, `nav.sessionNeedsInput` in `--ds-purple` for
+  every needs-input row (permission, ask, and Plan/Goal approval alike, so the
+  D444 union keeps one shared wording). The word reuses the exact string the dot
+  already exposes, so dot and label can never drift, and no new locale key was
+  needed in any of the eight languages.
+- The quiet states stay dot-only. Selected, completed, and failed keep the
+  ring/check/alert geometry from D135 with no inline word, so the label keeps
+  meaning "this row is asking for you" instead of becoming permanent noise on
+  every row of a long list.
+- The label is the dot's visual twin, not a second indicator: it is
+  `aria-hidden`, so a screen reader still hears one accessible name per row, and
+  the dot keeps its own `aria-label` and tooltip. It sits at the row preview's
+  compact tier (`--text-2xs`, weight 600) inside a new title row that keeps the
+  title ellipsis intact (`min-width: 0`, non-shrinking label).
+- Renderer plus docs plus tests only: no IPC channel, host RPC, schema,
+  permission, or persisted-state change, and no store map changes — the label
+  reads the same `sidebarSessionStatus` result the dot already consumes.
+- See `04-ux/07-ui-design-system.md` §4.5, `04-ux/08-component-spec.md` §2 and
+  §3, and E2E-SIDEBAR-status-dot-pending-union in
+  `06-delivery/04-e2e-test-plan.md`; `sidebar-session-status.test.mjs` pins the
+  markup and token contract, and `scripts/e2e-sidebar-status-dot.mjs` now asserts
+  over CDP that each attention row's visible word equals its dot's accessible
+  name in the dot's own token, in both themes, and that the selected row shows
+  none.
