@@ -1208,6 +1208,8 @@ sklm: {
     copyApiKey: "API 키 복사",
     copiedToClipboard: "클립보드에 복사되었습니다",
     noSavedApiKey: "이 서비스에 저장된 API 키가 없습니다",
+    hiddenModelsCount: "숨긴 모델 {{count}}개",
+    showHiddenModels: "표시",
     fetchModelList: "목록 가져오기",
     reasoning: "추론",
     vision: "비전",

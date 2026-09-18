@@ -181,6 +181,13 @@ export type ModelSelectionPanesProps = {
   busy?: boolean;
   /** Probe the service's model list now, skipping the edit debounce. */
   onReload?: () => void;
+  /**
+   * Ids the discovered list should stop showing, persisted by the caller with
+   * the provider record. Absent support keeps the list unfiltered.
+   */
+  hiddenModels?: string[];
+  /** Replace the hidden set; called by delete and by the restore entry. */
+  onHiddenModelsChange?: (next: string[]) => void;
 };
 
 /**
@@ -194,9 +201,14 @@ export function ModelSelectionPanes({
   listTitle,
   busy = false,
   onReload,
+  hiddenModels,
+  onHiddenModelsChange,
 }: ModelSelectionPanesProps) {
   const { t } = useTranslation();
   const { rows, models, publishedLevelsById, setModels } = selection;
+  // Bindings removed by unchecking, kept so re-checking within this editing
+  // session restores the exact parameters instead of catalog defaults.
+  const removedBindingsRef = useRef(new Map<string, ModelBinding>());
   const [modelQuery, setModelQuery] = useState("");
   const [chosenQuery, setChosenQuery] = useState("");
   const [customModelId, setCustomModelId] = useState("");
@@ -218,17 +230,32 @@ export function ModelSelectionPanes({
     [],
   );
 
+  const hiddenSet = useMemo(
+    () => new Set((hiddenModels ?? []).map((id) => id.toLowerCase())),
+    [hiddenModels],
+  );
+  // A hidden id stops its discovered row from listing. A row that still has a
+  // binding always shows: delete removes the binding and hides together, so an
+  // overlap is stale state worth displaying rather than burying.
+  const listedRows = useMemo(
+    () =>
+      hiddenSet.size === 0
+        ? rows
+        : rows.filter((row) => row.binding || !hiddenSet.has(row.id.toLowerCase())),
+    [hiddenSet, rows],
+  );
+
   // The returned list is short and already local, so filtering is client-side:
   // no host search and no debounced IPC round trip.
   const visibleRows = useMemo(() => {
     const needle = modelQuery.trim().toLowerCase();
-    if (!needle) return rows;
-    return rows.filter(
+    if (!needle) return listedRows;
+    return listedRows.filter(
       (row) =>
         row.id.toLowerCase().includes(needle) ||
         row.displayName.toLowerCase().includes(needle),
     );
-  }, [modelQuery, rows]);
+  }, [listedRows, modelQuery]);
 
   const selected = useMemo(
     () => new Set(models.map((binding) => binding.id.toLowerCase())),
@@ -247,9 +274,9 @@ export function ModelSelectionPanes({
   // what models.dev says before the user overrides it.
   const infoById = useMemo(() => {
     const byId = new Map<string, ModelInfo>();
-    for (const row of rows) if (row.info) byId.set(row.id.toLowerCase(), row.info);
+    for (const row of listedRows) if (row.info) byId.set(row.id.toLowerCase(), row.info);
     return byId;
-  }, [rows]);
+  }, [listedRows]);
 
   // An emptied list disables the field, so a filter still sitting in it could
   // no longer be cleared by the user. Drop it with the last configured model.
@@ -265,8 +292,8 @@ export function ModelSelectionPanes({
    * the tests execute one implementation instead of three copies of it.
    */
   const visibleChosen = useMemo(
-    () => filterChosenModels(models, chosenQuery, rows),
-    [chosenQuery, models, rows],
+    () => filterChosenModels(models, chosenQuery, listedRows),
+    [chosenQuery, listedRows, models],
   );
 
   /** A discovered row arrives enriched; a hand-typed id gets generic limits. */
@@ -350,6 +377,51 @@ export function ModelSelectionPanes({
       current.map((binding) => (binding.id === id ? { ...binding, ...update } : binding)),
     );
 
+  /**
+   * The row checkbox as a real toggle. Unchecking removes the binding but
+   * keeps the row listed, and remembers the binding so re-checking within
+   * this editing session restores its parameters (an accidental uncheck must
+   * not silently reset alias, limits, and thinking levels). Checking adds -
+   * from the memory when present - and opens the model's settings.
+   */
+  const toggleModel = (row: ModelRow, checked: boolean) => {
+    if (busy) return;
+    const key = row.id.toLowerCase();
+    if (checked) {
+      const restored = removedBindingsRef.current.get(key);
+      const binding = restored ?? bindingForRow(row);
+      removedBindingsRef.current.delete(key);
+      setModels((current) =>
+        current.some((entry) => entry.id.toLowerCase() === key)
+          ? current
+          : [...current, binding],
+      );
+      setExpandedModelId(binding.id);
+      keepAddedModelVisible([binding]);
+      return;
+    }
+    const existing = models.find((entry) => entry.id.toLowerCase() === key);
+    if (existing) removedBindingsRef.current.set(key, existing);
+    setModels((current) => current.filter((entry) => entry.id.toLowerCase() !== key));
+  };
+
+  /**
+   * The chosen pane's delete: the binding is removed and the discovered row
+   * stops listing, so a model the service still advertises does not come back
+   * to taunt an already-made decision. Any remembered parameters for the id
+   * are dropped - this is the destructive action; unchecking is the soft one.
+   */
+  const deleteModel = (binding: ModelBinding) => {
+    const key = binding.id.toLowerCase();
+    removedBindingsRef.current.delete(key);
+    setModels((current) => current.filter((entry) => entry.id.toLowerCase() !== key));
+    if (hiddenSet.has(key)) return;
+    onHiddenModelsChange?.([...(hiddenModels ?? []), binding.id]);
+  };
+
+  /** Restore every hidden row to the list; the bindings stay untouched. */
+  const showHiddenModels = () => onHiddenModelsChange?.([]);
+
   const addCustomModel = () => {
     const id = customModelId.trim();
     if (!id) {
@@ -366,17 +438,27 @@ export function ModelSelectionPanes({
     setCustomModelId("");
     setCustomModelError("");
     keepAddedModelVisible([binding]);
+    // Re-adding a hidden id by hand is an explicit request to see it again.
+    if (hiddenSet.has(id.toLowerCase())) {
+      onHiddenModelsChange?.(
+        (hiddenModels ?? []).filter((hidden) => hidden.toLowerCase() !== id.toLowerCase()),
+      );
+    }
   };
 
   const fetchFailed = discovery.status === "error";
   const emptyFetchError = fetchFailed && rows.length === 0;
+
+  const hiddenCount = (hiddenModels ?? []).filter(
+    (id) => !models.some((binding) => binding.id.toLowerCase() === id.toLowerCase()),
+  ).length;
 
   const modelListBody =
     discovery.status === "idle" ? (
       <div className="provider-models-placeholder">{t("settings.modelsEmptyHint")}</div>
     ) : emptyFetchError ? (
       <ModelsFetchErrorMessage error={discovery.error} variant="placeholder" />
-    ) : rows.length === 0 ? (
+    ) : listedRows.length === 0 ? (
       <div className="provider-models-placeholder">
         {discovery.status === "loading"
           ? t("settings.modelsLoading")
@@ -393,6 +475,7 @@ export function ModelSelectionPanes({
             chosen={selected.has(row.id.toLowerCase())}
             busy={busy}
             onSelect={() => selectModel(row)}
+            onToggle={(checked) => toggleModel(row, checked)}
           />
         ))}
       </ul>
@@ -466,6 +549,14 @@ export function ModelSelectionPanes({
         ) : null}
 
         {modelListBody}
+        {hiddenCount > 0 && onHiddenModelsChange ? (
+          <div className="provider-models-hidden">
+            <span>{t("settings.hiddenModelsCount", { count: hiddenCount })}</span>
+            <button type="button" onClick={showHiddenModels}>
+              {t("settings.showHiddenModels")}
+            </button>
+          </div>
+        ) : null}
       </div>
 
       <div className="provider-chosen">
@@ -550,11 +641,7 @@ export function ModelSelectionPanes({
                       ariaLabel={t("settings.removeModel")}
                       tooltip={t("settings.removeModel")}
                       disabled={busy}
-                      onClick={() =>
-                        setModels((current) =>
-                          current.filter((entry) => entry.id !== binding.id),
-                        )
-                      }
+                      onClick={() => deleteModel(binding)}
                     >
                       <IconClose size={12} />
                     </TooltipButton>

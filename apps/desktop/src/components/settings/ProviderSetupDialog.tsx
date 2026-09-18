@@ -4,7 +4,7 @@
  * Named services: pick a vendor and paste a key. Custom: name, URL, key and
  * API format on the common path. Models come from the service endpoint.
  */
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   API_STYLES,
@@ -170,6 +170,9 @@ export function ProviderSetupDialog({
   const [headerPairs, setHeaderPairs] = useState(() => recordToPairs(provider?.headers));
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [models, setModels] = useState<ModelBinding[]>(initialDraft?.models ?? provider?.models ?? []);
+  const [hiddenModels, setHiddenModels] = useState<string[]>(
+    provider?.hiddenModels ?? [],
+  );
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
   const [error, setError] = useState("");
@@ -207,6 +210,12 @@ export function ProviderSetupDialog({
     provider,
   );
   const selection = useModelSelection(discovery, models, setModels);
+  // The selection callback is stable, so the hidden set is plumbed straight
+  // through and persisted with the same save as the bindings.
+  const onHiddenModelsChange = useCallback(
+    (next: string[]) => setHiddenModels(next),
+    [],
+  );
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -338,6 +347,7 @@ export function ProviderSetupDialog({
           baseUrl: providerBaseUrl,
           defaultModelId: persisted[0]?.id,
           models: persisted,
+          hiddenModels,
           apiStyle: resolvedApiStyle,
           headers,
           ...(apiKey ? { secretValue: apiKey } : {}),
@@ -353,6 +363,7 @@ export function ProviderSetupDialog({
           authKind: "api_key_and_base_url",
           defaultModelId: persisted[0]?.id,
           models: persisted,
+          hiddenModels,
           secretValue: apiKey || undefined,
           apiStyle: resolvedApiStyle,
           headers,
@@ -603,6 +614,8 @@ export function ProviderSetupDialog({
             listTitle={t("settings.serviceModels")}
             busy={saving}
             onReload={discovery.reload}
+            hiddenModels={hiddenModels}
+            onHiddenModelsChange={onHiddenModelsChange}
           />
         </div>
       </div>

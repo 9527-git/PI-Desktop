@@ -34,6 +34,7 @@ pub(crate) fn provider_from_row(
             .first()
             .map(|binding| binding.id.clone())
             .or(legacy_model_id),
+        hidden_models: config_hidden_models(&config_raw),
         models,
         api_style: row.get(10)?,
         supports_reasoning: row
@@ -120,6 +121,10 @@ pub fn create_provider(
     };
     let config_json = match input.headers.as_ref() {
         Some(headers) => config_with_headers(&config_json, headers)?,
+        None => config_json,
+    };
+    let config_json = match input.hidden_models.as_ref() {
+        Some(ids) => config_with_hidden_models(&config_json, ids)?,
         None => config_json,
     };
 
@@ -218,6 +223,14 @@ pub fn update_provider(
         Some(headers) => Some(config_with_headers(
             config_json.as_deref().unwrap_or(&raw_config),
             headers,
+        )?),
+        None => config_json,
+    };
+    // `Some` replaces the hidden list (empty clears it); `None` leaves it.
+    let config_json = match input.hidden_models.as_ref() {
+        Some(ids) => Some(config_with_hidden_models(
+            config_json.as_deref().unwrap_or(&raw_config),
+            ids,
         )?),
         None => config_json,
     };

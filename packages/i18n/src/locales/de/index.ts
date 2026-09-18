@@ -1190,6 +1190,8 @@ sklm: {
     "copyApiKey": "API-Schlüssel kopieren",
     "copiedToClipboard": "In die Zwischenablage kopiert",
     "noSavedApiKey": "Für diesen Dienst ist kein API-Schlüssel gespeichert",
+    "hiddenModelsCount": "{{count}} ausgeblendet",
+    "showHiddenModels": "Anzeigen",
     "fetchModelList": "Liste laden",
     "reasoning": "Begründung",
     "vision": "Vision",

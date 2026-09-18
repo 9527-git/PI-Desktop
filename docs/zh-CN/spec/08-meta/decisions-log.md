@@ -4370,3 +4370,12 @@ D438 收到用户反馈：头部全选复选框应当保留——隐藏它等于
   `06-delivery/04-e2e-test-plan.md` 的 E2E-PROVIDER-select-all-never-clears
   与 E2E-PROVIDER-copy-endpoint-and-key；
   源码契约覆盖见 `provider-model-selection-safe.test.mjs`。
+
+## 2026-09-18 —— 行复选框真切换，「移除」真删除（D441）
+
+D440 收到用户反馈：左列表没有办法取消勾选模型，右侧「移除」的表现等同取消勾选——发现行始终留在列表里。行复选框现在是真正的切换（D441）：取消勾选只移除绑定，行仍保留在列表中，且被移除的绑定在本次编辑会话内被记住，关弹窗前重新勾选即可恢复其别名、上限与思考等级；删除会丢弃这份记忆。右侧「移除」是真正的删除：它移除绑定，并把 id 持久化到新的按提供商 `hiddenModels` 集合中、隐藏发现行——该集合随现有提供商 config JSON 经 `providers.create` / `providers.update` 携带（附加可选字段；`Some` 替换、`None` 不变，因此无需迁移）。列表下方的「已隐藏 N 个 · 显示」条目一次性恢复全部隐藏行；在自定义模型输入框手输隐藏 id 也会解除隐藏；隐藏 id 永远不会隐藏仍持有绑定的行。头部全选保持只加不删（D440）。两个选择器消费方——服务对话框与厂商账户对话框——通过 `ModelSelectionPanes` 共享该行为。注意：`crates/host-core/src/providers/tests.rs` 是孤儿模块（没有任何 `mod tests;` 挂载它），因此 host 侧提供商 config 变更没有 Rust 单测覆盖，行为由桌面端源码契约测试固定。
+- 见 `04-ux/08-component-spec.md` §19.4/§19.5、
+  `06-delivery/04-e2e-test-plan.md` 的
+  E2E-PROVIDER-row-toggle-and-hidden-delete；
+  源码契约覆盖见 `provider-model-selection-safe.test.mjs`
+  与 `provider-model-config.test.mjs`。

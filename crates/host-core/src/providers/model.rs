@@ -28,6 +28,11 @@ pub struct ProviderPublic {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub headers: Option<BTreeMap<String, String>>,
     pub models: Vec<ModelBinding>,
+    /// Discovered model ids the picker's list should stop showing. Written by
+    /// the picker's delete action so a deleted model does not reappear from
+    /// discovery; empty for providers that never hid one.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub hidden_models: Vec<String>,
     /// Legacy default retained so older renderer/runtime clients can continue
     /// reading a provider while they migrate to `models`.
     pub default_model_id: Option<String>,
@@ -65,6 +70,10 @@ pub struct ProviderCreateInput {
     pub auth_kind: Option<String>,
     #[serde(default)]
     pub models: Option<Vec<ModelBinding>>,
+    /// `Some` replaces the stored hidden list (an empty vector clears it);
+    /// `None` leaves it unchanged.
+    #[serde(default)]
+    pub hidden_models: Option<Vec<String>>,
     pub default_model_id: Option<String>,
     pub secret_value: Option<String>,
     pub api_style: Option<String>,
@@ -95,6 +104,10 @@ pub struct ProviderUpdateInput {
     pub auth_kind: Option<String>,
     #[serde(default)]
     pub models: Option<Vec<ModelBinding>>,
+    /// `Some` replaces the stored hidden list (an empty vector clears it);
+    /// `None` leaves it unchanged.
+    #[serde(default)]
+    pub hidden_models: Option<Vec<String>>,
     pub default_model_id: Option<String>,
     pub secret_value: Option<String>,
     pub api_style: Option<String>,

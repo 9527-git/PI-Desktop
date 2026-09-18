@@ -1196,6 +1196,8 @@ sklm: {
     copyApiKey: "複製 API 金鑰",
     copiedToClipboard: "已複製到剪貼簿",
     noSavedApiKey: "該服務沒有已儲存的金鑰",
+    hiddenModelsCount: "已隱藏 {{count}} 個模型",
+    showHiddenModels: "顯示",
     fetchModelList: "取得列表",
     reasoning: "思考",
     vision: "視覺",

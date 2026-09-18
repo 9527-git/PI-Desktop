@@ -26,6 +26,12 @@ export type ProviderPublic = {
   headers?: Record<string, string>;
   /** Per-model settings selected in the provider dialog. */
   models: ModelBinding[];
+  /**
+   * Model ids the provider's discovered list should stop showing. The picker's
+   * delete action removes the binding and hides the row, so a model the service
+   * still advertises does not reappear after it was deliberately deleted.
+   */
+  hiddenModels?: string[];
   /** @deprecated Use `models[0]?.id`; retained for older runtime consumers. */
   defaultModelId?: string;
   apiStyle?: string;
@@ -52,6 +58,12 @@ export type ProviderCreateInput = {
   baseUrl?: string;
   authKind?: string;
   models?: ModelBinding[];
+  /**
+   * Discovered model ids to keep out of the picker's list. On update the field
+   * is replaced when present (an empty array clears it); omitting it leaves the
+   * stored set unchanged.
+   */
+  hiddenModels?: string[];
   /** @deprecated Use `models[0]?.id`; retained for older callers. */
   defaultModelId?: string;
   secretValue?: string;

@@ -1,10 +1,11 @@
 /**
- * Contract tests for the additive single-model activation in the shared picker.
+ * Contract tests for the model picker's activation and removal semantics.
  *
- * Left-pane activation is a selection, never a removal: an absent model is
- * added, an existing one opens its configuration. These pin the wiring the
- * regression exercised, separately from the broader discovery contract, so the
- * behavior stays readable without growing the main provider-model-config suite.
+ * Left-pane activation splits in two since D441: the checkbox is a real toggle
+ * (unchecking removes the binding but keeps the row listed, remembering the
+ * parameters for this edit), while every other activation stays additive -
+ * an absent model is added, an existing one opens its configuration. Deletion
+ * is the chosen pane's explicit action and also hides the discovered row.
  */
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -14,8 +15,13 @@ const read = (rel) => readFile(new URL(rel, import.meta.url), "utf8");
 
 const pickerSource = await read("../src/components/settings/ModelSelectionPanes.tsx");
 const rowSource = await read("../src/components/settings/DiscoveredModelRow.tsx");
+const setupSource = await read("../src/components/settings/ProviderSetupDialog.tsx");
+const vendorDialogSource = await read("../src/components/settings/VendorAccountDialog.tsx");
+const vendorAccountsSource = await read("../src/components/settings/VendorAccountsSection.tsx");
+const hostCatalogSource = await read("../../../crates/host-core/src/providers/catalog.rs");
+const hostModelSource = await read("../../../crates/host-core/src/providers/model.rs");
 
-test("the discovered row is the extracted additive-activation unit", () => {
+test("the discovered row is the extracted activation unit", () => {
   assert.match(pickerSource, /DiscoveredModelRow/);
   // The extracted component owns the row markup and the activation wiring.
   assert.match(rowSource, /provider-models-row-label/);
@@ -23,9 +29,8 @@ test("the discovered row is the extracted additive-activation unit", () => {
 });
 
 test("a single discovered activation adds or opens, never removes", () => {
-  // The destructive toggle is gone; selection routes through the idempotent
-  // select helper over just the activated row.
-  assert.doesNotMatch(pickerSource, /toggleModel/);
+  // Row activation (text, name, limits, keyboard) routes through the
+  // idempotent select helper over just the activated row.
   assert.match(pickerSource, /const selectModel = \(row: ModelRow\)/);
   assert.match(
     pickerSource,
@@ -44,23 +49,72 @@ test("a single discovered activation adds or opens, never removes", () => {
   assert.match(pickerSource, /const selectModel = \(row: ModelRow\) => \{\s*if \(busy\) return;/);
 });
 
-test("removal stays an explicit action in the chosen pane", () => {
-  // Only the right-pane Remove control drops a binding.
-  assert.match(pickerSource, /entry\.id !== binding\.id/);
+test("the row checkbox is a real toggle that remembers the removed binding", () => {
+  // Unchecking removes the binding but keeps the row listed, remembering the
+  // exact binding so re-checking within this editing session restores its
+  // parameters (alias, limits, thinking levels) instead of catalog defaults.
+  assert.match(
+    pickerSource,
+    /removedBindingsRef = useRef\(new Map<string, ModelBinding>\(\)\)/,
+  );
+  assert.match(pickerSource, /const toggleModel = \(row: ModelRow, checked: boolean\)/);
+  assert.match(pickerSource, /removedBindingsRef\.current\.set\(key, existing\)/);
+  assert.match(pickerSource, /removedBindingsRef\.current\.get\(key\)/);
+  assert.match(pickerSource, /removedBindingsRef\.current\.delete\(key\)/);
+  // Checking re-opens the model's settings either way.
+  assert.match(pickerSource, /setExpandedModelId\(binding\.id\)/);
+  // Saving blocks the toggle.
+  assert.match(pickerSource, /const toggleModel = \(row: ModelRow, checked: boolean\) => \{\s*if \(busy\) return;/);
+});
+
+test("deletion is explicit, destructive, and hides the discovered row", () => {
+  // The chosen pane's Remove drops the binding, drops any remembered
+  // parameters, and hides the discovered row so a deleted model does not
+  // reappear from a service that still advertises it.
+  assert.match(pickerSource, /const deleteModel = \(binding: ModelBinding\)/);
+  assert.match(pickerSource, /removedBindingsRef\.current\.delete\(key\)/);
+  assert.match(
+    pickerSource,
+    /onHiddenModelsChange\?\.\(\[\.\.\.\(hiddenModels \?\? \[\]\), binding\.id\]\)/,
+  );
+  // The restore entry lives under the list and clears the whole hidden set.
+  assert.match(pickerSource, /provider-models-hidden/);
+  assert.match(pickerSource, /const showHiddenModels = \(\) => onHiddenModelsChange\?\.\(\[\]\)/);
+  // Re-adding a hidden id by hand unhides it.
+  assert.match(
+    pickerSource,
+    /hiddenSet\.has\(id\.toLowerCase\(\)\)[\s\S]{0,200}hidden\.toLowerCase\(\) !== id\.toLowerCase\(\)/,
+  );
   // The bulk header helper is additive-only, so it can never drop bindings.
   assert.match(pickerSource, /applyVisibleModelSelection\(current, visibleRows\)/);
 });
 
-test("every row activation path resolves to the one additive select", () => {
-  // The checkbox is controlled by the binding state and reports the same select.
+test("the hidden list persists with the provider record", () => {
+  // Both credential kinds plumb the same hidden set into the picker and save
+  // it alongside the bindings.
+  for (const source of [setupSource, vendorDialogSource]) {
+    assert.match(source, /hiddenModels=\{hiddenModels\}/);
+    assert.match(source, /onHiddenModelsChange=/);
+  }
+  assert.match(setupSource, /hiddenModels,/);
+  assert.match(vendorAccountsSource, /hiddenModels: form\.hiddenModels/);
+  // Host-core stores the set in the provider config JSON and echoes it back.
+  assert.match(hostModelSource, /pub hidden_models: Vec<String>/);
+  assert.match(hostModelSource, /pub hidden_models: Option<Vec<String>>/);
+  assert.match(hostCatalogSource, /fn config_hidden_models/);
+  assert.match(hostCatalogSource, /fn config_with_hidden_models/);
+});
+
+test("every row activation path resolves to select or toggle, never both", () => {
+  // The checkbox is controlled by the binding state and reports a real toggle.
   assert.match(rowSource, /checked=\{chosen\}/);
   assert.match(rowSource, /disabled=\{busy\}/);
-  assert.match(rowSource, /onChange=\{onSelect\}/);
+  assert.match(rowSource, /onChange=\{\(event\) => onToggle\(event\.target\.checked\)\}/);
   assert.match(rowSource, /aria-label=\{row\.id\}/);
   // A click on the checkbox never double-fires the label handler.
   assert.match(rowSource, /if \(event\.target instanceof HTMLInputElement\) return;/);
   // Any other click cancels the label's native forwarding, then guards saving
-  // and a real row-contained copy selection before selecting.
+  // and a real row-contained copy selection before selecting additively.
   assert.match(
     rowSource,
     /event\.preventDefault\(\);\s*if \(busy\) return;[\s\S]*?label\.contains\(selection\.anchorNode\)[\s\S]*?onSelect\(\);/,

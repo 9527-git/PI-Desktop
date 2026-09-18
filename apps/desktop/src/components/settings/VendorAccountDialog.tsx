@@ -26,6 +26,8 @@ export type VendorAccountForm = {
   /** The account's default model; always `models[0]`. */
   modelId: string;
   models: ModelBinding[];
+  /** Discovered rows the account's picker should stop showing. */
+  hiddenModels: string[];
   headers: Record<string, string>;
 };
 
@@ -52,6 +54,9 @@ export function VendorAccountDialog({
       : provider.defaultModelId
         ? [bindingForCustomModel(provider.defaultModelId)]
         : [],
+  );
+  const [hiddenModels, setHiddenModels] = useState<string[]>(
+    provider.hiddenModels ?? [],
   );
 
   // A vendor account has no typed key: the host resolves the stored login.
@@ -94,6 +99,7 @@ export function VendorAccountDialog({
       name: name.trim(),
       modelId: persisted[0].id,
       models: persisted,
+      hiddenModels,
       headers,
     });
   };
@@ -138,6 +144,8 @@ export function VendorAccountDialog({
             listTitle={t("settings.accountModels")}
             busy={saving}
             onReload={discovery.reload}
+            hiddenModels={hiddenModels}
+            onHiddenModelsChange={setHiddenModels}
           />
         </div>
 

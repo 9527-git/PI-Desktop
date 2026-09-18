@@ -232,7 +232,7 @@ test("model ids are copyable and a configured model can carry an alias", () => {
   assert.match(rowSource, /label\.contains\(selection\.anchorNode\)/);
   assert.match(rowSource, /label\.contains\(selection\.focusNode\)/);
   // Non-checkbox activation cancels the label's native forwarding and routes to
-  // the same additive select, detail-0 included: never a checkbox toggle.
+  // the same additive select; the checkbox alone is the toggle.
   assert.match(rowSource, /event\.preventDefault\(\)/);
   assert.match(rowSource, /onSelect\(\)/);
   assert.doesNotMatch(rowSource, /event\.detail === 0/);
@@ -247,10 +247,11 @@ test("model ids are copyable and a configured model can carry an alias", () => {
   assert.match(styles, /\.provider-chosen-row-alias\s*\{/);
 });
 
-test("a model name is never the toggle, and it opens what it configures", () => {
-  // Since D435 every left-pane activation is additive and lives in the
-  // extracted row: the label owns one click handler between it and the
-  // checkbox, and the checkbox routes to the same non-destructive select.
+test("a model name opens what it configures; only the checkbox toggles", () => {
+  // Since D441 the checkbox is a real toggle, but every other left-pane
+  // activation stays additive and lives in the extracted row: the label owns
+  // one click handler between it and the checkbox, and it never drops a
+  // binding - a click that means "show me this model" cannot delete it.
   assert.match(pickerSource, /<DiscoveredModelRow\b/);
   const rowClick = rowSource.slice(
     rowSource.indexOf('className="provider-models-row-label"'),
@@ -258,12 +259,12 @@ test("a model name is never the toggle, and it opens what it configures", () => 
   );
   assert.match(rowClick, /event\.preventDefault\(\)/);
   assert.match(rowClick, /if \(busy\) return;/);
-  // A configured row opens its settings; an unconfigured one is picked; and
-  // neither the row nor the checkbox ever drops a binding.
+  // A configured row opens its settings; an unconfigured one is picked; the
+  // row click itself never unchecks.
   assert.match(rowClick, /onSelect\(\)/);
-  assert.match(rowSource, /onChange=\{onSelect\}/);
-  assert.doesNotMatch(rowSource, /toggleModel/);
-  assert.doesNotMatch(pickerSource, /toggleModel/);
+  assert.doesNotMatch(rowClick, /onToggle/);
+  // The checkbox reports the checked/unchecked toggle.
+  assert.match(rowSource, /onChange=\{\(event\) => onToggle\(event\.target\.checked\)\}/);
   // A drag-copy that happens to end inside the text stays a copy.
   assert.match(rowClick, /selection\.isCollapsed/);
 
@@ -312,16 +313,17 @@ test("the chosen pane narrows a long configured list with its own search", () =>
   // only has to delegate to it for the view and for every add path.
   assert.match(filterSource, /export function filterChosenModels/);
   assert.match(filterSource, /export function hidesAddedBinding/);
-  assert.match(pickerSource, /filterChosenModels\(models, chosenQuery, rows\)/);
+  assert.match(pickerSource, /filterChosenModels\(models, chosenQuery, listedRows\)/);
   // "Nothing matches" is a different message from "nothing chosen yet".
   assert.match(pickerSource, /models\.length === 0 \? \(/);
   assert.match(pickerSource, /visibleChosen\.length === 0 \? \(/);
   assert.match(pickerSource, /settings\.noModelsChosen/);
   assert.match(pickerSource, /settings\.noChosenModelMatches/);
-  // Every add path — checkbox, select-all, hand-typed — asks that same rule
-  // whether the new model would land behind the filter typed earlier, and an
-  // emptied list drops the filter instead of stranding it in a disabled field.
-  assert.equal([...pickerSource.matchAll(/keepAddedModelVisible\(/g)].length, 3);
+  // Every add path — checkbox, select-all, hand-typed, re-check — asks that
+  // same rule whether the new model would land behind the filter typed
+  // earlier, and an emptied list drops the filter instead of stranding it in a
+  // disabled field.
+  assert.equal([...pickerSource.matchAll(/keepAddedModelVisible\(/g)].length, 4);
   assert.match(pickerSource, /if \(models\.length === 0\) setChosenQuery\(""\)/);
   // No dead control: the field is off while saving or with nothing to search.
   assert.match(pickerSource, /disabled=\{busy \|\| models\.length === 0\}/);
