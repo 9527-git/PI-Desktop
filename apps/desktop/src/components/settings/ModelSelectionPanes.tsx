@@ -403,7 +403,10 @@ export function ModelSelectionPanes({
       <div className="provider-models">
         <div className="provider-models-head">
           <div className="provider-models-heading">
-            {visibleRows.length > 0 ? (
+            {/* A fallback list is exactly the configured models, so an
+                all-selected header checkbox could only clear bindings the
+                live answer may never offer again; removal stays explicit. */}
+            {visibleRows.length > 0 && discovery.source !== "fallback" ? (
               <input
                 type="checkbox"
                 className="provider-models-check provider-models-select-all"

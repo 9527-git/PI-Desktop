@@ -68,3 +68,13 @@ test("every row activation path resolves to the one additive select", () => {
   // The obsolete detail-0 removal toggle is gone.
   assert.doesNotMatch(rowSource, /event\.detail === 0/);
 });
+
+test("the fallback list never offers the bulk clear", () => {
+  // Fallback rows are the configured models themselves, so an all-selected
+  // header checkbox could only wipe bindings the live answer may never offer
+  // again - the control is hidden there instead of staying destructive.
+  assert.match(
+    pickerSource,
+    /visibleRows\.length > 0 && discovery\.source !== "fallback"/,
+  );
+});
