@@ -5711,6 +5711,9 @@ placement while keeping its union semantics.
 
 ## 2026-09-18 — Attention states also read as words on the sidebar row (D445)
 
+> Amended by D446 the same day: the word stays, its placement moves into the
+> dot's own chip. Read D446 for the current contract.
+
 User feedback after D444 and the v0.14.33 build: the status light had no
 readable label. The sidebar dot (D135) had always carried its meaning in a
 tooltip and an accessible name, and the only visible status sentence in this
@@ -5744,3 +5747,42 @@ looks: inline on the session row.
   over CDP that each attention row's visible word equals its dot's accessible
   name in the dot's own token, in both themes, and that the selected row shows
   none.
+
+## 2026-09-18 — The status word rides inside the dot's own chip (D446)
+
+User feedback on the v0.14.34 build: the D445 word "wandered off to the front of
+the session title" instead of reading as the light's label. The cause is
+geometric, not a wrong choice of slot: the dot is absolutely positioned and
+centred on the whole row (`sessions.css`), while most session rows are two lines
+tall since D427 added the preview line. The word therefore sat on the title line
+while the light floated between the two lines, and the pair stopped reading as
+one indicator. The D445 CDP fixture seeded single-line rows, which is why 16/16
+checks passed on a layout no real row renders.
+
+- The two attention states now render one tinted status chip at the head of the
+  row: the live dot and its localized word inside the same rounded group
+  (`--ds-warning` at 14% for running, `--ds-purple` at 14% for needs input, on
+  `--radius-full`). The chip is a flex child of the row button, so it is
+  vertically centred on the row exactly like the dot was, and the word can no
+  longer separate from the light at any row height.
+- The chip replaces the floating dot for those two states only. Selected,
+  completed, and failed rows keep the D135 gutter dot with no chip and no word,
+  and the row's 20px left gutter is released to 6px only when a chip is present
+  (`.thread-item-main:has(.thread-item-status-chip)`), so quiet rows are
+  untouched.
+- Inside the chip the dot drops its absolute positioning and its 3px halo (the
+  tint now carries the emphasis) but keeps its animation, its `aria-label`, and
+  its tooltip; the word remains `aria-hidden`, so assistive tech still hears one
+  label per row. No locale key was added — the chip reuses `nav.sessionRunning`
+  and `nav.sessionNeedsInput` exactly as D445 did.
+- Renderer, docs, and tests only: no IPC channel, host RPC, schema, permission,
+  or persisted-state change.
+- Regression coverage: the capture rig now gives every seeded sidebar row a
+  preview line, so `scripts/e2e-sidebar-status-dot.mjs` measures the real
+  two-line geometry and asserts the word and dot share one chip, that the chip's
+  centre stays within 2px of the row's centre, that the chip is tinted, and that
+  the selected row's dot is still the plain absolute gutter dot.
+  `sidebar-session-status.test.mjs` pins the markup and the token contract.
+- See `04-ux/07-ui-design-system.md` §4.5, `04-ux/08-component-spec.md` §2 and
+  §3, and E2E-SIDEBAR-status-dot-pending-union in
+  `06-delivery/04-e2e-test-plan.md`.

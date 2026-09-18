@@ -980,6 +980,9 @@ export function Sidebar({
     return t(labelKey, { defaultValue: fallback });
   };
 
+  const isAttentionStatus = (status: SidebarSessionStatus) =>
+    status === "running" || status === "permission";
+
   const renderSessionStatus = (status: SidebarSessionStatus) => {
     const label = sessionStatusLabel(status);
     return (
@@ -1518,7 +1521,7 @@ export function Sidebar({
           );
         }}
       >
-        {status ? renderSessionStatus(status) : null}
+        {status && !isAttentionStatus(status) ? renderSessionStatus(status) : null}
         <button
           type="button"
           className="thread-item-main"
@@ -1549,15 +1552,16 @@ export function Sidebar({
           {session.source === "pi-native" ? (
             <span className="thread-item-source" title="Native Pi session">Pi</span>
           ) : null}
-          <span className="thread-item-text">
-            <span className="thread-item-title-row">
-              {status === "running" || status === "permission" ? (
-                <span className={`thread-item-status-label ${status}`} aria-hidden>
-                  {sessionStatusLabel(status)}
-                </span>
-              ) : null}
-              <span className="thread-item-title">{taskTitle(session.title)}</span>
+          {status && isAttentionStatus(status) ? (
+            <span className={`thread-item-status-chip ${status}`}>
+              {renderSessionStatus(status)}
+              <span className="thread-item-status-label" aria-hidden>
+                {sessionStatusLabel(status)}
+              </span>
             </span>
+          ) : null}
+          <span className="thread-item-text">
+            <span className="thread-item-title">{taskTitle(session.title)}</span>
             {session.lastMessage ? (
               <span className="thread-item-preview">{session.lastMessage}</span>
             ) : null}

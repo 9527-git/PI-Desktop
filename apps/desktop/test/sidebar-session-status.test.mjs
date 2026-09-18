@@ -130,20 +130,29 @@ test("renders semantic, shape-distinct sidebar status indicators", () => {
   assert.match(styles, /thread-item-status\.selected::before[\s\S]*--ds-accent/);
   assert.match(styles, /thread-item-status\.completed[\s\S]*--ds-success/);
   assert.match(styles, /thread-item-status\.failed[\s\S]*--ds-error/);
-  // D445: running and needs-input rows also carry a visible colored word
-  // inline before the title; quiet states (selected/completed/failed) do not.
+  // D446: running and needs-input rows carry their word inside the SAME tinted
+  // chip as the dot, so the word can never drift onto the title line of a
+  // two-line row; quiet states keep the plain dot in the left gutter.
   assert.match(
     sidebar,
-    /status === "running" \|\| status === "permission"[\s\S]*thread-item-status-label/,
+    /isAttentionStatus\(status\)[\s\S]*thread-item-status-chip[\s\S]*renderSessionStatus\(status\)[\s\S]*thread-item-status-label/,
   );
-  assert.match(sidebar, /thread-item-title-row[\s\S]*thread-item-status-label[\s\S]*thread-item-title/);
   assert.match(
     sidebar,
-    /className=\{`thread-item-status-label \$\{status\}`\}[\s\S]{0,80}aria-hidden/,
+    /!isAttentionStatus\(status\)[\s\S]{0,80}renderSessionStatus\(status\)/,
   );
-  assert.match(styles, /thread-item-status-label\.running[\s\S]*--ds-warning/);
-  assert.match(styles, /thread-item-status-label\.permission[\s\S]*--ds-purple/);
-  assert.match(styles, /thread-item-title-row[\s\S]*min-width: 0/);
+  assert.match(sidebar, /className="thread-item-status-label" aria-hidden/);
+  assert.doesNotMatch(sidebar, /thread-item-title-row/);
+  assert.match(styles, /thread-item-status-chip\.running[\s\S]*--ds-warning/);
+  assert.match(styles, /thread-item-status-chip\.permission[\s\S]*--ds-purple/);
+  assert.match(
+    styles,
+    /thread-item-status-chip \.thread-item-status \{[\s\S]*?position: static/,
+  );
+  assert.match(
+    styles,
+    /thread-item-main:has\(\.thread-item-status-chip\)[\s\S]*?padding-left: 6px/,
+  );
   assert.match(
     styles,
     /prefers-reduced-motion: reduce[\s\S]*thread-item-status\.running::before[\s\S]*animation: none/,

@@ -29,6 +29,12 @@
   color: inherit;
 }
 
+/* D446: an attention row leads with its status chip, so the gutter that used to
+   hold the floating dot is released back to the chip. */
+.thread-item-main:has(.thread-item-status-chip) {
+  padding-left: 6px;
+}
+
 .thread-item-title {
   overflow: hidden;
   font-size: var(--text-md); /* session titles stay compact within the sidebar */
@@ -37,34 +43,51 @@
   white-space: nowrap;
 }
 
-/* D445: the title line carries an inline colored status word before the task
-   title for the attention states (running / needs input). The leading dot
-   keeps its tooltip and accessible name; the label is its visual twin. */
-.thread-item-title-row {
-  display: flex;
-  min-width: 0;
-  align-items: baseline;
-  gap: 6px;
+/* D446: the two attention states (running / needs input) read as one tinted
+   chip — the live dot and its status word share a single group, so the word can
+   never drift onto the title line while the dot stays centred on a two-line
+   row. The dot keeps its tooltip and accessible name; the word is its visual
+   twin and is hidden from assistive tech. */
+.thread-item-status-chip {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 4px;
+  border-radius: var(--radius-full);
+  padding: 1px 7px 1px 5px;
 }
 
-.thread-item-title-row .thread-item-title {
-  flex: 0 1 auto;
-  min-width: 0;
+.thread-item-status-chip .thread-item-status {
+  position: static;
+  width: 8px;
+  height: 8px;
+  transform: none;
+}
+
+.thread-item-status-chip .thread-item-status::before {
+  box-shadow: none;
+}
+
+.thread-item-status-chip.running {
+  background: color-mix(in oklab, var(--ds-warning) 14%, transparent);
+}
+
+.thread-item-status-chip.permission {
+  background: color-mix(in oklab, var(--ds-purple) 14%, transparent);
 }
 
 .thread-item-status-label {
-  flex: 0 0 auto;
   font-size: var(--text-2xs);
-  font-weight: 600;
+  font-weight: var(--font-weight-strong);
   line-height: var(--leading-compact);
   white-space: nowrap;
 }
 
-.thread-item-status-label.running {
+.thread-item-status-chip.running .thread-item-status-label {
   color: var(--ds-warning);
 }
 
-.thread-item-status-label.permission {
+.thread-item-status-chip.permission .thread-item-status-label {
   color: var(--ds-purple);
 }
 

@@ -1119,6 +1119,15 @@ export function installCaptureRig(): CaptureRig {
         page: "chat",
         activeSessionId: selected.id,
         isRunning: false,
+        // D446: every seeded row carries a preview line so the fixture renders
+        // two-line rows like real sessions. On single-line rows the status dot
+        // and the title share one line, which hid the drift D446 fixes.
+        sessions: useAppStore
+          .getState()
+          .sessions.map((session) => ({
+            ...session,
+            lastMessage: session.lastMessage || "capture preview line",
+          })),
         runningSessions: { [running.id]: true },
         sessionOutcomes: {},
         pendingPermissions: {
