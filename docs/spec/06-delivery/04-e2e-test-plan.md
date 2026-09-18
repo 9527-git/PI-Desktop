@@ -10467,7 +10467,9 @@ the hiding approach and kept the checkbox visible but add-only.)
   binding returns with its alias, limits, and thinking levels intact. 2a) On
   the fallback provider, uncheck a configured (or hand-added) model: the row
   stays listed unchecked, and the header select-all re-adds it with its saved
-  parameters; the row never vanishes. 3)
+  parameters; the row never vanishes. 2b) Save, reopen the provider, and
+  confirm the unchecked row is still listed unchecked; select-all or a row
+  click restores it with its saved parameters. 3)
   Close without saving, reopen, and confirm the untouched persisted state.
   4) Delete a different configured model with the right pane's Remove: its
   binding is dropped, its discovered row disappears from the left list, and
@@ -10480,7 +10482,9 @@ the hiding approach and kept the checkbox visible but add-only.)
   only the binding, keeps the row listed, and remembers the removed binding
   for the current editing session so a re-check restores its parameters —
   in every discovery mode, including fallback lists and hand-added models,
-  where remembered bindings are merged back into the displayed rows;
+  where remembered bindings are merged back into the displayed rows. Since
+  D442 the memory persists with the provider record in the `disabledModels`
+  set, so an unchecked row survives a save and reopen;
   deletion drops that memory. The right pane's Remove is a real delete: it
   removes the binding and hides the discovered row by persisting the id in
   the provider's `hiddenModels` set through `providers.create` /

@@ -35,6 +35,7 @@ pub(crate) fn provider_from_row(
             .map(|binding| binding.id.clone())
             .or(legacy_model_id),
         hidden_models: config_hidden_models(&config_raw),
+        disabled_models: config_disabled_models(&config_raw),
         models,
         api_style: row.get(10)?,
         supports_reasoning: row
@@ -125,6 +126,10 @@ pub fn create_provider(
     };
     let config_json = match input.hidden_models.as_ref() {
         Some(ids) => config_with_hidden_models(&config_json, ids)?,
+        None => config_json,
+    };
+    let config_json = match input.disabled_models.as_ref() {
+        Some(bindings) => config_with_disabled_models(&config_json, bindings)?,
         None => config_json,
     };
 
@@ -231,6 +236,14 @@ pub fn update_provider(
         Some(ids) => Some(config_with_hidden_models(
             config_json.as_deref().unwrap_or(&raw_config),
             ids,
+        )?),
+        None => config_json,
+    };
+    // `Some` replaces the unchecked bindings (empty clears them); `None` leaves.
+    let config_json = match input.disabled_models.as_ref() {
+        Some(bindings) => Some(config_with_disabled_models(
+            config_json.as_deref().unwrap_or(&raw_config),
+            bindings,
         )?),
         None => config_json,
     };

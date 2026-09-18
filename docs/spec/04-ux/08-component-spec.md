@@ -3405,7 +3405,10 @@ compatibility remains owned by pi-ai.
   restores the exact binding remembered from an uncheck in this editing
   session — and opens its configuration; unchecking removes the binding while
   the row stays listed, so an accidental uncheck can be undone without
-  losing the alias, limits, and thinking levels. The row persists unchecked in
+  losing the alias, limits, and thinking levels. The remembered (unchecked)
+  bindings persist with the provider record in a `disabledModels` set (D442),
+  so the row keeps its stored parameters across a save and reopen. The row
+  persists unchecked in
   every discovery mode: when the live probe fails or returns nothing
   (fallback) or for hand-added models with no discovery at all, the list is
   built from the configured bindings, so unchecked bindings are remembered and
@@ -3451,10 +3454,11 @@ compatibility remains owned by pi-ai.
   view and marking it briefly for as long as that highlight runs; under
   reduced motion the mark is a static outline — or pick a model that is not
   configured yet, and never remove one. The checkbox alone toggles: unchecking
-  keeps the row listed and remembers the binding so a re-check before the
-  dialog closes restores its parameters — including fallback lists and
+  keeps the row listed and remembers the binding so a re-check restores its
+  parameters — including fallback lists and
   hand-added models, where remembered bindings are merged back into the
-  displayed rows; the remembered copy is dropped by
+  displayed rows; the memory is persisted with the provider record (D442), so
+  it survives a save and reopen; the remembered copy is dropped by
   deletion. Deletion stays with the right pane's remove button, which also
   hides the discovered row; the header select-all is add-only and cannot drop
   bindings. The id
@@ -3474,8 +3478,9 @@ compatibility remains owned by pi-ai.
   composer chip and the picker, while the configuration row and the transcript
   badge keep the real ID. Clearing the field restores the catalog's published
   display name.
-- Save creates or updates the provider with `models: ModelBinding[]` and the
-  picker's `hiddenModels` set, stores
+- Save creates or updates the provider with `models: ModelBinding[]`, the
+  picker's `hiddenModels` set, and the picker's `disabledModels` set (D442),
+  stores
   the secret, sets the first configured model as the legacy/default model for
   older consumers, and refreshes the list
 - Test connection calls `providers.testConnection` and toasts success/failure

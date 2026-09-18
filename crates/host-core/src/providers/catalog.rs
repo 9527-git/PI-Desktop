@@ -134,6 +134,28 @@ pub(crate) fn config_with_hidden_models(raw: &str, ids: &[String]) -> Result<Str
     Ok(config.to_string())
 }
 
+/// Read the picker's disabled (unchecked) bindings. Unchecking keeps the row
+/// listed across editing sessions, so the stored parameters survive a save
+/// and reopen and can be restored by re-checking or select-all.
+pub(crate) fn config_disabled_models(raw: &str) -> Vec<ModelBinding> {
+    config_value(raw)
+        .and_then(|value| value.get("disabledModels").cloned())
+        .and_then(|value| serde_json::from_value::<Vec<ModelBinding>>(value).ok())
+        .map(|bindings| normalize_model_bindings(&bindings))
+        .unwrap_or_default()
+}
+
+/// Replace the stored unchecked bindings. An empty list writes an empty
+/// array, which is how an update clears the set.
+pub(crate) fn config_with_disabled_models(
+    raw: &str,
+    bindings: &[ModelBinding],
+) -> Result<String> {
+    let mut config = ensure_config_object(raw)?;
+    config["disabledModels"] = serde_json::to_value(normalize_model_bindings(bindings))?;
+    Ok(config.to_string())
+}
+
 pub(crate) fn config_thinking_levels_override(raw: &str) -> Option<Vec<String>> {
     let levels = config_value(raw)?
         .get("compatibility")?

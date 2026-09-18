@@ -138,6 +138,7 @@ export function VendorAccountsSection() {
         defaultModelId: form.modelId.trim(),
         models: form.models,
         hiddenModels: form.hiddenModels,
+        disabledModels: form.disabledModels,
         headers: form.headers,
       });
       if (settings?.defaultProviderId === provider.id) {

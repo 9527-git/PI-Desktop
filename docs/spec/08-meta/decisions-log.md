@@ -5608,3 +5608,32 @@ with its saved parameters instead of catalog defaults.
   `06-delivery/04-e2e-test-plan.md`; source contract coverage in
   `provider-model-selection-safe.test.mjs` and
   `provider-model-config.test.mjs`.
+
+## 2026-09-18 — Unchecked model bindings persist with the provider record (D442)
+
+User feedback on D441: select-all appeared dead. The remembered (unchecked)
+bindings were component state only, so after a save and reopen — or for
+models already dropped from the fallback list in v0.14.29 — an unchecked
+model was absent from the left pane. Every remaining visible row was chosen,
+so the header rendered fully checked; clicking it produced `checked === false`,
+which the add-only contract (D440) treats as a no-op. The header could only
+ever agree with the user, never restore anything.
+
+The remembered set is now persisted with the provider record as a new
+additive `disabledModels: ModelBinding[]` field, mirroring the proven
+`hiddenModels` plumbing end to end (host-core catalog + model + repository →
+shared `ProviderPublic` / `ProviderCreateInput` / `ProviderUpdateInput` →
+`ModelSelectionPanes` → both picker dialogs). It carries the full binding, so
+a re-check restores the exact alias, limits, and thinking levels rather than
+catalog defaults. The picker seeds its remembered map from
+`provider.disabledModels` on mount and reports every change through
+`onDisabledModelsChange`, which both dialogs write into the create/update
+payload (`Some` replaces, `None` leaves unchanged — no migration). Unchecking
+adds to the set, re-checking or selecting removes from it, and a true delete
+(`hiddenModels`) drops it. Unchecked rows therefore survive save and reopen,
+and select-all or a row click re-adds them with their saved parameters.
+- See `04-ux/08-component-spec.md` §19.4/§19.5,
+  E2E-PROVIDER-row-toggle-and-hidden-delete in
+  `06-delivery/04-e2e-test-plan.md`; source contract coverage in
+  `provider-model-selection-safe.test.mjs` and
+  `provider-model-config.test.mjs`.

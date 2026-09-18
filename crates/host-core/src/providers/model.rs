@@ -33,6 +33,12 @@ pub struct ProviderPublic {
     /// discovery; empty for providers that never hid one.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub hidden_models: Vec<String>,
+    /// Bindings unchecked in the picker. Unchecking removes a binding from
+    /// `models` but must keep the row listed (unchecked) across editing
+    /// sessions, so the stored parameters can be restored by re-checking or
+    /// select-all; empty for providers with no unchecked model.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub disabled_models: Vec<ModelBinding>,
     /// Legacy default retained so older renderer/runtime clients can continue
     /// reading a provider while they migrate to `models`.
     pub default_model_id: Option<String>,
@@ -74,6 +80,10 @@ pub struct ProviderCreateInput {
     /// `None` leaves it unchanged.
     #[serde(default)]
     pub hidden_models: Option<Vec<String>>,
+    /// `Some` replaces the stored unchecked bindings (an empty vector clears
+    /// it); `None` leaves them unchanged.
+    #[serde(default)]
+    pub disabled_models: Option<Vec<ModelBinding>>,
     pub default_model_id: Option<String>,
     pub secret_value: Option<String>,
     pub api_style: Option<String>,
@@ -108,6 +118,10 @@ pub struct ProviderUpdateInput {
     /// `None` leaves it unchanged.
     #[serde(default)]
     pub hidden_models: Option<Vec<String>>,
+    /// `Some` replaces the stored unchecked bindings (an empty vector clears
+    /// it); `None` leaves them unchanged.
+    #[serde(default)]
+    pub disabled_models: Option<Vec<ModelBinding>>,
     pub default_model_id: Option<String>,
     pub secret_value: Option<String>,
     pub api_style: Option<String>,

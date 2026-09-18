@@ -3,9 +3,10 @@
  *
  * Left-pane activation splits in two since D441: the checkbox is a real toggle
  * (unchecking removes the binding but keeps the row listed, remembering the
- * parameters for this edit), while every other activation stays additive -
- * an absent model is added, an existing one opens its configuration. Deletion
- * is the chosen pane's explicit action and also hides the discovered row.
+ * parameters — persisted with the provider record since D442), while every
+ * other activation stays additive - an absent model is added, an existing one
+ * opens its configuration. Deletion is the chosen pane's explicit action and
+ * also hides the discovered row.
  */
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -20,6 +21,7 @@ const vendorDialogSource = await read("../src/components/settings/VendorAccountD
 const vendorAccountsSource = await read("../src/components/settings/VendorAccountsSection.tsx");
 const hostCatalogSource = await read("../../../crates/host-core/src/providers/catalog.rs");
 const hostModelSource = await read("../../../crates/host-core/src/providers/model.rs");
+const hostRepositorySource = await read("../../../crates/host-core/src/providers/repository.rs");
 
 test("the discovered row is the extracted activation unit", () => {
   assert.match(pickerSource, /DiscoveredModelRow/);
@@ -51,11 +53,11 @@ test("a single discovered activation adds or opens, never removes", () => {
 
 test("the row checkbox is a real toggle that remembers the removed binding", () => {
   // Unchecking removes the binding but keeps the row listed, remembering the
-  // exact binding so re-checking within this editing session restores its
-  // parameters (alias, limits, thinking levels) instead of catalog defaults.
+  // exact binding so re-checking restores its parameters (alias, limits,
+  // thinking levels) instead of catalog defaults.
   assert.match(pickerSource, /const \[remembered, setRemembered\] = useState<Map<string, ModelBinding>>/);
   assert.match(pickerSource, /const toggleModel = \(row: ModelRow, checked: boolean\)/);
-  assert.match(pickerSource, /next\.set\(key, existing\)/);
+  assert.match(pickerSource, /next\.set\(key, binding\)/);
   assert.match(pickerSource, /const restored = remembered\.get\(key\)/);
   assert.match(pickerSource, /next\.delete\(key\)/);
   // Checking re-opens the model's settings either way.
@@ -129,6 +131,38 @@ test("the hidden list persists with the provider record", () => {
   assert.match(hostModelSource, /pub hidden_models: Option<Vec<String>>/);
   assert.match(hostCatalogSource, /fn config_hidden_models/);
   assert.match(hostCatalogSource, /fn config_with_hidden_models/);
+});
+
+test("the unchecked set persists with the provider record", () => {
+  // The picker seeds its memory from the provider record and reports every
+  // change back, so an unchecked row keeps its parameters across a save and
+  // reopen instead of silently vanishing in fallback mode.
+  assert.match(pickerSource, /disabledModels\?: ModelBinding\[\]/);
+  assert.match(pickerSource, /onDisabledModelsChange\?: \(next: ModelBinding\[\]\) => void/);
+  assert.match(pickerSource, /for \(const binding of disabledModels \?\? \[\]\)/);
+  assert.match(pickerSource, /onDisabledModelsChange\?\.\(\[\.\.\.next\.values\(\)\]\)/);
+  // Uncheck, re-check, and delete all keep the persisted set in step.
+  assert.match(pickerSource, /const removeFromRemembered = \(key: string\)/);
+  assert.match(pickerSource, /const addToRemembered = \(key: string, binding: ModelBinding\)/);
+  // Both credential kinds plumb the same unchecked set into the picker and
+  // save it alongside the bindings.
+  for (const source of [setupSource, vendorDialogSource]) {
+    assert.match(source, /disabledModels=\{disabledModels\}/);
+    assert.match(source, /onDisabledModelsChange=/);
+    assert.match(source, /\.disabledModels \?\? \[\]/);
+    assert.match(source, /disabledModels,/);
+  }
+  assert.match(vendorDialogSource, /disabledModels: ModelBinding\[\]/);
+  assert.match(vendorAccountsSource, /disabledModels: form\.disabledModels/);
+  // Host-core stores the bindings in the provider config JSON and echoes them
+  // back on the provider record.
+  assert.match(hostModelSource, /pub disabled_models: Vec<ModelBinding>/);
+  assert.match(hostModelSource, /pub disabled_models: Option<Vec<ModelBinding>>/);
+  assert.match(hostCatalogSource, /fn config_disabled_models/);
+  assert.match(hostCatalogSource, /fn config_with_disabled_models/);
+  assert.match(hostRepositorySource, /disabled_models: config_disabled_models\(&config_raw\)/);
+  assert.match(hostRepositorySource, /config_with_disabled_models\(&config_json, bindings\)/);
+  assert.match(hostRepositorySource, /config_with_disabled_models\(/);
 });
 
 test("every row activation path resolves to select or toggle, never both", () => {

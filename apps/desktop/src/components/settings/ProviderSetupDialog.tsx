@@ -173,6 +173,9 @@ export function ProviderSetupDialog({
   const [hiddenModels, setHiddenModels] = useState<string[]>(
     provider?.hiddenModels ?? [],
   );
+  const [disabledModels, setDisabledModels] = useState<ModelBinding[]>(
+    provider?.disabledModels ?? [],
+  );
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
   const [error, setError] = useState("");
@@ -348,6 +351,7 @@ export function ProviderSetupDialog({
           defaultModelId: persisted[0]?.id,
           models: persisted,
           hiddenModels,
+          disabledModels,
           apiStyle: resolvedApiStyle,
           headers,
           ...(apiKey ? { secretValue: apiKey } : {}),
@@ -364,6 +368,7 @@ export function ProviderSetupDialog({
           defaultModelId: persisted[0]?.id,
           models: persisted,
           hiddenModels,
+          disabledModels,
           secretValue: apiKey || undefined,
           apiStyle: resolvedApiStyle,
           headers,
@@ -616,6 +621,8 @@ export function ProviderSetupDialog({
             onReload={discovery.reload}
             hiddenModels={hiddenModels}
             onHiddenModelsChange={onHiddenModelsChange}
+            disabledModels={disabledModels}
+            onDisabledModelsChange={setDisabledModels}
           />
         </div>
       </div>
