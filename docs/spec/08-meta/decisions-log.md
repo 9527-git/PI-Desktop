@@ -5571,3 +5571,31 @@ only: no host, storage, or permission change.
   E2E-PROVIDER-select-all-never-clears and
   E2E-PROVIDER-copy-endpoint-and-key in `06-delivery/04-e2e-test-plan.md`;
   source contract coverage in `provider-model-selection-safe.test.mjs`.
+
+## 2026-09-18 — The row checkbox toggles and Remove truly deletes (D441)
+
+User feedback on D440: the left pane had no way to uncheck a model and the
+right pane's Remove behaved like an uncheck — the discovered row always
+stayed listed. The row checkbox is now a real toggle (D441): unchecking
+removes only the binding while the row stays listed, and the removed binding
+is remembered for the current editing session so a re-check before the dialog
+closes restores its alias, limits, and thinking levels; deletion drops that
+memory. The right pane's Remove is a real delete: it removes the binding and
+hides the discovered row by persisting the id in a new per-provider
+`hiddenModels` set, carried inside the existing provider config JSON through
+`providers.create` / `providers.update` (additive optional field; `Some`
+replaces, `None` leaves it unchanged, so no migration is needed). A
+"N hidden · Show" entry under the list restores every hidden row at once,
+hand-typing a hidden id into the custom-model field unhides it, and a hidden
+id never hides a row that still has a binding. The header select-all stays
+add-only (D440). Both picker consumers — the service dialog and the vendor
+account dialog — share the behavior through `ModelSelectionPanes`. Note:
+`crates/host-core/src/providers/tests.rs` is an orphan module (no
+`mod tests;` wires it), so the host-side provider config changes carry no
+Rust unit coverage; the behavior is pinned by the desktop source-contract
+tests instead.
+- See `04-ux/08-component-spec.md` §19.4/§19.5,
+  E2E-PROVIDER-row-toggle-and-hidden-delete in
+  `06-delivery/04-e2e-test-plan.md`; source contract coverage in
+  `provider-model-selection-safe.test.mjs` and
+  `provider-model-config.test.mjs`.

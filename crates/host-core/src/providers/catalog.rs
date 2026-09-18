@@ -97,6 +97,43 @@ pub(crate) fn config_with_model_bindings(raw: &str, bindings: &[ModelBinding]) -
     Ok(config.to_string())
 }
 
+/// Read the picker's hidden model ids. The list is normalized on write, so
+/// reading only filters out blank entries defensively.
+pub(crate) fn config_hidden_models(raw: &str) -> Vec<String> {
+    config_value(raw)
+        .and_then(|value| value.get("hiddenModels").cloned())
+        .and_then(|value| serde_json::from_value::<Vec<String>>(value).ok())
+        .map(|ids| {
+            ids.into_iter()
+                .map(|id| id.trim().to_string())
+                .filter(|id| !id.is_empty())
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
+/// Replace the stored hidden list. An empty list writes an empty array, which
+/// is how an update clears the set.
+pub(crate) fn config_with_hidden_models(raw: &str, ids: &[String]) -> Result<String> {
+    let mut config = ensure_config_object(raw)?;
+    let mut normalized: Vec<String> = Vec::new();
+    for id in ids {
+        let id = id.trim();
+        if id.is_empty() {
+            continue;
+        }
+        if normalized
+            .iter()
+            .any(|stored| stored.eq_ignore_ascii_case(id))
+        {
+            continue;
+        }
+        normalized.push(id.to_string());
+    }
+    config["hiddenModels"] = serde_json::to_value(normalized)?;
+    Ok(config.to_string())
+}
+
 pub(crate) fn config_thinking_levels_override(raw: &str) -> Option<Vec<String>> {
     let levels = config_value(raw)?
         .get("compatibility")?

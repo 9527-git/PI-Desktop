@@ -3399,16 +3399,20 @@ compatibility remains owned by pi-ai.
 - Add provider opens a modal dialog that stays inside the overlay (it can shrink below its 1040px preferred width). Focused credential fields keep their 2px accent ring fully visible: the scrolling body reserves that gutter instead of clipping the ring. Cancel/close resets fields and dismisses the dialog
 - The model picker searches and selects multiple models without using a native
   multiple select. Its portaled menu closes on outside press, Escape, scroll,
-  and resize. Activating an individual left-pane row, including its checkbox,
-  adds an absent model or opens the existing configuration; it never removes a
-  binding. Repeated, double, keyboard and synthetic clicks preserve the
-  configured order, default model, aliases and advanced overrides. A
-  right-pane filter is cleared only when it hides the activated model.
-  Single-model removal uses the explicit Remove action in the right pane; the
-  header's add-only select-all below remains unchanged. Configuration
-  rows stay compact until expanded, and one row at a time is expanded:
-  expanding a row, from its Advanced control or from its name in the left
-  list, collapses whichever other row was open.
+  and resize. Activating a left-pane row by its text adds an absent model or
+  opens the existing configuration; it never removes a binding. The row's
+  checkbox is a real toggle (D441): checking adds an absent model — or
+  restores the exact binding remembered from an uncheck in this editing
+  session — and opens its configuration; unchecking removes the binding while
+  the row stays listed, so an accidental uncheck can be undone without
+  losing the alias, limits, and thinking levels. Repeated, double, keyboard
+  and synthetic clicks preserve the configured order, default model, aliases
+  and advanced overrides. A right-pane filter is cleared only when it hides
+  the activated model. Deletion uses the explicit Remove action in the right
+  pane; the header's add-only select-all below remains unchanged.
+  Configuration rows stay compact until expanded, and one row at a time is
+  expanded: expanding a row, from its Advanced control or from its name in
+  the left list, collapses whichever other row was open.
 - The left-pane list header carries a checkbox that adds every currently
   visible row. A search filter narrows which rows "all" means; already-chosen
   bindings keep their advanced overrides. The checkbox is checked when every
@@ -3436,23 +3440,35 @@ compatibility remains owned by pi-ai.
   top-level option list, selects it, and applies 128,000 context / 8,192 max
   output / no thinking defaults. Removing its selection does not delete the
   custom option.
-- Every activation of a left-pane row is additive: the id, the name, the row
-  padding, the limits cell, the checkbox, and keyboard activation open a
+- Every left-pane activation except the checkbox is additive: the id, the
+  name, the row padding, the limits cell, and keyboard activation open a
   configured model's configuration row in the right pane — scrolling it into
   view and marking it briefly for as long as that highlight runs; under
   reduced motion the mark is a static outline — or pick a model that is not
-  configured yet, and never remove one. Removal stays with the right pane's
-  remove button; the header select-all is add-only and cannot drop bindings.
-  The id
+  configured yet, and never remove one. The checkbox alone toggles: unchecking
+  keeps the row listed and remembers the binding so a re-check before the
+  dialog closes restores its parameters; the remembered copy is dropped by
+  deletion. Deletion stays with the right pane's remove button, which also
+  hides the discovered row; the header select-all is add-only and cannot drop
+  bindings. The id
   and name are selectable text inside the otherwise non-selectable shell; a
   drag-selection in the clicked row is copy-only, and native label activation
-  must not forward a row click into a destructive checkbox toggle. Selection
+  must not forward a row click into the checkbox toggle. Selection
   is disabled while saving (ADR 0192).
+- The right pane's Remove is a real delete (D441): it drops the binding and
+  hides the model from the discovered list, persisting the id in the
+  provider's `hiddenModels` set through `providers.create` /
+  `providers.update`, so a model the service still advertises does not
+  reappear after deletion. A "N hidden · Show" entry under the list restores
+  every hidden row at once, and hand-typing a hidden id into the custom-model
+  field unhides that row. A hidden id never hides a row that still has a
+  binding.
 - The alias is a display label only: a non-empty alias names the model in the
   composer chip and the picker, while the configuration row and the transcript
   badge keep the real ID. Clearing the field restores the catalog's published
   display name.
-- Save creates or updates the provider with `models: ModelBinding[]`, stores
+- Save creates or updates the provider with `models: ModelBinding[]` and the
+  picker's `hiddenModels` set, stores
   the secret, sets the first configured model as the legacy/default model for
   older consumers, and refreshes the list
 - Test connection calls `providers.testConnection` and toasts success/failure
@@ -3481,8 +3497,9 @@ compatibility remains owned by pi-ai.
 ### 19.5 Accessibility
 - Segmented controls expose `aria-pressed`
 - The discovered-list header checkbox has a localized accessible name
-  (Select all / Deselect all) and an indeterminate state when only some
-  visible rows are chosen
+  (Select all) and an indeterminate state when only some
+  visible rows are chosen; each discovered row's checkbox is named by its
+  model id
 - Enter-to-send uses `role="switch"` + `aria-checked`
 - Model configuration rows expose `aria-expanded` and reference their details
   with `aria-controls`; collapsed details are removed from the tab order

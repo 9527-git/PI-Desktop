@@ -1,12 +1,14 @@
 /**
- * One discovered model as an additive activation row.
+ * One discovered model as a toggle row.
  *
- * Activating a row is never a removal: the text, the name, the limits, the row
- * padding, the checkbox, and a keyboard or synthetic activation all resolve to
- * the same `onSelect`, which the pane implements as "add if absent, otherwise
- * open what is already configured". The row is extracted from the pane so the
- * copy-only drag guard and the label's native-forwarding cancel have one
- * executable home the contract tests can read.
+ * The checkbox is a real toggle: checking adds the binding, unchecking removes
+ * it while keeping the row listed. Every other activation - the text, the
+ * name, the limits, the row padding, and a keyboard or synthetic activation -
+ * stays additive: it resolves to the same `onSelect`, which the pane implements
+ * as "add if absent, otherwise open what is already configured", so a click
+ * that means "show me this model" can never delete it. The row is extracted
+ * from the pane so the copy-only drag guard and the label's native-forwarding
+ * cancel have one executable home the contract tests can read.
  */
 import { formatTokenCount } from "@pi-desktop/shared";
 import type { ModelRow } from "./ModelSelectionPanes";
@@ -19,6 +21,8 @@ export type DiscoveredModelRowProps = {
   busy: boolean;
   /** Add the model if absent, otherwise open its existing configuration. */
   onSelect: () => void;
+  /** Check (true) adds the binding; uncheck (false) removes it, row stays. */
+  onToggle: (checked: boolean) => void;
 };
 
 export function DiscoveredModelRow({
@@ -26,6 +30,7 @@ export function DiscoveredModelRow({
   chosen,
   busy,
   onSelect,
+  onToggle,
 }: DiscoveredModelRowProps) {
   return (
     <li className="provider-models-row">
@@ -33,12 +38,12 @@ export function DiscoveredModelRow({
         className="provider-models-row-label"
         onClick={(event) => {
           // The checkbox owns its own activation; its change handler routes to
-          // the same additive select, so a click on it must not double-fire here.
+          // the toggle, so a click on it must not double-fire here.
           if (event.target instanceof HTMLInputElement) return;
           // Every other activation - text, name, limits, padding, keyboard and
           // the synthetic detail-0 click - would otherwise be forwarded by the
-          // label into a destructive checkbox toggle. Cancel that native
-          // forwarding and add/open instead.
+          // label into a checkbox toggle. Cancel that native forwarding and
+          // add/open instead.
           event.preventDefault();
           if (busy) return;
           // A drag-selection inside this row is a copy gesture, not a select.
@@ -64,7 +69,7 @@ export function DiscoveredModelRow({
           spellCheck={false}
           autoCorrect="off"
           autoCapitalize="off"
-          onChange={onSelect}
+          onChange={(event) => onToggle(event.target.checked)}
         />
         <span className="provider-models-row-copy selectable">
           <span className="provider-models-row-id font-mono">{row.id}</span>

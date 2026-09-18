@@ -137,6 +137,7 @@ export function VendorAccountsSection() {
         oauthAccountLabel: form.name.trim(),
         defaultModelId: form.modelId.trim(),
         models: form.models,
+        hiddenModels: form.hiddenModels,
         headers: form.headers,
       });
       if (settings?.defaultProviderId === provider.id) {

@@ -7363,6 +7363,7 @@ and identify the platform validation still needed.
 | Security (external path handoff) | E2E-CHAT-external-path-open-reveal |
 | Quality (external path handoff) | E2E-CHAT-external-path-open-reveal |
 | C — Conversation & stream (turn summary card) | E2E-CHAT-turn-summary-card |
+| C — Conversation & stream (turn usage and timestamps) | E2E-CHAT-turn-usage-and-timestamps |
 | D — Workspace (turn summary card) | E2E-CHAT-turn-summary-card |
 | Quality (turn summary card) | E2E-CHAT-turn-summary-card |
 | C — Conversation & stream (manual compaction queue) | E2E-QUEUE-prompt-during-manual-compaction-is-queued-and-delivered |
@@ -10415,14 +10416,16 @@ the hiding approach and kept the checkbox visible but add-only.)
   configured model keeps its binding. 5) Click every left row (id, padding,
   checkbox) and confirm each configured model stays checked and nothing is
   removed. 6) Remove one model through the right pane's explicit Remove, then
-  save and reopen: the other bindings persist.
+  save and reopen: the other bindings persist, and the removed model's row
+  stays hidden (D441) until restored through the hidden-models Show entry or
+  a custom re-add.
 - **Expected**: The header select-all is add-only in every mode (D440): it
   can add visible rows but has no clear path, so a fallback list — exactly
   the configured models — can never be bulk-wiped by the control that caused
-  the regression. Removal stays with the right pane's explicit Remove; a model
-  dropped this way may become unlistable in fallback mode, which is why no
-  bulk destructive control exists anywhere.
-- **Specs linked**: `04-ux/08-component-spec.md` §19.4, ADR 0192, D440
+  the regression. Removal stays with the right pane's explicit Remove, which
+  hides the dropped row (D441) so a fallback binding is never lost without a
+  recovery path.
+- **Specs linked**: `04-ux/08-component-spec.md` §19.4, ADR 0192, D440, D441
 - **Acceptance**: B (model configuration)
 - **Milestone**: M2
 - **Status**: Source-contract covered (`provider-model-selection-safe.test.mjs`);
@@ -10449,6 +10452,40 @@ the hiding approach and kept the checkbox visible but add-only.)
 - **Milestone**: M2
 - **Status**: Manual; the main-process boundary (value never returned over
   IPC) is pinned by the channel contract in `packages/shared/src/protocol.ts`.
+
+#### E2E-PROVIDER-row-toggle-and-hidden-delete: The row checkbox toggles and Remove truly deletes
+
+- **Preconditions**: A provider edited in Settings → Model configuration
+  whose live probe lists at least three models; at least one of them is
+  configured with an alias, a context-window limit, or a thinking level.
+- **Steps**: 1) Uncheck a configured model's row checkbox: the binding is
+  removed from the right pane, but the row stays listed (unchecked) in the
+  left list. 2) Re-check the same row before closing the dialog: the exact
+  binding returns with its alias, limits, and thinking levels intact. 3)
+  Close without saving, reopen, and confirm the untouched persisted state.
+  4) Delete a different configured model with the right pane's Remove: its
+  binding is dropped, its discovered row disappears from the left list, and
+  a "N hidden · Show" entry appears under the list. 5) Save and reopen: the
+  hidden row is still gone even though the service still advertises it. 6)
+  Press Show: the row returns unchecked; re-check it to re-configure. 7)
+  Repeat step 4, then hand-type the hidden id into the custom-model field:
+  the row is unhidden and configured.
+- **Expected**: The row checkbox is a real toggle (D441): unchecking removes
+  only the binding, keeps the row listed, and remembers the removed binding
+  for the current editing session so a re-check restores its parameters;
+  deletion drops that memory. The right pane's Remove is a real delete: it
+  removes the binding and hides the discovered row by persisting the id in
+  the provider's `hiddenModels` set through `providers.create` /
+  `providers.update`, so the model does not reappear after save and reopen.
+  The Show entry restores every hidden row at once, and hand-typing a hidden
+  id unhides it; a hidden id never hides a row that still has a binding.
+- **Specs linked**: `04-ux/08-component-spec.md` §19.4, D441
+- **Acceptance**: B (model configuration)
+- **Milestone**: M2
+- **Status**: Source-contract covered (`provider-model-selection-safe.test.mjs`,
+  `provider-model-config.test.mjs`); persistence into the provider config
+  JSON is exercised by the host-core provider create/update path. UI journey
+  and reopen behavior remain manual until run.
 
 #### E2E-202: Subagent thinking follows its exact model binding
 

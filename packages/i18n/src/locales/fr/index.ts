@@ -1190,6 +1190,8 @@ sklm: {
     "copyApiKey": "Copier la clé API",
     "copiedToClipboard": "Copié dans le presse-papiers",
     "noSavedApiKey": "Aucune clé API enregistrée pour ce service",
+    "hiddenModelsCount": "{{count}} masqués",
+    "showHiddenModels": "Afficher",
     "fetchModelList": "Récupérer la liste",
     "reasoning": "raisonnement",
     "vision": "Vision",

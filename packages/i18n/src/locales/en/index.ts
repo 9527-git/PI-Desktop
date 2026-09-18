@@ -1208,6 +1208,8 @@ sklm: {
     copyApiKey: "Copy API key",
     copiedToClipboard: "Copied to clipboard",
     noSavedApiKey: "No saved API key for this service",
+    hiddenModelsCount: "{{count}} hidden",
+    showHiddenModels: "Show",
     fetchModelList: "Fetch list",
     reasoning: "reasoning",
     vision: "Vision",

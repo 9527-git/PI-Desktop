@@ -28,8 +28,9 @@ pub use repository::{
 };
 
 pub(crate) use catalog::{
-    config_model_bindings, config_thinking_levels_override, config_with_model_bindings,
-    normalize_model_bindings, CANONICAL_THINKING_LEVELS, PROVIDER_SELECT,
+    config_hidden_models, config_model_bindings, config_thinking_levels_override,
+    config_with_hidden_models, config_with_model_bindings, normalize_model_bindings,
+    CANONICAL_THINKING_LEVELS, PROVIDER_SELECT,
 };
 pub(crate) use credentials::{
     build_provider_config_json, config_headers, config_oauth_account_label,

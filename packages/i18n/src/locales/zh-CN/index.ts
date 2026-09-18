@@ -1196,6 +1196,8 @@ sklm: {
     copyApiKey: "复制 API 密钥",
     copiedToClipboard: "已复制到剪贴板",
     noSavedApiKey: "该服务没有已保存的密钥",
+    hiddenModelsCount: "已隐藏 {{count}} 个模型",
+    showHiddenModels: "显示",
     fetchModelList: "获取列表",
     reasoning: "思考",
     vision: "视觉",

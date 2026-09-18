@@ -1209,6 +1209,8 @@ sklm: {
     copyApiKey: "API anahtarını kopyala",
     copiedToClipboard: "Panoya kopyalandı",
     noSavedApiKey: "Bu hizmet için kayıtlı API anahtarı yok",
+    hiddenModelsCount: "{{count}} gizli",
+    showHiddenModels: "Göster",
     fetchModelList: "Listeyi al",
     reasoning: "akıl yürütme",
     vision: "Görüntü",

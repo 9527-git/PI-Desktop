@@ -729,6 +729,31 @@
   list-style: none;
 }
 
+.provider-models-hidden {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 8px 2px;
+  color: var(--ds-text-faint);
+  font-size: var(--text-2xs);
+}
+
+.provider-models-hidden button {
+  flex: none;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--ds-text-muted);
+  font-size: inherit;
+  cursor: pointer;
+}
+
+.provider-models-hidden button:hover {
+  color: var(--ds-text);
+  text-decoration: underline;
+}
+
 /*
   These rows live inside the inset tray, so they carry no box of their own;
   the checkbox and the 2px gap are enough for them to read as a list (D297).
