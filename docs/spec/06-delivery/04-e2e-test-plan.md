@@ -10457,11 +10457,17 @@ the hiding approach and kept the checkbox visible but add-only.)
 
 - **Preconditions**: A provider edited in Settings → Model configuration
   whose live probe lists at least three models; at least one of them is
-  configured with an alias, a context-window limit, or a thinking level.
+  configured with an alias, a context-window limit, or a thinking level. A
+  second provider (or the same one after breaking the endpoint) whose probe
+  fails or returns nothing, so the left list is built from the configured
+  bindings alone (fallback), including a hand-added model id.
 - **Steps**: 1) Uncheck a configured model's row checkbox: the binding is
   removed from the right pane, but the row stays listed (unchecked) in the
   left list. 2) Re-check the same row before closing the dialog: the exact
-  binding returns with its alias, limits, and thinking levels intact. 3)
+  binding returns with its alias, limits, and thinking levels intact. 2a) On
+  the fallback provider, uncheck a configured (or hand-added) model: the row
+  stays listed unchecked, and the header select-all re-adds it with its saved
+  parameters; the row never vanishes. 3)
   Close without saving, reopen, and confirm the untouched persisted state.
   4) Delete a different configured model with the right pane's Remove: its
   binding is dropped, its discovered row disappears from the left list, and
@@ -10472,7 +10478,9 @@ the hiding approach and kept the checkbox visible but add-only.)
   the row is unhidden and configured.
 - **Expected**: The row checkbox is a real toggle (D441): unchecking removes
   only the binding, keeps the row listed, and remembers the removed binding
-  for the current editing session so a re-check restores its parameters;
+  for the current editing session so a re-check restores its parameters —
+  in every discovery mode, including fallback lists and hand-added models,
+  where remembered bindings are merged back into the displayed rows;
   deletion drops that memory. The right pane's Remove is a real delete: it
   removes the binding and hides the discovered row by persisting the id in
   the provider's `hiddenModels` set through `providers.create` /

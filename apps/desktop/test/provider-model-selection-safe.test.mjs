@@ -40,7 +40,7 @@ test("a single discovered activation adds or opens, never removes", () => {
   // stored binding instead of introducing a duplicate.
   assert.match(
     pickerSource,
-    /entry\.id\.toLowerCase\(\) === row\.id\.toLowerCase\(\)/,
+    /models\.find\(\(entry\) => entry\.id\.toLowerCase\(\) === key\)/,
   );
   // The exact stored id is opened, and a filter hiding it is cleared.
   assert.match(pickerSource, /setExpandedModelId\(binding\.id\)/);
@@ -53,18 +53,44 @@ test("the row checkbox is a real toggle that remembers the removed binding", () 
   // Unchecking removes the binding but keeps the row listed, remembering the
   // exact binding so re-checking within this editing session restores its
   // parameters (alias, limits, thinking levels) instead of catalog defaults.
-  assert.match(
-    pickerSource,
-    /removedBindingsRef = useRef\(new Map<string, ModelBinding>\(\)\)/,
-  );
+  assert.match(pickerSource, /const \[remembered, setRemembered\] = useState<Map<string, ModelBinding>>/);
   assert.match(pickerSource, /const toggleModel = \(row: ModelRow, checked: boolean\)/);
-  assert.match(pickerSource, /removedBindingsRef\.current\.set\(key, existing\)/);
-  assert.match(pickerSource, /removedBindingsRef\.current\.get\(key\)/);
-  assert.match(pickerSource, /removedBindingsRef\.current\.delete\(key\)/);
+  assert.match(pickerSource, /next\.set\(key, existing\)/);
+  assert.match(pickerSource, /const restored = remembered\.get\(key\)/);
+  assert.match(pickerSource, /next\.delete\(key\)/);
   // Checking re-opens the model's settings either way.
   assert.match(pickerSource, /setExpandedModelId\(binding\.id\)/);
   // Saving blocks the toggle.
   assert.match(pickerSource, /const toggleModel = \(row: ModelRow, checked: boolean\) => \{\s*if \(busy\) return;/);
+});
+
+test("an unchecked row stays listed in every discovery mode", () => {
+  // In fallback mode (or for a hand-added model with no discovery at all) the
+  // left list is built from the configured bindings alone, so the remembered
+  // bindings must merge back into the displayed rows — otherwise an uncheck
+  // deletes the row outright and select-all can never bring it back.
+  assert.match(pickerSource, /const displayRows = useMemo<ModelRow\[\]>/);
+  assert.match(pickerSource, /if \(remembered\.size === 0\) return rows;/);
+  assert.match(pickerSource, /for \(const \[key, binding\] of remembered\)/);
+  assert.match(pickerSource, /if \(listed\.has\(key\)\) continue;/);
+  // The merged list feeds every view: the hidden filter, the search, the
+  // chosen filter, and the fetch-error placeholder.
+  assert.match(pickerSource, /hiddenSet\.size === 0\s*\?\s*displayRows/);
+  assert.match(pickerSource, /hidesAddedBinding\(added, chosenQuery, displayRows\)/);
+  assert.match(pickerSource, /fetchFailed && displayRows\.length === 0/);
+  // Re-checking a remembered row restores its exact parameters through the
+  // toggle, from a checkbox or from a row activation.
+  assert.match(
+    pickerSource,
+    /if \(!existing && remembered\.has\(key\)\) \{\s*toggleModel\(row, true\);/,
+  );
+  // Select-all re-adds remembered rows by their remembered binding, not by
+  // catalog defaults, and its append is additive-only.
+  assert.match(
+    pickerSource,
+    /remembered\.get\(row\.id\.toLowerCase\(\)\) \?\? bindingForRow\(row\)/,
+  );
+  assert.match(pickerSource, /added\.length === 0 \? current : \[\.\.\.current, \.\.\.added\]/);
 });
 
 test("deletion is explicit, destructive, and hides the discovered row", () => {
@@ -72,7 +98,7 @@ test("deletion is explicit, destructive, and hides the discovered row", () => {
   // parameters, and hides the discovered row so a deleted model does not
   // reappear from a service that still advertises it.
   assert.match(pickerSource, /const deleteModel = \(binding: ModelBinding\)/);
-  assert.match(pickerSource, /removedBindingsRef\.current\.delete\(key\)/);
+  assert.match(pickerSource, /next\.delete\(key\)/);
   assert.match(
     pickerSource,
     /onHiddenModelsChange\?\.\(\[\.\.\.\(hiddenModels \?\? \[\]\), binding\.id\]\)/,
@@ -86,7 +112,7 @@ test("deletion is explicit, destructive, and hides the discovered row", () => {
     /hiddenSet\.has\(id\.toLowerCase\(\)\)[\s\S]{0,200}hidden\.toLowerCase\(\) !== id\.toLowerCase\(\)/,
   );
   // The bulk header helper is additive-only, so it can never drop bindings.
-  assert.match(pickerSource, /applyVisibleModelSelection\(current, visibleRows\)/);
+  assert.match(pickerSource, /added\.length === 0 \? current : \[\.\.\.current, \.\.\.added\]/);
 });
 
 test("the hidden list persists with the provider record", () => {
