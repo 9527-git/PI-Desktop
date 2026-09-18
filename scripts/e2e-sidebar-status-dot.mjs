@@ -14,11 +14,12 @@
  *   - prefers-reduced-motion disables every dot animation;
  *   - both themes resolve the dots to their own warning/purple tokens.
  *
- * and the D445 contract on top of it — the two attention states also spell the
- * status out as a colored word inline before the session title (running in the
- * warning token, every needs-input source in the purple one, with the exact
- * text the dot exposes as its accessible name), while the quiet states stay
- * dot-only.
+ * and the D446 contract on top of it — the two attention states spell the
+ * status out as a colored word INSIDE the same tinted chip as the live dot
+ * (running in the warning token, every needs-input source in the purple one,
+ * with the exact text the dot exposes as its accessible name), and that chip
+ * stays centred on the whole row so the word cannot drift onto the title line
+ * of a two-line row. Quiet states keep the plain dot in the left gutter.
  *
  * Screenshots land in PI_DESKTOP_E2E_ARTIFACT_DIR (or a temp dir) for visual
  * inspection.
@@ -160,6 +161,9 @@ function probeExpression(ids) {
     const before = getComputedStyle(status, "::before");
     const cs = getComputedStyle(status);
     const label = row.querySelector(".thread-item-status-label");
+    const chip = row.querySelector(".thread-item-status-chip");
+    const rowBox = row.getBoundingClientRect();
+    const statusBox = status.getBoundingClientRect();
     return {
       present: true,
       stateClass: [...status.classList].find((c) => c !== "thread-item-status") ?? null,
@@ -169,6 +173,20 @@ function probeExpression(ids) {
       beforeAnimation: before.animationName,
       beforeBorderTopColor: before.borderTopColor,
       width: Math.round(status.getBoundingClientRect().width),
+      dotPosition: cs.position,
+      // D446: the word travels with the light, so the status group must stay
+      // centred on the whole row - not on the title line of a two-line row.
+      statusCenterOffset: Math.round(
+        statusBox.top + statusBox.height / 2 - (rowBox.top + rowBox.height / 2),
+      ),
+      previewShown: !!row.querySelector(".thread-item-preview"),
+      inChip: !!chip,
+      chipClass: chip
+        ? [...chip.classList].find((c) => c !== "thread-item-status-chip") ?? null
+        : null,
+      chipBackground: chip ? getComputedStyle(chip).backgroundColor : null,
+      chipHoldsDot: !!chip && !!chip.querySelector(".thread-item-status"),
+      chipHoldsLabel: !!chip && !!chip.querySelector(".thread-item-status-label"),
       inlineLabel: label ? label.textContent.trim() : null,
       inlineLabelColor: label ? getComputedStyle(label).color : null,
       inlineLabelClass: label
@@ -396,46 +414,43 @@ async function main() {
       JSON.stringify(base.rows.selected),
     );
 
-    // 4. D445: both attention states also spell the status out in words, inline
-    //    before the title and in the dot's own token, while quiet states stay
-    //    dot-only.
+    // 4. D446: both attention states spell the status out in words inside the
+    //    same tinted chip as the live dot, and the chip stays centred on the
+    //    whole row - so the word can never sit on the title line of a two-line
+    //    row while the light floats below it.
+    const chipIsOneGroup = (row, state, token) =>
+      row.inlineLabel === row.label &&
+      !!row.inlineLabel &&
+      row.inlineLabelColor === token &&
+      row.inChip === true &&
+      row.chipClass === state &&
+      row.chipHoldsDot === true &&
+      row.chipHoldsLabel === true &&
+      row.dotPosition === "static" &&
+      row.chipBackground !== "rgba(0, 0, 0, 0)" &&
+      Math.abs(row.statusCenterOffset) <= 2 &&
+      row.previewShown === true &&
+      row.titleShown;
     check(
-      base.rows.running.inlineLabel === base.rows.running.label &&
-        !!base.rows.running.inlineLabel &&
-        base.rows.running.inlineLabelClass === "running" &&
-        base.rows.running.inlineLabelColor === base.warningToken &&
-        base.rows.running.titleShown,
-      "the running row shows its status word inline in the warning token",
-      JSON.stringify({
-        inline: base.rows.running.inlineLabel,
-        dot: base.rows.running.label,
-        cls: base.rows.running.inlineLabelClass,
-        color: base.rows.running.inlineLabelColor,
-      }),
+      chipIsOneGroup(base.rows.running, "running", base.warningToken),
+      "the running word rides with its breathing dot in one warning chip",
+      JSON.stringify(base.rows.running),
     );
     for (const source of ["permission", "ask", "plan"]) {
       const row = base.rows[source];
       check(
-        row.inlineLabel === row.label &&
-          !!row.inlineLabel &&
-          row.inlineLabelClass === "permission" &&
-          row.inlineLabelColor === base.purpleToken &&
-          row.titleShown,
-        `a pending ${source} row shows the shared needs-input word inline`,
-        JSON.stringify({
-          inline: row.inlineLabel,
-          cls: row.inlineLabelClass,
-          color: row.inlineLabelColor,
-        }),
+        chipIsOneGroup(row, "permission", base.purpleToken),
+        `a pending ${source} word rides with the shared needs-input chip`,
+        JSON.stringify(row),
       );
     }
     check(
-      base.rows.selected.inlineLabel === null && base.rows.selected.titleShown,
-      "the selected row keeps its dot only, with no inline status word",
-      JSON.stringify({
-        inline: base.rows.selected.inlineLabel,
-        title: base.rows.selected.titleShown,
-      }),
+      base.rows.selected.inlineLabel === null &&
+        base.rows.selected.inChip === false &&
+        base.rows.selected.dotPosition === "absolute" &&
+        base.rows.selected.titleShown,
+      "the selected row keeps its quiet dot in the gutter, with no chip or word",
+      JSON.stringify(base.rows.selected),
     );
 
     // 5. The topbar carries no status slot/chip of its own (D444 relocation).
