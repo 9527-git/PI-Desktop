@@ -154,16 +154,21 @@ test("a header action probes the live list without waiting for debounce", () => 
   assert.doesNotMatch(pickerSource, /provider-models-state/);
 });
 
-test("the shared picker can select or clear every visible model at once", () => {
+test("the shared header checkbox adds every visible model and never clears", () => {
   assert.match(pickerSource, /export function applyVisibleModelSelection/);
   assert.match(pickerSource, /provider-models-select-all/);
-  assert.match(pickerSource, /toggleVisibleModels/);
+  assert.match(pickerSource, /selectAllVisibleModels/);
+  assert.match(
+    pickerSource,
+    /if \(event\.target\.checked\) selectAllVisibleModels\(\)/,
+  );
   assert.match(pickerSource, /settings\.selectAllVisibleModels/);
-  assert.match(pickerSource, /settings\.deselectAllVisibleModels/);
   assert.match(pickerSource, /el\.indeterminate/);
-  // A filtered select-all must not drop models the filter is hiding.
+  // A filtered select-all must not touch models the filter is hiding.
   assert.match(pickerSource, /a filtered select-all does not touch hidden matches/);
   assert.match(pickerSource, /visibleRows\.length > 0/);
+  // The bulk path has no clear branch, so unchecking is a no-op.
+  assert.doesNotMatch(pickerSource, /deselectAllVisibleModels/);
 });
 
 test("the shared picker owns the advanced per-model controls for both kinds", () => {

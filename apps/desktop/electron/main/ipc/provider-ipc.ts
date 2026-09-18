@@ -478,6 +478,21 @@ export function registerProviderIpc({
     },
   );
 
+  // Copy-to-clipboard for the stored key. The renderer only asks for the
+  // action; this process reads the secret from host-core and writes the
+  // system clipboard, so the value never crosses the IPC boundary.
+  handle(IPC.invoke.providersCopySecret, async (id: unknown) => {
+    if (!host) throw new Error("host unavailable");
+    if (typeof id !== "string" || !id) {
+      throw new Error("provider id required");
+    }
+    const secret = await host.call<{ value?: string }>("providers.getSecret", { id });
+    if (!secret.value) return { ok: false };
+    const { clipboard } = await import("electron");
+    clipboard.writeText(secret.value);
+    return { ok: true };
+  });
+
   // Secret material never crosses to the renderer: set/delete/has only.
   handle(IPC.invoke.secretsSet, async (input: { secretRef: string; value: string }) => {
     if (!host) throw new Error("host unavailable");

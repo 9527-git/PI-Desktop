@@ -145,6 +145,8 @@ export const IPC = {
     providersUpdate: "pi-desktop/providers/update",
     providersDelete: "pi-desktop/providers/delete",
     providersTest: "pi-desktop/providers/testConnection",
+    /** Main copies the stored provider secret to the clipboard; the value itself never reaches the renderer. */
+    providersCopySecret: "pi-desktop/providers/copySecret",
     providersListModels: "pi-desktop/providers/listModels",
     providersRefreshModelCatalog: "pi-desktop/providers/refreshModelCatalog",
     providersModelCatalogStatus: "pi-desktop/providers/modelCatalogStatus",

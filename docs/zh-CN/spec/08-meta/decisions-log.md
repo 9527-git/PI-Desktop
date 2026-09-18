@@ -4351,3 +4351,11 @@ D435 之后用户仍能在提供商编辑器里一键清空模型：fallback 模
 - 见 `04-ux/08-component-spec.md` §19.4 与
   `06-delivery/04-e2e-test-plan.md` 的 E2E-PROVIDER-fallback-hides-select-all；
   源码契约覆盖见 `provider-model-selection-safe.test.mjs`。
+
+## 2026-09-18 —— 全选只加不删；接口地址与密钥快捷复制（D439）
+
+D438 收到用户反馈：头部全选复选框应当保留——隐藏它等于砍掉一个常用捷径——但它绝不能删除模型。复选框在所有模式（含 fallback）下恢复渲染，并改为只加不删：勾选添加全部可见行，取消勾选不做任何事，共享的 `applyVisibleModelSelection` 帮助函数整体移除了清空分支，因此任何批量路径都不可能丢绑定；删除只保留右侧已选面板的显式「移除」。同一请求为提供商编辑器加了快捷复制：具名服务的接口地址行带复制按钮（经渲染进程剪贴板复制完整 base URL），编辑态的 API 密钥输入框带一个走新主进程通道（`providers.copySecret`）的复制按钮：主进程自行从 host-core 读取密钥并写入 Electron 剪贴板，密钥值不会经 IPC 边界进入渲染进程；没有已存密钥时提示缺失。已无引用的「取消全选」文案从 8 个语言包中移除。仅渲染器、主进程 IPC、文档与测试：不改 host、存储或权限。
+- 见 `04-ux/08-component-spec.md` §19.4、
+  `06-delivery/04-e2e-test-plan.md` 的 E2E-PROVIDER-select-all-never-clears
+  与 E2E-PROVIDER-copy-endpoint-and-key；
+  源码契约覆盖见 `provider-model-selection-safe.test.mjs`。

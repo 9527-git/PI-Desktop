@@ -24,12 +24,12 @@ test("the discovered row is the extracted additive-activation unit", () => {
 
 test("a single discovered activation adds or opens, never removes", () => {
   // The destructive toggle is gone; selection routes through the idempotent
-  // select helper with `select: true` over just the activated row.
+  // select helper over just the activated row.
   assert.doesNotMatch(pickerSource, /toggleModel/);
   assert.match(pickerSource, /const selectModel = \(row: ModelRow\)/);
   assert.match(
     pickerSource,
-    /applyVisibleModelSelection\(current, \[row\], true\)/,
+    /applyVisibleModelSelection\(current, \[row\]\)/,
   );
   // An existing binding is found case-insensitively so a case variant opens the
   // stored binding instead of introducing a duplicate.
@@ -47,8 +47,8 @@ test("a single discovered activation adds or opens, never removes", () => {
 test("removal stays an explicit action in the chosen pane", () => {
   // Only the right-pane Remove control drops a binding.
   assert.match(pickerSource, /entry\.id !== binding\.id/);
-  // The bulk header control keeps its own scope, unchanged by single activation.
-  assert.match(pickerSource, /applyVisibleModelSelection\(current, visibleRows, select\)/);
+  // The bulk header helper is additive-only, so it can never drop bindings.
+  assert.match(pickerSource, /applyVisibleModelSelection\(current, visibleRows\)/);
 });
 
 test("every row activation path resolves to the one additive select", () => {
@@ -69,12 +69,16 @@ test("every row activation path resolves to the one additive select", () => {
   assert.doesNotMatch(rowSource, /event\.detail === 0/);
 });
 
-test("the fallback list never offers the bulk clear", () => {
-  // Fallback rows are the configured models themselves, so an all-selected
-  // header checkbox could only wipe bindings the live answer may never offer
-  // again - the control is hidden there instead of staying destructive.
-  assert.match(
+test("the header select-all never clears, so the fallback list stays intact", () => {
+  // The checkbox stays visible everywhere, but it only adds: unchecking is a
+  // no-op, so a fallback list (exactly the configured models) can never be
+  // bulk-wiped by the control that caused the regression.
+  assert.match(pickerSource, /visibleRows\.length > 0 \? \(/);
+  assert.doesNotMatch(
     pickerSource,
-    /visibleRows\.length > 0 && discovery\.source !== "fallback"/,
+    /discovery\.source !== "fallback" \?[\s\S]{0,200}select-all/,
   );
+  assert.match(pickerSource, /if \(event\.target\.checked\) selectAllVisibleModels\(\)/);
+  // The removal branch is gone from the shared helper entirely.
+  assert.doesNotMatch(pickerSource, /current\.filter\(\(binding\) => !visibleIds\.has/);
 });

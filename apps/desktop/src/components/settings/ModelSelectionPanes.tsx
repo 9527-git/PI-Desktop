@@ -149,22 +149,18 @@ export function useModelSelection(
 }
 
 /**
- * Add or drop every currently visible row in one step.
+ * Add every currently visible row that is not chosen yet.
  *
  * The search box is a view over the live list, so "all" means the rows on
- * screen: a filtered select-all does not touch hidden matches, and a filtered
- * clear does not drop models that are still chosen off-screen. Already-chosen
- * bindings keep their advanced overrides.
+ * screen: a filtered select-all does not touch hidden matches. Already-chosen
+ * bindings keep their advanced overrides. There is deliberately no bulk clear:
+ * in fallback mode the visible rows are the configured models themselves, so a
+ * one-step removal could drop bindings the live answer may never offer again.
  */
 export function applyVisibleModelSelection(
   current: ModelBinding[],
   visibleRows: ModelRow[],
-  select: boolean,
 ): ModelBinding[] {
-  const visibleIds = new Set(visibleRows.map((row) => row.id.toLowerCase()));
-  if (!select) {
-    return current.filter((binding) => !visibleIds.has(binding.id.toLowerCase()));
-  }
   const selected = new Set(current.map((binding) => binding.id.toLowerCase()));
   const additions: ModelBinding[] = [];
   for (const row of visibleRows) {
@@ -303,20 +299,24 @@ export function ModelSelectionPanes({
     // Open the stored id so the right pane reveals exactly what is configured.
     setExpandedModelId(binding.id);
     keepAddedModelVisible([binding]);
-    setModels((current) => applyVisibleModelSelection(current, [row], true));
+    setModels((current) => applyVisibleModelSelection(current, [row]));
     // A configured model keeps the scroll-and-mark reveal on repeat activation.
     if (existing) revealModelConfig(row);
   };
 
-  const toggleVisibleModels = (select: boolean) => {
-    if (select) {
-      setExpandedModelId((open) => open ?? visibleRows[0]?.id ?? null);
-      const added = visibleRows
-        .filter((row) => !selected.has(row.id.toLowerCase()))
-        .map((row) => bindingForRow(row));
-      keepAddedModelVisible(added);
-    }
-    setModels((current) => applyVisibleModelSelection(current, visibleRows, select));
+  /**
+   * The header checkbox only ever adds. Unchecking is a no-op: a bulk clear
+   * here would be the one remaining path that wipes configured bindings (the
+   * fallback list is exactly those bindings), so removal stays an explicit
+   * per-row action in the chosen pane.
+   */
+  const selectAllVisibleModels = () => {
+    setExpandedModelId((open) => open ?? visibleRows[0]?.id ?? null);
+    const added = visibleRows
+      .filter((row) => !selected.has(row.id.toLowerCase()))
+      .map((row) => bindingForRow(row));
+    keepAddedModelVisible(added);
+    setModels((current) => applyVisibleModelSelection(current, visibleRows));
   };
 
   /**
@@ -403,10 +403,9 @@ export function ModelSelectionPanes({
       <div className="provider-models">
         <div className="provider-models-head">
           <div className="provider-models-heading">
-            {/* A fallback list is exactly the configured models, so an
-                all-selected header checkbox could only clear bindings the
-                live answer may never offer again; removal stays explicit. */}
-            {visibleRows.length > 0 && discovery.source !== "fallback" ? (
+            {/* Add-only by design: unchecking can never bulk-clear, so a
+                fallback list (exactly the configured models) stays intact. */}
+            {visibleRows.length > 0 ? (
               <input
                 type="checkbox"
                 className="provider-models-check provider-models-select-all"
@@ -415,17 +414,11 @@ export function ModelSelectionPanes({
                 ref={(el) => {
                   if (el) el.indeterminate = someVisibleSelected;
                 }}
-                aria-label={
-                  allVisibleSelected
-                    ? t("settings.deselectAllVisibleModels")
-                    : t("settings.selectAllVisibleModels")
-                }
-                title={
-                  allVisibleSelected
-                    ? t("settings.deselectAllVisibleModels")
-                    : t("settings.selectAllVisibleModels")
-                }
-                onChange={(event) => toggleVisibleModels(event.target.checked)}
+                aria-label={t("settings.selectAllVisibleModels")}
+                title={t("settings.selectAllAddOnlyHint")}
+                onChange={(event) => {
+                  if (event.target.checked) selectAllVisibleModels();
+                }}
               />
             ) : null}
             <h4 className="provider-models-title">{listTitle}</h4>

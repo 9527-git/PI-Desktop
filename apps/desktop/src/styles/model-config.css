@@ -158,14 +158,37 @@
 
 .provider-setup-host {
   grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   min-width: 0;
-  overflow: hidden;
   color: var(--ds-text-muted);
   font-family: var(--font-mono);
   font-size: var(--text-2xs);
   line-height: var(--leading-relaxed);
+}
+
+.provider-setup-host-text {
+  min-width: 0;
+  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.provider-setup-copy {
+  flex: none;
+  color: var(--ds-text-muted);
+}
+
+.provider-setup-key-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.provider-setup-key-row .field-input {
+  flex: 1;
+  min-width: 0;
 }
 
 .provider-service-anchor {
