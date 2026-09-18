@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.33",
+    "date": "2026-09-18",
+    "highlights": [
+      "Oturum durumu artık konuşma listesinde: her kenar çubuğu satırı sol kenarında canlı bir nokta gösterir — ajan çalışırken turuncu ve nefes alır, sana ihtiyaç duyduğunda mor ve nabız gibi atar.",
+      "「Girdi bekliyor」artık her tür bekleyen kararı kapsar — bir izin isteği, ajandan bir soru veya onay bekleyen bir Plan/Hedef — yalnızca izinleri değil.",
+    ],
+  },
+  {
     "version": "0.14.32",
     "date": "2026-09-18",
     "highlights": [

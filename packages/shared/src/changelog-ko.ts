@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.33",
+    "date": "2026-09-18",
+    "highlights": [
+      "세션 상태가 이제 대화 목록에 표시됩니다: 각 사이드바 행의 왼쪽 가장자리에 실시간 점이 나타나 — 에이전트가 작업 중일 때는 주황색으로 숨 쉬고, 사용자를 필요로 할 때는 보라색으로 맥동합니다.",
+      "「입력 필요」는 이제 보류 중인 모든 종류의 결정을 포괄합니다 — 권한 요청, 에이전트의 질문, 또는 승인 대기 중인 Plan/Goal — 권한만이 아닙니다.",
+    ],
+  },
+  {
     "version": "0.14.32",
     "date": "2026-09-18",
     "highlights": [

@@ -29,6 +29,14 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.33",
+    date: "2026-09-18",
+    highlights: [
+      "Session status now lives on the conversation list: each sidebar row shows a live dot at its left edge - orange and breathing while the agent is working, purple and pulsing when it needs you.",
+      "\"Needs your input\" now covers every kind of pending decision - a permission request, a question from the agent, or a Plan/Goal awaiting approval - instead of permissions alone.",
+    ],
+  },
+  {
     version: "0.14.32",
     date: "2026-09-18",
     highlights: [
@@ -890,6 +898,14 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.33",
+    date: "2026-09-18",
+    highlights: [
+      "会话状态现在显示在会话列表上：每个侧边栏会话行最左侧有一个实时状态点——代理工作中显示橙色呼吸，需要你处理时显示紫色脉冲。",
+      "「待确认」现在涵盖所有类型的待决事项——权限请求、代理提出的提问、或等待批准的 Plan/Goal——而不只是权限。",
+    ],
+  },
+  {
     version: "0.14.32",
     date: "2026-09-18",
     highlights: [
@@ -1749,6 +1765,14 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.33",
+    date: "2026-09-18",
+    highlights: [
+      "工作階段狀態現在顯示在工作階段清單上：每個側邊欄工作階段列最左側有一個即時狀態點——代理工作中顯示橙色呼吸，需要您處理時顯示紫色脈動。",
+      "「待確認」現在涵蓋所有類型的待決事項——權限請求、代理提出的提問、或等待批准的 Plan/Goal——而不只是權限。",
+    ],
+  },
   {
     version: "0.14.32",
     date: "2026-09-18",

@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.33",
+    "date": "2026-09-18",
+    "highlights": [
+      "Der Sitzungsstatus steht jetzt in der Unterhaltungsliste: Jede Seitenleistenzeile zeigt einen Live-Punkt am linken Rand — orange und atmend, während der Agent arbeitet, lila und pulsierend, wenn er dich braucht.",
+      "„Eingabe nötig“ deckt jetzt jede Art ausstehender Entscheidung ab — eine Berechtigungsanfrage, eine Frage des Agents oder ein Plan/Ziel, das auf Genehmigung wartet — statt nur Berechtigungen.",
+    ],
+  },
+  {
     "version": "0.14.32",
     "date": "2026-09-18",
     "highlights": [

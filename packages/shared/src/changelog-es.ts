@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.33",
+    "date": "2026-09-18",
+    "highlights": [
+      "El estado de la sesión ahora vive en la lista de conversaciones: cada fila de la barra lateral muestra un punto en vivo en su borde izquierdo — naranja y respirando mientras el agente trabaja, morado y pulsando cuando te necesita.",
+      "«Espera tu respuesta» ahora cubre todo tipo de decisión pendiente — una solicitud de permiso, una pregunta del agente o un Plan/Objetivo en espera de aprobación — en lugar de solo permisos.",
+    ],
+  },
+  {
     "version": "0.14.32",
     "date": "2026-09-18",
     "highlights": [

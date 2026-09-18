@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.33",
+    "date": "2026-09-18",
+    "highlights": [
+      "L'état de la session figure désormais dans la liste des conversations : chaque ligne de la barre latérale affiche un point vivant sur son bord gauche — orange et respirant pendant que l'agent travaille, violet et pulsant lorsqu'il a besoin de vous.",
+      "« Action requise » couvre maintenant tout type de décision en attente — une demande d'autorisation, une question de l'agent ou un Plan/Objectif en attente d'approbation — et non plus seulement les autorisations.",
+    ],
+  },
+  {
     "version": "0.14.32",
     "date": "2026-09-18",
     "highlights": [
