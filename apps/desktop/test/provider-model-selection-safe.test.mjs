@@ -5,8 +5,10 @@
  * (unchecking removes the binding but keeps the row listed, remembering the
  * parameters — persisted with the provider record since D442), while every
  * other activation stays additive - an absent model is added, an existing one
- * opens its configuration. Deletion is the chosen pane's explicit action and
- * also hides the discovered row.
+ * opens its configuration. The header select-all became a real toggle too
+ * since D443 - the persisted memory made its old add-only guard unnecessary.
+ * Deletion is the chosen pane's explicit action and also hides the discovered
+ * row.
  */
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -113,7 +115,8 @@ test("deletion is explicit, destructive, and hides the discovered row", () => {
     pickerSource,
     /hiddenSet\.has\(id\.toLowerCase\(\)\)[\s\S]{0,200}hidden\.toLowerCase\(\) !== id\.toLowerCase\(\)/,
   );
-  // The bulk header helper is additive-only, so it can never drop bindings.
+  // The header add path is additive (the D443 clear path is a separate
+  // function), so checking never drops a binding.
   assert.match(pickerSource, /added\.length === 0 \? current : \[\.\.\.current, \.\.\.added\]/);
 });
 
@@ -183,16 +186,31 @@ test("every row activation path resolves to select or toggle, never both", () =>
   assert.doesNotMatch(rowSource, /event\.detail === 0/);
 });
 
-test("the header select-all never clears, so the fallback list stays intact", () => {
-  // The checkbox stays visible everywhere, but it only adds: unchecking is a
-  // no-op, so a fallback list (exactly the configured models) can never be
-  // bulk-wiped by the control that caused the regression.
+test("the header select-all toggles the visible rows without deleting them", () => {
+  // The checkbox stays visible everywhere and now behaves like a checkbox
+  // (D443): checking adds every visible row, unchecking removes them - but each
+  // removed binding is remembered (persisted via disabledModels since D442) and
+  // stays listed, so the fallback bulk-wipe that forced D440's add-only rule can
+  // no longer lose a configured model.
   assert.match(pickerSource, /visibleRows\.length > 0 \? \(/);
-  assert.doesNotMatch(
+  assert.match(
     pickerSource,
-    /discovery\.source !== "fallback" \?[\s\S]{0,200}select-all/,
+    /if \(event\.target\.checked\) selectAllVisibleModels\(\);\s*else clearAllVisibleModels\(\);/,
   );
-  assert.match(pickerSource, /if \(event\.target\.checked\) selectAllVisibleModels\(\)/);
-  // The removal branch is gone from the shared helper entirely.
-  assert.doesNotMatch(pickerSource, /current\.filter\(\(binding\) => !visibleIds\.has/);
+  // The clear path is a real removal, not the old no-op.
+  assert.match(pickerSource, /const clearAllVisibleModels = \(\) => \{/);
+  // Each visible binding moves into the remembered set before it is dropped,
+  // mirroring the row toggle so a re-check restores the saved parameters.
+  assert.match(
+    pickerSource,
+    /for \(const binding of removed\) next\.set\(binding\.id\.toLowerCase\(\), binding\);/,
+  );
+  assert.match(pickerSource, /updateRemembered\(next\);/);
+  assert.match(
+    pickerSource,
+    /current\.filter\(\(binding\) => !visibleKeys\.has\(binding\.id\.toLowerCase\(\)\)\)/,
+  );
+  // The obsolete add-only tooltip key is gone; the toggle hint replaces it.
+  assert.doesNotMatch(pickerSource, /selectAllAddOnlyHint/);
+  assert.match(pickerSource, /title=\{t\("settings\.selectAllModelsHint"\)\}/);
 });

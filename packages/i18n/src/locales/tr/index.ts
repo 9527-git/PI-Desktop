@@ -1204,7 +1204,7 @@ sklm: {
     searchChosenModels: "Eklenen modellerde ara…",
     noChosenModelMatches: "Eşleşen eklenen model yok.",
     selectAllVisibleModels: "Tümünü seç",
-    selectAllAddOnlyHint: "Görünen tüm modelleri ekler; yapılandırılmış modeller asla kaldırılmaz.",
+    selectAllModelsHint: "Tüm görünür modelleri eklemek için işaretleyin; temizlemek için işareti kaldırın — her biri listede kalır ve geri yüklenebilir.",
     copyBaseUrl: "Uç nokta URL'sini kopyala",
     copyApiKey: "API anahtarını kopyala",
     copiedToClipboard: "Panoya kopyalandı",

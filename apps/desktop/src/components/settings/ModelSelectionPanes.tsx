@@ -397,9 +397,9 @@ export function ModelSelectionPanes({
   };
 
   /**
-   * The header checkbox only ever adds. Unchecking is a no-op: a bulk clear
-   * here would be the one remaining path that wipes configured bindings, so
-   * removal stays an explicit per-row action in the chosen pane.
+   * The header checkbox as a real toggle. Checking adds every visible row that
+   * is not chosen yet, restoring a remembered binding's exact parameters the
+   * same way a single re-check does.
    */
   const selectAllVisibleModels = () => {
     setExpandedModelId((open) => open ?? visibleRows[0]?.id ?? null);
@@ -410,6 +410,30 @@ export function ModelSelectionPanes({
       .map((row) => remembered.get(row.id.toLowerCase()) ?? bindingForRow(row));
     keepAddedModelVisible(added);
     setModels((current) => (added.length === 0 ? current : [...current, ...added]));
+  };
+
+  /**
+   * Unchecking the header drops every visible binding, but exactly like a row
+   * uncheck it stays soft: each removed binding is remembered (persisted in
+   * `disabledModels` since D442) so the row keeps its place, unchecked, and a
+   * re-check restores its saved parameters. D440 made this control add-only to
+   * stop a fallback bulk-clear from deleting configured models the live probe
+   * might never offer again; D442's persisted memory removed that danger, so
+   * the checkbox can finally behave like one. Only visible rows are touched, so
+   * a search filter still confines the bulk action to what is on screen.
+   */
+  const clearAllVisibleModels = () => {
+    const visibleKeys = new Set(visibleRows.map((row) => row.id.toLowerCase()));
+    const removed = models.filter((binding) =>
+      visibleKeys.has(binding.id.toLowerCase()),
+    );
+    if (removed.length === 0) return;
+    const next = new Map(remembered);
+    for (const binding of removed) next.set(binding.id.toLowerCase(), binding);
+    updateRemembered(next);
+    setModels((current) =>
+      current.filter((binding) => !visibleKeys.has(binding.id.toLowerCase())),
+    );
   };
 
   /**
@@ -556,8 +580,10 @@ export function ModelSelectionPanes({
       <div className="provider-models">
         <div className="provider-models-head">
           <div className="provider-models-heading">
-            {/* Add-only by design: unchecking can never bulk-clear, so a
-                fallback list (exactly the configured models) stays intact. */}
+            {/* A real toggle since D443: checking adds every visible row,
+                unchecking drops them softly - each stays listed and remembered
+                (persisted via disabledModels), so a fallback bulk-clear can no
+                longer lose a configured model. */}
             {visibleRows.length > 0 ? (
               <input
                 type="checkbox"
@@ -568,9 +594,10 @@ export function ModelSelectionPanes({
                   if (el) el.indeterminate = someVisibleSelected;
                 }}
                 aria-label={t("settings.selectAllVisibleModels")}
-                title={t("settings.selectAllAddOnlyHint")}
+                title={t("settings.selectAllModelsHint")}
                 onChange={(event) => {
                   if (event.target.checked) selectAllVisibleModels();
+                  else clearAllVisibleModels();
                 }}
               />
             ) : null}

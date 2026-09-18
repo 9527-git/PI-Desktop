@@ -4392,3 +4392,13 @@ D441 收到用户反馈：全选像是失效了。被记住的（已取消勾选
   E2E-PROVIDER-row-toggle-and-hidden-delete；
   源码契约覆盖见 `provider-model-selection-safe.test.mjs`
   与 `provider-model-config.test.mjs`。
+
+## 2026-09-18 —— 头部全选改为真正的切换（D443）
+
+D442 之后收到用户反馈：取消勾选头部全选框没有任何反应。它仍是 D440 的只加不删控件——勾选添加全部可见行，取消勾选是刻意的空操作——而 fallback 模式下头部恰好渲染成全勾选（可见行就是已配置的模型），所以想点它清空毫无反应，控件看起来像坏了。
+
+D440 把复选框设为只加不删，是为了阻止 fallback 批量清空删掉实时探测可能再也不会列出的已配置绑定。D442 消除了这一危险：取消勾选的绑定现在会被记住并持久化在提供商的 `disabledModels` 集合中，因此批量取消勾选完全可逆。头部复选框于是成为真正的切换（D443）：勾选添加全部可见行，取消勾选软移除它们——每个被移除的绑定进入记住集合、其行保留为未勾选状态，重新勾选即恢复保存的别名、上限与思考等级。只作用于可见行，所以搜索过滤仍把批量操作限制在屏幕范围内。右侧面板的显式「移除」不变，仍是唯一的破坏性路径（它经 `hiddenModels` 隐藏该行）。这取代了 D440 的只加不删规则；E2E 场景 `E2E-PROVIDER-select-all-never-clears` 更名为 `E2E-PROVIDER-select-all-toggles-visible-models`，tooltip 键 `selectAllAddOnlyHint` 在八个语言包中改为 `selectAllModelsHint`。仅渲染层——除 D442 已有的 `disabledModels` 管线外，不改 host、IPC、schema 或持久化。
+- 见 `04-ux/08-component-spec.md` §19.4、
+  `06-delivery/04-e2e-test-plan.md` 的
+  E2E-PROVIDER-select-all-toggles-visible-models；
+  源码契约覆盖见 `provider-model-selection-safe.test.mjs`。

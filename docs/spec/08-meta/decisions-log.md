@@ -5637,3 +5637,32 @@ and select-all or a row click re-adds them with their saved parameters.
   `06-delivery/04-e2e-test-plan.md`; source contract coverage in
   `provider-model-selection-safe.test.mjs` and
   `provider-model-config.test.mjs`.
+
+## 2026-09-18 — The header select-all becomes a real toggle (D443)
+
+User feedback after D442: unchecking the header select-all did nothing. It was
+still the D440 add-only control — checking added every visible row, unchecking
+was a deliberate no-op — and in fallback mode the header renders fully checked
+(the visible rows are exactly the configured models), so clicking it to clear
+was inert and the control looked broken.
+
+D440 made the checkbox add-only to stop a fallback bulk-clear from deleting
+configured bindings the live probe might never list again. D442 removed that
+danger: an unchecked binding is now remembered and persisted in the provider's
+`disabledModels` set, so a bulk uncheck is fully reversible. The header
+checkbox is therefore a real toggle now (D443): checking adds every visible
+row, unchecking removes them softly — each dropped binding moves into the
+remembered set and its row stays listed unchecked, and re-checking restores the
+saved alias, limits, and thinking levels. Only visible rows are touched, so a
+search filter still confines the bulk action to what is on screen. The right
+pane's explicit Remove is unchanged and remains the only destructive path (it
+hides the row via `hiddenModels`). This supersedes D440's add-only rule; the
+E2E scenario `E2E-PROVIDER-select-all-never-clears` is renamed to
+`E2E-PROVIDER-select-all-toggles-visible-models`, and the tooltip key
+`selectAllAddOnlyHint` becomes `selectAllModelsHint` across all eight locales.
+Renderer-only — no host, IPC, schema, or persistence change beyond D442's
+existing `disabledModels` plumbing.
+- See `04-ux/08-component-spec.md` §19.4,
+  E2E-PROVIDER-select-all-toggles-visible-models in
+  `06-delivery/04-e2e-test-plan.md`; source contract coverage in
+  `provider-model-selection-safe.test.mjs`.

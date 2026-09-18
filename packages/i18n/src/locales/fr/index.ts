@@ -1185,7 +1185,7 @@ sklm: {
     "searchChosenModels": "Rechercher les modèles ajoutés…",
     "noChosenModelMatches": "Aucun modèle ajouté correspondant.",
     "selectAllVisibleModels": "Tout sélectionner",
-    "selectAllAddOnlyHint": "Ajoute tous les modèles visibles ; les modèles configurés ne sont jamais retirés.",
+    "selectAllModelsHint": "Cochez pour ajouter tous les modèles visibles ; décochez pour les effacer — chacun reste listé et peut être restauré.",
     "copyBaseUrl": "Copier l'URL du point d'accès",
     "copyApiKey": "Copier la clé API",
     "copiedToClipboard": "Copié dans le presse-papiers",

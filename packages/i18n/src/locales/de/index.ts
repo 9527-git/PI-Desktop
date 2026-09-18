@@ -1185,7 +1185,7 @@ sklm: {
     "searchChosenModels": "Hinzugefügte Modelle suchen…",
     "noChosenModelMatches": "Keine passenden hinzugefügten Modelle.",
     "selectAllVisibleModels": "Alle auswählen",
-    "selectAllAddOnlyHint": "Fügt alle sichtbaren Modelle hinzu; konfigurierte Modelle werden nie entfernt.",
+    "selectAllModelsHint": "Aktivieren fügt alle sichtbaren Modelle hinzu; deaktivieren leert sie – jedes bleibt aufgelistet und kann wiederhergestellt werden.",
     "copyBaseUrl": "Endpunkt-URL kopieren",
     "copyApiKey": "API-Schlüssel kopieren",
     "copiedToClipboard": "In die Zwischenablage kopiert",

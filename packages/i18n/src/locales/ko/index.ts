@@ -1203,7 +1203,7 @@ sklm: {
     searchChosenModels: "추가된 모델 검색…",
     noChosenModelMatches: "일치하는 추가된 모델이 없습니다.",
     selectAllVisibleModels: "모두 선택",
-    selectAllAddOnlyHint: "표시된 모든 모델을 추가하며, 구성된 모델은 절대 제거하지 않습니다.",
+    selectAllModelsHint: "체크하면 표시된 모든 모델을 추가하고, 체크를 해제하면 지워집니다 — 각 모델은 목록에 유지되며 복원할 수 있습니다.",
     copyBaseUrl: "엔드포인트 URL 복사",
     copyApiKey: "API 키 복사",
     copiedToClipboard: "클립보드에 복사되었습니다",
