@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.31",
+    "date": "2026-09-18",
+    "highlights": [
+      "Les modèles décochés restent désormais décochés après l'enregistrement et la réouverture du service — le choix est mémorisé avec le fournisseur, pas seulement pour la modification en cours.",
+      "Tout sélectionner fonctionne à nouveau sur un service rouvert : il restaure chaque modèle décoché avec son alias, ses limites et ses niveaux de réflexion enregistrés.",
+    ],
+  },
+  {
     "version": "0.14.30",
     "date": "2026-09-18",
     "highlights": [

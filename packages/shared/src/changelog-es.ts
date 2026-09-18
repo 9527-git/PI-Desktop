@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.31",
+    "date": "2026-09-18",
+    "highlights": [
+      "Los modelos desmarcados ahora siguen desmarcados tras guardar y reabrir el servicio: la elección se recuerda con el proveedor, no solo para la edición actual.",
+      "Seleccionar todo vuelve a funcionar en un servicio reabierto: restaura cada modelo desmarcado con su alias, límites y niveles de pensamiento guardados.",
+    ],
+  },
+  {
     "version": "0.14.30",
     "date": "2026-09-18",
     "highlights": [

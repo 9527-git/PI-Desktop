@@ -29,6 +29,14 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.31",
+    date: "2026-09-18",
+    highlights: [
+      "Unchecked models now stay unchecked after you save and reopen the service - the choice is remembered with the provider, not just for the current edit.",
+      "Select-all works again on a reopened service: it restores every unchecked model with its saved alias, limits, and thinking levels.",
+    ],
+  },
+  {
     version: "0.14.30",
     date: "2026-09-18",
     highlights: [
@@ -874,6 +882,14 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.31",
+    date: "2026-09-18",
+    highlights: [
+      "取消勾选的模型现在保存重开后仍保持取消——这份选择随提供商记住，而不只是本次编辑有效。",
+      "重开服务后全选恢复正常：它会按保存的别名、上限与思考等级恢复每一个取消勾选的模型。",
+    ],
+  },
+  {
     version: "0.14.30",
     date: "2026-09-18",
     highlights: [
@@ -1717,6 +1733,14 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.31",
+    date: "2026-09-18",
+    highlights: [
+      "取消勾選的模型現在儲存重開後仍保持取消——這份選擇隨供應商記住，而不只是本次編輯有效。",
+      "重開服務後全選恢復正常：它會按儲存的別名、上限與思考等級恢復每一個取消勾選的模型。",
+    ],
+  },
   {
     version: "0.14.30",
     date: "2026-09-18",

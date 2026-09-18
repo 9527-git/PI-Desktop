@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.31",
+    "date": "2026-09-18",
+    "highlights": [
+      "선택 해제한 모델이 이제 서비스를 저장하고 다시 연 후에도 선택 해제 상태로 유지됩니다 — 이번 편집에서만 아니라 공급자와 함께 기억됩니다.",
+      "다시 연 서비스에서 전체 선택이 다시 작동합니다: 저장된 별칭, 제한, 사고 수준으로 모든 선택 해제 모델을 복원합니다.",
+    ],
+  },
+  {
     "version": "0.14.30",
     "date": "2026-09-18",
     "highlights": [

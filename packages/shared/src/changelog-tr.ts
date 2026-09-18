@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.31",
+    "date": "2026-09-18",
+    "highlights": [
+      "İşareti kaldırılan modeller artık hizmeti kaydedip yeniden açtıktan sonra da işaretsiz kalır — bu seçim yalnızca geçerli düzenleme için değil, sağlayıcıyla birlikte hatırlanır.",
+      "Yeniden açılan bir hizmette tümünü seç yeniden çalışır: işareti kaldırılan her modeli kayıtlı takma adı, sınırları ve düşünme seviyeleriyle geri yükler.",
+    ],
+  },
+  {
     "version": "0.14.30",
     "date": "2026-09-18",
     "highlights": [

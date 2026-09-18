@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.31",
+    "date": "2026-09-18",
+    "highlights": [
+      "Abgewählte Modelle bleiben nach dem Speichern und erneuten Öffnen des Dienstes abgewählt — die Wahl wird beim Anbieter gespeichert, nicht nur für die aktuelle Bearbeitung.",
+      "Alles auswählen funktioniert nach dem erneuten Öffnen wieder: Es stellt jedes abgewählte Modell mit gespeichertem Alias, Grenzwerten und Denkstufen wieder her.",
+    ],
+  },
+  {
     "version": "0.14.30",
     "date": "2026-09-18",
     "highlights": [
