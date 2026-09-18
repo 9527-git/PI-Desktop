@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import type { AgentInstructionFile } from "@pi-desktop/shared";
+import type { AgentInstructionFile, AppSettings } from "@pi-desktop/shared";
 import { useAppStore } from "../../stores/app-store";
 import { api } from "../../lib/api";
 import type { ImportCandidate, ModelConfigImportCandidate } from "../../lib/api";
@@ -74,6 +74,34 @@ export function AgentInstructionsSection() {
         </div>
       </SettingsCard>
     </div>
+  );
+}
+
+export function AutoUpdateCheckRow({
+  settings,
+  saveSettings,
+}: {
+  settings: AppSettings;
+  saveSettings: (patch: Partial<AppSettings>) => Promise<void>;
+}) {
+  const { t } = useTranslation();
+  const enabled = settings.autoUpdateCheck !== false;
+  return (
+    <SettingsRow
+      title={t("updates.autoCheck")}
+      description={t("updates.autoCheckDesc")}
+    >
+      <button
+        type="button"
+        className={cx("settings-toggle", enabled && "on")}
+        role="switch"
+        aria-checked={enabled}
+        aria-label={t("updates.autoCheck")}
+        onClick={() => void saveSettings({ autoUpdateCheck: !enabled })}
+      >
+        <span className="settings-toggle-thumb" />
+      </button>
+    </SettingsRow>
   );
 }
 

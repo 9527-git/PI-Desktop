@@ -106,6 +106,9 @@ export const en = {
     title: "Updates",
     desc: "Updates are downloaded from GitHub Releases.",
     check: "Check for updates",
+    autoCheck: "Automatic update checks",
+    autoCheckDesc:
+      "Check GitHub Releases on startup and periodically. Manual checks always stay available.",
     checking: "Checking for updates…",
     upToDate: "You're on the latest version.",
     available: "Version {{version}} is available.",

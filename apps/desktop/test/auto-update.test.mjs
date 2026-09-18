@@ -158,6 +158,31 @@ test("updater gates delivery mode by platform and delivery policy", () => {
   );
 });
 
+test("auto update checks are user-gated by the autoUpdateCheck setting", () => {
+  assert.match(
+    typesSource,
+    /autoUpdateCheck\?: boolean/,
+    "AppSettings carries the opt-out flag",
+  );
+  assert.match(
+    mainSource,
+    /let autoUpdateCheckEnabled = true/,
+    "absent settings keep automatic checks enabled",
+  );
+  assert.match(mainSource, /applyUpdateCheckSetting/);
+  assert.match(mainSource, /isAutoCheckEnabled: \(\) => autoUpdateCheckEnabled/);
+  assert.match(updaterSource, /isAutoCheckEnabled\?: \(\) => boolean/);
+  assert.match(
+    updaterSource,
+    /if \(!this\.isAutoCheckEnabled\(\)\) return;/,
+    "the gate covers the startup and periodic timers; manual checks are not gated",
+  );
+  assert.match(settingsSource, /<AutoUpdateCheckRow /);
+  assert.match(settingsSource, /autoUpdateCheck: !enabled/);
+  assert.match(enSource, /autoCheck:/);
+  assert.match(zhSource, /自动检查更新/);
+});
+
 test("renderer exposes the updates API, banner and settings row", () => {
   assert.match(apiSource, /updatesGetState:/);
   assert.match(apiSource, /updatesCheck:/);

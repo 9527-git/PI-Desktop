@@ -60,6 +60,11 @@ export type AppSettings = {
   /** Unlocks the devtools console (settings button, F12, macOS View menu). */
   developerMode?: boolean;
   /**
+   * Automatic update discovery (startup + periodic GitHub feed checks).
+   * Absent means enabled; disabling it never blocks a manual check.
+   */
+  autoUpdateCheck?: boolean;
+  /**
    * Extension marketplace provider. `mirror` targets the cnb.cool copy for
    * networks that cannot reach `raw.githubusercontent.com`; both serve the
    * same catalog and packages.

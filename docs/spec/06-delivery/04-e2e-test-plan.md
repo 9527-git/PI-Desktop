@@ -1645,6 +1645,29 @@ and identify the platform validation still needed.
   while streaming, no cache chips without usage, older-date stamping, plus a
   screenshot; source contract in `turn-usage-meta.test.mjs`)
 
+#### E2E-UPDATES-auto-check-toggle: Automatic update checks can be turned off without blocking manual checks
+
+- **Preconditions**: Packaged build (updates enabled); Settings → Info is
+  reachable.
+- **Steps**: 1) Open Settings → Info and locate the Automatic update checks
+  toggle above the Updates row. 2) Turn it off and confirm the persisted
+  settings contain `autoUpdateCheck: false`. 3) Restart the app and confirm
+  no startup update check fires (no `checking` state, no network feed
+  request after boot). 4) Click Check for updates in the Updates row (and
+  the sidebar build chip) and confirm a manual check still runs. 5) Turn the
+  toggle back on and confirm periodic checks resume without a restart.
+- **Expected**: The toggle persists as `AppSettings.autoUpdateCheck`
+  (absent = enabled). While off, Main skips the startup and periodic feed
+  checks silently; manual checks from the Updates row, sidebar build chip,
+  and application menu still run and surface state. Toggling back on
+  resumes automatic checks at the next timer fire without an app restart.
+- **Specs linked**: `04-ux/06-settings-ia.md` §Info
+- **Acceptance**: Quality
+- **Milestone**: Post-M6 desktop shell maintenance
+- **Status**: Manual; source contract in `auto-update.test.mjs`
+  (`autoUpdateCheck` setting, main-process mirror flag, updater gate, toggle
+  row and i18n keys)
+
 #### E2E-087a: Destination page headers clear the titlebar band on macOS
 
 - **Preconditions**: macOS build; at least one plugin installed.

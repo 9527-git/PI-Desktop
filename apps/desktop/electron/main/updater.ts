@@ -50,6 +50,12 @@ export type UpdaterOptions = {
    * Called when attaching notes to update state; defaults to English.
    */
   getLocale?: () => string | null | undefined;
+  /**
+   * Mirrors `AppSettings.autoUpdateCheck`: automatic discovery (startup +
+   * periodic checks) is skipped while this returns false. Manual checks are
+   * never gated. Defaults to enabled.
+   */
+  isAutoCheckEnabled?: () => boolean;
   /** Overrides for tests. */
   platform?: NodeJS.Platform;
   isPackaged?: boolean;
@@ -73,6 +79,7 @@ export class AppUpdaterController {
   private readonly logger: Logger;
   private readonly send: (channel: string, payload: unknown) => void;
   private readonly getLocale: () => string | null | undefined;
+  private readonly isAutoCheckEnabled: () => boolean;
   private state: UpdateState;
   private manualRequested = false;
   private initialTimer: NodeJS.Timeout | null = null;
@@ -91,6 +98,7 @@ export class AppUpdaterController {
     this.logger = options.logger;
     this.send = options.send;
     this.getLocale = options.getLocale ?? (() => "en");
+    this.isAutoCheckEnabled = options.isAutoCheckEnabled ?? (() => true);
     const mode = resolveUpdateMode(
       options.platform ?? process.platform,
       options.isPackaged ?? app.isPackaged,
@@ -309,9 +317,11 @@ export class AppUpdaterController {
       return;
     }
     this.initialTimer = setTimeout(() => {
+      if (!this.isAutoCheckEnabled()) return;
       void this.check().catch(() => undefined);
     }, AUTO_CHECK_INITIAL_DELAY_MS);
     this.intervalTimer = setInterval(() => {
+      if (!this.isAutoCheckEnabled()) return;
       void this.check().catch(() => undefined);
     }, AUTO_CHECK_INTERVAL_MS);
   }

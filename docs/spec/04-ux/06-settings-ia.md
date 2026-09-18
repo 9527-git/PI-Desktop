@@ -529,6 +529,11 @@ system while preserving their different data ownership:
   never accepts a renderer-supplied destination (D313 / ADR 0157)
 - Updates row with the current delivery state and one applicable action:
   Check for updates, View release, or Restart to update
+- **Automatic update checks** toggle row directly above the Updates row,
+  persisted as the optional `AppSettings.autoUpdateCheck` value (absent =
+  enabled). While disabled, Main skips the startup and periodic GitHub feed
+  checks; manual checks (Updates row, sidebar build chip, application menu)
+  are never gated (D437)
 - **Developer** card:
   - developer mode is off unless the optional persisted
     `AppSettings.developerMode` value is `true`
