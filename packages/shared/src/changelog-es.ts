@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.28",
+    "date": "2026-09-18",
+    "highlights": [
+      "El «Seleccionar todo» del selector de modelos sigue visible pero solo añade: desmarcar nunca elimina modelos, así que una lista de servicio caída ya no puede vaciar los modelos configurados.",
+      "El editor de proveedores añade copia rápida: un clic copia la URL del endpoint, y el campo de clave API copia la clave guardada sin mostrarla nunca.",
+      "El chip de compilación de la barra lateral muestra siempre la versión en ejecución: el descubrimiento de versiones nuevas sigue en el banner de actualización y en Ajustes → Información.",
+    ],
+  },
+  {
     version: "0.14.27",
     date: "2026-09-18",
     highlights: [

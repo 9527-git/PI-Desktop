@@ -29,6 +29,15 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.28",
+    date: "2026-09-18",
+    highlights: [
+      "The model picker's select-all stays visible but can only add: unchecking never removes models, so an out-of-service list can no longer wipe your configured models.",
+      "The provider editor gains quick copy: one click copies the endpoint URL, and the API-key field copies the saved key without ever showing it.",
+      "The sidebar build chip always shows the running version — new-version discovery stays with the update banner and Settings → Info.",
+    ],
+  },
+  {
     version: "0.14.27",
     date: "2026-09-18",
     highlights: [
@@ -849,6 +858,15 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.28",
+    date: "2026-09-18",
+    highlights: [
+      "模型选择的全选框保留但只加不删：取消勾选不会移除任何模型，服务列表不可用时也不会再清掉已配置的模型。",
+      "提供商编辑器支持快捷复制：一键复制接口地址，API 密钥字段可复制已保存的密钥且不显示明文。",
+      "侧栏版本徽章恒定显示当前运行版本——新版本发现仍由更新横幅和设置 → 信息页承担。",
+    ],
+  },
+  {
     version: "0.14.27",
     date: "2026-09-18",
     highlights: [
@@ -1667,6 +1685,15 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.28",
+    date: "2026-09-18",
+    highlights: [
+      "模型選擇的全選框保留但只加不刪：取消勾選不會移除任何模型，服務清單不可用時也不會再清掉已設定的模型。",
+      "提供商編輯器支援快捷複製：一鍵複製介面位址，API 金鑰欄位可複製已儲存的金鑰且不顯示明文。",
+      "側欄版本徽章恆定顯示目前執行版本——新版本發現仍由更新橫幅和設定 → 資訊頁承擔。",
+    ],
+  },
   {
     version: "0.14.27",
     date: "2026-09-18",

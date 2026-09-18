@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    version: "0.14.28",
+    date: "2026-09-18",
+    highlights: [
+      "Model seçicinin 'Tümünü seç' onay kutusu görünür kalır ama yalnızca ekler: işareti kaldırmak asla model silmez, böylece servis listesi yanıt vermediğinde yapılandırılmış modelleriniz silinemez.",
+      "Sağlayıcı düzenleyicisi hızlı kopyalama kazandı: tek tıkla uç nokta URL'sini kopyalar ve API anahtarı alanı kaydedilen anahtarı hiç göstermeden kopyalar.",
+      "Kenar çubuğu derleme rozeti her zaman çalışan sürümü gösterir — yeni sürüm keşfi güncelleme bandında ve Ayarlar → Bilgi sayfasında kalır.",
+    ],
+  },
+  {
     version: "0.14.27",
     date: "2026-09-18",
     highlights: [

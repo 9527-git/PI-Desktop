@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.28",
+    "date": "2026-09-18",
+    "highlights": [
+      "Das „Alle auswählen“ der Modellauswahl bleibt sichtbar, fügt aber nur hinzu: Das Abwählen entfernt nie Modelle, sodass eine nicht erreichbare Dienstliste die konfigurierten Modelle nicht mehr leeren kann.",
+      "Der Provider-Editor erhält Schnellkopieren: Ein Klick kopiert die Endpunkt-URL, und das API-Schlüsselfeld kopiert den gespeicherten Schlüssel, ohne ihn jemals anzuzeigen.",
+      "Der Build-Chip in der Seitenleiste zeigt immer die laufende Version – neue Versionen finden sich im Update-Banner und unter Einstellungen → Info.",
+    ],
+  },
+  {
     version: "0.14.27",
     date: "2026-09-18",
     highlights: [

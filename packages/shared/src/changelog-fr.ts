@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.28",
+    "date": "2026-09-18",
+    "highlights": [
+      "Le « tout sélectionner » du sélecteur de modèles reste visible mais n'ajoute que : décocher ne retire jamais de modèles, une liste de service indisponible ne peut donc plus effacer les modèles configurés.",
+      "L'éditeur de fournisseur gagne la copie rapide : un clic copie l'URL du point d'accès, et le champ de clé API copie la clé enregistrée sans jamais l'afficher.",
+      "La puce de version de la barre latérale affiche toujours la version en cours — la découverte des nouvelles versions reste dans la bannière de mise à jour et Réglages → Informations.",
+    ],
+  },
+  {
     version: "0.14.27",
     date: "2026-09-18",
     highlights: [
