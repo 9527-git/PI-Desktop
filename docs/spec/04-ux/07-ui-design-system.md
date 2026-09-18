@@ -524,9 +524,10 @@ Light theme: minimal shadows only where layering is insufficient.
 
 Sidebar footer: a transparent utility band with no separator. The Settings,
 Plugins and notification icon buttons stay grouped on the left. The
-build/version chip is right-aligned and remains the update check/release entry
-point. Hover and active states use semantic sidebar surfaces; neither side adds
-a persistent card fill.
+build/version chip is right-aligned, always shows the running version, and
+never advertises a new one (updates surface via the banner and Settings →
+Info); clicking it runs a manual update check. Hover and active states use
+semantic sidebar surfaces; neither side adds a persistent card fill.
 
 Every scroll container in the renderer uses one quiet scrollbar: 6px,
 trackless, with a thumb that is transparent at rest. The thumb appears only

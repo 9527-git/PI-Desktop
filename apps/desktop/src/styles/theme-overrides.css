@@ -123,7 +123,7 @@
   background: transparent;
 }
 
-/* Build chip: quiet by default, accented only when an update is actionable. */
+/* Build chip: a quiet version display that never advertises a new version. */
 .footer-build {
   display: inline-flex;
   min-width: 0;
@@ -150,18 +150,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.footer-build.has-update {
-  color: var(--ds-text-primary);
-}
-
-.footer-build-dot {
-  width: 5px;
-  height: 5px;
-  flex: 0 0 auto;
-  border-radius: var(--radius-full);
-  background: var(--ds-accent);
 }
 
 .footer-actions {

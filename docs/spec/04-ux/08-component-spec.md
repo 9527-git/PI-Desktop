@@ -458,8 +458,9 @@ visually distinct from list content.
   still completes and reports through the normal toast channel; this is not a
   hidden live workbench or durable preference across application restart.
 - The footer action group stays on the left and the build/version chip stays
-  right-aligned; clicking the chip checks for updates or opens the available
-  release in Settings
+  right-aligned; the chip always shows the running version, never advertises
+  a new one (updates surface via the banner and Settings → Info), and
+  clicking it runs a manual update check (D439)
 - Click Collapse sidebar at the right of the header row to collapse the sidebar.
   Global search opens from the conversation topbar, shortcuts, and application
   menu; the expanded sidebar header does not host a search control

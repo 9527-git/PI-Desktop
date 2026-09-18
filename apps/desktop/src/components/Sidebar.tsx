@@ -270,8 +270,6 @@ export function Sidebar({
   const applyProjectColors = useAppStore((s) => s.applyProjectColors);
   const showToast = useAppStore((s) => s.showToast);
   const version = useAppStore((s) => s.version);
-  const setSettingsTab = useAppStore((s) => s.setSettingsTab);
-  const setSettingsAnchor = useAppStore((s) => s.setSettingsAnchor);
   const update = useUpdateState();
 
   const [sortOpen, setSortOpen] = useState(false);
@@ -543,21 +541,14 @@ export function Sidebar({
 
   // Footer utility bar: settings / plugins / notifications + build chip.
 
-  // An update only earns the accent dot once it is actionable — a pending
-  // check or a failed one keeps the chip quiet.
-  const updateReady =
-    update?.status === "available" || update?.status === "downloaded";
+  // The chip is a quiet version display: it always shows the running version
+  // and never advertises a new one — updates are surfaced by the banner and
+  // Settings → Info. Clicking still fires a manual check.
   const appVersion = update?.currentVersion || version?.version || "";
-  const buildLabel = updateReady
-    ? `v${update?.availableVersion ?? appVersion}`
-    : update?.status === "checking"
-      ? t("updates.checking")
-      : appVersion
-        ? `v${appVersion}`
-        : t("nav.buildUnknown");
-  const buildTitle = updateReady
-    ? t("updates.available", { version: update?.availableVersion ?? "" })
-    : t("nav.checkForUpdates");
+  const buildLabel = appVersion
+    ? `v${appVersion}`
+    : t("nav.buildUnknown");
+  const buildTitle = t("nav.checkForUpdates");
 
   const onMenuKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
     if (event.key === "Escape") {
@@ -2362,16 +2353,11 @@ export function Sidebar({
 
           <TooltipButton
             type="button"
-            className={`footer-build ${updateReady ? "has-update" : ""}`}
+            className="footer-build"
             data-nav="build"
             tooltip={buildTitle}
             ariaLabel={buildTitle}
             onClick={() => {
-              if (updateReady) {
-                setSettingsAnchor("updates.title");
-                setSettingsTab("about");
-                return;
-              }
               void (async () => {
                 try {
                   await api.updatesCheck();
@@ -2380,7 +2366,6 @@ export function Sidebar({
             }}
           >
             <span className="footer-build-version">{buildLabel}</span>
-            {updateReady ? <span className="footer-build-dot" aria-hidden /> : null}
           </TooltipButton>
         </div>
       </div>
