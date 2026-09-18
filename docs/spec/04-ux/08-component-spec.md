@@ -1323,6 +1323,11 @@ storage but compose into one assistant turn until the next user message.
   `role="article"` turn. The turn exposes one trailing meta row and one action
   toolbar; Copy joins all contentful fragments in order, while Fork and
   Regenerate use the last contentful assistant message as the durable boundary.
+  Once settled, the meta row shows the model chip, compact input/output chips
+  plus cache-read/cache-write chips when the provider reports them (summed
+  across the turn's messages, full-precision tooltip), and the reply time —
+  clock time today, otherwise a short locale date plus time; user messages
+  show the same time chip under the bubble (D436).
 - Toggle Thinking disclosure: expand/collapse reasoning independently from the
   final answer. The latest reasoning row opens while it streams and closes when
   the turn settles only if the user has not interacted with it. The expanded

@@ -5477,3 +5477,20 @@ permission change. Supersedes the D426 amendment of ADR 0192.
   `04-ux/08-component-spec.md` §19.4, ADR `0192-model-alias.md`, and
   E2E-005A / E2E-201 in `06-delivery/04-e2e-test-plan.md`
   (`pnpm test:e2e:provider-model-selection`).
+
+## 2026-09-18 — Turn usage and message timestamps in the transcript (D436)
+
+Completed assistant replies now show what each turn cost and when it
+happened: the existing meta row under a settled turn adds compact input,
+output, and (when the provider reports them) cache-read and cache-write
+chips, summed across the turn's messages with full-precision values in the
+tooltip, followed by the reply time (clock time today, a short locale date
+plus time otherwise, the year only for earlier years). User messages gain a
+time chip under the bubble; streaming turns show no usage chips, and turns
+without usage data keep their model chip and time. Rendering reuses
+`MessageMeta` and the existing `chat.usage*` i18n keys; the stamp helper
+lives in `lib/message-time.ts`. Renderer, docs, and tests only: no IPC,
+host, storage, or permission change.
+- See `04-ux/08-component-spec.md` §8.3 and
+  E2E-CHAT-turn-usage-and-timestamps in `06-delivery/04-e2e-test-plan.md`;
+  source contract coverage in `turn-usage-meta.test.mjs`.
