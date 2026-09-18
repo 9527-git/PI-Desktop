@@ -188,6 +188,14 @@ export type ModelSelectionPanesProps = {
   hiddenModels?: string[];
   /** Replace the hidden set; called by delete and by the restore entry. */
   onHiddenModelsChange?: (next: string[]) => void;
+  /**
+   * Bindings unchecked in this or a previous editing session, persisted by the
+   * caller with the provider record so an unchecked row keeps its parameters
+   * across save and reopen. Absent support keeps the memory session-only.
+   */
+  disabledModels?: ModelBinding[];
+  /** Replace the unchecked set; called by uncheck, re-check, and delete. */
+  onDisabledModelsChange?: (next: ModelBinding[]) => void;
 };
 
 /**
@@ -203,17 +211,42 @@ export function ModelSelectionPanes({
   onReload,
   hiddenModels,
   onHiddenModelsChange,
+  disabledModels,
+  onDisabledModelsChange,
 }: ModelSelectionPanesProps) {
   const { t } = useTranslation();
   const { rows, models, publishedLevelsById, setModels } = selection;
-  // Bindings removed by unchecking, kept so re-checking within this editing
-  // session restores the exact parameters instead of catalog defaults. State
-  // (not a ref) because the remembered rows must re-enter the left list: in
-  // fallback mode the list is built from the configured bindings alone, so a
-  // ref-only memory would leave an unchecked row with nothing to render.
-  const [remembered, setRemembered] = useState<Map<string, ModelBinding>>(
-    () => new Map(),
-  );
+  // Bindings removed by unchecking, kept so re-checking restores the exact
+  // parameters instead of catalog defaults. State (not a ref) because the
+  // remembered rows must re-enter the left list: in fallback mode the list is
+  // built from the configured bindings alone, so a ref-only memory would leave
+  // an unchecked row with nothing to render. The set is seeded from the
+  // provider record and every change is reported back, so unchecking survives
+  // a save and reopen instead of silently deleting the model.
+  const [remembered, setRemembered] = useState<Map<string, ModelBinding>>(() => {
+    const seeded = new Map<string, ModelBinding>();
+    for (const binding of disabledModels ?? []) {
+      seeded.set(binding.id.toLowerCase(), binding);
+    }
+    return seeded;
+  });
+  /** Persist every unchecked-set change alongside the provider record. */
+  const updateRemembered = (next: Map<string, ModelBinding>) => {
+    setRemembered(next);
+    onDisabledModelsChange?.([...next.values()]);
+  };
+  const removeFromRemembered = (key: string) => {
+    if (!remembered.has(key)) return;
+    const next = new Map(remembered);
+    next.delete(key);
+    updateRemembered(next);
+  };
+  const addToRemembered = (key: string, binding: ModelBinding) => {
+    if (remembered.get(key) === binding) return;
+    const next = new Map(remembered);
+    next.set(key, binding);
+    updateRemembered(next);
+  };
   const [modelQuery, setModelQuery] = useState("");
   const [chosenQuery, setChosenQuery] = useState("");
   const [customModelId, setCustomModelId] = useState("");
@@ -423,12 +456,7 @@ export function ModelSelectionPanes({
     if (checked) {
       const restored = remembered.get(key);
       const binding = restored ?? bindingForRow(row);
-      setRemembered((current) => {
-        if (!current.has(key)) return current;
-        const next = new Map(current);
-        next.delete(key);
-        return next;
-      });
+      removeFromRemembered(key);
       setModels((current) =>
         current.some((entry) => entry.id.toLowerCase() === key)
           ? current
@@ -440,12 +468,7 @@ export function ModelSelectionPanes({
     }
     const existing = models.find((entry) => entry.id.toLowerCase() === key);
     if (existing) {
-      setRemembered((current) => {
-        if (current.get(key) === existing) return current;
-        const next = new Map(current);
-        next.set(key, existing);
-        return next;
-      });
+      addToRemembered(key, existing);
     }
     setModels((current) => current.filter((entry) => entry.id.toLowerCase() !== key));
   };
@@ -458,12 +481,7 @@ export function ModelSelectionPanes({
    */
   const deleteModel = (binding: ModelBinding) => {
     const key = binding.id.toLowerCase();
-    setRemembered((current) => {
-      if (!current.has(key)) return current;
-      const next = new Map(current);
-      next.delete(key);
-      return next;
-    });
+    removeFromRemembered(key);
     setModels((current) => current.filter((entry) => entry.id.toLowerCase() !== key));
     if (hiddenSet.has(key)) return;
     onHiddenModelsChange?.([...(hiddenModels ?? []), binding.id]);

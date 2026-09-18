@@ -4381,3 +4381,14 @@ D440 收到用户反馈：左列表没有办法取消勾选模型，右侧「移
   与 `provider-model-config.test.mjs`。
 
 同日勘误（用户反馈）：在 fallback 发现（探测失败或返回为空）以及完全没有发现来源的手动添加模型下，左列表完全由已配置绑定构成，取消勾选直接把行删掉了，全选也无法恢复——切换悄悄变成了它本要替代的删除。现在记住的（已取消勾选）绑定会在每种发现模式下合并回显示行，行在所有模式下都保留为未勾选状态；全选与行激活会按保存的参数重新加回，而不是目录默认值。
+
+## 2026-09-18 —— 取消勾选的模型绑定随提供商记录持久化（D442）
+
+D441 收到用户反馈：全选像是失效了。被记住的（已取消勾选）绑定只存在于组件状态中，因此保存重开后——或对在 v0.14.29 里已从 fallback 列表掉出的模型——取消勾选的模型在左面板里根本不存在。剩余的可见行全是已选状态，头部于是渲染成全勾选；点击它得到 `checked === false`，被只加不删契约（D440）当作空操作。头部复选框只会永远同意用户，无法恢复任何东西。
+
+现在记住的集合随提供商记录持久化为新的附加字段 `disabledModels: ModelBinding[]`，端到端复刻已验证的 `hiddenModels` 管线（host-core catalog + model + repository → shared `ProviderPublic` / `ProviderCreateInput` / `ProviderUpdateInput` → `ModelSelectionPanes` → 两个选择器对话框）。它携带完整绑定，因此重新勾选恢复的是确切的别名、上限与思考等级，而非目录默认值。选择器在挂载时从 `provider.disabledModels` 初始化记住的映射，并通过 `onDisabledModelsChange` 上报每一次变更，两个对话框都把它写进 create/update 载荷（`Some` 替换、`None` 不变——无需迁移）。取消勾选加入集合，重新勾选或选中将其移出，真删除（`hiddenModels`）丢弃它。取消勾选的行因此能在保存重开后保留，全选或行点击会按保存的参数重新加回。
+- 见 `04-ux/08-component-spec.md` §19.4/§19.5、
+  `06-delivery/04-e2e-test-plan.md` 的
+  E2E-PROVIDER-row-toggle-and-hidden-delete；
+  源码契约覆盖见 `provider-model-selection-safe.test.mjs`
+  与 `provider-model-config.test.mjs`。

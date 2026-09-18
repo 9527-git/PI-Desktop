@@ -32,6 +32,12 @@ export type ProviderPublic = {
    * still advertises does not reappear after it was deliberately deleted.
    */
   hiddenModels?: string[];
+  /**
+   * Bindings unchecked in the picker. Unchecking removes a binding from
+   * `models` but keeps the row listed (unchecked) across editing sessions, so
+   * re-checking or select-all restores the stored parameters.
+   */
+  disabledModels?: ModelBinding[];
   /** @deprecated Use `models[0]?.id`; retained for older runtime consumers. */
   defaultModelId?: string;
   apiStyle?: string;
@@ -64,6 +70,12 @@ export type ProviderCreateInput = {
    * stored set unchanged.
    */
   hiddenModels?: string[];
+  /**
+   * Bindings unchecked in the picker. On update the field is replaced when
+   * present (an empty array clears it); omitting it leaves the stored set
+   * unchanged.
+   */
+  disabledModels?: ModelBinding[];
   /** @deprecated Use `models[0]?.id`; retained for older callers. */
   defaultModelId?: string;
   secretValue?: string;
