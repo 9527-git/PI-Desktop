@@ -249,19 +249,25 @@ token rather than introducing a decorative palette:
 
 | State | Semantic color | Shape / motion | Meaning |
 |---|---|---|---|
+| Needs input | purple | filled dot with a restrained pulse | a permission request, asktool question, or Plan/Goal approval awaits the user |
 | Selected | neutral accent | static outlined ring | current conversation |
 | In progress | warning orange | filled dot with a restrained breathing pulse | agent is producing or executing |
 | Completed | success green | check mark | latest unread task turn completed |
 | Failed | error red | circled alert mark | latest unread task turn failed |
 
-Precedence is `in progress → selected → completed/failed`. Starting another
-turn clears the prior terminal outcome; abort clears the live indicator without
-creating a failure. Opening a conversation acknowledges its unread terminal
-outcome: the terminal mark clears immediately and the matching durable task
-notification is marked read so the mark cannot return after a notification
-refresh or app restart. Outcomes already marked read never produce a terminal
-mark. Reduced-motion mode disables the breathing animation while retaining its
-orange fill and localized accessible name.
+Precedence is `needs input → in progress → selected → completed/failed`. The
+needs-input dot is the union of every human-intervention source on the session
+(D444): a non-empty permission queue, a non-empty asktool queue, or a pending
+Plan/Goal approval. It outranks in-progress, because a blocked agent needs the
+user while a running agent only needs time; the state id and class stay
+`permission` for CSS stability. Starting another turn clears the prior terminal
+outcome; abort clears the live indicator without creating a failure. Opening a
+conversation acknowledges its unread terminal outcome: the terminal mark clears
+immediately and the matching durable task notification is marked read so the
+mark cannot return after a notification refresh or app restart. Outcomes already
+marked read never produce a terminal mark. Reduced-motion mode disables the
+breathing and pulse animations while retaining each dot's fill and localized
+accessible name (`nav.sessionNeedsInput` for the needs-input state).
 
 ### 4.6 Chat transcript status semantics
 
@@ -1180,7 +1186,7 @@ Full component contract and usage rules: [08-component-spec.md §17](08-componen
 
 ### 12.3 Streaming indicator
 
-- Running agent: transcript working feedback + subtle pulse on the left border of the latest assistant message; the conversation topbar carries the labeled D433 status chip (`● 处理中` / `● 待确认`) instead of a bare duplicate status dot
+- Running agent: transcript working feedback + subtle pulse on the left border of the latest assistant message; per-session run/needs-input state lives on the sidebar session row dot (D444), so the conversation topbar remains free of a duplicate status indicator
 - Completed: spinner replaced by success icon for 2s, then fades
 - Error: spinner replaced by error icon, persistent until dismissed
 

@@ -50,12 +50,13 @@ export type CaptureRigMethods = {
     completed: string;
     failed: string;
   } | null;
-  seedTopbarStatus: (state?: {
-    running?: boolean;
-    permission?: boolean;
-    ask?: boolean;
-    plan?: boolean;
-  }) => { sessionId: string } | null;
+  seedSidebarInterventions: () => {
+    selected: string;
+    running: string;
+    permission: string;
+    ask: string;
+    plan: string;
+  } | null;
   ensureVisualFixtures: () => Promise<void>;
 };
 
@@ -1105,65 +1106,70 @@ export function installCaptureRig(): CaptureRig {
         failed: failed.id,
       };
     },
-    seedTopbarStatus: (state = {}) => {
+    seedSidebarInterventions: () => {
       if (!window.__PI_CAPTURE__) return null;
-      const app = useAppStore.getState();
-      const sessionId = app.activeSessionId ?? app.sessions[0]?.id;
-      if (!sessionId) return null;
+      const sessions = useAppStore.getState().sessions.slice(0, 5);
+      if (sessions.length < 5) return null;
+      const [selected, running, permission, ask, plan] = sessions;
       const now = Date.now();
+      // One row per needs-input source so the E2E can assert the D444 union
+      // renders identically for permission, ask, and Plan/Goal approval, plus
+      // the running and selected baselines.
       useAppStore.setState({
         page: "chat",
-        activeSessionId: sessionId,
-        runningSessions: state.running ? { [sessionId]: true } : {},
-        pendingPermissions: state.permission
-          ? {
-              [sessionId]: [
-                {
-                  requestId: "capture-permission-1",
-                  sessionId,
-                  toolCallId: "capture-tool-call-1",
-                  toolName: "Bash",
-                  argsPreview: { command: "git status" },
-                  risk: "medium",
-                  reason: "capture fixture",
-                  receivedAt: now,
-                },
-              ],
-            }
-          : {},
-        pendingAsks: state.ask
-          ? {
-              [sessionId]: [
-                {
-                  requestId: "capture-ask-1",
-                  sessionId,
-                  toolCallId: "capture-tool-call-2",
-                  questions: [{ question: "Continue?", options: ["Yes", "No"] }],
-                },
-              ],
-            }
-          : {},
-        pendingPlans: state.plan
-          ? {
-              [sessionId]: {
-                id: "capture-plan-1",
-                sessionId,
-                turnId: "capture-turn-1",
-                toolCallId: "capture-tool-call-3",
-                kind: "plan" as const,
-                title: "Capture plan",
-                markdown: "# Capture plan",
-                plan: "# Capture plan",
-                question: "Approve this plan?",
-                version: 1,
-                status: "pending" as const,
-                createdAt: new Date(now).toISOString(),
-                updatedAt: new Date(now).toISOString(),
-              },
-            }
-          : {},
+        activeSessionId: selected.id,
+        isRunning: false,
+        runningSessions: { [running.id]: true },
+        sessionOutcomes: {},
+        pendingPermissions: {
+          [permission.id]: [
+            {
+              requestId: "capture-permission-1",
+              sessionId: permission.id,
+              toolCallId: "capture-tool-call-1",
+              toolName: "Bash",
+              argsPreview: { command: "git status" },
+              risk: "medium",
+              reason: "capture fixture",
+              receivedAt: now,
+            },
+          ],
+        },
+        pendingAsks: {
+          [ask.id]: [
+            {
+              requestId: "capture-ask-1",
+              sessionId: ask.id,
+              toolCallId: "capture-tool-call-2",
+              questions: [{ question: "Continue?", options: ["Yes", "No"] }],
+            },
+          ],
+        },
+        pendingPlans: {
+          [plan.id]: {
+            id: "capture-plan-1",
+            sessionId: plan.id,
+            turnId: "capture-turn-1",
+            toolCallId: "capture-tool-call-3",
+            kind: "plan" as const,
+            title: "Capture plan",
+            markdown: "# Capture plan",
+            plan: "# Capture plan",
+            question: "Approve this plan?",
+            version: 1,
+            status: "pending" as const,
+            createdAt: new Date(now).toISOString(),
+            updatedAt: new Date(now).toISOString(),
+          },
+        },
       });
-      return { sessionId };
+      return {
+        selected: selected.id,
+        running: running.id,
+        permission: permission.id,
+        ask: ask.id,
+        plan: plan.id,
+      };
     },
     ensureVisualFixtures: async () => {
       // Destructive fixture seeding is capture-rig only; the rig sets

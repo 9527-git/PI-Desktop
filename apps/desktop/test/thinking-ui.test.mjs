@@ -108,16 +108,18 @@ test("conversation topbar keeps the title and actions free of a duplicate runnin
   assert.doesNotMatch(topbarSource, /className="ct-project"/);
   assert.doesNotMatch(topbarSource, /className="ct-title-chevron"/);
   assert.match(topbarSource, /className="ct-title"/);
-  // D433 replaces the removed bare dot with the ct-status-* chip; the old
-  // ct-running shape must not come back alongside it, and the topbar still
-  // reports no run state beyond the title-cluster chip.
-  assert.doesNotMatch(topbarSource, /ct-running(?:-dot)?\b/);
+  // D444 moves run/needs-input feedback entirely to the sidebar session rows;
+  // the topbar carries no status dot, chip, or live region of its own.
+  assert.doesNotMatch(
+    topbarSource,
+    /runningSessions|const isRunning|ct-running|ct-status|role="status"/,
+  );
   assert.match(stylesSource, /\.conversation-topbar \.ct-title-wrap[\s\S]*?align-items: center/);
   assert.match(
     stylesSource,
     /\.conversation-topbar \.ct-title[\s\S]*?font-size: var\(--text-base\)/,
   );
-  assert.doesNotMatch(stylesSource, /\.conversation-topbar \.ct-running(?:-dot)?\b/);
+  assert.doesNotMatch(stylesSource, /\.conversation-topbar \.ct-(?:running|status)/);
 });
 
 test("model menus do not expose desktop-owned reasoning overrides", () => {

@@ -834,9 +834,8 @@ and identify the platform validation still needed.
   concrete thinking/tool/answer feedback, or identifies a runtime-reported
   model wait/retry when no transcript row can explain the delay. It disappears
   when the turn ends.
-  While that turn runs, the conversation topbar shows its `● 处理中` status chip
-  left of the task title, and clears it when the turn ends
-  (E2E-CHAT-topbar-status-chip).
+  While that turn runs, the session's sidebar row shows its orange breathing
+  dot, and clears it when the turn ends (E2E-SIDEBAR-status-dot-pending-union).
 - **Specs linked**: `03-runtime/02-agent-runtime.md`, `03-runtime/10-session-state-machine.md`
 - **Acceptance**: C (new session, send message)
 - **Milestone**: M2
@@ -1571,8 +1570,9 @@ and identify the platform validation still needed.
 - **Expected**: Every route-owned top region uses the same `--ds-toolbar-height`
   (46px), bg-primary surface, and bottom border; Windows/Linux reserve the
   same 120px native-control band at the right. On the chat route the
-  conversation top bar renders with its title cluster — the task title plus the
-  §2 status chip — and actions only; it has no model
+  conversation top bar renders with its title cluster — the task title and no
+  per-session status indicator (D444 moved run/needs-input state to the sidebar
+  row dot) — and actions only; it has no model
   or Agent|Plan|Goal mode control. The
   left-of-input Composer chip owns the active session's Agent/Plan/Goal switch,
   and the Composer-right combined chip owns model and reasoning selection. The
@@ -1591,33 +1591,33 @@ and identify the platform validation still needed.
 - **Milestone**: M2
 - **Status**: Draft
 
-#### E2E-CHAT-topbar-status-chip: The topbar chip tracks run state and human-intervention state
+#### E2E-SIDEBAR-status-dot-pending-union: The sidebar row dot tracks run state and the human-intervention union
 
-- **Preconditions**: PI-Desktop is open on a chat session with at least one
-  turn already recorded, and a built app plus a host-core binary are available
-  (the CDP runner supplies its own throwaway profile).
-- **Steps**: 1) With the session idle, inspect the top bar left of the task
-  title. 2) Start a turn (seed `running`) and inspect the same spot. 3) Queue a
-  permission request while the turn is still running and inspect it again.
-  4) Clear the run state and queue only an asktool question; then only a pending
-  Plan/Goal approval. 5) Resolve everything and inspect the bar once more.
-  6) Repeat the running and the pending state in light and dark themes.
-- **Expected**: The chip renders immediately left of the title inside the title
-  cluster and takes its width from the title lane, so the title slides instead
-  of jumping. `处理中` shows an orange breathing dot (`--ds-warning`, 1.6s) and
-  `待确认` a purple pulsing dot (`--ds-purple`, 1.2s); pending outranks running
-  regardless of which human-intervention source is pending. The chip is not a
-  control: it has no button/link/tabstop and does not break the draggable
-  title band, and it clears completely when the session is idle. With
-  `prefers-reduced-motion: reduce` both the dot animation and the slot
-  transition are off. No IPC, host, or persisted state is touched.
-- **Specs linked**: `04-ux/08-component-spec.md` §2
+- **Preconditions**: PI-Desktop is open with at least five sessions, and a built
+  app plus a host-core binary are available (the CDP runner supplies its own
+  throwaway profile and seeds the rows through the capture rig).
+- **Steps**: 1) Seed one row per state — selected, running, permission, ask,
+  Plan/Goal approval. 2) Inspect each row's leading status dot. 3) Repeat the
+  running and needs-input rows in light and dark themes. 4) Re-inspect under
+  `prefers-reduced-motion: reduce`, then after clearing it. 5) Confirm the
+  conversation topbar carries no status slot or chip.
+- **Expected**: The running row shows an orange breathing dot (`--ds-warning`,
+  `sidebar-status-breathe`). The permission, ask, and Plan/Goal rows all render
+  the SAME needs-input dot — class `permission`, purple (`--ds-purple`,
+  `sidebar-status-pulse-purple`) — proving the D444 union, and share one
+  accessible label (`nav.sessionNeedsInput`) distinct from the running label.
+  The needs-input dot outranks running. The selected row keeps its static accent
+  ring. Both themes resolve each dot to their own warning/purple token. With
+  `prefers-reduced-motion: reduce` every dot animation is off, and clearing the
+  preference restores them. The conversation topbar has no `.ct-status-slot` or
+  `.ct-status-chip`. No IPC, host, or persisted state is touched.
+- **Specs linked**: `04-ux/07-ui-design-system.md` §4.5, `04-ux/08-component-spec.md` §2/§3
 - **Acceptance**: Quality
 - **Milestone**: Post-M6 desktop shell maintenance
-- **Status**: Automated (`scripts/e2e-topbar-status-chip.mjs` via
-  `pnpm test:e2e:topbar-status` — chip state, priority, dot/animation, position,
-  reduced-motion, and both-theme probes); unit coverage in
-  `topbar-status-chip.test.mjs`
+- **Status**: Automated (`scripts/e2e-sidebar-status-dot.mjs` via
+  `pnpm test:e2e:sidebar-status` — per-row dot state, union parity, label,
+  priority, both-theme tokens, reduced-motion, and the topbar-absence probe);
+  unit coverage in `sidebar-session-status.test.mjs`
 
 #### E2E-CHAT-turn-usage-and-timestamps: Completed replies show per-turn token usage and message times
 
@@ -7323,7 +7323,7 @@ and identify the platform validation still needed.
 | B / F / Security — Provider copy | E2E-PROVIDER-copy-config-without-credentials |
 | A — App startup | E2E-001, E2E-002, E2E-003, E2E-004, E2E-067, E2E-076, E2E-079, E2E-092, E2E-097, E2E-143, E2E-150, E2E-168, E2E-204 |
 | B — Model config | E2E-005, E2E-006, E2E-007, E2E-038, E2E-050, E2E-052, E2E-055, E2E-066, E2E-080, E2E-082, E2E-102c, E2E-102d, E2E-102e, E2E-151, E2E-154, E2E-163, E2E-166, E2E-172, E2E-174, E2E-197, E2E-005G, E2E-005J, E2E-199, E2E-201, E2E-202, E2E-203, E2E-205, E2E-206, E2E-209 |
-| C — Conversation & stream | E2E-008, E2E-008d, E2E-008a, E2E-009, E2E-010, E2E-011, E2E-011a, E2E-011b, E2E-011d, E2E-011e, E2E-011g, E2E-031, E2E-040, E2E-047, E2E-048, E2E-048A, E2E-049, E2E-052, E2E-053, E2E-054, E2E-055, E2E-059, E2E-059a, E2E-060c, E2E-060d, E2E-061, E2E-061a, E2E-062, E2E-064, E2E-065, E2E-068, E2E-071, E2E-073, E2E-074, E2E-075, E2E-081, E2E-083, E2E-084, E2E-086, E2E-087, E2E-088, E2E-088b, E2E-089, E2E-090, E2E-094, E2E-095, E2E-096, E2E-097, E2E-098, E2E-099, E2E-102, E2E-102a, E2E-102b, E2E-102c, E2E-102d, E2E-102g, E2E-106, E2E-109, E2E-111, E2E-114, E2E-116, E2E-117, E2E-118, E2E-119, E2E-120, E2E-121, E2E-218, E2E-219, E2E-AGENTS-001, E2E-142, E2E-144, E2E-145, E2E-146, E2E-146a, E2E-147, E2E-151, E2E-154, E2E-155, E2E-158, E2E-159, E2E-161, E2E-162, E2E-166, E2E-172, E2E-173, E2E-174, E2E-177, E2E-178, E2E-179, E2E-180, E2E-182, E2E-183, E2E-187, E2E-198, E2E-199, E2E-202, E2E-203, E2E-207, E2E-208, E2E-250, E2E-102i, E2E-PLUGIN-session-orchestrator-real-workers, E2E-SUBAGENT-settlement-updates-before-parent-poll, E2E-CHAT-quote-prefill, E2E-CHAT-side-chat-fork, E2E-CHAT-side-chat-stream, E2E-CHAT-side-chat-add-to-main, E2E-CHAT-side-chat-promote, E2E-CHAT-side-chat-close, E2E-CHAT-selection-markdown, E2E-CHAT-selection-side-chat, E2E-CHAT-annotation-attachments, E2E-CHAT-annotation-session-state, E2E-CHAT-annotation-source-index, E2E-CHAT-annotation-ack-and-steering, E2E-CHAT-fullscreen-widens-reading-band, E2E-CHAT-topbar-status-chip, E2E-CHAT-turn-usage-and-timestamps |
+| C — Conversation & stream | E2E-008, E2E-008d, E2E-008a, E2E-009, E2E-010, E2E-011, E2E-011a, E2E-011b, E2E-011d, E2E-011e, E2E-011g, E2E-031, E2E-040, E2E-047, E2E-048, E2E-048A, E2E-049, E2E-052, E2E-053, E2E-054, E2E-055, E2E-059, E2E-059a, E2E-060c, E2E-060d, E2E-061, E2E-061a, E2E-062, E2E-064, E2E-065, E2E-068, E2E-071, E2E-073, E2E-074, E2E-075, E2E-081, E2E-083, E2E-084, E2E-086, E2E-087, E2E-088, E2E-088b, E2E-089, E2E-090, E2E-094, E2E-095, E2E-096, E2E-097, E2E-098, E2E-099, E2E-102, E2E-102a, E2E-102b, E2E-102c, E2E-102d, E2E-102g, E2E-106, E2E-109, E2E-111, E2E-114, E2E-116, E2E-117, E2E-118, E2E-119, E2E-120, E2E-121, E2E-218, E2E-219, E2E-AGENTS-001, E2E-142, E2E-144, E2E-145, E2E-146, E2E-146a, E2E-147, E2E-151, E2E-154, E2E-155, E2E-158, E2E-159, E2E-161, E2E-162, E2E-166, E2E-172, E2E-173, E2E-174, E2E-177, E2E-178, E2E-179, E2E-180, E2E-182, E2E-183, E2E-187, E2E-198, E2E-199, E2E-202, E2E-203, E2E-207, E2E-208, E2E-250, E2E-102i, E2E-PLUGIN-session-orchestrator-real-workers, E2E-SUBAGENT-settlement-updates-before-parent-poll, E2E-CHAT-quote-prefill, E2E-CHAT-side-chat-fork, E2E-CHAT-side-chat-stream, E2E-CHAT-side-chat-add-to-main, E2E-CHAT-side-chat-promote, E2E-CHAT-side-chat-close, E2E-CHAT-selection-markdown, E2E-CHAT-selection-side-chat, E2E-CHAT-annotation-attachments, E2E-CHAT-annotation-session-state, E2E-CHAT-annotation-source-index, E2E-CHAT-annotation-ack-and-steering, E2E-CHAT-fullscreen-widens-reading-band, E2E-SIDEBAR-status-dot-pending-union, E2E-CHAT-turn-usage-and-timestamps |
 | D — Workspace | E2E-012, E2E-013, E2E-022B, E2E-024I, E2E-047, E2E-049, E2E-057, E2E-058, E2E-060, E2E-068, E2E-075, E2E-078, E2E-153, E2E-158, E2E-182, E2E-187, E2E-252, E2E-WORKPANEL-open-dock-draws-chat-column-seam |
 | D — Workspace (project ordering) | E2E-253 |
 | E — Tools & permissions | E2E-008a, E2E-014, E2E-015, E2E-016, E2E-017, E2E-018, E2E-019, E2E-024I, E2E-024K, E2E-040, E2E-049, E2E-074, E2E-093, E2E-097, E2E-099, E2E-100, E2E-101, E2E-102, E2E-102d, E2E-102e, E2E-102g, E2E-103, E2E-105, E2E-106, E2E-107, E2E-111, E2E-112, E2E-113, E2E-114, E2E-115, E2E-116, E2E-119, E2E-121, E2E-122, E2E-142, E2E-145, E2E-147, E2E-155, E2E-158, E2E-166, E2E-181, E2E-PLUGIN-imported-pi-package-skills, E2E-CHAT-side-chat-stream |

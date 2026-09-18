@@ -29,7 +29,7 @@
     "test:e2e:provider-model-selection": "node scripts/e2e-provider-model-selection.mjs",
     "test:e2e:boot": "node scripts/e2e-electron-boot.mjs",
     "test:e2e:layout": "node scripts/e2e-three-column-layout.mjs",
-    "test:e2e:topbar-status": "node scripts/e2e-topbar-status-chip.mjs",
+    "test:e2e:sidebar-status": "node scripts/e2e-sidebar-status-dot.mjs",
     "test:e2e:turn-usage-meta": "node scripts/e2e-turn-usage-meta.mjs",
     "test:e2e:inspector-compact": "node scripts/e2e-context-inspector-compact.mjs",
     "test:e2e:supervision": "node scripts/e2e-supervision.mjs",

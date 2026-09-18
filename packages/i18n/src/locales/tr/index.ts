@@ -170,6 +170,7 @@ export const tr = {
     sessionSelected: "Seçili",
     sessionCompleted: "Bitti",
     sessionFailed: "İlgi gerekiyor",
+    sessionNeedsInput: "Girdi bekliyor",
     sortSessions: "Projeleri ve sohbetleri sırala",
     sortRecent: "Son güncellenenler",
     sortOldest: "Eskiden yeniye",
@@ -547,8 +548,6 @@ export const tr = {
     thinkingUnavailable: "Bu model için düşünme yok.",
     thinkingEnable: "Düşünmeyi aç",
     untitledTask: "Yeni görev",
-    topbarStatusRunning: "Çalışıyor",
-    topbarStatusPending: "Girdi bekliyor",
   },
   sideChat: {
     readOnly: "Bu yerel Pi oturumu şu anda salt okunur.",

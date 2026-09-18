@@ -37,13 +37,21 @@ export function sidebarSessionStatus({
   selected,
   outcome,
   hasPendingPermission,
+  hasPendingAsk,
+  hasPendingPlan,
 }: {
   running: boolean;
   selected: boolean;
   outcome?: "completed" | "failed";
   hasPendingPermission?: boolean;
+  hasPendingAsk?: boolean;
+  hasPendingPlan?: boolean;
 }): SidebarSessionStatus | null {
-  if (hasPendingPermission) return "permission";
+  // "permission" is the stable id/class for the needs-input state (D135); D444
+  // widens its predicate to the union of every intervention that blocks the
+  // agent on a human: a permission prompt, a free-form ask, or a Plan/Goal
+  // approval. The dot pulses purple until the user acts.
+  if (hasPendingPermission || hasPendingAsk || hasPendingPlan) return "permission";
   if (running) return "running";
   if (selected) return "selected";
   return outcome ?? null;

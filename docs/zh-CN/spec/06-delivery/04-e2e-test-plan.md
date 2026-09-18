@@ -628,13 +628,14 @@ unit/integration 测试；代码 pull request 使用有选择且高价值的 E2E
 侧边栏切换**仅在侧边栏折叠时出现**（展开时，
   侧边栏拥有该控件）。 4）切换到Pull requests，Scheduled，
   插件或设置路由并检查同一顶部区域。
-- **预期**：在聊天路径上，对话顶部栏仅显示标题簇（任务标题与状态胶囊）和操作；
+- **预期**：在聊天路径上，对话顶部栏仅显示标题簇（任务标题，不含按会话的
+  状态指示器——D444 已将运行/待确认状态移到侧边栏行圆点）和操作；
   它没有模型或 Agent|Plan|Goal 模式控制。左侧输入 Composer 芯片拥有
   活动会话的 Agent/Plan/Goal 开关，Composer 右侧组合芯片拥有模型和推理选择。的
   任务标题是唯一可见的标题文本，最多 10 个字符
   带有省略号；项目范围可通过其工具提示获得。活动会话运行中时，
-  标题左侧显示 `● 处理中` 状态胶囊，等待人工决定时显示 `● 待确认`，
-  空闲时隐藏（E2E-CHAT-topbar-status-chip）。侧边栏
+  其侧边栏行显示橙色呼吸圆点，回合结束时清除
+  （E2E-SIDEBAR-status-dot-pending-union）。侧边栏
   切换仅在折叠状态下存在（没有
   侧边栏控件的重复）。在所有其他路线上均采用无框拖曳
   band 会改为渲染（没有顶栏控件）。该栏可拖动以移动
@@ -647,28 +648,30 @@ unit/integration 测试；代码 pull request 使用有选择且高价值的 E2E
 - **里程碑**：M2
 - **状态**：草案
 
-#### E2E-CHAT-topbar-status-chip：顶部栏胶囊反映运行与人工介入状态
+#### E2E-SIDEBAR-status-dot-pending-union：侧边栏行圆点反映运行状态与人工介入并集
 
-- **先决条件**：PI-Desktop 打开在一个已至少有一轮记录的聊天会话上，且已有
-  构建好的应用与 host-core 二进制（CDP 运行器自带一次性配置）。
-- **步骤**：1) 会话空闲时，检查任务标题左侧的顶部栏。2) 开始一个回合
-  （植入 `running`）并检查同一位置。3) 回合仍在运行时排队一个权限请求，
-  再次检查。4) 清除运行状态，只排队一个 ask 工具提问；再只留一个待批准的
-  Plan/Goal。5) 全部解决后再次检查。6) 在明暗两种主题下重复运行中与待确认
-  两种状态。
-- **预期**：胶囊紧贴标题左侧、位于标题簇内，并从标题赛道获取宽度，因此标题
-  是滑动而不是跳变。`处理中` 显示橙色呼吸圆点（`--ds-warning`，1.6s），
-  `待确认` 显示紫色脉冲圆点（`--ds-purple`，1.2s）；无论哪一种人工介入来源
-  待处理，`待确认` 都优先于 `处理中`。胶囊不是控件：没有按钮/链接/Tab 焦点，
-  不破坏可拖拽的标题带，会话空闲时完全消失。在
-  `prefers-reduced-motion: reduce` 下，圆点动画与槽位过渡都被禁用。
-  不触碰任何 IPC、Host 或持久化状态。
-- **链接规格**：`04-ux/08-component-spec.md` §2
+- **先决条件**：PI-Desktop 打开且至少有五个会话，已有构建好的应用与
+  host-core 二进制（CDP 运行器自带一次性配置，并通过捕获装置植入各行）。
+- **步骤**：1) 每种状态各种植一行——选中、运行中、权限、ask、Plan/Goal 审批。
+  2) 检查每行前导状态圆点。3) 在明暗两种主题下重复运行中与待确认两行。
+  4) 在 `prefers-reduced-motion: reduce` 下重新检查，再清除该偏好后检查。
+  5) 确认对话顶部栏不含状态槽或胶囊。
+- **预期**：运行中行显示橙色呼吸圆点（`--ds-warning`，
+  `sidebar-status-breathe`）。权限、ask 与 Plan/Goal 三行都渲染同一个待确认
+  圆点——class `permission`、紫色（`--ds-purple`，`sidebar-status-pulse-purple`）
+  ——以此证明 D444 的并集，且共享同一个可访问名称（`nav.sessionNeedsInput`），
+  与运行中名称不同。待确认圆点优先于运行中。选中行保持静态的强调环。
+  两种主题各自把圆点解析为自身的 warning/purple 令牌。在
+  `prefers-reduced-motion: reduce` 下所有圆点动画关闭，清除该偏好后恢复。
+  对话顶部栏没有 `.ct-status-slot` 或 `.ct-status-chip`。不触碰任何 IPC、
+  Host 或持久化状态。
+- **链接规格**：`04-ux/07-ui-design-system.md` §4.5、`04-ux/08-component-spec.md` §2/§3
 - **验收**：质量
 - **里程碑**：M6 后桌面外壳维护
-- **状态**：自动化（`scripts/e2e-topbar-status-chip.mjs`，经
-  `pnpm test:e2e:topbar-status` —— 状态、优先级、圆点动画、位置、
-  减少动效与明暗主题探针）；单元覆盖见 `topbar-status-chip.test.mjs`
+- **状态**：自动化（`scripts/e2e-sidebar-status-dot.mjs`，经
+  `pnpm test:e2e:sidebar-status` —— 逐行圆点状态、并集一致性、名称、优先级、
+  明暗主题令牌、减少动效，以及顶部栏缺失探针）；单元覆盖见
+  `sidebar-session-status.test.mjs`
 
 #### E2E-CHAT-turn-usage-and-timestamps：完成的回复显示本轮 token 用量与消息时间
 

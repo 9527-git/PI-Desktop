@@ -66,6 +66,30 @@ test("prioritizes in-progress and selected states over terminal outcomes", () =>
   assert.equal(sidebarSessionStatus({ running: false, selected: false }), null);
 });
 
+test("any pending intervention raises the needs-input dot above run state", () => {
+  // D444: permission ∪ ask ∪ Plan/Goal approval all map to the "permission"
+  // state id, and the union outranks running so a blocked agent still reads as
+  // waiting on the human rather than merely working.
+  for (const intervention of [
+    { hasPendingPermission: true },
+    { hasPendingAsk: true },
+    { hasPendingPlan: true },
+  ]) {
+    assert.equal(
+      sidebarSessionStatus({ running: true, selected: true, ...intervention }),
+      "permission",
+    );
+    assert.equal(
+      sidebarSessionStatus({ running: false, selected: false, ...intervention }),
+      "permission",
+    );
+  }
+  assert.equal(
+    sidebarSessionStatus({ running: true, selected: false }),
+    "running",
+  );
+});
+
 test("opening a conversation acknowledges its outcome badge", () => {
   const sessionSource = readStoreModuleSync("slices/session-slice.ts");
   const catalogSource = readStoreModuleSync("slices/catalog-slice.ts");
@@ -95,13 +119,24 @@ test("renders semantic, shape-distinct sidebar status indicators", () => {
 
   assert.match(sidebar, /sessionSelected[\s\S]*sessionCompleted[\s\S]*sessionFailed/);
   assert.match(sidebar, /IconCheck[\s\S]*IconCircleAlert/);
+  // D444: the needs-input dot is the union of permission ∪ ask ∪ Plan/Goal
+  // approval, and its aria/title label uses nav.sessionNeedsInput.
+  assert.match(sidebar, /hasPendingAsk[\s\S]*hasPendingPlan/);
+  assert.match(sidebar, /pendingAsks\[session\.id\][\s\S]*pendingPlans\[session\.id\]/);
+  assert.match(sidebar, /nav\.sessionNeedsInput/);
+  assert.doesNotMatch(sidebar, /nav\.sessionPermission/);
   assert.match(styles, /thread-item-status\.running::before[\s\S]*--ds-warning/);
+  assert.match(styles, /thread-item-status\.permission::before[\s\S]*--ds-purple/);
   assert.match(styles, /thread-item-status\.selected::before[\s\S]*--ds-accent/);
   assert.match(styles, /thread-item-status\.completed[\s\S]*--ds-success/);
   assert.match(styles, /thread-item-status\.failed[\s\S]*--ds-error/);
   assert.match(
     styles,
     /prefers-reduced-motion: reduce[\s\S]*thread-item-status\.running::before[\s\S]*animation: none/,
+  );
+  assert.match(
+    styles,
+    /prefers-reduced-motion: reduce[\s\S]*thread-item-status\.permission::before[\s\S]*animation: none/,
   );
   assert.match(
     app,

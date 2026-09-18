@@ -170,6 +170,7 @@ export const ko = {
     sessionSelected: "선택됨",
     sessionCompleted: "완료",
     sessionFailed: "확인 필요",
+    sessionNeedsInput: "입력 필요",
     sortSessions: "프로젝트와 채팅 정렬",
     sortRecent: "최근 업데이트순",
     sortOldest: "오래된 순",
@@ -546,8 +547,6 @@ export const ko = {
     thinkingUnavailable: "이 모델에서는 생각 기능을 사용할 수 없습니다.",
     thinkingEnable: "생각 기능 켜기",
     untitledTask: "새 작업",
-    topbarStatusRunning: "처리 중",
-    topbarStatusPending: "입력 필요",
   },
   sideChat: {
     readOnly: "이 네이티브 Pi 세션은 현재 읽기 전용입니다.",
