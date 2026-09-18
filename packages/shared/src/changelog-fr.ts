@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.36",
+    "date": "2026-09-18",
+    "highlights": [
+      "La pastille d'état ne partage plus la voie des titres : chaque ligne réserve la même colonne d'état en tête, donc tous les titres démarrent au même bord et une pastille ne les serre plus jamais.",
+      "Dans cette colonne, la pastille garde toujours le point et son mot d'état ensemble, désormais dans une forme courte qui tient dans chaque langue ; survolez le point pour la phrase complète.",
+    ],
+  },
+  {
     "version": "0.14.35",
     "date": "2026-09-18",
     "highlights": [

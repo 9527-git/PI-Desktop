@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.36",
+    "date": "2026-09-18",
+    "highlights": [
+      "La píldora de estado ya no comparte carril con los títulos: cada fila reserva la misma columna de estado al inicio, así que todos los títulos empiezan en un mismo borde y la píldora nunca los aprieta.",
+      "Dentro de esa columna la píldora sigue reuniendo el punto y su palabra de estado, ahora en una forma breve que cabe en cada idioma; pasa el cursor sobre el punto para leer la frase completa.",
+    ],
+  },
+  {
     "version": "0.14.35",
     "date": "2026-09-18",
     "highlights": [

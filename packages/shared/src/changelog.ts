@@ -29,6 +29,14 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.36",
+    date: "2026-09-18",
+    highlights: [
+      "The session status pill no longer shares a lane with your titles: every row reserves the same leading status column, so all titles start at one left edge and a pill can never squeeze them.",
+      "Inside that column the pill still keeps its dot and its status word together, now in a short form that fits in every language - hover the dot for the full wording.",
+    ],
+  },
+  {
     version: "0.14.35",
     date: "2026-09-18",
     highlights: [
@@ -914,6 +922,14 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.36",
+    date: "2026-09-18",
+    highlights: [
+      "状态胶囊不再和会话标题抢位置：每一行都预留同一条前导状态列，所有标题从同一条左边缘开始，胶囊再也挤不到标题。",
+      "胶囊里仍然是「点 + 状态词」，词收短成「进行中」「待确认」以便塞进这条列的宽度（八种语言各自收短）；把鼠标停在灯上可以看到完整说明。",
+    ],
+  },
+  {
     version: "0.14.35",
     date: "2026-09-18",
     highlights: [
@@ -1797,6 +1813,14 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.36",
+    date: "2026-09-18",
+    highlights: [
+      "狀態膠囊不再和工作階段標題搶位置：每一列都預留同一條前導狀態列，所有標題從同一條左邊緣開始，膠囊再也擠不到標題。",
+      "膠囊裡仍然是「點 + 狀態詞」，詞收短為「進行中」「待確認」以便塞進這條列的寬度（八種語言各自收短）；將滑鼠停在燈上可見完整說明。",
+    ],
+  },
   {
     version: "0.14.35",
     date: "2026-09-18",

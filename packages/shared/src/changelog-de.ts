@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.36",
+    "date": "2026-09-18",
+    "highlights": [
+      "Die Statuskapsel teilt sich ihre Spur nicht mehr mit den Titeln: Jede Zeile reserviert dieselbe führende Statusspalte, sodass alle Titel an einer Kante beginnen und die Kapsel sie nie drängt.",
+      "In dieser Spalte hält die Kapsel Punkt und Statuswort weiterhin zusammen, jetzt in einer kurzen Form, die in jede Sprache passt – fahre über den Punkt für den vollständigen Text.",
+    ],
+  },
+  {
     "version": "0.14.35",
     "date": "2026-09-18",
     "highlights": [

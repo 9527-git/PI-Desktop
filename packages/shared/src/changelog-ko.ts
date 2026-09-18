@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.36",
+    "date": "2026-09-18",
+    "highlights": [
+      "상태 캡슐이 이제 제목과 같은 레인을 쓰지 않습니다: 모든 행이 앞쪽 상태 열을 같은 폭으로 확보해, 제목은 하나의 정렬선에서 시작하고 캡슐이 제목을 밀어내지 않습니다.",
+      "그 열 안에서 캡슐은 여전히 점과 상태 글자를 함께 두되, 모든 언어의 너비에 맞추어 짧은 표기로 줄였습니다. 점에 마우스를 올리면 전체 문장을 볼 수 있습니다.",
+    ],
+  },
+  {
     "version": "0.14.35",
     "date": "2026-09-18",
     "highlights": [

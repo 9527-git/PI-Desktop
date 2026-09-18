@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.36",
+    "date": "2026-09-18",
+    "highlights": [
+      "Durum kapsülü artık başlıklarla aynı şeridi paylaşmıyor: her satır aynı ön durum sütununu ayırır, böylece tüm başlıklar tek bir sol kenardan başlar ve kapsül onları asla sıkıştırmaz.",
+      "Bu sütun içinde kapsül nokta ile durum sözünü bir arada tutmaya devam ediyor; artık her dile sığan kısa biçimde. Tam ifadeyi görmek için noktanın üzerine gelin.",
+    ],
+  },
+  {
     "version": "0.14.35",
     "date": "2026-09-18",
     "highlights": [
