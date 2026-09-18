@@ -670,6 +670,26 @@ unit/integration 测试；代码 pull request 使用有选择且高价值的 E2E
   `pnpm test:e2e:topbar-status` —— 状态、优先级、圆点动画、位置、
   减少动效与明暗主题探针）；单元覆盖见 `topbar-status-chip.test.mjs`
 
+#### E2E-CHAT-turn-usage-and-timestamps：完成的回复显示本轮 token 用量与消息时间
+
+- **先决条件**：PI-Desktop 打开在一个已至少有一轮完整记录（用户提问、
+  带模型用量的助手回复）的聊天会话上。
+- **步骤**：1) 会话空闲时，检查助手回复下方的 meta 行。2) 再发送一条提问，
+  在回合流式期间和结束后分别检查该行。3) 检查用户气泡下方的行。
+  4) 悬停各个胶囊。
+- **预期**：回合结束后，助手 meta 行显示模型胶囊，以及输入、输出和（当提供
+  商上报时）缓存读取、缓存写入胶囊，采用紧凑 token 数（`12.3k`），并按回合
+  内消息汇总。meta 行末尾还有回复时间（今天显示时钟时间，否则显示短日期加
+  时间）。用户消息在气泡下方显示时间胶囊；回合流式期间不显示用量胶囊，没有
+  用量数据的回合仍显示模型与时间。胶囊为非交互文本，tooltip 中显示完整精度
+  数值。不触碰任何 IPC、Host 或持久化状态。
+- **链接规格**：`04-ux/08-component-spec.md` §8.3
+- **验收**：质量
+- **里程碑**：M6 后桌面外壳维护
+- **状态**：源码契约测试覆盖（`turn-usage-meta.test.mjs`：
+  `formatMessageTimestamp` 行为、用量/缓存胶囊、回合与消息时间戳、
+  表格数字）
+
 #### E2E-087a：目的页面标头在 macOS 上避开标题栏带
 
 - **先决条件**：macOS 构建；至少安装一个插件。
@@ -4882,6 +4902,7 @@ IPC 请求无法关闭。
 | 安全性（外部路径移交） | E2E-CHAT-external-path-open-reveal |
 | 品质（外部路径移交） | E2E-CHAT-external-path-open-reveal |
 | C — 对话与流式（回合摘要卡片） | E2E-CHAT-turn-summary-card |
+| C — 对话与流式（回合用量与消息时间） | E2E-CHAT-turn-usage-and-timestamps |
 | D — 工作区（回合摘要卡片） | E2E-CHAT-turn-summary-card |
 | 品质（回合摘要卡片） | E2E-CHAT-turn-summary-card |
 | C — 对话与流式（手动压缩队列） | E2E-QUEUE-prompt-during-manual-compaction-is-queued-and-delivered |

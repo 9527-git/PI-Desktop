@@ -4319,3 +4319,10 @@ the retained upstream work-panel lifecycle. See
   `04-ux/08-component-spec.md` §19.4、ADR `0192-model-alias.md`，以及
   `06-delivery/04-e2e-test-plan.md` 的 E2E-005A / E2E-201
   （`pnpm test:e2e:provider-model-selection`）。
+
+## 2026-09-18 —— 聊天记录中的回合用量与消息时间戳（D436）
+
+完成的助手回复现在同时展示每轮的开销与发生时间：既有的回合结束 meta 行新增紧凑的输入、输出胶囊，以及（当提供商上报时）缓存读取、缓存写入胶囊，按回合内消息汇总，tooltip 中显示完整精度数值；其后是回复时间（今天显示时钟时间，否则显示本地化短日期加时间，跨年才带年份）。用户消息在气泡下新增时间胶囊；流式中的回合不显示用量胶囊，没有用量数据的回合仍保留模型胶囊与时间。渲染复用 `MessageMeta` 与既有 `chat.usage*` i18n 键；时间戳 helper 位于 `lib/message-time.ts`。仅渲染器、文档与测试：不改 IPC、host、存储或权限。
+- 见 `04-ux/08-component-spec.md` §8.3 与
+  `06-delivery/04-e2e-test-plan.md` 的 E2E-CHAT-turn-usage-and-timestamps；
+  源码契约覆盖见 `turn-usage-meta.test.mjs`。
