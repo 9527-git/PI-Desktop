@@ -207,8 +207,13 @@ export function ModelSelectionPanes({
   const { t } = useTranslation();
   const { rows, models, publishedLevelsById, setModels } = selection;
   // Bindings removed by unchecking, kept so re-checking within this editing
-  // session restores the exact parameters instead of catalog defaults.
-  const removedBindingsRef = useRef(new Map<string, ModelBinding>());
+  // session restores the exact parameters instead of catalog defaults. State
+  // (not a ref) because the remembered rows must re-enter the left list: in
+  // fallback mode the list is built from the configured bindings alone, so a
+  // ref-only memory would leave an unchecked row with nothing to render.
+  const [remembered, setRemembered] = useState<Map<string, ModelBinding>>(
+    () => new Map(),
+  );
   const [modelQuery, setModelQuery] = useState("");
   const [chosenQuery, setChosenQuery] = useState("");
   const [customModelId, setCustomModelId] = useState("");
@@ -234,15 +239,37 @@ export function ModelSelectionPanes({
     () => new Set((hiddenModels ?? []).map((id) => id.toLowerCase())),
     [hiddenModels],
   );
+  // A remembered (unchecked) binding keeps its row listed even when no
+  // discovery source mentions it any more: the fallback list is exactly the
+  // configured bindings, so without this merge an uncheck would delete the
+  // row outright instead of leaving it listed unchecked. Live rows win — a
+  // remembered id that the service still advertises keeps its richer row.
+  const displayRows = useMemo<ModelRow[]>(() => {
+    if (remembered.size === 0) return rows;
+    const listed = new Set(rows.map((row) => row.id.toLowerCase()));
+    const merged = [...rows];
+    for (const [key, binding] of remembered) {
+      if (listed.has(key)) continue;
+      merged.push({
+        id: binding.id,
+        displayName: binding.id,
+        contextWindow: binding.contextWindow,
+        maxTokens: binding.maxTokens,
+      });
+    }
+    return merged;
+  }, [remembered, rows]);
   // A hidden id stops its discovered row from listing. A row that still has a
   // binding always shows: delete removes the binding and hides together, so an
   // overlap is stale state worth displaying rather than burying.
   const listedRows = useMemo(
     () =>
       hiddenSet.size === 0
-        ? rows
-        : rows.filter((row) => row.binding || !hiddenSet.has(row.id.toLowerCase())),
-    [hiddenSet, rows],
+        ? displayRows
+        : displayRows.filter(
+            (row) => row.binding || !hiddenSet.has(row.id.toLowerCase()),
+          ),
+    [displayRows, hiddenSet],
   );
 
   // The returned list is short and already local, so filtering is client-side:
@@ -306,7 +333,7 @@ export function ModelSelectionPanes({
    * nothing the user just added hides behind a search typed earlier.
    */
   const keepAddedModelVisible = (added: ModelBinding[]) => {
-    if (hidesAddedBinding(added, chosenQuery, rows)) setChosenQuery("");
+    if (hidesAddedBinding(added, chosenQuery, displayRows)) setChosenQuery("");
   };
 
   /**
@@ -319,9 +346,14 @@ export function ModelSelectionPanes({
    */
   const selectModel = (row: ModelRow) => {
     if (busy) return;
-    const existing = models.find(
-      (entry) => entry.id.toLowerCase() === row.id.toLowerCase(),
-    );
+    const key = row.id.toLowerCase();
+    const existing = models.find((entry) => entry.id.toLowerCase() === key);
+    // An unchecked remembered row has no binding to open: restore the exact
+    // remembered parameters, exactly like a re-check, instead of defaults.
+    if (!existing && remembered.has(key)) {
+      toggleModel(row, true);
+      return;
+    }
     const binding = existing ?? bindingForRow(row);
     // Open the stored id so the right pane reveals exactly what is configured.
     setExpandedModelId(binding.id);
@@ -333,17 +365,18 @@ export function ModelSelectionPanes({
 
   /**
    * The header checkbox only ever adds. Unchecking is a no-op: a bulk clear
-   * here would be the one remaining path that wipes configured bindings (the
-   * fallback list is exactly those bindings), so removal stays an explicit
-   * per-row action in the chosen pane.
+   * here would be the one remaining path that wipes configured bindings, so
+   * removal stays an explicit per-row action in the chosen pane.
    */
   const selectAllVisibleModels = () => {
     setExpandedModelId((open) => open ?? visibleRows[0]?.id ?? null);
     const added = visibleRows
       .filter((row) => !selected.has(row.id.toLowerCase()))
-      .map((row) => bindingForRow(row));
+      // A remembered (unchecked) row restores its exact parameters, the same
+      // way a single re-check does, instead of catalog defaults.
+      .map((row) => remembered.get(row.id.toLowerCase()) ?? bindingForRow(row));
     keepAddedModelVisible(added);
-    setModels((current) => applyVisibleModelSelection(current, visibleRows));
+    setModels((current) => (added.length === 0 ? current : [...current, ...added]));
   };
 
   /**
@@ -388,9 +421,14 @@ export function ModelSelectionPanes({
     if (busy) return;
     const key = row.id.toLowerCase();
     if (checked) {
-      const restored = removedBindingsRef.current.get(key);
+      const restored = remembered.get(key);
       const binding = restored ?? bindingForRow(row);
-      removedBindingsRef.current.delete(key);
+      setRemembered((current) => {
+        if (!current.has(key)) return current;
+        const next = new Map(current);
+        next.delete(key);
+        return next;
+      });
       setModels((current) =>
         current.some((entry) => entry.id.toLowerCase() === key)
           ? current
@@ -401,7 +439,14 @@ export function ModelSelectionPanes({
       return;
     }
     const existing = models.find((entry) => entry.id.toLowerCase() === key);
-    if (existing) removedBindingsRef.current.set(key, existing);
+    if (existing) {
+      setRemembered((current) => {
+        if (current.get(key) === existing) return current;
+        const next = new Map(current);
+        next.set(key, existing);
+        return next;
+      });
+    }
     setModels((current) => current.filter((entry) => entry.id.toLowerCase() !== key));
   };
 
@@ -413,7 +458,12 @@ export function ModelSelectionPanes({
    */
   const deleteModel = (binding: ModelBinding) => {
     const key = binding.id.toLowerCase();
-    removedBindingsRef.current.delete(key);
+    setRemembered((current) => {
+      if (!current.has(key)) return current;
+      const next = new Map(current);
+      next.delete(key);
+      return next;
+    });
     setModels((current) => current.filter((entry) => entry.id.toLowerCase() !== key));
     if (hiddenSet.has(key)) return;
     onHiddenModelsChange?.([...(hiddenModels ?? []), binding.id]);
@@ -447,7 +497,9 @@ export function ModelSelectionPanes({
   };
 
   const fetchFailed = discovery.status === "error";
-  const emptyFetchError = fetchFailed && rows.length === 0;
+  // Remembered (unchecked) rows still render in fallback mode, so the fetch
+  // error placeholder only owns the screen when there is truly nothing listed.
+  const emptyFetchError = fetchFailed && displayRows.length === 0;
 
   const hiddenCount = (hiddenModels ?? []).filter(
     (id) => !models.some((binding) => binding.id.toLowerCase() === id.toLowerCase()),

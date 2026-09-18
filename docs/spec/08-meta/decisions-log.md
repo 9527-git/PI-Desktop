@@ -5594,6 +5594,15 @@ account dialog — share the behavior through `ModelSelectionPanes`. Note:
 `mod tests;` wires it), so the host-side provider config changes carry no
 Rust unit coverage; the behavior is pinned by the desktop source-contract
 tests instead.
+
+Same-day correction after user feedback: in fallback discovery (probe failed
+or empty) and for hand-added models with no discovery at all, the left list
+is built from the configured bindings alone, so unchecking deleted the row
+outright and select-all could not restore it — the toggle silently became
+the deletion it was meant to replace. The remembered (unchecked) bindings
+are now merged back into the displayed rows in every discovery mode, so the
+row persists unchecked everywhere; select-all and row activation re-add it
+with its saved parameters instead of catalog defaults.
 - See `04-ux/08-component-spec.md` §19.4/§19.5,
   E2E-PROVIDER-row-toggle-and-hidden-delete in
   `06-delivery/04-e2e-test-plan.md`; source contract coverage in

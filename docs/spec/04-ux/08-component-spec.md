@@ -3405,7 +3405,11 @@ compatibility remains owned by pi-ai.
   restores the exact binding remembered from an uncheck in this editing
   session — and opens its configuration; unchecking removes the binding while
   the row stays listed, so an accidental uncheck can be undone without
-  losing the alias, limits, and thinking levels. Repeated, double, keyboard
+  losing the alias, limits, and thinking levels. The row persists unchecked in
+  every discovery mode: when the live probe fails or returns nothing
+  (fallback) or for hand-added models with no discovery at all, the list is
+  built from the configured bindings, so unchecked bindings are remembered and
+  merged back into the displayed rows instead of vanishing. Repeated, double, keyboard
   and synthetic clicks preserve the configured order, default model, aliases
   and advanced overrides. A right-pane filter is cleared only when it hides
   the activated model. Deletion uses the explicit Remove action in the right
@@ -3421,7 +3425,8 @@ compatibility remains owned by pi-ai.
   visible rows, and unchecking is a no-op — in fallback mode
   (`modelsFallbackNote`) the visible rows are exactly the configured models,
   so a bulk clear could only drop bindings the live answer may never list
-  again. Removal stays with the right pane's explicit Remove.
+  again. Checking re-adds remembered (unchecked) rows with their saved
+  parameters rather than catalog defaults. Removal stays with the right pane's explicit Remove.
 - The same header has a compact Fetch list action that re-probes the service
   immediately. It stays disabled when no discoverable endpoint is ready, while
   a probe is in flight, or while saving. Idle-with-a-valid-URL (the edit
@@ -3447,7 +3452,9 @@ compatibility remains owned by pi-ai.
   reduced motion the mark is a static outline — or pick a model that is not
   configured yet, and never remove one. The checkbox alone toggles: unchecking
   keeps the row listed and remembers the binding so a re-check before the
-  dialog closes restores its parameters; the remembered copy is dropped by
+  dialog closes restores its parameters — including fallback lists and
+  hand-added models, where remembered bindings are merged back into the
+  displayed rows; the remembered copy is dropped by
   deletion. Deletion stays with the right pane's remove button, which also
   hides the discovered row; the header select-all is add-only and cannot drop
   bindings. The id
