@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.32",
+    "date": "2026-09-18",
+    "highlights": [
+      "La casilla de seleccionar todo en la cabecera de la lista de modelos vuelve a funcionar en ambos sentidos: marcarla añade todos los modelos visibles, desmarcarla los vacía — cada uno sigue en la lista y se puede restaurar, nunca se elimina.",
+      "En un servicio cuya lista de modelos propia no está disponible, esa casilla de cabecera ya no parece bloqueada cuando está toda marcada: desmarcarla vacía sin borrar tus modelos configurados, y volver a marcarlos devuelve cada uno con sus ajustes guardados.",
+    ],
+  },
+  {
     "version": "0.14.31",
     "date": "2026-09-18",
     "highlights": [

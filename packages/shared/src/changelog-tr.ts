@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.32",
+    "date": "2026-09-18",
+    "highlights": [
+      "Model listesi üstündeki tümünü seç onay kutusu artık iki yönlü çalışıyor: işaretleme görünür tüm modelleri ekler, işareti kaldırma onları temizler — her biri listede kalır ve geri yüklenebilir, asla silinmez.",
+      "Kendi model listesi kullanılamayan bir hizmette bu üstbilgi onay kutusu tamamen işaretliyken artık takılmış görünmüyor: işareti kaldırmak yapılandırdığın modelleri silmeden yumuşakça temizler, yeniden işaretlemek her birini kayıtlı ayarlarıyla geri getirir.",
+    ],
+  },
+  {
     "version": "0.14.31",
     "date": "2026-09-18",
     "highlights": [

@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.32",
+    "date": "2026-09-18",
+    "highlights": [
+      "Das Alles auswählen-Kästchen oben in der Modellliste funktioniert wieder in beide Richtungen: Aktivieren fügt alle sichtbaren Modelle hinzu, Deaktivieren leert sie — jedes bleibt aufgelistet und wiederherstellbar, nie gelöscht.",
+      "Bei einem Dienst, dessen eigene Modellliste nicht verfügbar ist, wirkt das Kopf-Kästchen bei vollem Haken nicht mehr festgefahren: Deaktivieren leert deine konfigurierten Modelle schonend, Aktivieren stellt jedes mit seinen gespeicherten Einstellungen wieder her.",
+    ],
+  },
+  {
     "version": "0.14.31",
     "date": "2026-09-18",
     "highlights": [

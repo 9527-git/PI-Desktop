@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.32",
+    "date": "2026-09-18",
+    "highlights": [
+      "La case « Tout sélectionner » en tête de la liste des modèles refonctionne dans les deux sens : cocher ajoute tous les modèles visibles, décocher les efface — chacun reste listé et restaurable, jamais supprimé.",
+      "Sur un service dont la propre liste de modèles est indisponible, cette case d'en-tête ne paraît plus bloquée lorsqu'elle est entièrement cochée : décocher efface sans supprimer vos modèles configurés, et recocher les restaure chacun avec ses réglages enregistrés.",
+    ],
+  },
+  {
     "version": "0.14.31",
     "date": "2026-09-18",
     "highlights": [

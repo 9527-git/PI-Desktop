@@ -29,6 +29,14 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.32",
+    date: "2026-09-18",
+    highlights: [
+      "The select-all checkbox at the top of the model list now works both ways: checking adds every visible model, unchecking clears them - each stays listed and can be restored, never deleted.",
+      "On a service whose own model list is unavailable, that header checkbox no longer looks stuck when fully checked: unchecking clears your configured models softly, and re-checking brings each back with its saved settings.",
+    ],
+  },
+  {
     version: "0.14.31",
     date: "2026-09-18",
     highlights: [
@@ -882,6 +890,14 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.32",
+    date: "2026-09-18",
+    highlights: [
+      "模型列表顶部的全选框现在双向可用：勾选添加全部可见模型，取消勾选清空它们——每个模型仍保留在列表中、可随时恢复，绝不会被删除。",
+      "对于自身模型列表不可用的服务，头部全选框在全部勾选时不再看起来「卡住」：取消勾选会软性清空你配置的模型，重新勾选则连同保存的设置一起恢复每一个。",
+    ],
+  },
+  {
     version: "0.14.31",
     date: "2026-09-18",
     highlights: [
@@ -1733,6 +1749,14 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.32",
+    date: "2026-09-18",
+    highlights: [
+      "模型清單頂部的全選框現在雙向可用：勾選新增全部可見模型，取消勾選清空它們——每個模型仍保留在清單中、可隨時恢復，絕不會被刪除。",
+      "對於自身模型清單不可用的服務，頂部全選框在全部勾選時不再看起來「卡住」：取消勾選會軟性清空您設定的模型，重新勾選則連同儲存的設定一起恢復每一個。",
+    ],
+  },
   {
     version: "0.14.31",
     date: "2026-09-18",
