@@ -208,7 +208,7 @@ palette / application menu, not the top bar.)
 ### 2.2 Anatomy
 
 ```text
-[☰ Sidebar] [● 处理中|● 待确认] [Task title]        [＋ New] [🔍 Search]
+[☰ Sidebar] [Task title]        [＋ New] [🔍 Search]
 ```
 
 (Icons described functionally; actual render uses Lucide SVGs. The `[☰ Sidebar]`
@@ -218,18 +218,13 @@ expanded it owns that control, so the top bar does not duplicate it. The
 does not duplicate it. Keyboard shortcuts and the application menu remain
 available.)
 
-The status chip renders only while the active session's turn runs or while it
-waits on a human decision — permission request, asktool question, or pending
-Plan/Goal approval — and is hidden when the session is idle. It reuses the
-sidebar's dot language: orange breathing for `处理中`, purple pulsing for
-`待确认`, with `待确认` outranking `处理中`. It is not a control: it has no
-click target and no tooltip, and it keeps the title band draggable.
-
-The conversation top bar renders for the chat route only; Pull requests, Scheduled,
-Plugins, and Settings keep the frameless drag band. It owns the task title and
-window actions only. Project scope remains in the title tooltip instead of adding
-another visible label. The Composer owns the Agent/Plan/Goal control and the
-combined model × reasoning selection (§11).
+The top bar carries no per-session status indicator. Run and needs-input state
+lives on the sidebar session row dot (D444, §3), so the title cluster stays a
+single, calm lane. The conversation top bar renders for the chat route only;
+Pull requests, Scheduled, Plugins, and Settings keep the frameless drag band. It
+owns the task title and window actions only. Project scope remains in the title
+tooltip instead of adding another visible label. The Composer owns the
+Agent/Plan/Goal control and the combined model × reasoning selection (§11).
 
 ### 2.3 Layout
 
@@ -257,12 +252,6 @@ combined model × reasoning selection (§11).
   The right cluster (action icons) is `flex: 0 0 auto`
   and is never squeezed by a long title. The conversation surface keeps a
   `min-width` so its content is not crushed on narrow windows.
-- The status chip sits inside the title cluster, left of the title, and takes
-  its width from the title lane: the slot animates `max-width` from 0 plus
-  opacity over `--motion-duration-normal`, so the title slides when the chip
-  appears or clears instead of jumping. `prefers-reduced-motion: reduce`
-  disables the transition and the dot animation. The chip never widens the
-  title's 10-character cap.
 - Project scope is available from the title tooltip but is not rendered as a
   second visible label.
 - macOS fullscreen resets the left reserve to 8px (mirrors the sidebar header).
@@ -294,7 +283,6 @@ combined model × reasoning selection (§11).
 | Element | Default | Running | Error | No workspace |
 |---|---|---|---|---|
 | Task title | session title (or untitled), capped at 10 characters with an ellipsis when needed | same | same | same |
-| Status chip | hidden | `● 处理中` (orange, breathing) while the turn runs; `● 待确认` (purple, pulsing) when a permission, asktool question, or Plan/Goal approval awaits the user | hidden | hidden |
 | New task / Search | icon buttons | same | same | same |
 | Composer stop control | hidden | visible only when the running composer draft is empty | hidden | hidden |
 | Project name | title tooltip only | same | same | omitted |
@@ -303,11 +291,10 @@ combined model × reasoning selection (§11).
 
 - Every control is keyboard-reachable with Tab
 - Composer stop control has `aria-label="Stop generating"`
-- The status chip is exposed as a `role="status"` live region; its visible label is
-  its accessible text, so a state change is announced without a duplicate
-  `aria-label`. It is not focusable and adds no control to the toolbar. The
-  Composer submit control and transcript working feedback remain the primary
-  running-state cues.
+- The top bar exposes no status live region; per-session run and needs-input
+  state is announced from the sidebar row dot's accessible label instead
+  (D444, §3). The Composer submit control and transcript working feedback
+  remain the primary running-state cues.
 
 ### 2.6 MVP constraints
 
@@ -395,6 +382,7 @@ visually distinct from list content.
 | Collapsed | Icon rail — hover shows tooltip with session title |
 | Active session | Accent-blue outlined status ring plus active row background |
 | Selecting session | Destination row receives the active treatment immediately while transcript/workspace resolution continues |
+| Session needs input | Purple pulsing dot when a permission request, asktool question, or Plan/Goal approval awaits the user; outranks in-progress; static under reduced motion (D444) |
 | Session in progress | Orange breathing dot; static under reduced motion |
 | Session completed | Green check mark from the latest unread task notification when the row is not selected |
 | Session failed | Red circled alert mark from the latest unread task notification when the row is not selected |

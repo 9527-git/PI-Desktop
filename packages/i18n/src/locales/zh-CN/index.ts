@@ -163,6 +163,7 @@ export const zhCN = {
     sessionSelected: "已选中",
     sessionCompleted: "已完成",
     sessionFailed: "未完成",
+    sessionNeedsInput: "待确认",
     sortSessions: "项目与对话排序",
     sortRecent: "最近更新",
     sortOldest: "最早创建",
@@ -542,8 +543,6 @@ export const zhCN = {
     thinkingUnavailable: "当前模型不支持思考过程。",
     thinkingEnable: "开启思考",
     untitledTask: "新建任务",
-    topbarStatusRunning: "处理中",
-    topbarStatusPending: "待确认",
   },
   sideChat: {
     readOnly: "该原生 Pi 会话当前为只读状态。",

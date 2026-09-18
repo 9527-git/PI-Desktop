@@ -169,6 +169,7 @@ export const en = {
     sessionSelected: "Selected",
     sessionCompleted: "Done",
     sessionFailed: "Needs attention",
+    sessionNeedsInput: "Needs your input",
     sortSessions: "Sort projects and chats",
     sortRecent: "Recently updated",
     sortOldest: "Oldest first",
@@ -546,8 +547,6 @@ export const en = {
     thinkingUnavailable: "Thinking isn't available for this model.",
     thinkingEnable: "Enable thinking",
     untitledTask: "New task",
-    topbarStatusRunning: "Working",
-    topbarStatusPending: "Needs input",
   },
   sideChat: {
     readOnly: "This native Pi session is read-only right now.",

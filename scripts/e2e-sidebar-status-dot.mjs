@@ -1,19 +1,18 @@
 #!/usr/bin/env node
 /**
- * E2E-CHAT-topbar-status-chip.
+ * E2E-SIDEBAR-status-dot-pending-union.
  *
  * Launches the built desktop app with a throwaway profile and drives the
- * renderer over CDP: seeds run / intervention state through the capture rig and
- * asserts the conversation topbar's status chip contract —
+ * renderer over CDP: seeds one sidebar row per state through the capture rig
+ * (selected / running / permission / ask / plan) and asserts the D444 contract —
  *
- *   - hidden while the session is idle, and only the title occupies the lane;
- *   - `处理中` while the turn runs (orange dot, breathing);
- *   - `待确认` whenever any intervention source is pending (permission, ask,
- *     Plan/Goal approval), outranking the running state;
- *   - the chip sits left of the title, takes width from the title lane, and is
- *     not a control;
- *   - prefers-reduced-motion turns the dot animation and the slot transition
- *     off; both themes resolve the dot to their own warning/purple token.
+ *   - the running row breathes in the warning token;
+ *   - permission, ask, and Plan/Goal approval rows all render the SAME
+ *     needs-input dot (class `permission`, purple pulse), proving the union;
+ *   - the selected row keeps its accent ring and no animation;
+ *   - the conversation topbar carries no status slot/chip of its own;
+ *   - prefers-reduced-motion disables every dot animation;
+ *   - both themes resolve the dots to their own warning/purple tokens.
  *
  * Screenshots land in PI_DESKTOP_E2E_ARTIFACT_DIR (or a temp dir) for visual
  * inspection.
@@ -35,7 +34,7 @@ const electronBin =
   process.platform === "win32"
     ? join(appDir, "node_modules/electron/dist/electron.exe")
     : join(appDir, "node_modules/.bin/electron");
-const cdpPort = Number(process.env.PI_DESKTOP_TOPBAR_CDP_PORT || 9338);
+const cdpPort = Number(process.env.PI_DESKTOP_SIDEBAR_CDP_PORT || 9339);
 
 function resolveHostBinary() {
   const candidates = [
@@ -136,13 +135,10 @@ async function waitFor(predicate, label, timeoutMs = 60_000) {
   );
 }
 
-const PROBE = `(() => {
-  const topbar = document.querySelector(".conversation-topbar");
-  const wrap = topbar?.querySelector(".ct-title-wrap") ?? null;
-  const slot = wrap?.querySelector(".ct-status-slot") ?? null;
-  const chip = slot?.querySelector(".ct-status-chip") ?? null;
-  const dot = chip?.querySelector(".ct-status-dot") ?? null;
-  const title = wrap?.querySelector(".ct-title") ?? null;
+// Probes every seeded row plus the shared tokens. The dot's painted color and
+// animation live on the ::before pseudo-element, so we read that explicitly.
+function probeExpression(ids) {
+  return `((ids) => {
   const token = (name) => {
     const probe = document.createElement("span");
     probe.style.color = "var(" + name + ")";
@@ -151,40 +147,41 @@ const PROBE = `(() => {
     probe.remove();
     return value;
   };
-  const box = (element) => {
-    if (!element) return null;
-    const rect = element.getBoundingClientRect();
+  const rowInfo = (id) => {
+    const row = document.querySelector('[data-sidebar-session-row="' + id + '"]');
+    const status = row ? row.querySelector(".thread-item-status") : null;
+    if (!status) return { present: false };
+    const before = getComputedStyle(status, "::before");
+    const cs = getComputedStyle(status);
     return {
-      left: Math.round(rect.left),
-      right: Math.round(rect.right),
-      width: Math.round(rect.width),
-      height: Math.round(rect.height),
+      present: true,
+      stateClass: [...status.classList].find((c) => c !== "thread-item-status") ?? null,
+      label: status.getAttribute("aria-label"),
+      color: cs.color,
+      beforeBackground: before.backgroundColor,
+      beforeAnimation: before.animationName,
+      beforeBorderTopColor: before.borderTopColor,
+      width: Math.round(status.getBoundingClientRect().width),
     };
   };
-  const slotStyle = slot ? getComputedStyle(slot) : null;
-  const dotStyle = dot ? getComputedStyle(dot) : null;
+  const topbar = document.querySelector(".conversation-topbar");
   return {
-    hasTopbar: !!topbar,
-    state: slot ? slot.dataset.state ?? null : null,
-    label: chip ? chip.textContent.trim() : null,
-    dotBackground: dotStyle ? dotStyle.backgroundColor : null,
-    dotAnimation: dotStyle ? dotStyle.animationName : null,
-    chipColor: chip ? getComputedStyle(chip).color : null,
-    chipBackground: chip ? getComputedStyle(chip).backgroundColor : null,
+    rows: {
+      selected: rowInfo(ids.selected),
+      running: rowInfo(ids.running),
+      permission: rowInfo(ids.permission),
+      ask: rowInfo(ids.ask),
+      plan: rowInfo(ids.plan),
+    },
     warningToken: token("--ds-warning"),
     purpleToken: token("--ds-purple"),
-    slotBox: box(slot),
-    titleBox: box(title),
-    maxWidth: slotStyle ? slotStyle.maxWidth : null,
-    opacity: slotStyle ? slotStyle.opacity : null,
-    transitionProperty: slotStyle ? slotStyle.transitionProperty : null,
-    transitionDuration: slotStyle ? slotStyle.transitionDuration : null,
-    interactive: slot
-      ? Boolean(slot.querySelector("button, a, [role=button], input, [tabindex]"))
-      : false,
+    accentToken: token("--ds-accent"),
+    topbarHasStatusSlot: !!topbar && !!topbar.querySelector(".ct-status-slot"),
+    topbarHasChip: !!topbar && !!topbar.querySelector(".ct-status-chip"),
     reducedMotion: matchMedia("(prefers-reduced-motion: reduce)").matches,
   };
-})()`;
+})(${JSON.stringify(ids)})`;
+}
 
 const results = [];
 let activeCdp = null;
@@ -204,11 +201,11 @@ async function main() {
   }
 
   const hostBinary = resolveHostBinary();
-  const dataDir = mkdtempSync(join(tmpdir(), "pi-topbar-status-data-"));
-  const profileDir = mkdtempSync(join(tmpdir(), "pi-topbar-status-profile-"));
+  const dataDir = mkdtempSync(join(tmpdir(), "pi-sidebar-status-data-"));
+  const profileDir = mkdtempSync(join(tmpdir(), "pi-sidebar-status-profile-"));
   const artifactDir =
     process.env.PI_DESKTOP_E2E_ARTIFACT_DIR?.trim() ||
-    mkdtempSync(join(tmpdir(), "pi-topbar-status-artifacts-"));
+    mkdtempSync(join(tmpdir(), "pi-sidebar-status-artifacts-"));
   mkdirSync(artifactDir, { recursive: true });
   console.log(`Artifacts ${artifactDir}`);
 
@@ -217,8 +214,8 @@ async function main() {
     [
       "--remote-debugging-port=" + cdpPort,
       "--user-data-dir=" + profileDir,
-      // An occluded window stops producing frames, which freezes the slot's
-      // CSS transition mid-flight during unattended runs.
+      // An occluded window stops producing frames, which can stall style
+      // recalculation during unattended runs.
       "--disable-backgrounding-occluded-windows",
       ".",
     ],
@@ -255,7 +252,7 @@ async function main() {
   };
 
   const timeout = setTimeout(() => {
-    console.error("FAIL topbar status chip — timeout after 180s");
+    console.error("FAIL sidebar status dot — timeout after 180s");
     console.error(output.slice(-2_000));
     cleanup();
     process.exit(1);
@@ -278,38 +275,17 @@ async function main() {
     await cdp.send("Runtime.enable");
     await cdp.send("Page.enable");
 
-    const probe = () => cdp.evaluate(PROBE);
-    // Occluded windows can stall frame production, freezing the slot's
-    // CSS transition mid-flight; a screenshot forces a BeginFrame.
+    // A screenshot forces a BeginFrame so style recalculation does not stall
+    // while the window is occluded during unattended runs.
     const forceFrame = async () => {
       await cdp
         .send("Page.captureScreenshot", { format: "png" })
         .catch(() => undefined);
     };
-    const settle = async (target) => {
-      const settled =
-        target === "hidden"
-          ? (value) => value.maxWidth === "0px" && value.opacity === "0"
-          : (value) => value.maxWidth === "200px" && value.opacity === "1";
-      await delay(240);
-      let last = await probe();
-      const deadline = Date.now() + 5_000;
-      while (!settled(last) && Date.now() < deadline) {
-        await forceFrame();
-        await delay(80);
-        last = await probe();
-      }
-      return last;
-    };
-    const seed = async (state) => {
-      await cdp.evaluate(
-        `window.__PI_CAPTURE__ = 1; window.__PI_DESKTOP__.seedTopbarStatus(${JSON.stringify(state)})`,
-      );
-      return settle(Object.keys(state).length ? "visible" : "hidden");
-    };
+    const probe = (ids) => cdp.evaluate(probeExpression(ids));
     const screenshot = async (name) => {
       const clip = await cdp.evaluate(
-        `({ width: window.innerWidth, height: 46 })`,
+        `({ width: Math.min(360, window.innerWidth), height: window.innerHeight })`,
       );
       const response = await cdp.send("Page.captureScreenshot", {
         format: "png",
@@ -333,147 +309,150 @@ async function main() {
       () => cdp.evaluate(`!!document.querySelector(".conversation-topbar")`),
       "conversation topbar mounted",
     );
-    const seeded = await cdp.evaluate(
-      `window.__PI_DESKTOP__.seedTopbarStatus({})`,
-    );
-    if (!seeded?.sessionId) throw new Error("no session available to seed the chip");
 
-    // 1. Idle: no chip, and the title owns the whole lane.
-    const idle = await settle("hidden");
-    check(
-      idle.hasTopbar && idle.state === "hidden" && idle.label === null,
-      "an idle session shows no status chip",
-      JSON.stringify(idle),
+    const ids = await cdp.evaluate(
+      `window.__PI_CAPTURE__ = 1; window.__PI_DESKTOP__.seedSidebarInterventions()`,
     );
-    check(
-      idle.opacity === "0" && idle.maxWidth === "0px" && idle.interactive === false,
-      "the collapsed slot takes no space and exposes no control",
-      JSON.stringify(idle),
+    if (!ids?.selected) {
+      throw new Error("capture rig could not seed 5 distinct sidebar sessions");
+    }
+    await waitFor(
+      async () => {
+        const present = await cdp.evaluate(
+          `((ids) => [
+            document.querySelector('[data-sidebar-session-row="' + ids.selected + '"] .thread-item-status'),
+            document.querySelector('[data-sidebar-session-row="' + ids.running + '"] .thread-item-status'),
+            document.querySelector('[data-sidebar-session-row="' + ids.permission + '"] .thread-item-status'),
+            document.querySelector('[data-sidebar-session-row="' + ids.ask + '"] .thread-item-status'),
+            document.querySelector('[data-sidebar-session-row="' + ids.plan + '"] .thread-item-status'),
+          ].every(Boolean))(${JSON.stringify(ids)})`,
+        );
+        return present;
+      },
+      "all five seeded status dots rendered",
     );
-    const idleTitleLeft = idle.titleBox?.left ?? null;
+    await forceFrame();
+    await delay(200);
 
-    // 2. Running: orange breathing chip, title slides right.
-    const running = await seed({ running: true });
-    check(
-      running.state === "running" &&
-        typeof running.label === "string" &&
-        running.label.length > 0,
-      "the running state renders a labelled chip",
-      JSON.stringify(running),
-    );
-    check(
-      running.dotAnimation === "ct-status-breathe" &&
-        running.dotBackground === running.warningToken,
-      "the running dot breathes in the warning token color",
-      JSON.stringify(running),
-    );
-    check(
-      running.chipBackground !== "rgba(0, 0, 0, 0)" &&
-        running.interactive === false,
-      "the chip paints a tinted pill and stays a non-control",
-      JSON.stringify(running),
-    );
-    check(
-      running.titleBox !== null &&
-        running.slotBox !== null &&
-        running.slotBox.right <= running.titleBox.left + 1 &&
-        idleTitleLeft !== null &&
-        running.titleBox.left > idleTitleLeft,
-      "the chip sits left of the title and takes its width from the title lane",
-      JSON.stringify({ idle: idle.titleBox, running: running.titleBox }),
-    );
-    check(
-      String(running.transitionProperty).includes("max-width") &&
-        String(running.transitionDuration)
-          .split(",")
-          .every((value) => value.trim() === "0.2s"),
-      "the slot animates max-width so the title slides instead of jumping",
-      JSON.stringify(running),
-    );
-    await screenshot("topbar-status-running-dark");
+    const base = await probe(ids);
 
-    // 3. Pending outranks running for every intervention source.
-    const pendingPermission = await seed({ running: true, permission: true });
+    // 1. Running row breathes in the warning token.
     check(
-      pendingPermission.state === "pending" &&
-        pendingPermission.dotAnimation === "ct-status-pulse" &&
-        pendingPermission.dotBackground === pendingPermission.purpleToken,
-      "a pending permission outranks the running state with a pulsing purple dot",
-      JSON.stringify(pendingPermission),
+      base.rows.running.present &&
+        base.rows.running.stateClass === "running" &&
+        base.rows.running.beforeAnimation === "sidebar-status-breathe" &&
+        base.rows.running.beforeBackground === base.warningToken,
+      "the running row shows an orange breathing dot",
+      JSON.stringify(base.rows.running),
     );
-    check(
-      pendingPermission.label !== running.label,
-      "the pending state carries its own label",
-      `${running.label} -> ${pendingPermission.label}`,
-    );
-    await screenshot("topbar-status-pending-dark");
 
-    const singleSource = {};
-    for (const source of ["ask", "plan"]) {
-      singleSource[source] = (await seed({ running: true, [source]: true })).state;
+    // 2. Permission / ask / plan rows all render the SAME needs-input dot.
+    for (const source of ["permission", "ask", "plan"]) {
+      const row = base.rows[source];
+      check(
+        row.present &&
+          row.stateClass === "permission" &&
+          row.beforeAnimation === "sidebar-status-pulse-purple" &&
+          row.beforeBackground === base.purpleToken,
+        `a pending ${source} raises the purple needs-input dot`,
+        JSON.stringify(row),
+      );
     }
     check(
-      singleSource.ask === "pending" && singleSource.plan === "pending",
-      "an asktool question or a pending Plan/Goal approval alone raises the chip",
-      JSON.stringify(singleSource),
+      base.rows.permission.label === base.rows.ask.label &&
+        base.rows.ask.label === base.rows.plan.label &&
+        typeof base.rows.permission.label === "string" &&
+        base.rows.permission.label.length > 0 &&
+        base.rows.permission.label !== base.rows.running.label,
+      "every intervention source shares one needs-input label, distinct from running",
+      JSON.stringify({
+        permission: base.rows.permission.label,
+        ask: base.rows.ask.label,
+        plan: base.rows.plan.label,
+        running: base.rows.running.label,
+      }),
     );
 
-    // 4. Both themes resolve the dot to their own token.
-    await seed({ running: true });
-    for (const theme of ["dark", "light"]) {
+    // 3. Selected row keeps its accent ring and never animates.
+    check(
+      base.rows.selected.present &&
+        base.rows.selected.stateClass === "selected" &&
+        base.rows.selected.beforeAnimation === "none" &&
+        base.rows.selected.beforeBorderTopColor === base.accentToken,
+      "the selected row shows a static accent ring",
+      JSON.stringify(base.rows.selected),
+    );
+
+    // 4. The topbar carries no status slot/chip of its own (D444 relocation).
+    check(
+      base.topbarHasStatusSlot === false && base.topbarHasChip === false,
+      "the conversation topbar has no status chip",
+      JSON.stringify({
+        slot: base.topbarHasStatusSlot,
+        chip: base.topbarHasChip,
+      }),
+    );
+
+    await screenshot("sidebar-status-union-dark");
+
+    // 5. Both themes resolve the dots to their own tokens.
+    for (const theme of ["light", "dark"]) {
       await cdp.evaluate(`window.__PI_DESKTOP__.setThemeAttr("${theme}")`);
       await delay(250);
-      const themed = await probe();
+      await forceFrame();
+      const themed = await probe(ids);
       check(
-        themed.dotBackground === themed.warningToken &&
-          themed.chipBackground !== "rgba(0, 0, 0, 0)",
-        `the ${theme} theme paints the running dot in its own warning token`,
+        themed.rows.running.beforeBackground === themed.warningToken &&
+          themed.rows.permission.beforeBackground === themed.purpleToken,
+        `the ${theme} theme paints the running and needs-input dots in their own tokens`,
         JSON.stringify({
           theme,
-          dot: themed.dotBackground,
-          token: themed.warningToken,
+          running: themed.rows.running.beforeBackground,
+          warning: themed.warningToken,
+          permission: themed.rows.permission.beforeBackground,
+          purple: themed.purpleToken,
         }),
       );
-      await screenshot(`topbar-status-running-${theme}`);
+      await screenshot(`sidebar-status-union-${theme}`);
     }
     await cdp.evaluate(`window.__PI_DESKTOP__.setThemeAttr("dark")`);
     await delay(200);
 
-    // 5. Reduced motion switches the animation and the transition off.
+    // 6. Reduced motion disables every dot animation.
     await cdp.send("Emulation.setEmulatedMedia", {
       features: [{ name: "prefers-reduced-motion", value: "reduce" }],
     });
     await delay(250);
-    const reduced = await probe();
+    await forceFrame();
+    const reduced = await probe(ids);
     check(
       reduced.reducedMotion === true &&
-        reduced.dotAnimation === "none" &&
-        String(reduced.transitionDuration)
-          .split(",")
-          .every((value) => value.trim() === "0s"),
-      "prefers-reduced-motion disables the dot animation and the slot transition",
-      JSON.stringify(reduced),
+        reduced.rows.running.beforeAnimation === "none" &&
+        reduced.rows.permission.beforeAnimation === "none",
+      "prefers-reduced-motion disables the running and needs-input animations",
+      JSON.stringify({
+        running: reduced.rows.running.beforeAnimation,
+        permission: reduced.rows.permission.beforeAnimation,
+      }),
     );
+    await screenshot("sidebar-status-union-reduced-motion");
     await cdp.send("Emulation.setEmulatedMedia", { media: "", features: [] });
     await delay(250);
-    const restored = await probe();
+    await forceFrame();
+    const restored = await probe(ids);
     check(
-      restored.dotAnimation === "ct-status-breathe",
-      "clearing the emulated preference restores the animation",
-      JSON.stringify(restored),
-    );
-
-    // 6. Clearing every source hides the chip again.
-    const cleared = await seed({});
-    check(
-      cleared.state === "hidden" && cleared.label === null,
-      "clearing the last intervention source removes the chip",
-      JSON.stringify(cleared),
+      restored.rows.running.beforeAnimation === "sidebar-status-breathe" &&
+        restored.rows.permission.beforeAnimation === "sidebar-status-pulse-purple",
+      "clearing the emulated preference restores both animations",
+      JSON.stringify({
+        running: restored.rows.running.beforeAnimation,
+        permission: restored.rows.permission.beforeAnimation,
+      }),
     );
 
     const failed = results.filter((entry) => !entry.ok);
     console.log(
-      `\nE2E-CHAT-topbar-status-chip: ${results.length - failed.length}/${results.length} checks passed`,
+      `\nE2E-SIDEBAR-status-dot-pending-union: ${results.length - failed.length}/${results.length} checks passed`,
     );
     if (failed.length) {
       for (const entry of failed) {
@@ -487,7 +466,7 @@ async function main() {
     clearTimeout(timeout);
     process.exit(0);
   } catch (error) {
-    console.error(`FAIL topbar status chip — ${error.message}`);
+    console.error(`FAIL sidebar status dot — ${error.message}`);
     try {
       if (activeCdp) {
         console.error("--- renderer console tail ---");

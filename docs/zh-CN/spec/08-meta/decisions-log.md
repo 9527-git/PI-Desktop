@@ -4287,6 +4287,9 @@ the retained upstream work-panel lifecycle. See
 
 ## 2026-09-17 —— 对话顶部栏状态胶囊（D433）
 
+> 已被 D444（2026-09-18）取代：状态指示器从对话顶部栏移到侧边栏会话行。
+> 此处定义的并集语义原样保留。
+
 - 对话顶部栏在任务标题左侧显示状态胶囊：活动会话的回合运行中显示 `● 处理中`
   （橙色、呼吸灯），智能体在等待人工决定时显示 `● 待确认`（紫色、脉冲灯），
   空闲时不显示。胶囊复用侧边栏在同一状态下的圆点语言，两个表面共用一套色彩约定。
@@ -4402,3 +4405,33 @@ D440 把复选框设为只加不删，是为了阻止 fallback 批量清空删�
   `06-delivery/04-e2e-test-plan.md` 的
   E2E-PROVIDER-select-all-toggles-visible-models；
   源码契约覆盖见 `provider-model-selection-safe.test.mjs`。
+
+## 2026-09-18 —— 会话状态落在侧边栏行，而非顶部栏（D444）
+
+D433 之后收到用户反馈：状态灯应位于侧边栏（项目列表下方）每个会话行的最左侧，
+而不是对话顶部栏。顶部栏胶囊只在一处回答「当前活动会话在做什么」；用户想要的是
+在他们本就会扫视的列表里，一眼看到「每个会话在做什么」。D444 把指示器迁移过去，
+取代 D433 的落点，同时保留其并集语义。
+
+- 对话顶部栏不再渲染状态槽、胶囊或实时区域。`ConversationTopbar` 移除其
+  `runningSessions` / `pendingPermissions` / `pendingAsks` / `pendingPlans`
+  订阅，`conversationStatus` 辅助函数被删除；标题簇重新只剩标题。
+  `chat.topbarStatusRunning` / `chat.topbarStatusPending` 文案从八个语言包中
+  移除，`thinking-ui.test.mjs` 重新断言对顶部栏运行指示器的全面禁止。
+- 侧边栏行圆点（D135）成为唯一的状态表面。它的 `permission` 状态——紫色脉冲
+  圆点——从仅权限扩大为该会话上全部人工介入来源的并集：权限队列非空、ask 工具
+  队列非空，或存在待批准的 Plan/Goal（`pendingPlans[sessionId].status ===
+  "pending"`）。`sidebarSessionStatus` 保留稳定的 `permission` id/class 及其
+  优先级（介入 > 运行中 > 选中 > 结果），因此被阻塞的智能体读作「等待你」而非
+  「只是在运行」。运行中圆点的橙色呼吸灯不变。
+- 行的 aria/title 标签从仅权限的 `nav.sessionPermission` 改为
+  `nav.sessionNeedsInput`（"Needs your input" / `待确认`），并在八个语言包中
+  新增，因为该圆点现在也覆盖 ask 与审批，而不只是权限提示。
+- 仅渲染器、文档与测试：不改 IPC 渠道、Host RPC、存储 schema、权限或持久化
+  状态。圆点读取的 store 映射（`runningSessions`、`pendingPermissions`、
+  `pendingAsks`、`pendingPlans`、`sessionOutcomes`）与 D433 消费的相同。
+- 见 `04-ux/07-ui-design-system.md` §12.3、`04-ux/08-component-spec.md` §2 与
+  侧边栏行状态章节，以及 `06-delivery/04-e2e-test-plan.md` 的
+  E2E-SIDEBAR-status-dot-pending-union；`sidebar-session-status.test.mjs`
+  固定并集优先级与样式/标签契约，`scripts/e2e-sidebar-status-dot.mjs` 通过
+  CDP 驱动已构建的应用。

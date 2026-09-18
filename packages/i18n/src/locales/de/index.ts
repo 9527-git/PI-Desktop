@@ -161,6 +161,7 @@ export const de = {
     "sessionSelected": "Ausgewählt",
     "sessionCompleted": "Fertig",
     "sessionFailed": "Benötigt Aufmerksamkeit",
+    "sessionNeedsInput": "Eingabe nötig",
     "sortSessions": "Projekte und Chats sortieren",
     "sortRecent": "Kürzlich aktualisiert",
     "sortOldest": "Älteste zuerst",
@@ -537,9 +538,7 @@ export const de = {
     "thinkingHide": "Denken ausblenden",
     "thinkingUnavailable": "Denken ist für dieses Modell nicht verfügbar.",
     "thinkingEnable": "Denken aktivieren",
-    "untitledTask": "Neue Aufgabe",
-    "topbarStatusRunning": "Läuft",
-    "topbarStatusPending": "Eingabe nötig"
+    "untitledTask": "Neue Aufgabe"
   },
   "sideChat": {
     readOnly: "Diese native Pi-Sitzung ist derzeit schreibgeschützt.",

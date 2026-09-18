@@ -161,6 +161,7 @@ export const fr = {
     "sessionSelected": "Sélectionné",
     "sessionCompleted": "Terminé",
     "sessionFailed": "Nécessite une attention particulière",
+    "sessionNeedsInput": "Action requise",
     "sortSessions": "Trier les projets et les discussions",
     "sortRecent": "Récemment mis à jour",
     "sortOldest": "Le plus ancien en premier",
@@ -537,9 +538,7 @@ export const fr = {
     "thinkingHide": "Masquer la réflexion",
     "thinkingUnavailable": "La réflexion n'est pas disponible pour ce modèle.",
     "thinkingEnable": "Activer la réflexion",
-    "untitledTask": "Nouvelle tâche",
-    "topbarStatusRunning": "En cours",
-    "topbarStatusPending": "En attente"
+    "untitledTask": "Nouvelle tâche"
   },
   "sideChat": {
     readOnly: "Cette session Pi native est en lecture seule pour le moment.",

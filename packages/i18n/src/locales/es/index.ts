@@ -161,6 +161,7 @@ export const es = {
     "sessionSelected": "Seleccionado",
     "sessionCompleted": "Listo",
     "sessionFailed": "Necesita atención",
+    "sessionNeedsInput": "Espera tu respuesta",
     "sortSessions": "Ordenar proyectos y chats",
     "sortRecent": "Actualizado recientemente",
     "sortOldest": "Más antiguo primero",
@@ -537,9 +538,7 @@ export const es = {
     "thinkingHide": "Ocultar pensamiento",
     "thinkingUnavailable": "Pensamiento no está disponible para este modelo.",
     "thinkingEnable": "Habilitar el pensamiento",
-    "untitledTask": "Nueva tarea",
-    "topbarStatusRunning": "En curso",
-    "topbarStatusPending": "Pendiente"
+    "untitledTask": "Nueva tarea"
   },
   "sideChat": {
     readOnly: "Esta sesión nativa de Pi es de solo lectura en este momento.",

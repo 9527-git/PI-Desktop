@@ -163,6 +163,7 @@ export const zhTW = {
     sessionSelected: "已選中",
     sessionCompleted: "已完成",
     sessionFailed: "未完成",
+    sessionNeedsInput: "待確認",
     sortSessions: "專案與對話排序",
     sortRecent: "最近更新",
     sortOldest: "最早建立",
@@ -542,8 +543,6 @@ export const zhTW = {
     thinkingUnavailable: "當前模型不支援思考過程。",
     thinkingEnable: "開啟思考",
     untitledTask: "新建任務",
-    topbarStatusRunning: "處理中",
-    topbarStatusPending: "待確認",
   },
   sideChat: {
     readOnly: "此原生 Pi 工作階段目前為唯讀狀態。",

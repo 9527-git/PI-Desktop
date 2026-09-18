@@ -5412,6 +5412,10 @@ Validation contract: E2E-SIDEBAR-global-pinned-conversations.
 
 ## 2026-09-17 — Conversation topbar status chip (D433)
 
+> Superseded by D444 (2026-09-18): the status indicator moves off the
+> conversation topbar and onto the sidebar session rows. The union semantics
+> defined here carry over unchanged.
+
 - The conversation top bar shows a status chip immediately left of the task
   title: `● 处理中` (orange, breathing) while the active session's turn runs,
   `● 待确认` (purple, pulsing) while the agent waits on a human decision, and
@@ -5666,3 +5670,41 @@ existing `disabledModels` plumbing.
   E2E-PROVIDER-select-all-toggles-visible-models in
   `06-delivery/04-e2e-test-plan.md`; source contract coverage in
   `provider-model-selection-safe.test.mjs`.
+
+## 2026-09-18 — Session status lives on the sidebar row, not the topbar (D444)
+
+User feedback after D433: the status light belongs at the leftmost of each
+session row in the sidebar (under the project list), not in the conversation
+topbar. The topbar chip answered "what is the active session doing" in one
+place; the user wanted "what is every session doing" visible at a glance in the
+list they already scan. D444 relocates the indicator and supersedes D433's
+placement while keeping its union semantics.
+
+- The conversation topbar no longer renders a status slot, chip, or live region.
+  `ConversationTopbar` drops its `runningSessions` / `pendingPermissions` /
+  `pendingAsks` / `pendingPlans` subscriptions and the `conversationStatus`
+  helper is deleted; the title cluster is just the title again. The
+  `chat.topbarStatusRunning` / `chat.topbarStatusPending` copy is removed from
+  all eight locales, and `thinking-ui.test.mjs` re-asserts the blanket ban on a
+  topbar run indicator.
+- The sidebar row dot (D135) is the single status surface. Its `permission`
+  state — the purple pulsing dot — is widened from permission-only to the union
+  of every human-intervention source on that session: a non-empty permission
+  queue, a non-empty asktool queue, or a pending Plan/Goal approval
+  (`pendingPlans[sessionId].status === "pending"`). `sidebarSessionStatus` keeps
+  the stable `permission` id/class and its priority (intervention > running >
+  selected > outcome), so a blocked agent reads as waiting-on-you rather than
+  merely working. The running dot's orange breathing is unchanged.
+- The row's aria/title label switches from the permission-only
+  `nav.sessionPermission` to `nav.sessionNeedsInput` ("Needs your input" /
+  `待确认`), added across all eight locales, because the dot now covers asks and
+  approvals too, not just permission prompts.
+- Renderer plus docs plus tests: no IPC channel, host RPC, storage schema,
+  permission, or persisted-state change. The store maps the dot reads
+  (`runningSessions`, `pendingPermissions`, `pendingAsks`, `pendingPlans`,
+  `sessionOutcomes`) are the same ones D433 consumed.
+- See `04-ux/07-ui-design-system.md` §12.3, `04-ux/08-component-spec.md` §2 and
+  the sidebar row status section, and E2E-SIDEBAR-status-dot-pending-union in
+  `06-delivery/04-e2e-test-plan.md`; `sidebar-session-status.test.mjs` pins the
+  union priority and the style/label contract, and
+  `scripts/e2e-sidebar-status-dot.mjs` drives the built app over CDP.
