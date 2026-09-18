@@ -77,6 +77,7 @@ export type StartupDependencies = {
     developerMode?: unknown;
   } | null) => void;
   applyDeveloperMode: (settings?: { developerMode?: unknown } | null) => void;
+  applyUpdateCheckSetting: (settings?: { autoUpdateCheck?: unknown } | null) => void;
   applyPluginLauncherShortcut: (keybindings?: KeybindingOverrides) => void;
   applySummonWindowShortcut: (keybindings?: KeybindingOverrides) => void;
   ensureWindow: () => Promise<boolean>;
@@ -120,6 +121,7 @@ export function registerApplicationStartup(deps: StartupDependencies): void {
       planUiProbe,
       applyApplicationMenuSettings,
       applyDeveloperMode,
+      applyUpdateCheckSetting,
       applyPluginLauncherShortcut,
       applySummonWindowShortcut,
       ensureWindow,
@@ -213,9 +215,11 @@ export function registerApplicationStartup(deps: StartupDependencies): void {
           theme?: unknown;
           keybindings?: unknown;
           developerMode?: unknown;
+          autoUpdateCheck?: unknown;
         } | null;
         applyApplicationMenuSettings(stored);
         applyDeveloperMode(stored);
+        applyUpdateCheckSetting(stored);
         await applyNetworkProxyFromAppSettings(stored);
       } catch {
         // Keep the OS-locale menu until settings can be read again, while

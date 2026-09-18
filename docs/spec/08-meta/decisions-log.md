@@ -5494,3 +5494,20 @@ host, storage, or permission change.
 - See `04-ux/08-component-spec.md` §8.3 and
   E2E-CHAT-turn-usage-and-timestamps in `06-delivery/04-e2e-test-plan.md`;
   source contract coverage in `turn-usage-meta.test.mjs`.
+
+## 2026-09-18 — Automatic update checks are user-gated (D437)
+
+The updater ran its GitHub feed checks unconditionally (15s after boot, then
+every 6h), with no way to opt out. Settings → Info gains an **Automatic
+update checks** toggle row directly above the Updates row, persisted as the
+optional `AppSettings.autoUpdateCheck` value (absent = enabled, so existing
+installs keep the current behavior). Main mirrors the flag next to the
+updater (`applyUpdateCheckSetting`, applied on boot from stored settings and
+after every settings write) and the updater consults it at each timer fire,
+so toggling takes effect without a restart. The gate only covers automatic
+discovery: manual checks from the Updates row, the sidebar build chip, and
+the application menu are never blocked. Renderer, main, docs, and tests
+only: no IPC channel, Host RPC, storage schema, or permission change.
+- See `04-ux/06-settings-ia.md` §Info and
+  E2E-UPDATES-auto-check-toggle in `06-delivery/04-e2e-test-plan.md`;
+  source contract coverage in `auto-update.test.mjs`.

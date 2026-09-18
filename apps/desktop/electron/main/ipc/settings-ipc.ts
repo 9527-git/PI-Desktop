@@ -21,6 +21,7 @@ export type SettingsIpcDependencies = {
     developerMode?: unknown;
   } | null) => void;
   applyDeveloperMode: (settings?: { developerMode?: unknown } | null) => void;
+  applyUpdateCheckSetting: (settings?: { autoUpdateCheck?: unknown } | null) => void;
   resolveEffectiveCommandShell: () => Promise<unknown>;
 };
 
@@ -37,6 +38,7 @@ export function registerSettingsIpc({
   currentNetworkProxy,
   applyApplicationMenuSettings,
   applyDeveloperMode,
+  applyUpdateCheckSetting,
   resolveEffectiveCommandShell,
 }: SettingsIpcDependencies): void {
   let host: HostProcess | null = null;
@@ -84,6 +86,9 @@ export function registerSettingsIpc({
       } | null,
     );
     applyDeveloperMode(validatedSettings as { developerMode?: unknown } | null);
+    applyUpdateCheckSetting(
+      validatedSettings as { autoUpdateCheck?: unknown } | null,
+    );
     return result;
   });
 

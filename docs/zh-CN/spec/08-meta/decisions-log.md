@@ -4326,3 +4326,10 @@ the retained upstream work-panel lifecycle. See
 - 见 `04-ux/08-component-spec.md` §8.3 与
   `06-delivery/04-e2e-test-plan.md` 的 E2E-CHAT-turn-usage-and-timestamps；
   源码契约覆盖见 `turn-usage-meta.test.mjs`。
+
+## 2026-09-18 —— 自动更新检查改为用户可控（D437）
+
+此前更新器无条件执行 GitHub feed 检查（启动 15 秒后首查，之后每 6 小时一次），用户无法关闭。设置 → 信息页在软件更新行正上方新增“自动检查更新”开关行，持久化为可选的 `AppSettings.autoUpdateCheck` 值（缺省即开启，既有安装保持现有行为）。主进程在 updater 旁镜像该标志（`applyUpdateCheckSetting`，启动读取已存设置及每次设置写入后应用），updater 在每次定时器触发时读取，切换后无需重启即生效。门控只覆盖自动发现：软件更新行、侧栏版本徽章、应用菜单的手动检查永不被拦截。仅渲染器、主进程、文档与测试：不改 IPC 渠道、Host RPC、存储 schema 或权限。
+- 见 `04-ux/06-settings-ia.md` §信息 与
+  `06-delivery/04-e2e-test-plan.md` 的 E2E-UPDATES-auto-check-toggle；
+  源码契约覆盖见 `auto-update.test.mjs`。

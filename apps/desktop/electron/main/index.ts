@@ -579,6 +579,14 @@ const inflightCheckpointer = new InflightCheckpointer(async (checkpoint) => {
 
 /** Product UI locale for shipped-locale update notes (mirrored from settings). */
 let updaterLocale = "en";
+/**
+ * Mirrors `AppSettings.autoUpdateCheck` so the updater's automatic checks stop
+ * and resume from one flag; manual checks are unaffected. Absent = enabled.
+ */
+let autoUpdateCheckEnabled = true;
+function applyUpdateCheckSetting(settings?: { autoUpdateCheck?: unknown } | null) {
+  autoUpdateCheckEnabled = settings?.autoUpdateCheck !== false;
+}
 type PluginPanelTheme = "light" | "dark";
 let pluginPanelTheme: PluginPanelTheme = nativeTheme.shouldUseDarkColors
   ? "dark"
@@ -594,6 +602,7 @@ const updater = new AppUpdaterController({
   currentVersion: APP_VERSION,
   isPackaged: !isDevelopmentBuild,
   getLocale: () => updaterLocale,
+  isAutoCheckEnabled: () => autoUpdateCheckEnabled,
 });
 
 /**
@@ -1263,6 +1272,7 @@ function registerIpc() {
     currentNetworkProxy,
     applyApplicationMenuSettings,
     applyDeveloperMode,
+    applyUpdateCheckSetting,
     resolveEffectiveCommandShell,
     modelsDevCatalog,
     vendorOAuth,
@@ -1385,6 +1395,7 @@ registerApplicationStartup({
   planUiProbe,
   applyApplicationMenuSettings,
   applyDeveloperMode,
+  applyUpdateCheckSetting,
   applyPluginLauncherShortcut,
   applySummonWindowShortcut,
   ensureWindow,
