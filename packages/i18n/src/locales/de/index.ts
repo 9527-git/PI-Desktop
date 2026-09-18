@@ -162,6 +162,8 @@ export const de = {
     "sessionCompleted": "Fertig",
     "sessionFailed": "Benötigt Aufmerksamkeit",
     "sessionNeedsInput": "Eingabe nötig",
+    "sessionRunningShort": "Aktiv",
+    "sessionNeedsInputShort": "Eingabe",
     "sortSessions": "Projekte und Chats sortieren",
     "sortRecent": "Kürzlich aktualisiert",
     "sortOldest": "Älteste zuerst",

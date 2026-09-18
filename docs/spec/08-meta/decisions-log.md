@@ -5750,6 +5750,9 @@ looks: inline on the session row.
 
 ## 2026-09-18 — The status word rides inside the dot's own chip (D446)
 
+> Amended by D447 the same day: the pairing stays, the chip leaves the title's
+> lane. Read D447 for the current contract.
+
 User feedback on the v0.14.34 build: the D445 word "wandered off to the front of
 the session title" instead of reading as the light's label. The cause is
 geometric, not a wrong choice of slot: the dot is absolutely positioned and
@@ -5783,6 +5786,52 @@ checks passed on a layout no real row renders.
   centre stays within 2px of the row's centre, that the chip is tinted, and that
   the selected row's dot is still the plain absolute gutter dot.
   `sidebar-session-status.test.mjs` pins the markup and the token contract.
+- See `04-ux/07-ui-design-system.md` §4.5, `04-ux/08-component-spec.md` §2 and
+  §3, and E2E-SIDEBAR-status-dot-pending-union in
+  `06-delivery/04-e2e-test-plan.md`.
+
+## 2026-09-18 — The chip leads in a column every row reserves (D447)
+
+> **Supersedes D446's placement.** Dot-plus-word pairing, tint tokens, centring,
+> and the `aria-hidden` twin all carry over; what changes is where the chip sits.
+
+User feedback on the v0.14.35 build: "状态胶囊不要挤标题啊，标题对齐，状态胶囊要在最前
+面突出". D446 made the chip a flex child of the row button, so an attention row
+both released its 20px gutter (`:has(.thread-item-status-chip) { padding-left:
+6px }`) and spent its chip width in front of the title. Chip rows therefore drew
+their title at x≈85px while quiet rows drew theirs at x≈42px: two ragged title
+columns, and the pill ate the title's own width.
+
+- The row now reserves a leading **status column** (`--ds-sidebar-status-column`,
+  72px) through `.thread-item-main`'s padding-left, and every row reserves it
+  whether or not it carries a marker. Session titles therefore keep one left edge
+  across running, needs-input, selected, completed, and quiet rows.
+- The chip moves out of the content flow into that column: it is absolutely
+  positioned at `left: 4px`, vertically centred on the whole row — the same anchor
+  the quiet-state dot has always used — so the pill leads the row and stays the
+  most prominent thing on it without ever entering the title's lane. Its width is
+  capped to the column, so an over-long translation ellipsises instead of pushing
+  a title. The chip and its word are `pointer-events: none` while the dot opts
+  back in, keeping the whole column clickable for the row and the dot's tooltip
+  reachable.
+- A pill has to say its state inside a fixed width, so the chip word becomes a
+  short locale-specific form (`nav.sessionRunningShort`,
+  `nav.sessionNeedsInputShort`) added to all eight shipped locales. The full
+  phrase (`nav.sessionRunning`, `nav.sessionNeedsInput`) stays on the dot as its
+  tooltip and accessible name, so what a screen reader hears does not shrink
+  while what the eye sees fits.
+- Quiet states are untouched: selected, completed, and failed rows keep the D135
+  absolutely positioned dot at the column's left edge, with no chip and no word.
+- Renderer, locale, docs, and tests only: no IPC channel, host RPC, schema,
+  permission, or persisted-state change.
+- Regression coverage: `scripts/e2e-sidebar-status-dot.mjs` now measures the
+  reserved column and the title's own left edge per row, asserting all five
+  seeded rows share one title edge and that every chip is absolutely positioned
+  from `left: 4px` with its right edge still left of the title; the one-group
+  check additionally requires the chip word to be no longer than the dot's
+  accessible name and not clipped. `sidebar-session-status.test.mjs` pins the
+  column token, the chip's absolute placement, the absence of the old `:has()`
+  padding release, and the two new keys in all eight locales.
 - See `04-ux/07-ui-design-system.md` §4.5, `04-ux/08-component-spec.md` §2 and
   §3, and E2E-SIDEBAR-status-dot-pending-union in
   `06-delivery/04-e2e-test-plan.md`.

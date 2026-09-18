@@ -162,6 +162,8 @@ export const es = {
     "sessionCompleted": "Listo",
     "sessionFailed": "Necesita atención",
     "sessionNeedsInput": "Espera tu respuesta",
+    "sessionRunningShort": "Activo",
+    "sessionNeedsInputShort": "Entrada",
     "sortSessions": "Ordenar proyectos y chats",
     "sortRecent": "Actualizado recientemente",
     "sortOldest": "Más antiguo primero",

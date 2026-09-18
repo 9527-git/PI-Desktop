@@ -16,10 +16,15 @@
  *
  * and the D446 contract on top of it — the two attention states spell the
  * status out as a colored word INSIDE the same tinted chip as the live dot
- * (running in the warning token, every needs-input source in the purple one,
- * with the exact text the dot exposes as its accessible name), and that chip
- * stays centred on the whole row so the word cannot drift onto the title line
- * of a two-line row. Quiet states keep the plain dot in the left gutter.
+ * (running in the warning token, every needs-input source in the purple one),
+ * and that chip stays centred on the whole row so the word cannot drift onto the
+ * title line of a two-line row. Quiet states keep the plain dot in the left gutter.
+ *
+ * and the D447 contract on top of that — the chip lives in a status column that
+ * every row reserves, not in the row's content flow, so no session title is
+ * pushed or squeezed by a pill: all five rows share one title left edge, and the
+ * chip's right edge stays left of it. The dot keeps the full phrase as its
+ * accessible name; the chip shows a short word that fits the column un-clipped.
  *
  * Screenshots land in PI_DESKTOP_E2E_ARTIFACT_DIR (or a temp dir) for visual
  * inspection.
@@ -162,8 +167,11 @@ function probeExpression(ids) {
     const cs = getComputedStyle(status);
     const label = row.querySelector(".thread-item-status-label");
     const chip = row.querySelector(".thread-item-status-chip");
+    const main = row.querySelector(".thread-item-main");
+    const title = row.querySelector(".thread-item-title");
     const rowBox = row.getBoundingClientRect();
     const statusBox = status.getBoundingClientRect();
+    const chipBox = chip ? chip.getBoundingClientRect() : null;
     return {
       present: true,
       stateClass: [...status.classList].find((c) => c !== "thread-item-status") ?? null,
@@ -193,6 +201,15 @@ function probeExpression(ids) {
         ? [...label.classList].find((c) => c !== "thread-item-status-label") ?? null
         : null,
       titleShown: !!row.querySelector(".thread-item-title"),
+      // D447: every row reserves the same leading status column, so the title's
+      // left edge is the same x with or without a chip, and the chip never
+      // reaches it. The column is measured off the row button's own padding.
+      statusColumn: main ? Math.round(parseFloat(getComputedStyle(main).paddingLeft)) : null,
+      titleLeft: title ? Math.round(title.getBoundingClientRect().left - rowBox.left) : null,
+      chipPosition: chip ? getComputedStyle(chip).position : null,
+      chipLeft: chipBox ? Math.round(chipBox.left - rowBox.left) : null,
+      chipRight: chipBox ? Math.round(chipBox.right - rowBox.left) : null,
+      chipWordClipped: label ? label.scrollWidth > label.clientWidth + 1 : null,
     };
   };
   const topbar = document.querySelector(".conversation-topbar");
@@ -417,10 +434,11 @@ async function main() {
     // 4. D446: both attention states spell the status out in words inside the
     //    same tinted chip as the live dot, and the chip stays centred on the
     //    whole row - so the word can never sit on the title line of a two-line
-    //    row while the light floats below it.
+    //    row while the light floats below it. The word is the short form of the
+    //    dot's own accessible name (D447), never longer than it.
     const chipIsOneGroup = (row, state, token) =>
-      row.inlineLabel === row.label &&
       !!row.inlineLabel &&
+      row.inlineLabel.length <= row.label.length &&
       row.inlineLabelColor === token &&
       row.inChip === true &&
       row.chipClass === state &&
@@ -429,6 +447,7 @@ async function main() {
       row.dotPosition === "static" &&
       row.chipBackground !== "rgba(0, 0, 0, 0)" &&
       Math.abs(row.statusCenterOffset) <= 2 &&
+      row.chipWordClipped === false &&
       row.previewShown === true &&
       row.titleShown;
     check(
@@ -451,6 +470,40 @@ async function main() {
         base.rows.selected.titleShown,
       "the selected row keeps its quiet dot in the gutter, with no chip or word",
       JSON.stringify(base.rows.selected),
+    );
+
+    // 4b. D447: the pill leads inside a status column that every row reserves,
+    //     so a chip neither pushes a title off the grid nor squeezes it.
+    const attentionRows = ["running", "permission", "ask", "plan"].map(
+      (key) => base.rows[key],
+    );
+    const everyRow = [base.rows.selected, ...attentionRows];
+    check(
+      everyRow.every(
+        (row) => row.statusColumn === everyRow[0].statusColumn &&
+          row.titleLeft === everyRow[0].titleLeft,
+      ),
+      "every row reserves the same status column, so all titles share one left edge",
+      JSON.stringify(
+        everyRow.map((row) => ({ column: row.statusColumn, titleLeft: row.titleLeft })),
+      ),
+    );
+    check(
+      attentionRows.every(
+        (row) =>
+          row.chipPosition === "absolute" &&
+          row.chipLeft === 4 &&
+          row.chipRight < row.titleLeft,
+      ),
+      "the status chip leads inside the reserved column and never reaches the title",
+      JSON.stringify(
+        attentionRows.map((row) => ({
+          position: row.chipPosition,
+          left: row.chipLeft,
+          right: row.chipRight,
+          titleLeft: row.titleLeft,
+        })),
+      ),
     );
 
     // 5. The topbar carries no status slot/chip of its own (D444 relocation).

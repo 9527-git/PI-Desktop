@@ -164,6 +164,8 @@ export const zhCN = {
     sessionCompleted: "已完成",
     sessionFailed: "未完成",
     sessionNeedsInput: "待确认",
+    sessionRunningShort: "进行中",
+    sessionNeedsInputShort: "待确认",
     sortSessions: "项目与对话排序",
     sortRecent: "最近更新",
     sortOldest: "最早创建",

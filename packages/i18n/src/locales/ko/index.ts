@@ -171,6 +171,8 @@ export const ko = {
     sessionCompleted: "완료",
     sessionFailed: "확인 필요",
     sessionNeedsInput: "입력 필요",
+    sessionRunningShort: "진행",
+    sessionNeedsInputShort: "입력",
     sortSessions: "프로젝트와 채팅 정렬",
     sortRecent: "최근 업데이트순",
     sortOldest: "오래된 순",

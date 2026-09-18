@@ -24,15 +24,9 @@
   flex: 1;
   align-items: center;
   gap: 5px;
-  padding: 5px 6px 5px 20px;
+  padding: 5px 6px 5px var(--ds-sidebar-status-column);
   text-align: left;
   color: inherit;
-}
-
-/* D446: an attention row leads with its status chip, so the gutter that used to
-   hold the floating dot is released back to the chip. */
-.thread-item-main:has(.thread-item-status-chip) {
-  padding-left: 6px;
 }
 
 .thread-item-title {
@@ -45,23 +39,36 @@
 
 /* D446: the two attention states (running / needs input) read as one tinted
    chip — the live dot and its status word share a single group, so the word can
-   never drift onto the title line while the dot stays centred on a two-line
-   row. The dot keeps its tooltip and accessible name; the word is its visual
-   twin and is hidden from assistive tech. */
+   never drift onto the title line while the dot stays centred on a two-line row.
+   D447: the chip is pinned inside the reserved leading status column instead of
+   sitting in the row's content flow, exactly like the quiet-state gutter dot, so
+   every title keeps one left edge and no pill can squeeze it. The column cap
+   makes an over-long translation ellipsise rather than push the title. The dot
+   keeps its tooltip and accessible name; the word is its visual twin and is
+   hidden from assistive tech. */
 .thread-item-status-chip {
+  position: absolute;
+  left: 4px;
+  top: 50%;
+  transform: translateY(-50%);
   display: inline-flex;
-  flex: 0 0 auto;
   align-items: center;
   gap: 4px;
+  max-width: calc(var(--ds-sidebar-status-column) - 10px);
   border-radius: var(--radius-full);
   padding: 1px 7px 1px 5px;
+  /* Visual only: the row button underneath owns the whole column, while the dot
+     re-enables pointer input for its own tooltip. */
+  pointer-events: none;
 }
 
 .thread-item-status-chip .thread-item-status {
   position: static;
   width: 8px;
   height: 8px;
+  flex: 0 0 auto;
   transform: none;
+  pointer-events: auto;
 }
 
 .thread-item-status-chip .thread-item-status::before {
@@ -77,9 +84,12 @@
 }
 
 .thread-item-status-label {
+  min-width: 0;
+  overflow: hidden;
   font-size: var(--text-2xs);
   font-weight: var(--font-weight-strong);
   line-height: var(--leading-compact);
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 

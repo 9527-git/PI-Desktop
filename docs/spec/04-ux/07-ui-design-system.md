@@ -243,7 +243,9 @@ Light-surface polish (D148):
 
 ### 4.5 Sidebar task status semantics
 
-Compact task rows reserve one `12px` leading status slot. State is never
+Compact task rows reserve one `--ds-sidebar-status-column` (`72px`) leading status
+column for their marker, and every row reserves the same width whether or not it
+carries a chip, so session titles keep one left edge (D447). State is never
 communicated by color alone, and each status consumes an existing semantic
 token rather than introducing a decorative palette:
 
@@ -270,16 +272,19 @@ breathing and pulse animations while retaining each dot's fill and localized
 accessible name (`nav.sessionNeedsInput` for the needs-input state).
 
 The two attention states also spell their state out. In progress and needs input
-render their localized word (`nav.sessionRunning` / `nav.sessionNeedsInput`)
+render a localized word (`nav.sessionRunningShort` / `nav.sessionNeedsInputShort`)
 inside the same rounded chip as the live dot, on a 14% tint of the dot's own
 `--ds-warning` / `--ds-purple` token, so a glance at the list reads as text
-rather than as color decoding (D445, placed by D446). The chip is a flex child of
-the row, so dot and word stay centred on the whole row together even when the row
-carries a preview line; the word remains the dot's visual twin — `aria-hidden`,
-identical copy, same token — and the quiet states (selected, completed, failed)
-keep the plain dot in the leading slot with no chip, so the label keeps meaning
-"this row needs your attention". Both themes resolve chip, dot, and word to their
-own tokens.
+rather than as color decoding (D445, grouped by D446, placed by D447). The chip is
+pinned inside the row's reserved status column — absolutely positioned at the same
+left edge the quiet dot uses, centred on the whole row — and is capped to that
+column's width, so a pill never consumes title width and no title shifts when a
+session starts or stops running. The word is the dot's visual twin (`aria-hidden`)
+and stays short enough to fit the column in every shipped locale; the full phrase
+(`nav.sessionRunning` / `nav.sessionNeedsInput`) stays on the dot's tooltip and
+accessible name. The quiet states (selected, completed, failed) keep the plain dot
+in that column with no chip, so the label keeps meaning "this row needs your
+attention". Both themes resolve chip, dot, and word to their own tokens.
 
 ### 4.6 Chat transcript status semantics
 
