@@ -137,7 +137,10 @@ test("renders semantic, shape-distinct sidebar status indicators", () => {
     /status === "running" \|\| status === "permission"[\s\S]*thread-item-status-label/,
   );
   assert.match(sidebar, /thread-item-title-row[\s\S]*thread-item-status-label[\s\S]*thread-item-title/);
-  assert.match(sidebar, /thread-item-status-label \$\{status\}\}[\s\S]*aria-hidden/);
+  assert.match(
+    sidebar,
+    /className=\{`thread-item-status-label \$\{status\}`\}[\s\S]{0,80}aria-hidden/,
+  );
   assert.match(styles, /thread-item-status-label\.running[\s\S]*--ds-warning/);
   assert.match(styles, /thread-item-status-label\.permission[\s\S]*--ds-purple/);
   assert.match(styles, /thread-item-title-row[\s\S]*min-width: 0/);
