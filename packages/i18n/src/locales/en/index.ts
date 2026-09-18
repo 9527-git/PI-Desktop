@@ -1203,7 +1203,8 @@ sklm: {
     searchChosenModels: "Search added models…",
     noChosenModelMatches: "No matching added models.",
     selectAllVisibleModels: "Select all",
-    selectAllAddOnlyHint: "Adds every visible model; configured models are never removed.",
+    selectAllModelsHint:
+      "Check to add every visible model; uncheck to clear them - each stays listed and can be restored.",
     copyBaseUrl: "Copy endpoint URL",
     copyApiKey: "Copy API key",
     copiedToClipboard: "Copied to clipboard",

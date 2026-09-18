@@ -3416,20 +3416,24 @@ compatibility remains owned by pi-ai.
   and synthetic clicks preserve the configured order, default model, aliases
   and advanced overrides. A right-pane filter is cleared only when it hides
   the activated model. Deletion uses the explicit Remove action in the right
-  pane; the header's add-only select-all below remains unchanged.
+  pane; the header's select-all toggle below remains unchanged.
   Configuration rows stay compact until expanded, and one row at a time is
   expanded: expanding a row, from its Advanced control or from its name in
   the left list, collapses whichever other row was open.
-- The left-pane list header carries a checkbox that adds every currently
+- The left-pane list header carries a checkbox that toggles every currently
   visible row. A search filter narrows which rows "all" means; already-chosen
   bindings keep their advanced overrides. The checkbox is checked when every
   visible row is chosen, unchecked when none are, and indeterminate when the
-  visible set is mixed. It is add-only by design (D440): checking adds the
-  visible rows, and unchecking is a no-op — in fallback mode
-  (`modelsFallbackNote`) the visible rows are exactly the configured models,
-  so a bulk clear could only drop bindings the live answer may never list
-  again. Checking re-adds remembered (unchecked) rows with their saved
-  parameters rather than catalog defaults. Removal stays with the right pane's explicit Remove.
+  visible set is mixed. Since D443 it is a real toggle: checking adds the
+  visible rows, and unchecking removes them — but exactly like a row uncheck it
+  stays soft, so each dropped binding is remembered and its row stays listed
+  unchecked, and re-checking restores the saved parameters. D440 had made it
+  add-only because in fallback mode (`modelsFallbackNote`) the visible rows are
+  exactly the configured models and a bulk clear could drop bindings the live
+  answer may never list again; D442's persisted `disabledModels` memory removed
+  that danger, so the checkbox can behave like one. Checking re-adds remembered
+  (unchecked) rows with their saved parameters rather than catalog defaults.
+  The right pane's explicit Remove is still the only destructive path.
 - The same header has a compact Fetch list action that re-probes the service
   immediately. It stays disabled when no discoverable endpoint is ready, while
   a probe is in flight, or while saving. Idle-with-a-valid-URL (the edit
@@ -3460,8 +3464,8 @@ compatibility remains owned by pi-ai.
   displayed rows; the memory is persisted with the provider record (D442), so
   it survives a save and reopen; the remembered copy is dropped by
   deletion. Deletion stays with the right pane's remove button, which also
-  hides the discovered row; the header select-all is add-only and cannot drop
-  bindings. The id
+  hides the discovered row; the header select-all toggles the visible rows
+  softly (D443) — unchecking remembers them rather than deleting. The id
   and name are selectable text inside the otherwise non-selectable shell; a
   drag-selection in the clicked row is copy-only, and native label activation
   must not forward a row click into the checkbox toggle. Selection

@@ -10398,39 +10398,44 @@ are withdrawn with ADR 0165.
   covered by `pnpm test:e2e:provider-model-selection` with a stubbed API.
   Composer display, real clipboard, host validation and restart remain manual.
 
-#### E2E-PROVIDER-select-all-never-clears: The header select-all adds and never deletes
+#### E2E-PROVIDER-select-all-toggles-visible-models: The header select-all toggles the visible rows
 
-(Renamed from E2E-PROVIDER-fallback-hides-select-all, D438, when D440 reversed
-the hiding approach and kept the checkbox visible but add-only.)
+(Renamed from E2E-PROVIDER-select-all-never-clears — itself renamed from
+E2E-PROVIDER-fallback-hides-select-all at D438 — when D443 made the checkbox a
+real toggle now that D442 persists unchecked bindings.)
 
 - **Preconditions**: A provider whose live model probe fails or returns an
   empty list, so the editor's left list renders the fallback note
   (`modelsFallbackNote`) with exactly the configured models; at least two
-  model bindings are saved.
+  model bindings are saved, one of them with an alias, a limit, or a thinking
+  level.
 - **Steps**: 1) Open Settings → Model configuration and edit the provider.
   2) Confirm the left list shows the fallback note and the select-all checkbox
-  is rendered beside the list title. 3) Uncheck the select-all checkbox and
-  confirm nothing is removed: every configured model stays checked (unchecking
-  is a no-op). 4) Type a search filter that hides one configured model, then
-  check the select-all: only visible rows are affected, and the hidden
-  configured model keeps its binding. 5) Click every left row (id, padding,
-  checkbox) and confirm each configured model stays checked and nothing is
-  removed. 6) Remove one model through the right pane's explicit Remove, then
-  save and reopen: the other bindings persist, and the removed model's row
-  stays hidden (D441) until restored through the hidden-models Show entry or
-  a custom re-add.
-- **Expected**: The header select-all is add-only in every mode (D440): it
-  can add visible rows but has no clear path, so a fallback list — exactly
-  the configured models — can never be bulk-wiped by the control that caused
-  the regression. Removal stays with the right pane's explicit Remove, which
-  hides the dropped row (D441) so a fallback binding is never lost without a
-  recovery path.
-- **Specs linked**: `04-ux/08-component-spec.md` §19.4, ADR 0192, D440, D441
+  is rendered beside the list title, checked (every configured row is chosen).
+  3) Uncheck the select-all: every visible binding leaves the right pane, but
+  each row stays listed unchecked and the header becomes unchecked. 4) Re-check
+  the select-all: every row returns to chosen with its saved alias, limits, and
+  thinking levels intact. 5) Type a search filter that hides one configured
+  model, then uncheck the select-all: only the visible rows are cleared and the
+  hidden configured model keeps its binding. 6) Save and reopen: the rows left
+  unchecked are still listed unchecked (D442), and re-checking restores their
+  parameters. 7) Remove one model through the right pane's explicit Remove,
+  then save and reopen: the removed model's row stays hidden (D441) until
+  restored through the hidden-models Show entry or a custom re-add.
+- **Expected**: The header select-all is a real toggle (D443): checking adds
+  every visible row, unchecking removes them softly — each dropped binding is
+  remembered (persisted in `disabledModels`) and its row stays listed unchecked,
+  so a fallback bulk-clear can no longer lose a configured model. This
+  supersedes D440's add-only rule, which existed only because unchecked bindings
+  were not yet persisted. The right pane's explicit Remove stays the only
+  destructive path, hiding the dropped row through `hiddenModels` (D441).
+- **Specs linked**: `04-ux/08-component-spec.md` §19.4, ADR 0192, D440, D441,
+  D442, D443
 - **Acceptance**: B (model configuration)
 - **Milestone**: M2
 - **Status**: Source-contract covered (`provider-model-selection-safe.test.mjs`);
   UI journey verified via CDP against the user-data copy for the D438
-  reproduction; the add-only rewrite reuses the same journey.
+  reproduction; the toggle behavior reuses the same journey.
 
 #### E2E-PROVIDER-copy-endpoint-and-key: Quick copy in the provider editor
 

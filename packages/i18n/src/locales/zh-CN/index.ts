@@ -1191,7 +1191,8 @@ sklm: {
     searchChosenModels: "搜索已添加模型…",
     noChosenModelMatches: "没有匹配的已添加模型",
     selectAllVisibleModels: "全选",
-    selectAllAddOnlyHint: "勾选将添加全部可见模型，不会移除已配置的模型。",
+    selectAllModelsHint:
+      "勾选添加全部可见模型；取消勾选清空它们——每个模型仍保留在列表中，可随时恢复。",
     copyBaseUrl: "复制接口地址",
     copyApiKey: "复制 API 密钥",
     copiedToClipboard: "已复制到剪贴板",
