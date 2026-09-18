@@ -125,6 +125,8 @@ export const tr = {
     manualHint: "Yeni sürümü yayınlar sayfasından indirin.",
     error: "Güncellemeler denetlenemedi: {{message}}",
     dismiss: "Kapat",
+    autoCheck: "Otomatik güncelleme denetimi",
+    autoCheckDesc: "Başlangıçta ve düzenli aralıklarla GitHub Releases üzerinde yeni sürümler denetlenir; manuel denetimler etkilenmez.",
     devDisabled: "Geliştirme derlemelerinde güncellemeler kapalıdır.",
   },
   nav: {

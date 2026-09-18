@@ -116,6 +116,8 @@ export const de = {
     "manualHint": "Laden Sie die neue Version von der Release-Seite herunter.",
     "error": "Konnte nicht nach Updates suchen: {{message}}",
     "dismiss": "Verwerfen",
+    "autoCheck": "Automatische Update-Prüfung",
+    "autoCheckDesc": "Beim Start und regelmäßig auf neue Versionen auf GitHub Releases prüfen; manuelle Prüfungen sind nicht betroffen.",
     "devDisabled": "Updates sind in Entwicklungs-Builds deaktiviert."
   },
   "nav": {

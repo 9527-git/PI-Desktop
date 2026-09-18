@@ -116,6 +116,8 @@ export const fr = {
     "manualHint": "Téléchargez la nouvelle version à partir de la page des versions.",
     "error": "Impossible de vérifier les mises à jour : {{message}}",
     "dismiss": "Ignorer",
+    "autoCheck": "Vérification automatique des mises à jour",
+    "autoCheckDesc": "Recherche les nouvelles versions sur GitHub Releases au démarrage et régulièrement ; les vérifications manuelles ne sont pas affectées.",
     "devDisabled": "Les mises à jour sont désactivées dans les versions de développement."
   },
   "nav": {
