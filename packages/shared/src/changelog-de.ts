@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.34",
+    "date": "2026-09-18",
+    "highlights": [
+      "Sitzungen, die laufen oder auf dich warten, sagen das jetzt auch in Worten: direkt vor dem Sitzungstitel erscheint ein kleiner farbiger Statushinweis in derselben Farbe wie der Punkt der Zeile.",
+      "Nur diese beiden Zustände mit Aufmerksamkeit zeigen Text — ausgewählte, abgeschlossene und fehlgeschlagene Zeilen bleiben still, das Wort bedeutet also immer, dass die Sitzung auf dich wartet.",
+    ],
+  },
+  {
     "version": "0.14.33",
     "date": "2026-09-18",
     "highlights": [

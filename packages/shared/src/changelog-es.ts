@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.34",
+    "date": "2026-09-18",
+    "highlights": [
+      "Las sesiones en curso y las que esperan tu respuesta también lo dicen con palabras: justo antes del título aparece una pequeña etiqueta de estado, del mismo color que el punto de esa fila.",
+      "Solo esos dos estados de atención llevan texto — las filas seleccionada, completada y fallida siguen en silencio, así la palabra siempre significa que la sesión te espera.",
+    ],
+  },
+  {
     "version": "0.14.33",
     "date": "2026-09-18",
     "highlights": [

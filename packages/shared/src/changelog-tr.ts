@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.34",
+    "date": "2026-09-18",
+    "highlights": [
+      "「Çalışıyor」ve 「Girdi bekliyor」oturumlar artık bunu sözlerle de söylüyor: oturum başlığının hemen önünde, o satırın canlı noktasıyla aynı renkte küçük bir durum etiketi beliriyor.",
+      "Yalnızca bu iki dikkat durumu yazı taşır — seçili, tamamlandı ve başarısız satırlar sessiz kalır; böylece kelime her zaman bu oturumun sizi beklediği anlamına gelir.",
+    ],
+  },
+  {
     "version": "0.14.33",
     "date": "2026-09-18",
     "highlights": [

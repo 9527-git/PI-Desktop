@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.34",
+    "date": "2026-09-18",
+    "highlights": [
+      "Les sessions en cours et celles qui attendent votre avis le disent maintenant aussi avec des mots : une petite étiquette de couleur apparaît juste avant le titre, assortie au point de la ligne.",
+      "Seuls ces deux états qui réclament votre attention portent ce texte — les lignes sélectionnée, terminée et échouée restent discrètes, le mot signifie donc toujours que la session vous attend.",
+    ],
+  },
+  {
     "version": "0.14.33",
     "date": "2026-09-18",
     "highlights": [

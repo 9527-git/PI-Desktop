@@ -29,6 +29,14 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.34",
+    date: "2026-09-18",
+    highlights: [
+      "Working and needs-your-input sessions now say so in words too: a small colored status label appears right before the session title, matching that row's live dot.",
+      "Only those two attention states carry the label - selected, completed, and failed rows stay quiet, so the word always means this session is waiting on you.",
+    ],
+  },
+  {
     version: "0.14.33",
     date: "2026-09-18",
     highlights: [
@@ -898,6 +906,14 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.34",
+    date: "2026-09-18",
+    highlights: [
+      "进行中和待确认的会话现在也用文字说明：会话标题前会出现一个小号彩色状态词，颜色与该行的实时状态点一致。",
+      "只有这两种需要关注的状态带文字——已选中、已完成、失败的行保持安静，所以这个词始终表示这个会话在等你处理。",
+    ],
+  },
+  {
     version: "0.14.33",
     date: "2026-09-18",
     highlights: [
@@ -1765,6 +1781,14 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.34",
+    date: "2026-09-18",
+    highlights: [
+      "進行中和待確認的工作階段現在也用文字說明：工作階段標題前會出現一個小號彩色狀態詞，顏色與該列的即時狀態點一致。",
+      "只有這兩種需要關注的狀態帶文字——已選取、已完成、失敗的列保持安靜，所以這個詞始終表示這個工作階段在等您處理。",
+    ],
+  },
   {
     version: "0.14.33",
     date: "2026-09-18",
