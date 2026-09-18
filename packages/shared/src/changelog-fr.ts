@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.26",
+    "date": "2026-09-18",
+    "highlights": [
+      "Les réponses terminées affichent le coût de chaque tour : les jetons d'entrée, de sortie et de cache apparaissent en pastilles compactes sur la ligne de méta, les valeurs exactes étant dans l'infobulle.",
+      "Les réponses et les messages de l'utilisateur indiquent leur moment : la réponse porte son horloge et chaque message utilisateur gagne une pastille d'heure.",
+    ],
+  },
+  {
     "version": "0.14.25",
     "date": "2026-09-17",
     "highlights": [

@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.26",
+    "date": "2026-09-18",
+    "highlights": [
+      "Abgeschlossene Antworten zeigen, was ein Durchgang gekostet hat: Eingabe-, Ausgabe- und Cache-Tokens erscheinen als kompakte Badges in der Meta-Zeile, die vollständigen Werte stehen im Tooltip.",
+      "Antworten und Nutzernachrichten zeigen, wann sie passiert sind: Die Antwort trägt ihre Uhrzeit, jede Nutzernachricht erhält ein Zeit-Badge.",
+    ],
+  },
+  {
     "version": "0.14.25",
     "date": "2026-09-17",
     "highlights": [

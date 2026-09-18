@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.26",
+    "date": "2026-09-18",
+    "highlights": [
+      "완료된 답변에 턴별 사용량이 표시됩니다: 메타 행에 입력·출력·캐시 토큰이 컴팩트한 칩으로 나타나고, 툴팁에서 전체 정밀도 값을 확인할 수 있습니다.",
+      "답변과 사용자 메시지에 시각이 표시됩니다: 답변에는 시계 시간이, 각 사용자 메시지 아래에는 시간 칩이 붙습니다.",
+    ],
+  },
+  {
     version: "0.14.25",
     date: "2026-09-17",
     highlights: [

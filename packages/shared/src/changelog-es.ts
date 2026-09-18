@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.26",
+    "date": "2026-09-18",
+    "highlights": [
+      "Las respuestas completadas muestran lo que costó cada turno: los tokens de entrada, salida y caché aparecen como chips compactos en la fila de metadatos, con los valores completos en el tooltip.",
+      "Las respuestas y los mensajes del usuario muestran cuándo ocurrieron: la respuesta lleva su hora y cada mensaje del usuario añade una etiqueta de tiempo.",
+    ],
+  },
+  {
     "version": "0.14.25",
     "date": "2026-09-17",
     "highlights": [

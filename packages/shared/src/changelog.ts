@@ -29,6 +29,14 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.26",
+    date: "2026-09-18",
+    highlights: [
+      "Settled replies show what each turn cost: input, output, and cache tokens appear as compact chips on the reply's meta row, with full-precision values in the tooltip.",
+      "Replies and user messages show when they happened: the reply carries its clock time, and every user message gains a time chip.",
+    ],
+  },
+  {
     version: "0.14.25",
     date: "2026-09-17",
     highlights: [
@@ -833,6 +841,14 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.26",
+    date: "2026-09-18",
+    highlights: [
+      "完成的回复显示本回合用量：回复元信息行以紧凑胶囊展示输入、输出与缓存 token，悬停查看完整数值。",
+      "回复与用户消息都会显示时间：回复下方带时钟时间，每条用户消息下方有时间胶囊。",
+    ],
+  },
+  {
     version: "0.14.25",
     date: "2026-09-17",
     highlights: [
@@ -1635,6 +1651,14 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.26",
+    date: "2026-09-18",
+    highlights: [
+      "完成的回覆顯示本回合用量：回覆元資訊列以緊湊膠囊展示輸入、輸出與快取 token，懸停查看完整數值。",
+      "回覆與使用者訊息都會顯示時間：回覆下方帶時鐘時間，每條使用者訊息下方有時間膠囊。",
+    ],
+  },
   {
     version: "0.14.25",
     date: "2026-09-17",

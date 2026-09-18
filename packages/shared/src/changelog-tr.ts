@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.26",
+    "date": "2026-09-18",
+    "highlights": [
+      "Tamamlanan yanıtlar her turun maliyetini gösterir: giriş, çıkış ve önbellek token'ları yanıtın meta satırında kompakt rozetler olarak görünür, tam değerler araç ipucundadır.",
+      "Yanıtlar ve kullanıcı mesajları ne zaman gerçekleştiğini gösterir: yanıt saat bilgisini taşır, her kullanıcı mesajına bir zaman rozeti eklenir.",
+    ],
+  },
+  {
     "version": "0.14.25",
     "date": "2026-09-17",
     "highlights": [
