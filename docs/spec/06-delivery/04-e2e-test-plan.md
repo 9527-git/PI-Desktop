@@ -1639,9 +1639,11 @@ and identify the platform validation still needed.
 - **Specs linked**: `04-ux/08-component-spec.md` §8.3
 - **Acceptance**: Quality
 - **Milestone**: Post-M6 desktop shell maintenance
-- **Status**: Automated source contract in `turn-usage-meta.test.mjs`
-  (`formatMessageTimestamp` behavior, usage/cache chips, turn and message
-  timestamps, tabular numerals)
+- **Status**: Automated (`scripts/e2e-turn-usage-meta.mjs` via
+  `pnpm test:e2e:turn-usage-meta` — real Electron/Chromium render of the
+  settled turn and user row: usage/cache/time chips, compact counts, no chips
+  while streaming, no cache chips without usage, older-date stamping, plus a
+  screenshot; source contract in `turn-usage-meta.test.mjs`)
 
 #### E2E-087a: Destination page headers clear the titlebar band on macOS
 

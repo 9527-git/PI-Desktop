@@ -686,9 +686,10 @@ unit/integration 测试；代码 pull request 使用有选择且高价值的 E2E
 - **链接规格**：`04-ux/08-component-spec.md` §8.3
 - **验收**：质量
 - **里程碑**：M6 后桌面外壳维护
-- **状态**：源码契约测试覆盖（`turn-usage-meta.test.mjs`：
-  `formatMessageTimestamp` 行为、用量/缓存胶囊、回合与消息时间戳、
-  表格数字）
+- **状态**：自动化（`scripts/e2e-turn-usage-meta.mjs`，经
+  `pnpm test:e2e:turn-usage-meta` —— 真实 Electron/Chromium 渲染回合结束与
+  用户行：用量/缓存/时间胶囊、紧凑数值、流式期间不出现、无用量时无缓存胶囊、
+  旧消息短日期，并输出截图）；源码契约见 `turn-usage-meta.test.mjs`
 
 #### E2E-087a：目的页面标头在 macOS 上避开标题栏带
 
