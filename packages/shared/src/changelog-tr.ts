@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.30",
+    "date": "2026-09-18",
+    "highlights": [
+      "Bir modelin onayını kaldırmak, satırı her modda listede tutar — hizmet listesi kullanılamadığında veya model elle eklendiğinde bile — böylece istediğiniz zaman yeniden onaylanabilir.",
+      "Tümünü seç ve satır tıklamaları, işareti kaldırılan modelleri katalog varsayılanları yerine kaydedilmiş takma ad, sınır ve düşünme seviyeleriyle geri yükler.",
+    ],
+  },
+  {
     "version": "0.14.29",
     "date": "2026-09-18",
     "highlights": [

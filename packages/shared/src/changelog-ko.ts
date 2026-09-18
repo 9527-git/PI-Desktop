@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.30",
+    "date": "2026-09-18",
+    "highlights": [
+      "모델 체크를 해제해도 어떤 모드에서든 목록에 행이 유지됩니다 — 서비스 목록을 사용할 수 없거나 모델을 수동으로 추가한 경우에도 — 언제든 다시 체크할 수 있습니다.",
+      "전체 선택과 행 클릭은 카탈로그 기본값 대신 저장된 별칭, 한도, 사고 수준으로 체크 해제된 모델을 복원합니다.",
+    ],
+  },
+  {
     "version": "0.14.29",
     "date": "2026-09-18",
     "highlights": [

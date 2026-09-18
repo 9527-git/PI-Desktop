@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.30",
+    "date": "2026-09-18",
+    "highlights": [
+      "Décocher un modèle conserve sa ligne dans la liste dans tous les modes — même lorsque la liste du service est indisponible ou que le modèle a été ajouté à la main — pour pouvoir le recocher à tout moment.",
+      "Tout sélectionner et cliquer sur une ligne restaure les modèles décochés avec leur alias, limites et niveaux de réflexion enregistrés plutôt que les valeurs par défaut du catalogue.",
+    ],
+  },
+  {
     "version": "0.14.29",
     "date": "2026-09-18",
     "highlights": [

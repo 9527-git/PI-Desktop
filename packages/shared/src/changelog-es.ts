@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.30",
+    "date": "2026-09-18",
+    "highlights": [
+      "Desmarcar un modelo mantiene su fila en la lista en todos los modos, incluso cuando la lista del servicio no está disponible o el modelo se añadió a mano, por lo que siempre se puede volver a marcar.",
+      "Seleccionar todo y hacer clic en una fila restaura los modelos desmarcados con su alias, límites y niveles de pensamiento guardados en lugar de los valores predeterminados del catálogo.",
+    ],
+  },
+  {
     "version": "0.14.29",
     "date": "2026-09-18",
     "highlights": [

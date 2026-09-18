@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.30",
+    "date": "2026-09-18",
+    "highlights": [
+      "Das Abwählen eines Modells behält seine Zeile in jedem Modus in der Liste — auch wenn die Dienstliste nicht verfügbar ist oder das Modell manuell hinzugefügt wurde — und kann jederzeit erneut angehakt werden.",
+      "Alles auswählen und Zeilenklicks stellen abgewählte Modelle mit gespeichertem Alias, Grenzwerten und Denkstufen wieder her statt mit Katalog-Standards.",
+    ],
+  },
+  {
     "version": "0.14.29",
     "date": "2026-09-18",
     "highlights": [

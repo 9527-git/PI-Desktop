@@ -29,6 +29,14 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.30",
+    date: "2026-09-18",
+    highlights: [
+      "Unchecking a model keeps its row in the list in every mode - even when the service's list is unavailable or the model was added by hand - so it can always be re-checked.",
+      "Select-all and row clicks restore unchecked models with their saved alias, limits, and thinking levels instead of catalog defaults.",
+    ],
+  },
+  {
     version: "0.14.29",
     date: "2026-09-18",
     highlights: [
@@ -866,6 +874,14 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.30",
+    date: "2026-09-18",
+    highlights: [
+      "取消勾选模型在任何模式下都保留在列表中——即使服务列表不可用或模型是手动添加的——随时可以重新勾选。",
+      "全选与点击行会按保存的别名、上限与思考等级恢复已取消勾选的模型，而不是目录默认值。",
+    ],
+  },
+  {
     version: "0.14.29",
     date: "2026-09-18",
     highlights: [
@@ -1701,6 +1717,14 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.30",
+    date: "2026-09-18",
+    highlights: [
+      "取消勾選模型在任何模式下都保留在清單中——即使服務清單不可用或模型是手動新增的——隨時可以重新勾選。",
+      "全選與點擊列會按儲存的別名、上限與思考等級恢復已取消勾選的模型，而不是目錄預設值。",
+    ],
+  },
   {
     version: "0.14.29",
     date: "2026-09-18",
