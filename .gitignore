@@ -49,4 +49,5 @@ coverage/
 .playwright-mcp/
 .claude/
 .workbuddy
+.superpowers/
 electron.vite.config.*.mjs
