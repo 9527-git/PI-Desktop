@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.35",
+    "date": "2026-09-18",
+    "highlights": [
+      "Le mot d'état « En cours » et « En attente de votre avis » se place maintenant juste à côté du point pulsant, dans une petite pastille en début de ligne, au lieu d'être séparé devant le titre.",
+      "Les états discrets ne changent pas : les lignes sélectionnée, terminée et échouée gardent leur simple point à gauche, donc une pastille avec du texte signale toujours une session en cours ou qui vous attend.",
+    ],
+  },
+  {
     "version": "0.14.34",
     "date": "2026-09-18",
     "highlights": [

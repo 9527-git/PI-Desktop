@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.35",
+    "date": "2026-09-18",
+    "highlights": [
+      "Das Statuswort für „Läuft“ und „Wartet auf dich“ sitzt jetzt direkt neben dem atmenden Punkt in einer kleinen Kapsel am Zeilenanfang – nicht mehr abgetrennt vorn am Sitzungstitel.",
+      "Die ruhigen Zustände bleiben unverändert: ausgewählte, abgeschlossene und fehlgeschlagene Zeilen behalten ihren schlichten Punkt links, eine Kapsel mit Text markiert also immer eine Sitzung, die läuft oder auf dich wartet.",
+    ],
+  },
+  {
     "version": "0.14.34",
     "date": "2026-09-18",
     "highlights": [

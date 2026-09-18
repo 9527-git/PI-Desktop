@@ -29,6 +29,14 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.35",
+    date: "2026-09-18",
+    highlights: [
+      "The working / needs-your-input status word now sits right beside the breathing dot, inside one small pill at the head of the row - no longer split off to the front of the session title.",
+      "The quiet states are unchanged: selected, completed, and failed rows keep their plain left-edge dot, so a labelled pill always marks a session that is running or waiting on you.",
+    ],
+  },
+  {
     version: "0.14.34",
     date: "2026-09-18",
     highlights: [
@@ -906,6 +914,14 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.35",
+    date: "2026-09-18",
+    highlights: [
+      "「进行中」「待确认」的状态词现在紧贴着呼吸灯，一起放进行首的一枚小胶囊里，不再孤零零地跑到会话标题最前面。",
+      "安静状态不变：已选中、已完成、失败的行仍只有最左侧的圆点，所以带文字的胶囊始终表示这个会话正在运行或等你处理。",
+    ],
+  },
+  {
     version: "0.14.34",
     date: "2026-09-18",
     highlights: [
@@ -1781,6 +1797,14 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.35",
+    date: "2026-09-18",
+    highlights: [
+      "「進行中」「待確認」的狀態詞現在緊貼著呼吸燈，一起放進行首的一枚小膠囊裡，不再孤零零地跑到工作階段標題最前面。",
+      "安靜狀態不變：已選取、已完成、失敗的列仍只有最左側的圓點，所以帶文字的膠囊始終表示這個工作階段正在執行或等您處理。",
+    ],
+  },
   {
     version: "0.14.34",
     date: "2026-09-18",

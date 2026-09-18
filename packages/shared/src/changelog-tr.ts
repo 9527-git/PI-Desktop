@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.35",
+    "date": "2026-09-18",
+    "highlights": [
+      "「Çalışıyor」 ve 「Girdi bekliyor」 durum sözü artık nefes alan noktanın hemen yanında, satırın başındaki küçük bir hap içinde duruyor — oturum başlığının önüne ayrılmış değil.",
+      "Sakin durumlar değişmedi: seçili, tamamlandı ve başarısız satırlar soldaki sade noktasını korur; yani yazılı bir hap her zaman çalışan ya da sizi bekleyen bir oturumu işaret eder.",
+    ],
+  },
+  {
     "version": "0.14.34",
     "date": "2026-09-18",
     "highlights": [

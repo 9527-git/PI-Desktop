@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.35",
+    "date": "2026-09-18",
+    "highlights": [
+      "La palabra de estado de «En curso» y «Espera tu respuesta» ahora aparece junto al punto que respira, dentro de una pequeña píldora al inicio de la fila, en vez de separada al principio del título.",
+      "Los estados silenciosos no cambian: las filas seleccionada, completada y fallida siguen con su punto simple a la izquierda, así que una píldora con texto siempre marca una sesión que está en curso o te espera.",
+    ],
+  },
+  {
     "version": "0.14.34",
     "date": "2026-09-18",
     "highlights": [

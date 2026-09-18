@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.35",
+    "date": "2026-09-18",
+    "highlights": [
+      "「작업 중」과 「입력 필요」 상태 글자가 이제 숨쉬는 점 바로 옆, 행 맨 앞의 작은 알약 모양 안에 함께 들어갑니다 — 세션 제목 맨 앞으로 떨어져 있던 것이 아닙니다.",
+      "조용한 상태는 그대로입니다: 선택됨·완료·실패 행은 왼쪽의 맨 점을 유지하므로, 글자가 있는 알약은 항상 실행 중이거나 당신을 기다리는 세션을 나타냅니다.",
+    ],
+  },
+  {
     "version": "0.14.34",
     "date": "2026-09-18",
     "highlights": [
