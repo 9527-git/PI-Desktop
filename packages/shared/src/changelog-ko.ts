@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    version: "0.14.27",
+    date: "2026-09-18",
+    highlights: [
+      "AI 서비스 편집이 더 이상 모델을 지우지 않습니다: 서비스 자체 목록을 사용할 수 없으면 왼쪽 목록에는 구성된 모델만 표시되고 전체 선택 체크박스는 사라집니다.",
+      "자동 업데이트 확인을 끌 수 있습니다: 설정 → 정보에 '자동 업데이트 확인' 스위치가 추가되며, 수동 확인은 차단되지 않습니다.",
+    ],
+  },
+  {
     "version": "0.14.26",
     "date": "2026-09-18",
     "highlights": [

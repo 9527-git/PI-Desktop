@@ -29,6 +29,14 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.27",
+    date: "2026-09-18",
+    highlights: [
+      "Editing an AI service can no longer wipe its models: when the service's own list is unavailable, the left pane shows only your configured models and the bulk select-all checkbox is gone.",
+      "Automatic update checks can be turned off: Settings → Info gains an \"Automatic update checks\" toggle above Updates; manual checks are never blocked.",
+    ],
+  },
+  {
     version: "0.14.26",
     date: "2026-09-18",
     highlights: [
@@ -841,6 +849,14 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.27",
+    date: "2026-09-18",
+    highlights: [
+      "编辑 AI 服务不再会一键清掉模型：服务自身列表不可用时，左侧只显示已配置的模型，且不再有会批量清空的全选框。",
+      "自动检查更新可以关闭了：设置 → 信息页新增「自动检查更新」开关；手动检查永不受限。",
+    ],
+  },
+  {
     version: "0.14.26",
     date: "2026-09-18",
     highlights: [
@@ -1651,6 +1667,14 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.27",
+    date: "2026-09-18",
+    highlights: [
+      "編輯 AI 服務不再會一鍵清掉模型：服務自身清單不可用時，左側只顯示已設定的模型，且不再有會批次清空的全選框。",
+      "自動檢查更新可以關閉了：設定 → 資訊頁新增「自動檢查更新」開關；手動檢查不受限。",
+    ],
+  },
   {
     version: "0.14.26",
     date: "2026-09-18",

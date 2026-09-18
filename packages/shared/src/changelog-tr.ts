@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    version: "0.14.27",
+    date: "2026-09-18",
+    highlights: [
+      "Bir yapay zekâ servisini düzenlemek artık modellerini silemez: Servisin kendi listesi kullanılamadığında sol liste yalnızca yapılandırılmış modelleri gösterir ve toplu seçim onay kutusu kaldırılır.",
+      "Otomatik güncelleme denetimleri kapatılabilir: Ayarlar → Bilgi sayfasına 'Otomatik güncelleme denetimi' anahtarı eklenir; manuel denetimler asla engellenmez.",
+    ],
+  },
+  {
     "version": "0.14.26",
     "date": "2026-09-18",
     "highlights": [

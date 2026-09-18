@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    version: "0.14.27",
+    date: "2026-09-18",
+    highlights: [
+      "Das Bearbeiten eines KI-Dienstes kann die Modelle nicht mehr leeren: Steht die Liste des Dienstes nicht zur Verfügung, zeigt die linke Liste nur die konfigurierten Modelle, und das Kontrollkästchen zum Aufheben der gesamten Auswahl entfällt.",
+      "Automatische Update-Prüfungen lassen sich deaktivieren: Einstellungen → Info erhält einen Schalter „Automatische Update-Prüfung“; manuelle Prüfungen sind nie blockiert.",
+    ],
+  },
+  {
     "version": "0.14.26",
     "date": "2026-09-18",
     "highlights": [

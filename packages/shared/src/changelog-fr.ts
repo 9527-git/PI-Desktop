@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    version: "0.14.27",
+    date: "2026-09-18",
+    highlights: [
+      "Modifier un service d'IA ne peut plus effacer ses modèles : quand la liste du service est indisponible, le volet de gauche n'affiche que les modèles configurés et la case « tout sélectionner » disparaît.",
+      "Les vérifications automatiques de mise à jour peuvent être désactivées : Réglages → Informations ajoute un interrupteur « Vérification automatique des mises à jour » ; les vérifications manuelles ne sont jamais bloquées.",
+    ],
+  },
+  {
     "version": "0.14.26",
     "date": "2026-09-18",
     "highlights": [

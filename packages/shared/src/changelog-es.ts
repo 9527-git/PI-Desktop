@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    version: "0.14.27",
+    date: "2026-09-18",
+    highlights: [
+      "Editar un servicio de IA ya no puede vaciar sus modelos: si la lista del servicio no está disponible, el panel izquierdo muestra solo los modelos configurados y desaparece la casilla de selección total.",
+      "Las comprobaciones automáticas de actualizaciones se pueden desactivar: Ajustes → Información añade un interruptor «Comprobación automática de actualizaciones»; las comprobaciones manuales nunca se bloquean.",
+    ],
+  },
+  {
     "version": "0.14.26",
     "date": "2026-09-18",
     "highlights": [
