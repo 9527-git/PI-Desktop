@@ -171,6 +171,8 @@ export const tr = {
     sessionCompleted: "Bitti",
     sessionFailed: "İlgi gerekiyor",
     sessionNeedsInput: "Girdi bekliyor",
+    sessionRunningShort: "Aktif",
+    sessionNeedsInputShort: "Girdi",
     sortSessions: "Projeleri ve sohbetleri sırala",
     sortRecent: "Son güncellenenler",
     sortOldest: "Eskiden yeniye",

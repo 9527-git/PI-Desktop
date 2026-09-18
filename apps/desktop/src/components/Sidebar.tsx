@@ -993,6 +993,23 @@ export function Sidebar({
     );
   };
 
+  /* The pill is pinned inside the row's reserved status column (D447), so its
+     word has to fit that column in every locale. The full phrase stays on the
+     dot's tooltip and accessible name; the chip shows the short form. */
+  const sessionStatusChipLabel = (status: SidebarSessionStatus) =>
+    status === "running"
+      ? t("nav.sessionRunningShort", { defaultValue: "Working" })
+      : t("nav.sessionNeedsInputShort", { defaultValue: "Input" });
+
+  const renderSessionStatusChip = (status: SidebarSessionStatus) => (
+    <span className={`thread-item-status-chip ${status}`}>
+      {renderSessionStatus(status)}
+      <span className="thread-item-status-label" aria-hidden>
+        {sessionStatusChipLabel(status)}
+      </span>
+    </span>
+  );
+
   const reportError = useCallback(
     (error: unknown) => {
       showToast(error instanceof Error ? error.message : String(error), {
@@ -1521,7 +1538,11 @@ export function Sidebar({
           );
         }}
       >
-        {status && !isAttentionStatus(status) ? renderSessionStatus(status) : null}
+        {status
+          ? isAttentionStatus(status)
+            ? renderSessionStatusChip(status)
+            : renderSessionStatus(status)
+          : null}
         <button
           type="button"
           className="thread-item-main"
@@ -1551,14 +1572,6 @@ export function Sidebar({
           ) : null}
           {session.source === "pi-native" ? (
             <span className="thread-item-source" title="Native Pi session">Pi</span>
-          ) : null}
-          {status && isAttentionStatus(status) ? (
-            <span className={`thread-item-status-chip ${status}`}>
-              {renderSessionStatus(status)}
-              <span className="thread-item-status-label" aria-hidden>
-                {sessionStatusLabel(status)}
-              </span>
-            </span>
           ) : null}
           <span className="thread-item-text">
             <span className="thread-item-title">{taskTitle(session.title)}</span>

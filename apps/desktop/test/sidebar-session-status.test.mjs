@@ -135,24 +135,48 @@ test("renders semantic, shape-distinct sidebar status indicators", () => {
   // two-line row; quiet states keep the plain dot in the left gutter.
   assert.match(
     sidebar,
-    /isAttentionStatus\(status\)[\s\S]*thread-item-status-chip[\s\S]*renderSessionStatus\(status\)[\s\S]*thread-item-status-label/,
+    /renderSessionStatusChip[\s\S]*thread-item-status-chip[\s\S]*renderSessionStatus\(status\)[\s\S]*thread-item-status-label/,
   );
+  // D447: the chip is a row-level marker like the quiet dot, not a flex child of
+  // the row button, so it can never push or squeeze the session title.
   assert.match(
     sidebar,
-    /!isAttentionStatus\(status\)[\s\S]{0,80}renderSessionStatus\(status\)/,
+    /isAttentionStatus\(status\)\s*\?\s*renderSessionStatusChip\(status\)\s*:\s*renderSessionStatus\(status\)/,
   );
   assert.match(sidebar, /className="thread-item-status-label" aria-hidden/);
   assert.doesNotMatch(sidebar, /thread-item-title-row/);
+  // The pill word has to fit the reserved column in every locale, so it uses a
+  // short form while the dot keeps the full phrase as its accessible name.
+  assert.match(
+    sidebar,
+    /nav\.sessionRunningShort[\s\S]*nav\.sessionNeedsInputShort/,
+  );
+  for (const locale of ["de", "en", "es", "fr", "ko", "tr", "zh-CN", "zh-TW"]) {
+    const source = fs.readFileSync(
+      new URL(`../../../packages/i18n/src/locales/${locale}/index.ts`, import.meta.url),
+      "utf8",
+    );
+    assert.match(source, /sessionRunningShort/);
+    assert.match(source, /sessionNeedsInputShort/);
+  }
   assert.match(styles, /thread-item-status-chip\.running[\s\S]*--ds-warning/);
   assert.match(styles, /thread-item-status-chip\.permission[\s\S]*--ds-purple/);
   assert.match(
     styles,
     /thread-item-status-chip \.thread-item-status \{[\s\S]*?position: static/,
   );
+  // D447: every row reserves one leading status column, and the chip is pinned
+  // inside it instead of consuming the title's own width.
+  assert.match(styles, /--ds-sidebar-status-column: 72px/);
   assert.match(
     styles,
-    /thread-item-main:has\(\.thread-item-status-chip\)[\s\S]*?padding-left: 6px/,
+    /thread-item-main \{[\s\S]*?padding: 5px 6px 5px var\(--ds-sidebar-status-column\)/,
   );
+  assert.match(
+    styles,
+    /thread-item-status-chip \{[\s\S]*?position: absolute;[\s\S]*?left: 4px;[\s\S]*?max-width: calc\(var\(--ds-sidebar-status-column\) - 10px\)/,
+  );
+  assert.doesNotMatch(styles, /thread-item-main:has\(/);
   assert.match(
     styles,
     /prefers-reduced-motion: reduce[\s\S]*thread-item-status\.running::before[\s\S]*animation: none/,

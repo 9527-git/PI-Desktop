@@ -1598,8 +1598,9 @@ and identify the platform validation still needed.
   throwaway profile and seeds the rows through the capture rig).
 - **Steps**: 1) Seed one row per state — selected, running, permission, ask,
   Plan/Goal approval — each with a preview line so the rows are two lines tall
-  like real sessions. 2) Inspect each row's leading status dot, its chip, and any
-  status word inside that chip. 3) Repeat the running and needs-input rows in
+  like real sessions. 2) Inspect each row's leading status dot, its chip, any
+  status word inside that chip, and the row button's reserved status column
+  against the title's own left edge. 3) Repeat the running and needs-input rows in
   light and dark themes. 4) Re-inspect under
   `prefers-reduced-motion: reduce`, then after clearing it. 5) Confirm the
   conversation topbar carries no status slot or chip.
@@ -1611,16 +1612,20 @@ and identify the platform validation still needed.
   The needs-input dot outranks running. The selected row keeps its static accent
   ring. Both themes resolve each dot to their own warning/purple token. With
   `prefers-reduced-motion: reduce` every dot animation is off, and clearing the
-  preference restores them. On top of that, per D445 as placed by D446 the
+  preference restores them. On top of that, per D445 as grouped by D446 the
   running row and all three needs-input rows carry their status word INSIDE the
   same tinted chip as the dot: the chip holds both the dot and the word, the dot
   is statically positioned inside it, the chip is tinted, and the group's centre
   stays within 2px of the row's vertical centre even though the row is two lines
-  tall — so the word can never drift onto the title line. The word equals the
-  text the dot exposes as its accessible name and uses the dot's own token
-  (`--ds-warning` for running, `--ds-purple` for every intervention source, in
-  both themes), while the selected row has no chip, no word, and keeps its plain
-  absolutely positioned gutter dot, with its title still rendering. The
+  tall — so the word can never drift onto the title line. The word is the short
+  form of the dot's accessible name (never longer than it, never clipped) and
+  uses the dot's own token (`--ds-warning` for running, `--ds-purple` for every
+  intervention source, in both themes), while the selected row has no chip, no
+  word, and keeps its plain absolutely positioned dot, with its title still
+  rendering. Per D447 the pill never disturbs the title lane: all five rows
+  reserve the same leading status column, so their titles share one left edge,
+  and each chip is absolutely positioned at the column's left edge with its right
+  edge still left of the title. The
   conversation topbar has no `.ct-status-slot` or
   `.ct-status-chip`. No IPC, host, or persisted state is touched.
 - **Specs linked**: `04-ux/07-ui-design-system.md` §4.5, `04-ux/08-component-spec.md` §2/§3
@@ -1628,7 +1633,8 @@ and identify the platform validation still needed.
 - **Milestone**: Post-M6 desktop shell maintenance
 - **Status**: Automated (`scripts/e2e-sidebar-status-dot.mjs` via
   `pnpm test:e2e:sidebar-status` — per-row dot state, union parity, label,
-  priority, both-theme tokens, reduced-motion, and the topbar-absence probe);
+  priority, both-theme tokens, the reserved status column and shared title edge,
+  reduced-motion, and the topbar-absence probe);
   unit coverage in `sidebar-session-status.test.mjs`
 
 #### E2E-CHAT-turn-usage-and-timestamps: Completed replies show per-turn token usage and message times

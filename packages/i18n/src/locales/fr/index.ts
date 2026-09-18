@@ -162,6 +162,8 @@ export const fr = {
     "sessionCompleted": "Terminé",
     "sessionFailed": "Nécessite une attention particulière",
     "sessionNeedsInput": "Action requise",
+    "sessionRunningShort": "Actif",
+    "sessionNeedsInputShort": "Saisie",
     "sortSessions": "Trier les projets et les discussions",
     "sortRecent": "Récemment mis à jour",
     "sortOldest": "Le plus ancien en premier",
