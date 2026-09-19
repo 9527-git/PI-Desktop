@@ -2876,7 +2876,8 @@
    chip background — the gray wash buried every token. */
 .tool-row-summary code,
 .subagent-topology-node-summary code,
-.tool-activity-preview code {
+.tool-activity-preview code,
+.sidebar-session-hover-card-preview code {
   font-family: var(--font-mono);
   font-size: inherit;
   font-variant-ligatures: none;
@@ -2886,7 +2887,8 @@
 
 .tool-row-summary strong,
 .subagent-topology-node-summary strong,
-.tool-activity-preview strong {
+.tool-activity-preview strong,
+.sidebar-session-hover-card-preview strong {
   font-weight: var(--font-weight-medium);
   color: var(--ds-purple);
   text-shadow: 0 0 8px color-mix(in oklab, var(--ds-purple) 45%, transparent);
@@ -2896,7 +2898,8 @@
    as its own hue, distinct from the blue code spans and purple bold around it. */
 .tool-row-summary .md-inline-path,
 .subagent-topology-node-summary .md-inline-path,
-.tool-activity-preview .md-inline-path {
+.tool-activity-preview .md-inline-path,
+.sidebar-session-hover-card-preview .md-inline-path {
   color: var(--ds-yellow);
   text-shadow: 0 0 8px color-mix(in oklab, var(--ds-yellow) 50%, transparent);
 }

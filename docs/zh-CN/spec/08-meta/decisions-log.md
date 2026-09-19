@@ -4530,3 +4530,25 @@ v0.14.35 构建之后用户反馈：「状态胶囊不要挤标题啊，标题�
   定位、旧 `:has()` 留白释放规则已不存在，以及八个语言包里的两个新键。
 - 见 `04-ux/07-ui-design-system.md` §4.5、`04-ux/08-component-spec.md` §2 与 §3，
   以及 `06-delivery/04-e2e-test-plan.md` 的 E2E-SIDEBAR-status-dot-pending-union。
+
+## 2026-09-19 —— 悬停卡停留 3 秒、ID 一键复制、预览文字带上样式与颜色（D448）
+
+用户对已上线的会话悬停卡的反馈：「会话标题悬停弹出的卡片要停留3秒钟，
+会话ID支持快捷复制，卡片里面的文字内容要渲染样式和颜色文字」。此前指针离开
+160ms 卡片就消失——连跨过 6px 缝隙的时间都不够；会话 ID 只能从开发者模式右键菜单
+复制；卡片里的预览文字全是无样式的单调文本。
+
+- 指针离开与焦点移出现在只启动 **3 秒停留**（`useSessionHoverCard` 的
+  `scheduleHide`）：卡片留在原地，鼠标移回即取消消失，复制按钮因此可达。滚动、
+  缩放、打开上下文菜单、Escape、窗口隐藏仍立即取消；改悬停其他行的 500ms 出现
+  规则不变。
+- 卡片的会话 ID 行新增**一键复制按钮**（复用共享 `useCopy`、`nav.copyConversationId`
+  文案、复制→对勾反馈），复制原始 ID；开发者菜单里的旧路径保持原样。
+- 三处预览（当前任务、最近往来、最终结果）改走 **`MarkdownInline`**：代码段、加粗、
+  文件路径直接沿用 `messages.css` 里单行摘要已有的蓝/紫/黄色调，未新增色彩令牌。
+- 仅渲染层、CSS、文档与测试：无 IPC 通道、宿主 RPC、schema、权限或持久化状态变更；
+  未新增语言包键。
+- 回归覆盖：`session-hover-card-dwell-copy.test.mjs` 固定钩子里的 3 秒停留、ID 行
+  复制按钮的标记、三处 MarkdownInline 预览，以及共享色调的 CSS 选择器。
+- 见 `04-ux/09-interaction-patterns.md` §9.1b 与 `06-delivery/04-e2e-test-plan.md`
+  的 E2E-047b。

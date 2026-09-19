@@ -3073,7 +3073,11 @@ and identify the platform validation still needed.
   4) Hover a Temporary/scratch session row. 5) Resize the sidebar narrower
   than 320px; hover again. 6) Right-click a session row while the card is
   visible and open its context menu. 7) Scroll the sidebar body while the card
-  is up.
+  is up. 8) Hover a session row, move the pointer off the row without touching
+  any other row, and wait within 3s; move back onto the card before it
+  dismisses. 9) Click the copy button in the card's session-id row and paste
+  into a text field. 10) Hover a session whose collaboration preview contains
+  a `code` span, **bold**, or a file path.
 - **Expected**: The card appears after a 500ms dwell, never appears during
   quick pointer passes, and re-targets to the latest hovered row when the
   pointer changes. Each card shows: the localized session title, two tag
@@ -3085,13 +3089,20 @@ and identify the platform validation still needed.
   row has no native `title` tooltip; the hover card is the only full-title
   surface. The card never widens past 320px, never causes the underlying row
   to horizontally scroll, and disappears immediately on resize, scroll, or
-  context-menu open.
+  context-menu open. Pointer leave and focus blur only start a 3s dwell: the
+  card stays put within that window and moving back onto it cancels the
+  dismissal. The session-id row carries a copy button that writes the raw
+  session id to the clipboard and switches to the shared copied-check state.
+  Preview text renders inline markdown through the shared one-line-summary
+  hues (blue code spans, purple bold, yellow paths) instead of flat text.
 - **Specs linked**: `04-ux/09-interaction-patterns.md §9.1b`
 - **Acceptance**: F (local presentation)
 - **Milestone**: M5
 - **Status**: Unit-covered (`sidebar-navigation.test.mjs` and
   `app-store-sidebar.test.mjs` for the session hover card, branch refresh, and
-  the absence of a native row `title`); full UI scenario Draft
+  the absence of a native row `title`; `session-hover-card-dwell-copy.test.mjs`
+  for the 3s dwell, the id copy button, and the inline-markdown previews);
+  full UI scenario Draft
 
 #### E2E-048: Pin, archive, restore, and sort project/conversation rows
 

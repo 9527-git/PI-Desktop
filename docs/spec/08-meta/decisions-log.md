@@ -5835,3 +5835,31 @@ columns, and the pill ate the title's own width.
 - See `04-ux/07-ui-design-system.md` §4.5, `04-ux/08-component-spec.md` §2 and
   §3, and E2E-SIDEBAR-status-dot-pending-union in
   `06-delivery/04-e2e-test-plan.md`.
+
+## 2026-09-19 — The hover card lingers 3s, copies its id, and colors its previews (D448)
+
+User feedback on the shipped session hover card: "会话标题悬停弹出的卡片要停留3秒钟，
+会话ID支持快捷复制，卡片里面的文字内容要渲染样式和颜色文字". The card dismissed
+160ms after the pointer left — barely enough to cross the 6px gap — its session id
+was only copyable through a developer-mode context menu, and every preview line was
+flat monochrome text.
+
+- Pointer leave and focus blur now start a **3s dwell** (`useSessionHoverCard`
+  `scheduleHide`): the card stays put and moving back onto it cancels the
+  dismissal, so the copy button is reachable. Scroll, resize, a context menu,
+  Escape, and window hide still cancel the card immediately; retargeting to
+  another row keeps its existing 500ms reveal rule.
+- The card's session-id row gains a **one-click copy button** (shared
+  `useCopy` hook, `nav.copyConversationId` label, copy→check feedback). It
+  copies the raw id; the developer-menu path stays as it was.
+- The three preview lines (current task, recent exchanges, terminal result)
+  render through **`MarkdownInline`**, so code spans, bold, and file paths pick
+  up the same blue/purple/yellow hues already defined for one-line row
+  summaries in `messages.css`; no new color tokens were introduced.
+- Renderer, CSS, docs, and tests only: no IPC channel, host RPC, schema,
+  permission, or persisted-state change; no locale key added.
+- Regression coverage: `session-hover-card-dwell-copy.test.mjs` pins the 3s
+  dwell in the hook, the id-row copy button markup, the three MarkdownInline
+  previews, and the shared-hue CSS selectors.
+- See `04-ux/09-interaction-patterns.md` §9.1b and E2E-047b in
+  `06-delivery/04-e2e-test-plan.md`.
