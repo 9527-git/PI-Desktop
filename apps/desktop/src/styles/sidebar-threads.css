@@ -165,7 +165,7 @@
      project glyph + 5px gap) and the 6px is the title button's own inset, so
      the project's name starts exactly on the session titles' column and the
      whole list keeps one text column. */
-  padding: 0 2px 0 38px;
+  padding: 0 2px 0 16px;
 }
 
 .project-group.is-dragging {
@@ -292,7 +292,7 @@
    body's own indent; expressing it off the lane keeps that relationship when
    the lane changes again. */
 .sidebar-time-group-header {
-  padding: 6px 6px 2px calc(var(--ds-sidebar-status-lane) + 20px);
+  padding: 6px 6px 2px calc(var(--ds-sidebar-status-lane) - 12px);
   color: var(--ds-text-muted);
   font-size: var(--text-2xs);
   font-weight: var(--font-weight-medium);
@@ -307,7 +307,7 @@
   display: flex;
   width: 100%;
   align-items: center;
-  padding: 4px 6px 4px calc(var(--ds-sidebar-status-lane) + 20px);
+  padding: 4px 6px 4px calc(var(--ds-sidebar-status-lane) - 12px);
   border-radius: var(--radius-sm);
   color: var(--ds-text-muted);
   font-size: var(--text-xs-plus);
@@ -337,7 +337,7 @@
 .sidebar-session-empty {
   /* D451: empty copy sits on the list's text column, 8px inside the title
      column like the project body's copy always did. */
-  padding: 5px 8px 5px calc(var(--ds-sidebar-status-lane) + 8px);
+  padding: 5px 8px 5px calc(var(--ds-sidebar-status-lane) - 12px);
   color: var(--ds-text-muted);
   font-size: var(--text-md); /* empty-state copy tracks group titles */
   line-height: var(--leading-compact);
