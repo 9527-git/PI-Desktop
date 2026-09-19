@@ -243,11 +243,13 @@ Light-surface polish (D148):
 
 ### 4.5 Sidebar task status semantics
 
-Compact task rows reserve one `--ds-sidebar-status-column` (`72px`) leading status
-column for their marker, and every row reserves the same width whether or not it
-carries a chip, so session titles keep one left edge (D447). State is never
-communicated by color alone, and each status consumes an existing semantic
-token rather than introducing a decorative palette:
+Compact task rows lead with the status marker itself: it sits flush on the row's
+left edge - the same edge the project header starts on - and the title follows it
+after `--ds-sidebar-status-gap` (`4px`), so a status and its title read as one
+group with no dead band between them (D449). A row without a marker starts its
+title on that same left edge. State is never communicated by color alone, and
+each status consumes an existing semantic token rather than introducing a
+decorative palette:
 
 | State | Semantic color | Shape / motion | Meaning |
 |---|---|---|---|
@@ -275,16 +277,17 @@ The two attention states also spell their state out. In progress and needs input
 render a localized word (`nav.sessionRunningShort` / `nav.sessionNeedsInputShort`)
 inside the same rounded chip as the live dot, on a 14% tint of the dot's own
 `--ds-warning` / `--ds-purple` token, so a glance at the list reads as text
-rather than as color decoding (D445, grouped by D446, placed by D447). The chip is
-pinned inside the row's reserved status column — absolutely positioned at the same
-left edge the quiet dot uses, centred on the whole row — and is capped to that
-column's width, so a pill never consumes title width and no title shifts when a
-session starts or stops running. The word is the dot's visual twin (`aria-hidden`)
-and stays short enough to fit the column in every shipped locale; the full phrase
+rather than as color decoding (D445, grouped by D446, placed by D449). The chip
+leads the row itself: it is the row's first flex item, flush on the same left edge
+the project header starts on, and the title follows it after
+`--ds-sidebar-status-gap`. A status and its title are therefore one group with no
+dead band between them, and no row reserves width a marker may never use. The chip
+shrinks before it squeezes a title — its word ellipsises while the dot keeps its
+own box — and the word is the dot's visual twin (`aria-hidden`); the full phrase
 (`nav.sessionRunning` / `nav.sessionNeedsInput`) stays on the dot's tooltip and
 accessible name. The quiet states (selected, completed, failed) keep the plain dot
-in that column with no chip, so the label keeps meaning "this row needs your
-attention". Both themes resolve chip, dot, and word to their own tokens.
+in the same leading slot with no chip, so the label keeps meaning "this row needs
+your attention". Both themes resolve chip, dot, and word to their own tokens.
 
 ### 4.6 Chat transcript status semantics
 

@@ -9,7 +9,7 @@
   display: flex;
   width: 100%;
   align-items: center;
-  gap: 2px;
+  gap: var(--ds-sidebar-status-gap);
   overflow: hidden;
   border-radius: var(--radius-sm);
   padding: 0 2px 0 0;
@@ -24,7 +24,7 @@
   flex: 1;
   align-items: center;
   gap: 5px;
-  padding: 5px 6px 5px var(--ds-sidebar-status-column);
+  padding: 5px 6px;
   text-align: left;
   color: inherit;
 }
@@ -40,34 +40,28 @@
 /* D446: the two attention states (running / needs input) read as one tinted
    chip — the live dot and its status word share a single group, so the word can
    never drift onto the title line while the dot stays centred on a two-line row.
-   D447: the chip is pinned inside the reserved leading status column instead of
-   sitting in the row's content flow, exactly like the quiet-state gutter dot, so
-   every title keeps one left edge and no pill can squeeze it. The column cap
-   makes an over-long translation ellipsise rather than push the title. The dot
-   keeps its tooltip and accessible name; the word is its visual twin and is
-   hidden from assistive tech. */
+   D449: that chip leads the row itself instead of standing in a reserved column,
+   so the status and its title are one group with no dead band between them. The
+   chip may shrink (its word ellipsises) but never pushes the title off the row;
+   the dot keeps its tooltip and accessible name, and the word is its visual twin
+   and is hidden from assistive tech. */
 .thread-item-status-chip {
-  position: absolute;
-  left: 4px;
-  top: 50%;
-  transform: translateY(-50%);
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  max-width: calc(var(--ds-sidebar-status-column) - 10px);
+  min-width: 0;
+  flex: 0 1 auto;
   border-radius: var(--radius-full);
   padding: 1px 7px 1px 5px;
-  /* Visual only: the row button underneath owns the whole column, while the dot
+  /* Visual only: the row button underneath owns the click, while the dot
      re-enables pointer input for its own tooltip. */
   pointer-events: none;
 }
 
 .thread-item-status-chip .thread-item-status {
-  position: static;
   width: 8px;
   height: 8px;
   flex: 0 0 auto;
-  transform: none;
   pointer-events: auto;
 }
 

@@ -5751,7 +5751,8 @@ looks: inline on the session row.
 ## 2026-09-18 — The status word rides inside the dot's own chip (D446)
 
 > Amended by D447 the same day: the pairing stays, the chip leaves the title's
-> lane. Read D447 for the current contract.
+> lane. D449 later brought it back into the group. Read D449 for the current
+> contract.
 
 User feedback on the v0.14.34 build: the D445 word "wandered off to the front of
 the session title" instead of reading as the light's label. The cause is
@@ -5794,6 +5795,10 @@ checks passed on a layout no real row renders.
 
 > **Supersedes D446's placement.** Dot-plus-word pairing, tint tokens, centring,
 > and the `aria-hidden` twin all carry over; what changes is where the chip sits.
+>
+> **Superseded by D449 the next day.** The column bought title alignment at the
+> price of a dead band between the pill and its title, and it charged every title
+> 72px whether or not a marker used them. Read D449 for the current contract.
 
 User feedback on the v0.14.35 build: "状态胶囊不要挤标题啊，标题对齐，状态胶囊要在最前
 面突出". D446 made the chip a flex child of the row button, so an attention row
@@ -5884,3 +5889,49 @@ before anything appeared.
   `setCard(request)` and the absence of the 500ms timer;
   `session-hover-card-dwell-copy.test.mjs` adds the instant-reveal contract.
 - See `04-ux/09-interaction-patterns.md` §9.1b and E2E-047b.
+
+## 2026-09-19 — The status marker leads its row, flush on the left edge (D449)
+
+> **Supersedes D447's reserved status column.** The dot-plus-word chip from D446
+> stays intact; what changes is that the marker stops standing in a lane of its
+> own and becomes the head of its title's own group.
+
+User feedback on the v0.14.36 build: "状态要和标题在一起，中间不要有空档，可以和项目
+左侧对齐，标题不能收缩", then "状态胶囊顶到左侧最边缘，最多不能超过一级项目边缘".
+Measured on the shipped row, the 72px column drew the pill at x=4→61 and its title
+at x=77: every attention row carried an 11px dead band inside the row, and every
+title — including the rows with no marker at all — paid 72px of a 275px sidebar.
+The column and these constraints are mutually exclusive: any fixed lane leaves
+either a band (when the marker is narrower than the lane) or a ragged edge (when it
+is not). The user chose the group.
+
+- The reserved column is gone. `--ds-sidebar-status-column` becomes
+  `--ds-sidebar-status-gap` (4px), `.thread-item-main` returns to a plain
+  `padding: 5px 6px`, and `.thread-item` spaces its children by the gap token.
+- The marker is now the row's own first flex item. `.thread-item-status` drops
+  `position: absolute; left: 4px; top: 50%; transform: translateY(-50%)` and
+  flows, and `.thread-item-status-chip` trades its absolute pin and column cap for
+  `flex: 0 1 auto; min-width: 0`. The marker's left edge is therefore the row's
+  left edge — the same edge the project header starts on — and an over-long
+  translation ellipsises inside the chip instead of pushing the title off the row.
+- The D446 pairing is untouched: dot and word still live in one tinted chip, the
+  dot still owns the animation, tooltip, full phrase and accessible name, the word
+  stays `aria-hidden`, and the quiet states still show the plain dot with no chip.
+- Accepted consequence: titles no longer share one left edge. A quiet row draws its
+  title after the 12px dot, an attention row after its own chip, and a row with no
+  marker at all starts flush on the left edge. That is exactly what was asked for —
+  the status and its title travel as one group, and no row pays for a lane it never
+  uses. A title still shifts when its session starts and stops running; the chip is
+  what moves it.
+- Renderer, styles, docs, and tests only: no IPC channel, host RPC, schema,
+  permission, or persisted-state change. No locale key changed — the short chip
+  words introduced by D447 stay and now do a second job, keeping the leading chip
+  narrow enough to sit beside its title.
+- Regression coverage: `sidebar-session-status.test.mjs` pins the gap token, the
+  in-flow dot and chip, the chip's shrink guard, and that the removed column is
+  really gone; `scripts/e2e-sidebar-status-dot.mjs` measures over CDP that every
+  marker's left edge equals its row's, that no marker sits left of the project
+  header's edge, and that each title begins within 6px of its own marker.
+- See `04-ux/07-ui-design-system.md` §4.5, `04-ux/08-component-spec.md` §2 and §3,
+  and E2E-SIDEBAR-status-dot-pending-union in
+  `06-delivery/04-e2e-test-plan.md`.

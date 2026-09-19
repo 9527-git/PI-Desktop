@@ -158,6 +158,8 @@
   opacity: 0.68;
 }
 
+/* D449: the marker leads its row in normal flow instead of floating in a
+   reserved gutter, so the status and the title it belongs to sit side by side. */
 .thread-item-status {
   display: inline-flex;
   width: 12px;
@@ -166,10 +168,6 @@
   align-items: center;
   justify-content: center;
   color: var(--ds-text-muted);
-  position: absolute;
-  left: 4px;
-  top: 50%;
-  transform: translateY(-50%);
 }
 
 .thread-item-status.running::before {
