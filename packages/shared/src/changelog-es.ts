@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.37",
+    "date": "2026-09-19",
+    "highlights": [
+      "La tarjeta flotante de la sesión se abre ahora en cuanto te detienes sobre una fila y se queda 3 segundos después de irte, tiempo de sobra para usar lo que contiene.",
+      "Su id de sesión ganó un botón de copiado con un clic, y las líneas de vista previa usan Markdown en línea: código, negritas y rutas muestran sus colores en vez de gris uniforme.",
+      "El estado ya no ocupa una columna reservada: el punto o la píldora encabezan cada fila alineados al borde izquierdo y el título va justo detrás; los dos se leen como un grupo y ningún título se aprieta.",
+    ],
+  },
+  {
     "version": "0.14.36",
     "date": "2026-09-18",
     "highlights": [

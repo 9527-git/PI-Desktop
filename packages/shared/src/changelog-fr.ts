@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.37",
+    "date": "2026-09-19",
+    "highlights": [
+      "La carte de survol de la session s'ouvre désormais dès qu'on s'arrête sur une ligne et reste 3 secondes après qu'on l'a quittée : de quoi utiliser ce qu'elle contient.",
+      "Son identifiant de session gagne un bouton de copie en un clic, et les lignes d'aperçu rendent du Markdown en ligne : code, gras et chemins affichent leurs couleurs au lieu d'un gris uniforme.",
+      "Le statut n'occupe plus une colonne réservée : le point ou la pastille ouvre chaque ligne alignée sur son bord gauche et le titre suit juste derrière ; les deux se lisent comme un groupe, et aucun titre n'est comprimé.",
+    ],
+  },
+  {
     "version": "0.14.36",
     "date": "2026-09-18",
     "highlights": [
