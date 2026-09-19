@@ -29,6 +29,15 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.38",
+    date: "2026-09-19",
+    highlights: [
+      "The sidebar now lists the session title alone: the last-message preview line left the row, and that content stays available on the hover card.",
+      "The working / needs-your-input marker became a solid capsule pinned inside each row's own left lane, so a title never shifts right when its session starts working or waits on you.",
+      "Status wording moved from the row onto that capsule - hover it for the full phrase, and a screen reader still announces it as part of the row.",
+    ],
+  },
+  {
     version: "0.14.37",
     date: "2026-09-19",
     highlights: [
@@ -931,6 +940,15 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.38",
+    date: "2026-09-19",
+    highlights: [
+      "侧栏现在只显示会话标题——最后一条消息的预览行从列表里撤掉，那些内容仍能在悬停卡片里看到。",
+      "进行中 / 待确认的标记改成一枚实心胶囊，钉在每一行自己的左侧车道里，所以会话开始工作或等你时，标题不会再向右挪。",
+      "状态文字从行里挪到胶囊上：悬停即可看到完整说法，读屏仍会把它作为这一行的一部分读出来。",
+    ],
+  },
+  {
     version: "0.14.37",
     date: "2026-09-19",
     highlights: [
@@ -1831,6 +1849,15 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.38",
+    date: "2026-09-19",
+    highlights: [
+      "側欄現在只顯示會話標題——最後一則訊息的預覽行從清單中撤掉，那些內容仍能在懸停卡片裡看到。",
+      "進行中 / 待確認的標記改成一枚實心膠囊，釘在每一行自己的左側車道裡，所以會話開始工作或等你時，標題不會再向右挪。",
+      "狀態文字從行裡挪到膠囊上：懸停即可看到完整說法，讀屏仍會把它作為這一行的部分讀出來。",
+    ],
+  },
   {
     version: "0.14.37",
     date: "2026-09-19",

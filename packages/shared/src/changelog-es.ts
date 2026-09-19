@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.38",
+    "date": "2026-09-19",
+    "highlights": [
+      "La barra lateral ahora solo lista el título de la sesión: la línea de vista previa del último mensaje salió de la lista, y ese contenido sigue disponible en la tarjeta flotante.",
+      "El marcador de «trabajando» / «espera tu respuesta» pasó a ser una cápsula sólida fijada en el carril izquierdo de su propia fila, así que un título ya nunca se desplaza a la derecha cuando su sesión empieza a trabajar o te espera.",
+      "El texto del estado se movió de la fila a esa cápsula: pásalo por encima para leer la frase completa, y un lector de pantalla sigue anunciándolo como parte de la fila.",
+    ],
+  },
+  {
     "version": "0.14.37",
     "date": "2026-09-19",
     "highlights": [

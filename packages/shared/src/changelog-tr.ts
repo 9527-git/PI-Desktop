@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.38",
+    "date": "2026-09-19",
+    "highlights": [
+      "Kenar çubuğu artık yalnızca oturum başlığını listeliyor: son mesajın önizleme satırı listeden çıktı, o içerik imleç kartında görülebilir kalıyor.",
+      "Çalışıyor / yanıtınızı bekliyor işareti, her satırın kendi solundaki şeride sabitlenmiş dolu bir kapsüle dönüştü; böylece oturumu çalışmaya başladığında ya da sizi beklediğinde başlık sağa kaymıyor.",
+      "Durum yazısı satırdan çıkıp o kapsüle taşındı: üzerine gelince tam ifadeyi görürsünüz, ekran okuyucu ise onu yine satırın bir parçası olarak duyurur.",
+    ],
+  },
+  {
     "version": "0.14.37",
     "date": "2026-09-19",
     "highlights": [

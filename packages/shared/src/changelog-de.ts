@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.38",
+    "date": "2026-09-19",
+    "highlights": [
+      "Die Seitenleiste zeigt jetzt nur noch den Sitzungstitel: die Vorschauzeile der letzten Nachricht ist aus der Liste heraus, der Inhalt bleibt in der Hover-Card verfügbar.",
+      "Die Arbeits-/Rückfrage-Markierung ist jetzt eine gefüllte Kapsel, die in der linken Spur ihrer eigenen Zeile sitzt – ein Titel rutscht also nie nach rechts, sobald seine Sitzung arbeitet oder auf dich wartet.",
+      "Der Statustext wanderte von der Zeile auf die Kapsel: beim Überfahren erscheint die vollständige Formulierung, und ein Vorleseprogramm nennt sie weiterhin als Teil der Zeile.",
+    ],
+  },
+  {
     "version": "0.14.37",
     "date": "2026-09-19",
     "highlights": [

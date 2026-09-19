@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.38",
+    "date": "2026-09-19",
+    "highlights": [
+      "La barre latérale ne liste plus que le titre de la session : la ligne d'aperçu du dernier message est sortie de la liste, et ce contenu reste disponible dans la carte de survol.",
+      "Le marqueur « en cours » / « attend votre réponse » est désormais une pastille pleine épinglée dans la piste gauche de sa propre ligne : un titre ne glisse donc plus vers la droite quand sa session se met à travailler ou vous attend.",
+      "Le libellé de statut a quitté la ligne pour cette pastille : survolez-la pour la phrase complète, et un lecteur d'écran l'annonce toujours comme un élément de la ligne.",
+    ],
+  },
+  {
     "version": "0.14.37",
     "date": "2026-09-19",
     "highlights": [
