@@ -5895,6 +5895,9 @@ before anything appeared.
 > **Supersedes D447's reserved status column.** The dot-plus-word chip from D446
 > stays intact; what changes is that the marker stops standing in a lane of its
 > own and becomes the head of its title's own group.
+>
+> **Amended the same day.** The marker leads the row's own button instead of
+> sitting beside it. Read the D449 amendment for the shipped geometry.
 
 User feedback on the v0.14.36 build: "状态要和标题在一起，中间不要有空档，可以和项目
 左侧对齐，标题不能收缩", then "状态胶囊顶到左侧最边缘，最多不能超过一级项目边缘".
@@ -5935,3 +5938,29 @@ is not). The user chose the group.
 - See `04-ux/07-ui-design-system.md` §4.5, `04-ux/08-component-spec.md` §2 and §3,
   and E2E-SIDEBAR-status-dot-pending-union in
   `06-delivery/04-e2e-test-plan.md`.
+
+## 2026-09-19 — The marker leads the row's own button (D449 amendment)
+
+The first landing of D449 moved the marker out of the row button and left that
+button's own `padding-left: 6px` in place, which broke the geometry the user had
+just approved on the comparison page in two ways:
+
+- The pill→title band was 10px (the 4px row gap plus the button's 6px padding)
+  where the approved N1 panel measured 4px — still a dead band, which was the
+  whole complaint against D447.
+- The marker no longer belonged to the button, so clicking the pill or the word
+  selected nothing. D447 had avoided this by giving the button a 72px left
+  padding that covered its column; the row's click target shrank by ~60px.
+
+The marker is now the row button's first flex item, and the button opens its
+content box on the row's own left edge (`padding: 5px 6px 5px 0`,
+`gap: var(--ds-sidebar-status-gap)`). The box math is now the approved one —
+marker flush at x=0, title 4px after it — and the whole row, status included, is
+still the control that selects the session.
+
+- Renderer, styles, docs, and tests only; no IPC, RPC, schema, permission, or
+  persisted-state change.
+- Regression coverage: `sidebar-session-status.test.mjs` now pins that the marker
+  renders inside `thread-item-main` and that the button opens with zero left
+  padding.
+- See `04-ux/07-ui-design-system.md` §4.5.

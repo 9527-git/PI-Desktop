@@ -137,11 +137,20 @@ test("renders semantic, shape-distinct sidebar status indicators", () => {
     sidebar,
     /renderSessionStatusChip[\s\S]*thread-item-status-chip[\s\S]*renderSessionStatus\(status\)[\s\S]*thread-item-status-label/,
   );
-  // D447 kept by D449: the chip is a row-level marker like the quiet dot, not a
-  // flex child of the row button, so the row leads with its status.
+  // D449: the marker leads the row BUTTON, so selecting the session stays a
+  // click anywhere on the row — including on the status itself.
   assert.match(
     sidebar,
     /isAttentionStatus\(status\)\s*\?\s*renderSessionStatusChip\(status\)\s*:\s*renderSessionStatus\(status\)/,
+  );
+  const rowHead = sidebar.slice(
+    sidebar.indexOf("data-sidebar-session-row={session.id}"),
+    sidebar.indexOf('className="thread-item-main"'),
+  );
+  assert.doesNotMatch(rowHead, /isAttentionStatus/);
+  assert.match(
+    sidebar,
+    /className="thread-item-main"[\s\S]*?isAttentionStatus\(status\)/,
   );
   assert.match(sidebar, /className="thread-item-status-label" aria-hidden/);
   assert.doesNotMatch(sidebar, /thread-item-title-row/);
@@ -166,15 +175,14 @@ test("renders semantic, shape-distinct sidebar status indicators", () => {
     styles.match(/^\.thread-item-status-chip \.thread-item-status \{[^}]*\}/m)?.[0] ??
     "";
   assert.match(chipDotRule, /flex: 0 0 auto/);
-  // D449: the reserved status column is gone. The marker leads its row in normal
-  // flow flush on the row's left edge, the gap token is all that separates it
-  // from the title, and the chip shrinks instead of squeezing the title.
+  // D449: the reserved status column is gone. The marker leads the row button in
+  // normal flow flush on the row's left edge, the gap token is all that separates
+  // it from the title, and the chip shrinks instead of squeezing the title.
   assert.match(styles, /--ds-sidebar-status-gap: 4px/);
   assert.doesNotMatch(styles, /--ds-sidebar-status-column/);
-  const rowRule = styles.match(/^\.thread-item \{[^}]*\}/m)?.[0] ?? "";
-  assert.match(rowRule, /gap: var\(--ds-sidebar-status-gap\)/);
   const mainRule = styles.match(/^\.thread-item-main \{[^}]*\}/m)?.[0] ?? "";
-  assert.match(mainRule, /padding: 5px 6px/);
+  assert.match(mainRule, /gap: var\(--ds-sidebar-status-gap\)/);
+  assert.match(mainRule, /padding: 5px 6px 5px 0/);
   const dotRule = styles.match(/^\.thread-item-status \{[^}]*\}/m)?.[0] ?? "";
   assert.match(dotRule, /display: inline-flex/);
   assert.doesNotMatch(dotRule, /position: absolute/);
