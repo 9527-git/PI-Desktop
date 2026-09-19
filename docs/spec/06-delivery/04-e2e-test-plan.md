@@ -3079,9 +3079,8 @@ and identify the platform validation still needed.
   dismisses. 9) Click the copy button in the card's session-id row and paste
   into a text field. 10) Hover a session whose collaboration preview contains
   a `code` span, **bold**, or a file path.
-- **Expected**: The card appears after a 500ms dwell, never appears during
-  quick pointer passes, and re-targets to the latest hovered row when the
-  pointer changes. Each card shows: the localized session title, two tag
+- **Expected**: The card appears immediately on hover or focus and re-targets
+  to the latest hovered row when the pointer changes. Each card shows: the localized session title, two tag
   chips (Local task + mode/permission badge), the project name under
   Workspace (or "Temporary" / "临时对话" for scratch rows), the latest
   externally selected Git branch for the active project, and the row's
