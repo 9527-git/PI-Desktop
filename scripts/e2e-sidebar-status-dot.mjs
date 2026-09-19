@@ -18,13 +18,15 @@
  * status out as a colored word INSIDE the same tinted chip as the live dot
  * (running in the warning token, every needs-input source in the purple one),
  * and that chip stays centred on the whole row so the word cannot drift onto the
- * title line of a two-line row. Quiet states keep the plain dot in the left gutter.
+ * title line of a two-line row. Quiet states show the plain dot in that same
+ * leading slot.
  *
- * and the D447 contract on top of that — the chip lives in a status column that
- * every row reserves, not in the row's content flow, so no session title is
- * pushed or squeezed by a pill: all five rows share one title left edge, and the
- * chip's right edge stays left of it. The dot keeps the full phrase as its
- * accessible name; the chip shows a short word that fits the column un-clipped.
+ * and the D449 contract on top of that — the marker leads its row instead of
+ * standing in a reserved column: its left edge is the row's left edge, no further
+ * left than the project header's own edge, and its title begins right after it,
+ * so status and title read as one group with no dead band between them. The dot
+ * keeps the full phrase as its accessible name; the chip shows a short word and
+ * shrinks before it can squeeze the title.
  *
  * Screenshots land in PI_DESKTOP_E2E_ARTIFACT_DIR (or a temp dir) for visual
  * inspection.
@@ -167,11 +169,19 @@ function probeExpression(ids) {
     const cs = getComputedStyle(status);
     const label = row.querySelector(".thread-item-status-label");
     const chip = row.querySelector(".thread-item-status-chip");
-    const main = row.querySelector(".thread-item-main");
     const title = row.querySelector(".thread-item-title");
     const rowBox = row.getBoundingClientRect();
     const statusBox = status.getBoundingClientRect();
     const chipBox = chip ? chip.getBoundingClientRect() : null;
+    const titleBox = title ? title.getBoundingClientRect() : null;
+    // D449: the marker leads the row, so the reference it must not cross is the
+    // project header's own left edge - the group block's edge, which is also the
+    // row's edge. Standalone rows have no header, so fall back to the list.
+    const groupHeader =
+      row.closest(".sidebar-session-group")?.querySelector(".sidebar-session-group-header") ??
+      document.querySelector(".sidebar-session-groups");
+    const headerBox = groupHeader ? groupHeader.getBoundingClientRect() : null;
+    const leadBox = chipBox ?? statusBox;
     return {
       present: true,
       stateClass: [...status.classList].find((c) => c !== "thread-item-status") ?? null,
@@ -201,11 +211,17 @@ function probeExpression(ids) {
         ? [...label.classList].find((c) => c !== "thread-item-status-label") ?? null
         : null,
       titleShown: !!row.querySelector(".thread-item-title"),
-      // D447: every row reserves the same leading status column, so the title's
-      // left edge is the same x with or without a chip, and the chip never
-      // reaches it. The column is measured off the row button's own padding.
-      statusColumn: main ? Math.round(parseFloat(getComputedStyle(main).paddingLeft)) : null,
-      titleLeft: title ? Math.round(title.getBoundingClientRect().left - rowBox.left) : null,
+      // D449: the marker is the row's first flex item, so its left edge is the
+      // row's left edge and the title starts right after it. Measure the marker
+      // as the chip when there is one, otherwise the plain dot.
+      markerLeft: Math.round(leadBox.left - rowBox.left),
+      markerRight: Math.round(leadBox.right - rowBox.left),
+      titleLeft: titleBox ? Math.round(titleBox.left - rowBox.left) : null,
+      titleGap: titleBox ? Math.round(titleBox.left - leadBox.right) : null,
+      // Positive when the marker starts left of the project header's own edge.
+      markerBeyondHeader: headerBox
+        ? Math.round(headerBox.left - leadBox.left)
+        : null,
       chipPosition: chip ? getComputedStyle(chip).position : null,
       chipLeft: chipBox ? Math.round(chipBox.left - rowBox.left) : null,
       chipRight: chipBox ? Math.round(chipBox.right - rowBox.left) : null,
@@ -466,42 +482,51 @@ async function main() {
     check(
       base.rows.selected.inlineLabel === null &&
         base.rows.selected.inChip === false &&
-        base.rows.selected.dotPosition === "absolute" &&
+        base.rows.selected.dotPosition === "static" &&
         base.rows.selected.titleShown,
-      "the selected row keeps its quiet dot in the gutter, with no chip or word",
+      "the selected row keeps its quiet dot leading the row, with no chip or word",
       JSON.stringify(base.rows.selected),
     );
 
-    // 4b. D447: the pill leads inside a status column that every row reserves,
-    //     so a chip neither pushes a title off the grid nor squeezes it.
+    // 4b. D449: the marker leads its row in normal flow instead of standing in a
+    //     reserved column, so status and title form one group - and the pill can
+    //     never cross the project header's edge or leave a dead band.
     const attentionRows = ["running", "permission", "ask", "plan"].map(
       (key) => base.rows[key],
     );
     const everyRow = [base.rows.selected, ...attentionRows];
     check(
+      everyRow.every((row) => row.markerLeft === 0),
+      "every status marker sits flush on its row's left edge",
+      JSON.stringify(everyRow.map((row) => row.markerLeft)),
+    );
+    check(
       everyRow.every(
-        (row) => row.statusColumn === everyRow[0].statusColumn &&
-          row.titleLeft === everyRow[0].titleLeft,
+        (row) => row.markerBeyondHeader !== null && row.markerBeyondHeader <= 1,
       ),
-      "every row reserves the same status column, so all titles share one left edge",
+      "no marker reaches further left than the project header's own edge",
       JSON.stringify(
-        everyRow.map((row) => ({ column: row.statusColumn, titleLeft: row.titleLeft })),
+        everyRow.map((row) => ({
+          markerLeft: row.markerLeft,
+          beyondHeader: row.markerBeyondHeader,
+        })),
       ),
     );
     check(
       attentionRows.every(
         (row) =>
-          row.chipPosition === "absolute" &&
-          row.chipLeft === 4 &&
+          row.chipPosition === "static" &&
+          row.titleGap >= 0 &&
+          row.titleGap <= 6 &&
           row.chipRight < row.titleLeft,
       ),
-      "the status chip leads inside the reserved column and never reaches the title",
+      "each chip's title begins within 6px of it, with no dead band in between",
       JSON.stringify(
         attentionRows.map((row) => ({
           position: row.chipPosition,
-          left: row.chipLeft,
-          right: row.chipRight,
+          chipRight: row.chipRight,
           titleLeft: row.titleLeft,
+          titleGap: row.titleGap,
         })),
       ),
     );

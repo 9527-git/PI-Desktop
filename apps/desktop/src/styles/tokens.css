@@ -133,9 +133,11 @@
   --ds-shadow-composer: 0 3px 7.5px #0000000a, 0 0 20px #0000000d;
   --ds-bg-elevated-primary: color-mix(in oklab, var(--gray-800) 96%, transparent);
   --ds-sidebar-width: clamp(240px, 275px, min(520px, calc(100vw - 320px)));
-  /* D447: every sidebar session row reserves this leading column for its status
-     marker, so titles keep one left edge whether or not a chip is present. */
-  --ds-sidebar-status-column: 72px;
+  /* D449: the status marker is the sidebar row's own leading item, flush on the
+     row's left edge - the same edge the project header starts on - and this is
+     the gap it leaves before the title. There is no reserved status column:
+     the marker and its title form one group instead of two fixed lanes. */
+  --ds-sidebar-status-gap: 4px;
   /* Settings rail border-box width, including its 1px right border. The
    * settings drag band starts after the rail so the rail keeps a single
    * surface tone from the window top edge down. */

@@ -1599,9 +1599,9 @@ and identify the platform validation still needed.
 - **Steps**: 1) Seed one row per state — selected, running, permission, ask,
   Plan/Goal approval — each with a preview line so the rows are two lines tall
   like real sessions. 2) Inspect each row's leading status dot, its chip, any
-  status word inside that chip, and the row button's reserved status column
-  against the title's own left edge. 3) Repeat the running and needs-input rows in
-  light and dark themes. 4) Re-inspect under
+  status word inside that chip, and where the marker sits on the row against the
+  project header's left edge and against its own title. 3) Repeat the running and
+  needs-input rows in light and dark themes. 4) Re-inspect under
   `prefers-reduced-motion: reduce`, then after clearing it. 5) Confirm the
   conversation topbar carries no status slot or chip.
 - **Expected**: The running row shows an orange breathing dot (`--ds-warning`,
@@ -1621,11 +1621,12 @@ and identify the platform validation still needed.
   form of the dot's accessible name (never longer than it, never clipped) and
   uses the dot's own token (`--ds-warning` for running, `--ds-purple` for every
   intervention source, in both themes), while the selected row has no chip, no
-  word, and keeps its plain absolutely positioned dot, with its title still
-  rendering. Per D447 the pill never disturbs the title lane: all five rows
-  reserve the same leading status column, so their titles share one left edge,
-  and each chip is absolutely positioned at the column's left edge with its right
-  edge still left of the title. The
+  word, and keeps its plain dot in the same leading slot, with its title still
+  rendering. Per D449 the marker leads its row instead of standing in a lane of
+  its own: every marker's left edge sits flush on the row's left edge, no further
+  left than the project header's own left edge, and its title begins within 6px of
+  the marker's right edge — so status and title read as one group with no dead
+  band between them, and no row reserves width a marker may never use. The
   conversation topbar has no `.ct-status-slot` or
   `.ct-status-chip`. No IPC, host, or persisted state is touched.
 - **Specs linked**: `04-ux/07-ui-design-system.md` §4.5, `04-ux/08-component-spec.md` §2/§3
@@ -1633,7 +1634,7 @@ and identify the platform validation still needed.
 - **Milestone**: Post-M6 desktop shell maintenance
 - **Status**: Automated (`scripts/e2e-sidebar-status-dot.mjs` via
   `pnpm test:e2e:sidebar-status` — per-row dot state, union parity, label,
-  priority, both-theme tokens, the reserved status column and shared title edge,
+  priority, both-theme tokens, the flush-left marker and its title gap,
   reduced-motion, and the topbar-absence probe);
   unit coverage in `sidebar-session-status.test.mjs`
 

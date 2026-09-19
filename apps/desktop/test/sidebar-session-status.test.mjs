@@ -132,21 +132,22 @@ test("renders semantic, shape-distinct sidebar status indicators", () => {
   assert.match(styles, /thread-item-status\.failed[\s\S]*--ds-error/);
   // D446: running and needs-input rows carry their word inside the SAME tinted
   // chip as the dot, so the word can never drift onto the title line of a
-  // two-line row; quiet states keep the plain dot in the left gutter.
+  // two-line row; quiet states show the plain dot in that same leading slot.
   assert.match(
     sidebar,
     /renderSessionStatusChip[\s\S]*thread-item-status-chip[\s\S]*renderSessionStatus\(status\)[\s\S]*thread-item-status-label/,
   );
-  // D447: the chip is a row-level marker like the quiet dot, not a flex child of
-  // the row button, so it can never push or squeeze the session title.
+  // D447 kept by D449: the chip is a row-level marker like the quiet dot, not a
+  // flex child of the row button, so the row leads with its status.
   assert.match(
     sidebar,
     /isAttentionStatus\(status\)\s*\?\s*renderSessionStatusChip\(status\)\s*:\s*renderSessionStatus\(status\)/,
   );
   assert.match(sidebar, /className="thread-item-status-label" aria-hidden/);
   assert.doesNotMatch(sidebar, /thread-item-title-row/);
-  // The pill word has to fit the reserved column in every locale, so it uses a
-  // short form while the dot keeps the full phrase as its accessible name.
+  // The chip shares its row with the title instead of a lane of its own, so the
+  // pill word stays a short form while the dot keeps the full phrase as its
+  // accessible name.
   assert.match(
     sidebar,
     /nav\.sessionRunningShort[\s\S]*nav\.sessionNeedsInputShort/,
@@ -161,21 +162,26 @@ test("renders semantic, shape-distinct sidebar status indicators", () => {
   }
   assert.match(styles, /thread-item-status-chip\.running[\s\S]*--ds-warning/);
   assert.match(styles, /thread-item-status-chip\.permission[\s\S]*--ds-purple/);
-  assert.match(
-    styles,
-    /thread-item-status-chip \.thread-item-status \{[\s\S]*?position: static/,
-  );
-  // D447: every row reserves one leading status column, and the chip is pinned
-  // inside it instead of consuming the title's own width.
-  assert.match(styles, /--ds-sidebar-status-column: 72px/);
-  assert.match(
-    styles,
-    /thread-item-main \{[\s\S]*?padding: 5px 6px 5px var\(--ds-sidebar-status-column\)/,
-  );
-  assert.match(
-    styles,
-    /thread-item-status-chip \{[\s\S]*?position: absolute;[\s\S]*?left: 4px;[\s\S]*?max-width: calc\(var\(--ds-sidebar-status-column\) - 10px\)/,
-  );
+  const chipDotRule =
+    styles.match(/^\.thread-item-status-chip \.thread-item-status \{[^}]*\}/m)?.[0] ??
+    "";
+  assert.match(chipDotRule, /flex: 0 0 auto/);
+  // D449: the reserved status column is gone. The marker leads its row in normal
+  // flow flush on the row's left edge, the gap token is all that separates it
+  // from the title, and the chip shrinks instead of squeezing the title.
+  assert.match(styles, /--ds-sidebar-status-gap: 4px/);
+  assert.doesNotMatch(styles, /--ds-sidebar-status-column/);
+  const rowRule = styles.match(/^\.thread-item \{[^}]*\}/m)?.[0] ?? "";
+  assert.match(rowRule, /gap: var\(--ds-sidebar-status-gap\)/);
+  const mainRule = styles.match(/^\.thread-item-main \{[^}]*\}/m)?.[0] ?? "";
+  assert.match(mainRule, /padding: 5px 6px/);
+  const dotRule = styles.match(/^\.thread-item-status \{[^}]*\}/m)?.[0] ?? "";
+  assert.match(dotRule, /display: inline-flex/);
+  assert.doesNotMatch(dotRule, /position: absolute/);
+  const chipRule = styles.match(/^\.thread-item-status-chip \{[^}]*\}/m)?.[0] ?? "";
+  assert.match(chipRule, /flex: 0 1 auto/);
+  assert.match(chipRule, /min-width: 0/);
+  assert.doesNotMatch(chipRule, /position: absolute/);
   assert.doesNotMatch(styles, /thread-item-main:has\(/);
   assert.match(
     styles,
