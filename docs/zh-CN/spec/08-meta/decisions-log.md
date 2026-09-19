@@ -4552,3 +4552,17 @@ v0.14.35 构建之后用户反馈：「状态胶囊不要挤标题啊，标题�
   复制按钮的标记、三处 MarkdownInline 预览，以及共享色调的 CSS 选择器。
 - 见 `04-ux/09-interaction-patterns.md` §9.1b 与 `06-delivery/04-e2e-test-plan.md`
   的 E2E-047b。
+
+## 2026-09-19 —— 悬停卡改为鼠标移上立即出现（D448 同日勘误）
+
+用户对 D448 构建的反馈：「现在是鼠标指针移动上去卡片不是立即停留」。D448 沿用了
+项目路径提示的 500ms 出现延迟，指针都落到行上半秒了卡片才出来，手感像死了一样。
+
+- `useSessionHoverCard.show` 现在同步落卡：彻底去掉出现定时器。`isConnected` /
+  `document.hidden` 守卫与同行短路保留，待显示请求/定时器簿记删除。
+- D448 的停留契约不变：离开仍启动 3 秒关闭计时，移回即取消；滚动/缩放/右键菜单/
+  Escape/窗口隐藏仍立即取消。快速扫过指针现在会闪出卡片——这是即时反馈的既定取舍。
+- 仅渲染层、文档与测试：无 IPC、RPC、schema、权限或持久化状态变更；语言包键无增删。
+- 回归覆盖：`sidebar-navigation.test.mjs` 改钉同步 `setCard(request)` 与 500ms
+  定时器不存在；`session-hover-card-dwell-copy.test.mjs` 新增即时出现契约。
+- 见 `04-ux/09-interaction-patterns.md` §9.1b 与 E2E-047b。

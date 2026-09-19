@@ -1331,9 +1331,8 @@ Project drag/drop follows these patterns:
 
 ### 9.1b Sidebar session hover card
 
-- Hovering or focusing a session row reveals a multi-line hover card after
-  the same 500ms delay used by the project path tooltip; the card never
-  anchors to a torn-down row.
+- Hovering or focusing a session row reveals the multi-line hover card
+  immediately (no reveal delay); the card never anchors to a torn-down row.
 - The card surfaces the row's metadata in this order, top to bottom: title,
   tag chips, **Workspace**, branch (when the project exposes one), and
   **Updated {{when}}**. Temporary/scratch sessions show the localized

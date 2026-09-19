@@ -5863,3 +5863,24 @@ flat monochrome text.
   previews, and the shared-hue CSS selectors.
 - See `04-ux/09-interaction-patterns.md` §9.1b and E2E-047b in
   `06-delivery/04-e2e-test-plan.md`.
+
+## 2026-09-19 — The hover card reveals instantly (D448 amendment)
+
+User feedback on the D448 build: "现在是鼠标指针移动上去卡片不是立即停留". The
+500ms reveal delay D448 had kept from the project path tooltip made the card
+feel dead on arrival — the pointer was already on the row for half a second
+before anything appeared.
+
+- `useSessionHoverCard.show` now sets the card synchronously: no reveal timer
+  at all. The `isConnected` / `document.hidden` guards and the same-target
+  short-circuit carry over; the pending-request/timer bookkeeping is gone.
+- The D448 dwell contract is unchanged: leave still starts the 3s dismissal,
+  re-entry cancels it, and scroll/resize/context-menu/Escape/hide cancel
+  immediately. Quick pointer passes now do flash a card — that is the accepted
+  trade for instant feedback.
+- Renderer, docs, and tests only: no IPC, RPC, schema, permission, or
+  persisted-state change; no locale key added or removed.
+- Regression coverage: `sidebar-navigation.test.mjs` now pins the synchronous
+  `setCard(request)` and the absence of the 500ms timer;
+  `session-hover-card-dwell-copy.test.mjs` adds the instant-reveal contract.
+- See `04-ux/09-interaction-patterns.md` §9.1b and E2E-047b.

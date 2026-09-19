@@ -36,6 +36,15 @@ test("the card lingers 3 seconds after the pointer leaves", () => {
   assert.match(hoverSource, /onMouseEnter=\{keepVisible\}/, "re-entering cancels the dwell");
 });
 
+test("the card reveals instantly on hover", () => {
+  const show = hookSource.match(
+    /const show = useCallback\(\(request: SessionHoverCardData\) => \{[\s\S]*?\}, \[[^\]]*\]\);/,
+  )?.[0] ?? "";
+  assert.match(show, /setCard\(request\);/, "show sets the card synchronously");
+  assert.doesNotMatch(show, /setTimeout/, "no reveal timer");
+  assert.doesNotMatch(hookSource, /\}, 500\)/, "the old 500ms reveal delay is gone");
+});
+
 test("the session id row exposes a one-click copy", () => {
   const idRow = hoverSource.match(
     /<div className="sidebar-session-hover-card-id-row">[\s\S]*?<\/div>/,
