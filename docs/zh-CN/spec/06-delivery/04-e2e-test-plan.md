@@ -2391,20 +2391,65 @@ MainChat 弥补了缺口。 Maximized/fullscreen 调用保留最新的
   流式传输应答、许可和终端事件以实现持久会话；一个
   第二个会话可以在后台运行。
 - **步骤**： 1) 在可见会话中开始一轮。 2）观察成绩单
-  当代理思考、使用工具并传输答案时。 3) 触发
-  许可请求并检查批准卡。 4）切换到第二个
-  会议，而第一个会议仍在继续。 5) 之后返回第一个会话
+  当代理思考、使用工具并传输答案时。 3) 向上滚动以释放跟随模式，
+  检查下方表面。 4) 触发
+  许可请求并检查批准卡。 5）切换到第二个
+  会议，而第一个会议仍在继续。 6) 之后返回第一个会话
   完成。
-- **预期**：没有一般理解、工作、检查或完成
-  当回合处于活动状态时，卡片会出现在成绩单下方。助理和
-  工具行保持内联；只有实际的权限请求才会呈现
+- **预期**：回合处于活动状态时，没有一般理解、
+  工作、检查或完成卡片会出现在成绩单下方。助理和
+  工具行保持内联；紧凑的运行时状态行只在它解释一段没有自己的转录行的
+  安静区间时才允许出现（提供商等待/重试、上下文压缩、空回复补救、
+  下一次请求前的间隔，或等待委托工作）。ADR 0260 唯一允许的卡片是
+  执行中回合的进度卡，且只允许 `E2E-PROGRESS-declared-task-list-card`
+  定义的那种形态：它列出的是该回合自己的步骤，因此绝不会退化成一个
+  站在已有行之上的通用状态词。只有实际的权限请求才会呈现
   可操作的卡。后台活动永远不会改变可见会话，
   成绩单、输入框焦点或项目。
 - **链接规格**：`04-ux/08-component-spec.md`，
-  `04-ux/09-interaction-patterns.md`、`03-runtime/10-session-state-machine.md`
+  `04-ux/09-interaction-patterns.md`、`03-runtime/10-session-state-machine.md`、
+  `adr/0260-declared-task-progress-card.md`
 - **验收**：C（聊天流）、质量（交互和可访问性）
 - **里程碑**：M5
 - **状态**：单位覆盖（`active-turn-surface.test.mjs`）；完整的 UI 场景草稿
+
+#### E2E-PROGRESS-declared-task-list-card：执行中回合的卡片列出代理申报的步骤
+
+- **前提**：确定性代理能用一份有序步骤清单调用 `UpdateTasks` 并在步骤完成时
+  更新它，为持久会话发出思考、工具 start/end、流式应答、许可与终端事件，
+  并做出工作区改动，且行数足以让转录本溢出；另有一个从不调用 `UpdateTasks`
+  的代理运行；第二个会话可在后台运行；可切换 `prefers-reduced-motion`。
+- **步骤**： 1) 开始一个申报了任务清单的长回合并保持转录本钉在尾部。
+  2) 观察卡片随步骤开始与结束而变。 3) 收起再展开它的步骤清单，同时继续观察
+  回合新增的行。 4) 向上滚动直到释放跟随模式。 5) 点击卡片的滚动到底部控件。
+  6) 向上滚动并触发许可请求。 7) 向上滚动，然后在第二个会话中运行一个回合
+  再切回。 8) 用那个什么都不申报的代理重复第 1、2 步。
+  9) 在启用减少动效的情况下重复第 1 至 3 步。
+- **预期**：一张紧凑卡片在执行中的整个回合都待在转录本下方那一层，
+  无论跟随模式是否释放，并在回合结束时消失。它的步骤清单是最新一次
+  `UpdateTasks` 申报：每一步按原序带着 pending、active、done 或 error 标记，
+  页脚从这份清单里数出 `done / total`，旁边是本回合改动的文件数与增删行数。
+  申报调用本身不渲染任何转录本行，也不是小地图目标，因此卡片是它唯一的表面，
+  转录本不会重复它。卡片报出的运行时阶段与行内状态行一致，已用时长从本回合
+  自己的第一行起算；从不显示百分比、估算或预计结束。最多列出本回合最后 8 个
+  步骤，更早的折成一行，卡片高度不随回合增长。尾部在屏时不渲染“滚动到底部”
+  胶囊，卡片也不显示跳转控件；释放跟随模式后该控件移到卡片页脚里，胶囊继续
+  不在这一层出现，于是下方表面从不同时挂着两个浮动控件。点击它重新固定跟随
+  模式并跳到底部。收起与再展开能穿过一次来回滚动。权限、询问或计划审批卡会
+  取代它，因为那是可操作的中断。后台会话的回合绝不在可见会话里画出这张卡，
+  隐藏的历史面板或正在落定的切换遮罩也不显示它。卡片不带停止控件；输入框仍是
+  唯一的取消入口。代理从不调用 `UpdateTasks` 时，同一张卡片改为报告该回合的
+  工具行及其返回状态，且不编造总数；既无申报也无任何行的回合什么都不显示，
+  把开场那一刻留给转录本自己的工作中指示。减少动效下卡片没有入场动画，
+  展开箭头不过渡，进行中的步骤标记也不旋转。
+- **链接规格**：`04-ux/09-interaction-patterns.md` §2.4、
+  `04-ux/08-component-spec.md` §4.3/§4.4、
+  `03-runtime/03-tools-and-permissions.md` §10.3、
+  `adr/0260-declared-task-progress-card.md`
+- **验收**：C（聊天流）、质量（交互和可访问性）
+- **里程碑**：M5
+- **状态**：单位覆盖（`turn-progress.test.mjs`、`active-turn-surface.test.mjs`）；
+  完整的 UI 场景草稿
 
 #### E2E-095：终端故障暴露恢复而没有成功卡
 
@@ -4880,7 +4925,7 @@ IPC 请求无法关闭。
 | B / F / Security — 提供商复制 | E2E-PROVIDER-copy-config-without-credentials |
 | A — 应用程序启动 | E2E-001、E2E-002、E2E-003、E2E-004、E2E-067、E2E-076、E2E-079、E2E-092、E2E-097、E2E-143、E2E-150、E2E-168、E2E-204、E2E-217 |
 | B——模型配置 | E2E-005、E2E-005G、E2E-006、E2E-007、E2E-038、E2E-050、E2E-052、E2E-055、E2E-066、E2E-080、E2E-082、E2E-151、E2E-005J、E2E-199、E2E-201、E2E-202、E2E-203、E2E-209、E2E-166 |
-| C — 对话和直播 | E2E-008、E2E-008d、E2E-008a、E2E-009、E2E-010、E2E-011、E2E-011a、E2E-011b、E2E-031、E2E-040、E2E-047、E2E-048、E2E-048A、E2E-049、E2E-052、 E2E-053、E2E-054、E2E-055、E2E-059、E2E-059a、E2E-060c、E2E-060d、E2E-061、E2E-061a、E2E-062、E2E-064、E2E-065、E2E-068、E2E-071、 E2E-073、E2E-074、E2E-075、E2E-081、E2E-083、E2E-084、E2E-086、E2E-087、E2E-088、E2E-088b、E2E-089、E2E-090、E2E-094、E2E-095、E2E-096、 E2E-097、E2E-098、E2E-099、E2E-102、E2E-102a、E2E-102b、E2E-106、E2E-109、E2E-111、E2E-114、E2E-116、E2E-117、E2E-118、E2E-119、 E2E-120、E2E-121、E2E-代理-001、E2E-142、E2E-144、E2E-145、E2E-146、E2E-147、E2E-151、E2E-199、E2E-250、E2E-166、E2E-CHAT-fullscreen-widens-reading-band |
+| C — 对话和直播 | E2E-008、E2E-008d、E2E-008a、E2E-009、E2E-010、E2E-011、E2E-011a、E2E-011b、E2E-031、E2E-040、E2E-047、E2E-048、E2E-048A、E2E-049、E2E-052、 E2E-053、E2E-054、E2E-055、E2E-059、E2E-059a、E2E-060c、E2E-060d、E2E-061、E2E-061a、E2E-062、E2E-064、E2E-065、E2E-068、E2E-071、 E2E-073、E2E-074、E2E-075、E2E-081、E2E-083、E2E-084、E2E-086、E2E-087、E2E-088、E2E-088b、E2E-089、E2E-090、E2E-094、E2E-095、E2E-096、 E2E-097、E2E-098、E2E-099、E2E-102、E2E-102a、E2E-102b、E2E-106、E2E-109、E2E-111、E2E-114、E2E-116、E2E-117、E2E-118、E2E-119、 E2E-120、E2E-121、E2E-代理-001、E2E-142、E2E-144、E2E-145、E2E-146、E2E-147、E2E-151、E2E-199、E2E-250、E2E-166、E2E-CHAT-fullscreen-widens-reading-band、E2E-PROGRESS-declared-task-list-card |
 | D——工作区 | E2E-012、E2E-013、E2E-022B、E2E-024I、E2E-047、E2E-049、E2E-057、E2E-058、E2E-060、E2E-068、E2E-075、E2E-078、E2E-153、E2E-WORKPANEL-open-dock-draws-chat-column-seam |
 | D——工作区（项目排序） | E2E-253 |
 | E——工具和权限 | E2E-008a、E2E-014、E2E-015、E2E-016、E2E-017、E2E-018、E2E-019、E2E-024I、E2E-024K、E2E-040、E2E-049、E2E-074、E2E-093、E2E-097、 E2E-099、E2E-100、E2E-101、E2E-102、E2E-103、E2E-105、E2E-106、E2E-107、E2E-111、E2E-112、E2E-113、E2E-114、E2E-115、E2E-116、 E2E-119、E2E-121、E2E-122、E2E-123、E2E-142、E2E-145、E2E-147、E2E-PLUGIN-imported-pi-package-skills、E2E-166 |
@@ -4889,7 +4934,7 @@ IPC 请求无法关闭。
 | G——插件 | E2E-022、E2E-022A、E2E-022B、E2E-022C、E2E-023、E2E-024、E2E-024B、E2E-024C、E2E-024D、E2E-024E、E2E-024W、E2E-024F、E2E-024G、E2E-024H、 E2E-024I、E2E-024J、E2E-024K、E2E-024L、E2E-024M、E2E-024N、E2E-024O、E2E-024P、E2E-025、E2E-026、E2E-105、E2E-117、E2E-120、E2E-122、E2E-123、E2E-148、E2E-153、E2E-PLUGIN-imported-pi-package-skills、E2E-PLUGIN-import-extension-installs-dependencies、E2E-PLUGIN-import-extension-reports-missing-dependency |
 | H——诊断 | E2E-027、E2E-031、E2E-034、E2E-042、E2E-096、E2E-098、E2E-104、E2E-107、E2E-108、E2E-109、E2E-110、E2E-113、E2E-115、E2E-116、 E2E-118、E2E-121、E2E-146、E2E-194、E2E-195 |
 | 安全性 | E2E-028、E2E-029、E2E-030、E2E-024J、E2E-024K、E2E-024M、E2E-049、E2E-068、E2E-086、E2E-105、E2E-106、E2E-107、E2E-108、E2E-109、 E2E-110、E2E-112、E2E-113、E2E-115、E2E-116、E2E-117、E2E-119、E2E-121、E2E-122、E2E-123、E2E-142、E2E-148、E2E-151、E2E-153 |
-| 品质 | E2E-032、E2E-033、E2E-039、E2E-043、E2E-044、E2E-045、E2E-046、E2E-047、E2E-048、E2E-048A、E2E-049、E2E-050、E2E-053、E2E-055、 E2E-056、E2E-057、E2E-058、E2E-059、E2E-060、E2E-061、E2E-062、E2E-063、E2E-064、E2E-065、E2E-066、E2E-067、E2E-068、E2E-069、 E2E-070、E2E-071、E2E-072、E2E-073、E2E-074、E2E-075、E2E-076、E2E-077、E2E-078、E2E-079、E2E-080、E2E-081、E2E-082、E2E-083、 E2E-084、E2E-085、E2E-086、E2E-092、E2E-093、E2E-094、E2E-095、E2E-096、E2E-097、E2E-098、E2E-099、E2E-100、E2E-101、E2E-102、 E2E-102a、E2E-102b、E2E-103、E2E-AGENTS-001、E2E-024N、E2E-024O、E2E-059a、E2E-060b、E2E-060c、E2E-060d、E2E-061a、E2E-073a、E2E-111、 E2E-114、E2E-117、E2E-118、E2E-119、E2E-120、E2E-122、E2E-123、E2E-142、E2E-143、E2E-144、E2E-145、E2E-146、E2E-147、E2E-148、E2E-150、E2E-151、E2E-153、E2E-194、E2E-195、E2E-199、E2E-200、E2E-201、E2E-202、E2E-203、E2E-204、E2E-209、E2E-210、E2E-250、E2E-PLUGIN-imported-pi-package-skills、E2E-CHAT-fullscreen-widens-reading-band、E2E-WORKPANEL-open-dock-draws-chat-column-seam |
+| 品质 | E2E-032、E2E-033、E2E-039、E2E-043、E2E-044、E2E-045、E2E-046、E2E-047、E2E-048、E2E-048A、E2E-049、E2E-050、E2E-053、E2E-055、 E2E-056、E2E-057、E2E-058、E2E-059、E2E-060、E2E-061、E2E-062、E2E-063、E2E-064、E2E-065、E2E-066、E2E-067、E2E-068、E2E-069、 E2E-070、E2E-071、E2E-072、E2E-073、E2E-074、E2E-075、E2E-076、E2E-077、E2E-078、E2E-079、E2E-080、E2E-081、E2E-082、E2E-083、 E2E-084、E2E-085、E2E-086、E2E-092、E2E-093、E2E-094、E2E-095、E2E-096、E2E-097、E2E-098、E2E-099、E2E-100、E2E-101、E2E-102、 E2E-102a、E2E-102b、E2E-103、E2E-AGENTS-001、E2E-024N、E2E-024O、E2E-059a、E2E-060b、E2E-060c、E2E-060d、E2E-061a、E2E-073a、E2E-111、 E2E-114、E2E-117、E2E-118、E2E-119、E2E-120、E2E-122、E2E-123、E2E-142、E2E-143、E2E-144、E2E-145、E2E-146、E2E-147、E2E-148、E2E-150、E2E-151、E2E-153、E2E-194、E2E-195、E2E-199、E2E-200、E2E-201、E2E-202、E2E-203、E2E-204、E2E-209、E2E-210、E2E-250、E2E-PLUGIN-imported-pi-package-skills、E2E-CHAT-fullscreen-widens-reading-band、E2E-WORKPANEL-open-dock-draws-chat-column-seam、E2E-PROGRESS-declared-task-list-card |
 | 品质（项目排序） | E2E-253 |
 | C — 对话和直播（输入法斜杠别名） | E2E-255 |
 | E——工具和权限（Skill 常驻） | E2E-254 |
@@ -4938,7 +4983,7 @@ IPC 请求无法关闭。
 | M2 | E2E-004、E2E-005、E2E-006、E2E-007、E2E-008、E2E-008d、E2E-009、E2E-010、E2E-011、E2E-011a、E2E-011b、E2E-020、E2E-021、E2E-027、E2E-031、 E2E-036、E2E-037、E2E-042、E2E-087、E2E-088、E2E-088b、E2E-089、E2E-090、E2E-144、E2E-005J、E2E-201 |
 | M3 | E2E-012、E2E-013、E2E-014、E2E-015、E2E-016、E2E-017、E2E-018、E2E-019、E2E-040 |
 | M4 | E2E-022、E2E-023、E2E-024、E2E-025、E2E-026、E2E-030、E2E-038 |
-| M5 | E2E-008a、E2E-032、E2E-033、E2E-034、E2E-039、E2E-043、E2E-044、E2E-045、E2E-046、E2E-047、E2E-048、E2E-048A、E2E-049、E2E-050、 E2E-051、E2E-052、E2E-053、E2E-054、E2E-055、E2E-056、E2E-057、E2E-058、E2E-059、E2E-060、E2E-061、E2E-062、E2E-063、E2E-064、 E2E-065、E2E-066、E2E-067、E2E-068、E2E-069、E2E-070、E2E-071、E2E-072、E2E-073、E2E-074、E2E-075、E2E-076、E2E-077、E2E-078、 E2E-079、E2E-080、E2E-081、E2E-082、E2E-083、E2E-084、E2E-085、E2E-086、E2E-092、E2E-093、E2E-096、E2E-097、E2E-098、E2E-099、 E2E-100、E2E-101、E2E-102、E2E-102a、E2E-102b、E2E-AGENTS-001、E2E-059a、E2E-060b、E2E-060c、E2E-061a、E2E-073a、E2E-094、E2E-095、E2E-143、E2E-145、E2E-146、E2E-147、E2E-194、E2E-195、E2E-204、E2E-250、E2E-CHAT-fullscreen-widens-reading-band、E2E-WORKPANEL-open-dock-draws-chat-column-seam |
+| M5 | E2E-008a、E2E-032、E2E-033、E2E-034、E2E-039、E2E-043、E2E-044、E2E-045、E2E-046、E2E-047、E2E-048、E2E-048A、E2E-049、E2E-050、 E2E-051、E2E-052、E2E-053、E2E-054、E2E-055、E2E-056、E2E-057、E2E-058、E2E-059、E2E-060、E2E-061、E2E-062、E2E-063、E2E-064、 E2E-065、E2E-066、E2E-067、E2E-068、E2E-069、E2E-070、E2E-071、E2E-072、E2E-073、E2E-074、E2E-075、E2E-076、E2E-077、E2E-078、 E2E-079、E2E-080、E2E-081、E2E-082、E2E-083、E2E-084、E2E-085、E2E-086、E2E-092、E2E-093、E2E-096、E2E-097、E2E-098、E2E-099、 E2E-100、E2E-101、E2E-102、E2E-102a、E2E-102b、E2E-AGENTS-001、E2E-059a、E2E-060b、E2E-060c、E2E-061a、E2E-073a、E2E-094、E2E-095、E2E-143、E2E-145、E2E-146、E2E-147、E2E-194、E2E-195、E2E-204、E2E-250、E2E-CHAT-fullscreen-widens-reading-band、E2E-WORKPANEL-open-dock-draws-chat-column-seam、E2E-PROGRESS-declared-task-list-card |
 | M5（项目排序） | E2E-253 |
 | M2（输入法斜杠别名） | E2E-255 |
 | M5（Skill 常驻） | E2E-254 |

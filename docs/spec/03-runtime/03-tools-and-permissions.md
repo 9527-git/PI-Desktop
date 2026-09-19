@@ -1,7 +1,7 @@
 # 03. Tools and Permissions
 
 > Decisions applied: D003, D004, D005, D006, D013, D015, D093, D114, D115, D181, D186,
-> D189, D190, D195 (ADR 0057), D315, D384 (ADR 0211), ADR 0087
+> D189, D190, D195 (ADR 0057), D315, D384 (ADR 0211), ADR 0087, ADR 0260 (D452)
 
 ## 0. Frozen policy summary
 
@@ -40,6 +40,7 @@ Let the agent get things done, but stay under control by default.
 | `Edit` | high | Modify files through line-anchored ops against a verified `tag` ([18](18-line-anchored-edit-contract.md)) |
 | `Bash` | high | Execute commands |
 | `asktool` | low | Ask one or more user questions and return the submitted answers as tool output |
+| `UpdateTasks` | low | Declare the ordered steps of the current request for the progress card; replaces the whole list, gates nothing, and runs in the sidecar (ADR 0260) |
 
 > Names may be fine-tuned during implementation, but semantics stay consistent.
 
@@ -577,6 +578,27 @@ card can say which delegate wants the call (see `04-ux/03-permission-ux.md`
 Session-scoped `allow-session` grants are still per `toolName` and per session:
 one delegate's approval of `Bash` applies to the whole session, including the
 parent and other delegates.
+
+### 10.3 Task-list declaration tool (ADR 0260)
+
+`UpdateTasks` is available in Agent mode only. It is a declaration, not a
+contract: it takes an ordered list of `{ title, status? }` steps (at most 24,
+`status` one of `pending` / `in_progress` / `completed`), replaces the whole
+list on every call, touches no path, and executes entirely in the sidecar, so
+§4, §5, and §6 have nothing to evaluate — there is no host dispatch and no
+permission card. Its result echoes the normalized list, so the persisted tool
+call is the whole record: the transcript renders no row for a declaration, and
+the card is its only surface.
+
+Its only consumer is the transcript's progress card
+(`04-ux/09-interaction-patterns.md` §2.4), which reads the newest declaration
+out of the turn's own tool rows. It therefore registers as a **core** tool, not
+a §2.1 deferred one: a card whose source has to be loaded through `ToolSearch`
+is a card that never fills in. Plan and Goal are excluded because each already
+presents its steps as an approved artifact (§10.1), and Chat because it answers
+rather than works. A call is not an execution gate: the turn proceeds whether or
+not the model declares anything, and a turn with no declaration simply reports
+observed rows.
 
 ## 11. Plugin Tools
 

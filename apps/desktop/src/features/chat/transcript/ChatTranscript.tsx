@@ -17,6 +17,7 @@ import {
 } from "./ActivityGroup";
 import { TranscriptHistory, TranscriptTail } from "./AssistantTurn";
 import { TranscriptReadOnlyContext, useActiveSessionTitle } from "./context";
+import { TurnProgressCard } from "./TurnProgressCard";
 import { SelectionQuoteButton } from "../../../components/SelectionQuoteButton";
 import { ResponseAnnotationOverlay } from "../../../components/ResponseAnnotationOverlay";
 import { useTranscriptScroll } from "./hooks/useTranscriptScroll";
@@ -165,6 +166,24 @@ export const ChatTranscript = memo(function ChatTranscript({
     !activeToolGroup &&
     !assistantIsAnswering &&
     !hasSpecializedActivity;
+  // The card speaks for the running turn from its first step until the turn
+  // ends, and stands down for an actionable interruption: a permission,
+  // question, or approval card is a decision, and §2.4 of the interaction
+  // patterns keeps it out of the progress surfaces.
+  const progressTurnEntry =
+    transcriptRunning &&
+    !pendingPermission &&
+    !askPending &&
+    !approvalPending &&
+    tailEntry?.kind === "assistant-turn"
+      ? tailEntry
+      : null;
+  // Persistent, not off-tail-only (ADR 0260): a task list is worth reading
+  // while the transcript is in view too, and follow mode is one tap away in
+  // the card's own footer. A hidden retained pane has no viewport to read from,
+  // so it never puts the card on screen.
+  const progressCardOnScreen =
+    progressTurnEntry !== null && paneVisible && !veilCovering;
 
   return (
     <TranscriptSearchContext.Provider value={searchTarget}>
@@ -292,7 +311,19 @@ export const ChatTranscript = memo(function ChatTranscript({
       {navigationLoading ? (
         <div className="transcript-navigation-loading" role="status">{t("chat.loadingSession")}</div>
       ) : null}
-      {(showJump || readingWindow) && !veilCovering ? (
+      {progressTurnEntry ? (
+        <TurnProgressCard
+          entry={progressTurnEntry}
+          activity={specializedActivity}
+          hidden={!progressCardOnScreen}
+          showReturn={showJump}
+          onReturnToLatest={() => {
+            onReturnToLatest?.();
+            jumpToLatest();
+          }}
+        />
+      ) : null}
+      {(showJump || readingWindow) && !veilCovering && !progressCardOnScreen ? (
         <TooltipButton
           className="jump-latest-btn"
           ariaLabel={t("chat.scrollToBottom")}

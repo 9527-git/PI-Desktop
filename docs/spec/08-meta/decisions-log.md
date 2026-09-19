@@ -6108,3 +6108,101 @@ labels to short words so nothing overflows.
 - See `04-ux/07-ui-design-system.md` sections 4.5 and 16 and
   `04-ux/08-component-spec.md` sections 2.2, 3.3, and 3.4, and
   E2E-SIDEBAR-status-dot-pending-union in `06-delivery/04-e2e-test-plan.md`.
+
+## 2026-09-19 — The agent declares its task list, and one card carries it for the whole turn (D452)
+
+> **Amends ADR 0175's blanket no-progress-card clause. What stays rejected is a
+> card whose numbers are inferred; what ships is one whose denominator the
+> model supplies.**
+
+The request was a task card for the turn in flight. The dialogue first settled
+the honest form: **no fabricated denominator** — elapsed time, step count and
+the newest step, never a percentage — docked over the transcript, two lines plus
+an in-place expandable list, no stop control. Built that way and reviewed
+against the shape the user asked for (a checklist with one mark per step and a
+footer reading `step 10 / 10 · 26 files changed +897 -48`), the card could
+report how many steps had *happened* but never how many were *intended*. Two
+answers followed, and both changed what ADR 0175 had forbidden rather than
+working around it:
+
+- **The list is declared, not inferred.** A new Agent-mode `UpdateTasks` tool
+  carries the ordered steps and their status; the card reads the newest
+  declaration. That is the only route to a real `N / M`, and the option chosen
+  knowing it is the most expensive one — it adds protocol surface.
+- **The card is persistent, not scroll-gated.** The first cut appeared only
+  while the live tail was off screen, which made it a notification: it existed
+  exactly when the user was not looking at the work. A declared checklist is
+  worth reading while the transcript is in view, so the card now stands for the
+  whole running turn and §2.4's blanket ban was amended instead of dodged.
+
+- `UpdateTasks` is a sidecar-local `AgentTool` with its own `execute`, like
+  `asktool`: no workspace path, no permission card, no host-core dispatch, no
+  IPC channel, no `SCHEMA_VERSION`, no persisted column. It replaces the whole
+  list per call and caps it at 24 items, because a patch language costs schema
+  the model gets wrong. Its result echoes the normalized list in
+  `details.tasks`, so the persisted tool call is the entire record.
+- It registers as a **core** tool in `AGENT_CORE_TOOL_NAMES`. Deferred behind
+  `ToolSearch`, it would be a card that never fills in; ADR 0048's deferral set
+  is unchanged otherwise. Agent mode only: chat answers rather than works, and
+  Plan/Goal already present their steps as an approved artifact.
+- The declaration is transcript data, not application state.
+  `AssistantTurnEntry.taskDeclarations` is filled by the existing
+  `buildTranscriptEntries` pass, so a declaration can open a turn that has
+  nothing else yet. It is filtered out of `visible` and out of the turn's parts,
+  so it becomes neither a second transcript row nor a minimap target with
+  nothing mounted behind it (D261), and `reuseTranscriptEntries` preserves its
+  identity by comparing the list element-wise. The store's standing ban on
+  progress state is untouched.
+- `lib/turn-progress.ts` resolves one shape from two sources: the declared list
+  when readable, the turn's own tool rows otherwise, with `toolStatus` mapped to
+  pending / active / done / error. `getToolSummary`, `assistantTurnTools`,
+  `formatToolDuration`, and
+  `summarizeReviewChanges(reviewChangesFromMessages(...))` are reused so the card
+  cannot report a count the transcript or the review surface disagrees with. A
+  declaration the renderer cannot parse falls back to rows rather than hiding
+  the card.
+- The card is a `.thread-wrap` floating layer, the same family as
+  `.jump-latest-btn`: same anchor (`bottom: 12px`, centered), same lift, same
+  `z-index: 5`, same centered content column. Its gate is turn running + owns
+  the tail + no permission/question/approval card + pane visible + no settling
+  veil; it stays mounted and toggles `hidden`, so an expansion survives a scroll
+  round trip. A turn with neither a declaration nor a row renders nothing, which
+  leaves the transcript's `Working…` indicator alone for the first second.
+- The pill stands down while the card is on screen, and the card owns the
+  jump-to-latest control only while follow mode is released
+  (`showReturn={showJump}`) — the lower surface never carries two controls that
+  both say "you are not looking at the live tail".
+- Live-region scoping: only the status line is `role="status"` /
+  `aria-live="polite"`; the ticking elapsed timer and the marker list are not,
+  so a running turn does not narrate itself every second. Each step's state is
+  carried by a visually-hidden word, since a colored glyph alone is not a
+  readable status.
+- Naming stays deliberate: `turn-progress*` and `chat.turnProgress*`. The
+  forbidden `AgentProgress`/`agent-progress` transcript names and store progress
+  state stay absent, and the contract test now also pins the tool's sidecar
+  containment, the declaration's exclusion from `visible`, the persistent gate,
+  and the pill suppression.
+- Locales: five keys (`turnProgressLabel`, `turnProgressShowSteps`,
+  `turnProgressEarlier_one/_other`, `turnProgressSteps`) plus four step-state
+  keys go into all eight shipped catalogs, because `@pi-desktop/i18n`
+  type-checks every locale against the `en` shape; the component still carries
+  its `defaultValue` strings.
+- Reduced motion now *does* have progress-card motion, so the entry animation,
+  the caret rotation, and the active-step spinner are disabled under that
+  preference — §2.4's sentence that claimed otherwise is amended.
+- Declaring costs tokens on every step transition, and the denominator is only
+  as good as the model's compliance; the observed-rows path is therefore a
+  first-class mode, not an error state.
+- Regression coverage: `packages/agent-runtime/src/task-list.test.ts` pins
+  normalization, the lenient status read, the cap, and the invalid-argument
+  result; `turn-progress.test.mjs` pins the aggregation, the declared-over-rows
+  precedence, the newest-declaration-wins rule, the fallback, and the footer
+  stats; `assistant-turns.test.mjs` pins that a declaration opens its turn
+  without becoming a row and keeps its identity across a rebuild;
+  `active-turn-surface.test.mjs` pins the gate, the pill suppression, the
+  timer/`hidden` pairing, and the locale keys.
+- See `adr/0260-declared-task-progress-card.md`,
+  `03-runtime/03-tools-and-permissions.md` §2/§10.3,
+  `04-ux/09-interaction-patterns.md` §2.3/§2.4,
+  `04-ux/08-component-spec.md` §4.3/§4.4, and E2E-094 plus
+  `E2E-PROGRESS-declared-task-list-card` in `06-delivery/04-e2e-test-plan.md`.

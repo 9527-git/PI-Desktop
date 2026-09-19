@@ -115,7 +115,12 @@ test("a long transcript mounts under the settle veil and lifts it from measured 
   assert.match(transcript, /TRANSCRIPT_SKELETON_ROWS\.map/);
   assert.match(transcript, /data-transcript-settling=\{veilCovering \? "true" : undefined\}/);
   assert.match(transcript, /\{paneVisible && !veilCovering \? \(\s*<ConversationMinimap/);
-  assert.match(transcript, /\{\(showJump \|\| readingWindow\) && !veilCovering \? \(/);
+  // The pill's own gate may grow further conditions (the running turn's card
+  // stands in for it, ADR 0260); what this pins is that it waits for the veil.
+  assert.match(
+    transcript,
+    /\{\(showJump \|\| readingWindow\) && !veilCovering[^\n]*\? \(/,
+  );
   // Stylesheet: opaque cover, fade on leave, no z-index so the composer stays on
   // top, reduced motion honoured.
   const veil = shell.match(/\.transcript-settle-veil \{[\s\S]*?\n\}/)?.[0] ?? "";

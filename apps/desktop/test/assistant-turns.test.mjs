@@ -496,3 +496,60 @@ test("reuses unchanged activity parts when only the tail thinking token changes"
   assert.notEqual(sharedThink, firstThink);
   assert.equal(sharedThink.items[0].message, nextThinking);
 });
+
+test("a task-list declaration opens its turn but is not a transcript row", () => {
+  const messages = [
+    message("user", "user", "Add the card"),
+    message("declare", "tool", "updated", {
+      toolName: "UpdateTasks",
+      toolCallId: "declare",
+    }),
+    message("empty", "assistant", "", { thinking: "" }),
+    message("read", "tool", "content", {
+      toolName: "Read",
+      toolCallId: "read",
+    }),
+  ];
+  const { entries, visible } = buildTranscriptEntries(messages);
+
+  // A turn that only declared a list still owns an entry, or the card would have
+  // nothing to read until the first real tool row landed.
+  const turn = entries.find((entry) => entry.kind === "assistant-turn");
+  assert.ok(turn);
+  assert.deepEqual(
+    turn.taskDeclarations.map((entry) => entry.id),
+    ["declare"],
+  );
+  assert.equal(
+    turn.parts.flatMap((part) => (part.kind === "activity" ? part.items : []))
+      .length,
+    1,
+    "only the Read row renders; the declaration is the card's",
+  );
+  assert.deepEqual(
+    visible.map((entry) => entry.id),
+    ["user", "read"],
+  );
+});
+
+test("declarations keep their turn's identity across a rebuild", () => {
+  const messages = [
+    message("user", "user", "Add the card"),
+    message("declare", "tool", "updated", {
+      toolName: "UpdateTasks",
+      toolCallId: "declare",
+    }),
+    message("read", "tool", "content", {
+      toolName: "Read",
+      toolCallId: "read",
+    }),
+  ];
+  const first = buildTranscriptEntries(messages);
+  const rebuilt = buildTranscriptEntries(messages);
+
+  assert.equal(
+    reuseTranscriptEntries(first.entries, rebuilt.entries),
+    first.entries,
+    "the declaration array is rebuilt every pass, so equality must be by content",
+  );
+});

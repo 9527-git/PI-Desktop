@@ -3,7 +3,7 @@ import type {
   MessageUsage,
   UiMessage,
 } from "@pi-desktop/shared";
-import { isDelegationStartTool } from "./tool-display";
+import { isDelegationStartTool } from "./tool-display.ts";
 
 export type AssistantActivityItem =
   | { kind: "thinking"; message: UiMessage }
@@ -47,7 +47,28 @@ export type AssistantTurnEntry = {
   id: string;
   anchorId?: string;
   parts: AssistantTurnPart[];
+  /**
+   * The turn's `UpdateTasks` declarations, oldest first (ADR 0260). The card is
+   * their surface, so they are held beside the rows rather than among them: a
+   * call that also printed a transcript row would repeat the list twice.
+   */
+  taskDeclarations?: UiMessage[];
 };
+
+/**
+ * The task-list declaration tool (ADR 0260). Matched on the bare name minus any
+ * provider namespace, the same way delegation is, so a plugin tool that happens
+ * to end in `Tasks` keeps its own transcript row.
+ */
+export function isTaskListTool(toolName?: string): boolean {
+  return (
+    (toolName || "")
+      .split(".")
+      .pop()!
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "") === "updatetasks"
+  );
+}
 
 export type TranscriptEntry =
   | { kind: "message"; message: UiMessage }
@@ -122,9 +143,19 @@ export function buildTranscriptEntries(
 } {
   const runs = collectSubagentRuns(messages);
   // Delegate rows are not transcript rows of their own: they hang off their
-  // `Task` call, so they stay out of the turn stream and the minimap.
-  const visible = messages.filter(
-    (message) => !message.parentToolCallId && isVisibleMessage(message),
+  // `Task` call, so they stay out of the turn stream and the minimap. A
+  // `UpdateTasks` call is the other exception (ADR 0260): it streams, because
+  // it opens its turn and orders the rows around it, but it leaves `visible`
+  // with the card as its only surface — a minimap dash needs a mounted target.
+  const streamed = messages.filter(
+    (message) =>
+      !message.parentToolCallId &&
+      (isVisibleMessage(message) ||
+        (message.role === "tool" && isTaskListTool(message.toolName))),
+  );
+  const visible = streamed.filter(
+    (message) =>
+      !(message.role === "tool" && isTaskListTool(message.toolName)),
   );
   const anchored = new Map<string, ContextCompactionMark[]>();
   for (const mark of compactions) {
@@ -170,6 +201,15 @@ export function buildTranscriptEntries(
     }
 
     if (message.role === "tool") {
+      // A declaration opens its turn — a model that plans before it acts can
+      // emit nothing else first — but it is not a transcript row.
+      if (isTaskListTool(message.toolName)) {
+        const current = ensureTurn(message);
+        const declarations = current.taskDeclarations ?? [];
+        declarations.push(message);
+        current.taskDeclarations = declarations;
+        return;
+      }
       const delegate = message.toolCallId
         ? runs.get(message.toolCallId)
         : undefined;
@@ -192,7 +232,7 @@ export function buildTranscriptEntries(
     }
   };
 
-  for (const message of visible) {
+  for (const message of streamed) {
     appendMessage(message);
     const marks = anchored.get(message.id);
     if (!marks) continue;
@@ -316,6 +356,18 @@ function reuseTurnPart(
   return next;
 }
 
+function taskDeclarationsEqual(
+  previous: UiMessage[] | undefined,
+  next: UiMessage[] | undefined,
+): boolean {
+  if (previous === next) return true;
+  if (!previous || !next) return false;
+  return (
+    previous.length === next.length &&
+    previous.every((message, index) => message === next[index])
+  );
+}
+
 function reuseTranscriptEntry(
   previous: TranscriptEntry | undefined,
   next: TranscriptEntry,
@@ -340,14 +392,27 @@ function reuseTranscriptEntry(
     const parts = next.parts.map((part, index) =>
       reuseTurnPart(previous.parts[index], part),
     );
+    // Every declaration is a stable message object, so an unchanged list is
+    // worth keeping by identity even though the array around it is rebuilt.
+    const declarations = taskDeclarationsEqual(
+      previous.taskDeclarations,
+      next.taskDeclarations,
+    )
+      ? previous.taskDeclarations
+      : next.taskDeclarations;
     if (
       previous.anchorId === next.anchorId &&
       parts.length === previous.parts.length &&
-      parts.every((part, index) => part === previous.parts[index])
+      parts.every((part, index) => part === previous.parts[index]) &&
+      declarations === previous.taskDeclarations
     ) {
       return previous;
     }
-    return { ...next, parts };
+    return {
+      ...next,
+      parts,
+      ...(declarations ? { taskDeclarations: declarations } : {}),
+    };
   }
   return next;
 }

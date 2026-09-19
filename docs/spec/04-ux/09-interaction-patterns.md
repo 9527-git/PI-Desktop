@@ -589,7 +589,9 @@ may be retained while exactly one workspace supplies the visible shell context.
   the bottom
 - Sending a new prompt, retrying, or regenerating always re-pins follow mode and jumps to the bottom before the turn continues, even if the user had scrolled up
 - "Scroll to bottom" floating button appears as soon as manual upward scrolling
-  releases follow mode
+  releases follow mode. While a turn is running, the progress card described in
+  §2.4 stands in that layer instead of the button, so the released interval
+  never carries two floating controls.
 - Click "Scroll to bottom" button: resumes auto-scroll and snaps to bottom
 - Stream completion: if user was auto-scrolling, keep at bottom; if manual, stay at position
 - An asynchronously completed diagram height update follows the same rule:
@@ -601,16 +603,31 @@ may be retained while exactly one workspace supplies the visible shell context.
 - An active turn keeps the lower transcript surface clear. Streamed assistant
   and tool rows remain inline with the transcript; no generic understanding,
   working, or checking card is rendered underneath them. A compact runtime
-  status row is the only exception, and appears only when it explains a quiet
-  interval that has no transcript row of its own: a provider wait or retry,
-  context compaction, silent-turn recovery, the gap before the next request,
-  or a delegated-work wait.
+  status row is the only inline exception, and appears only when it explains a
+  quiet interval that has no transcript row of its own: a provider wait or
+  retry, context compaction, silent-turn recovery, the gap before the next
+  request, or a delegated-work wait.
+- One card exception is admitted (ADR 0260): a progress card for the turn in
+  flight, on screen from that turn's first step until it ends. Its step list is
+  the agent's own declaration through the `UpdateTasks` tool, which is the only
+  source that knows how many steps were intended, so the card can carry a real
+  `done / total` count; with no declaration it degrades to the tool rows the turn
+  actually produced. Either way the card reports elapsed time, per-step state,
+  and the files the turn changed — never a percentage, an estimate, or a
+  predicted end. It holds the phase label ADR 0175 already owns, expands in
+  place to the turn's last eight steps with older ones folded into one line, and
+  keeps the "Scroll to bottom" affordance in its footer while follow mode is
+  released. It carries no stop control, and never appears for a background
+  session, a hidden pane, a settling veil, or an actionable interruption. Every
+  value is derived in the renderer from the turn the transcript already holds; no
+  protocol, store slice, or persisted field exists for it.
 - A permission card remains visible only when the agent is blocked on an
   explicit approval. It is an actionable interruption, not a progress status
-  card.
+  card, and it takes precedence over the progress card.
 - Background sessions continue without adding progress chrome to the visible
-  session or moving focus. Reduced motion therefore has no progress-card
-  transitions to preserve.
+  session or moving focus. The progress card is the only progress card, and it
+  has an entry animation, a caret rotation, and an active-step marker, so
+  reduced motion disables all three.
 
 ### 2.5 Turn outcome closure
 

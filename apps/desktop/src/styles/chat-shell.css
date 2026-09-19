@@ -280,6 +280,243 @@
   color: var(--ds-text-primary);
 }
 
+/* The running turn's task list, floated over the transcript for the whole turn
+ * (ADR 0260). Same layer, anchor, and lift as the pill it stands in for, and the
+ * same centered content column as the transcript. */
+.turn-progress-card {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  translate: -50% 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: min(calc(100% - 64px), var(--chat-content-max-width));
+  padding: 6px 8px;
+  border: 1px solid var(--ds-border-subtle);
+  border-radius: var(--radius-xs);
+  background: var(--ds-raised);
+  color: var(--ds-text-secondary);
+  box-shadow:
+    var(--ds-raised-shadow),
+    0 3px 7.5px rgba(0, 0, 0, 0.039),
+    0 0 20px rgba(0, 0, 0, 0.051);
+  animation: turn-progress-in var(--motion-duration-normal) var(--motion-ease-out)
+    both;
+}
+
+/* `display: flex` above would otherwise win over the UA's `[hidden]` rule and
+ * leave an off-screen turn visible in the layer order it does not own. */
+.turn-progress-card[hidden] {
+  display: none;
+}
+
+@keyframes turn-progress-in {
+  from {
+    opacity: 0;
+    translate: -50% 6px;
+  }
+  to {
+    opacity: 1;
+    translate: -50% 0;
+  }
+}
+
+.turn-progress-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.turn-progress-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ds-text-primary);
+  font-size: var(--text-xs-plus);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+.turn-progress-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-round);
+  background: var(--ds-success);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--ds-success) 22%, transparent);
+}
+
+.turn-progress-metrics {
+  color: var(--ds-text-muted);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.turn-progress-action {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  color: var(--ds-text-muted);
+  font-size: var(--text-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.turn-progress-caret {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--ds-text-muted);
+}
+
+.turn-progress-caret svg {
+  transition: rotate var(--motion-duration-fast) var(--motion-ease-out);
+}
+
+.turn-progress-head[aria-expanded="true"] .turn-progress-caret svg {
+  rotate: 90deg;
+}
+
+.turn-progress-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 2px 0 0;
+  padding: 0 2px 0 3px;
+  list-style: none;
+  color: var(--ds-text-muted);
+  font-size: var(--text-xs);
+}
+
+.turn-progress-steps li {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.turn-progress-step-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* One marker per step, the same shape in all four states so the eye reads a
+ * list rather than a legend. Tinted ring plus glyph, the transcript's own
+ * success/error colors, so both themes keep the contrast they already have.
+ * `spin` is the transcript's own keyframe. */
+.turn-progress-step-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-round);
+  border: 1.5px solid var(--ds-border-subtle);
+}
+
+.turn-progress-step-marker.is-active {
+  border-color: color-mix(in oklab, var(--ds-warning) 30%, transparent);
+  border-top-color: var(--ds-warning);
+  animation: spin 0.8s linear infinite;
+}
+
+.turn-progress-step-marker.is-done {
+  border-color: color-mix(in oklab, var(--ds-success) 45%, transparent);
+  color: var(--ds-success);
+}
+
+.turn-progress-step-marker.is-error {
+  border-color: color-mix(in oklab, var(--ds-error) 45%, transparent);
+  color: var(--ds-error);
+}
+
+.turn-progress-earlier {
+  padding-left: 20px;
+  color: var(--ds-text-faint);
+}
+
+.turn-progress-foot {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-top: 2px;
+  border-top: 1px solid var(--ds-border-subtle);
+  color: var(--ds-text-muted);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.turn-progress-count {
+  color: var(--ds-text-secondary);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+}
+
+.turn-progress-additions {
+  margin-left: 6px;
+  color: var(--ds-success);
+}
+
+.turn-progress-deletions {
+  color: var(--ds-error);
+}
+
+.turn-progress-jump {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-left: auto;
+  border: 0;
+  border-radius: var(--radius-3xs);
+  background: none;
+  color: var(--ds-text-faint);
+  cursor: pointer;
+}
+
+.turn-progress-jump:hover {
+  color: var(--ds-text-primary);
+}
+
+/* The per-step state word: read by a screen reader, never drawn. */
+.turn-progress-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .turn-progress-card {
+    animation: none;
+  }
+
+  .turn-progress-caret svg {
+    transition: none;
+  }
+
+  .turn-progress-step-marker.is-active {
+    animation: none;
+  }
+}
+
 .thread-content {
   width: min(100%, var(--chat-content-max-width));
   margin: 0 auto;

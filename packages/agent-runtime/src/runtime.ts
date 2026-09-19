@@ -174,6 +174,11 @@ import {
   providerRateLimitDelayMs,
   providerSetupRetryDelayMs,
 } from "./provider-retry.js";
+import {
+  buildUpdateTasksTool,
+  UPDATE_TASKS_PROMPT,
+  UPDATE_TASKS_TOOL_NAME,
+} from "./task-list.js";
 
 export type { RuntimeProviderConfig } from "./provider-binding.js";
 
@@ -531,6 +536,9 @@ const AGENT_CORE_TOOL_NAMES = new Set([
   // model has to go looking for is one it will not use. Registration keeps its
   // own gate: the tool only exists when the catalog is non-empty.
   SKILL_TOOL_NAME,
+  // The progress card reads the user's task list out of this tool's calls
+  // (ADR 0260), so a deferred copy is a card that never fills in.
+  UPDATE_TASKS_TOOL_NAME,
 ]);
 const MAX_ON_DEMAND_TOOL_PROMPT_ENTRIES = 64;
 const MAX_TOOL_SEARCH_RESULT_NAMES = 24;
@@ -1621,6 +1629,10 @@ Delegation rules:
       // such tool, so the whole batch is silently lost as prose.
       "Call tools through the native tool-call interface only. Never write a tool call as text, and never emit a `multi_tool_use.parallel` / `{\"tool_uses\": [...]}` wrapper — there is no such tool here, and a call written as prose does not run. To run several tools at once, emit several real tool calls in one assistant message.",
       "Editing workflow: use the built-in Edit or Write tool directly on the deliverable file whenever it is inside the advertised workspace. Use Edit for one small unique line-anchored change (path + tag + ops) and Write for a coherent whole-file rewrite. Do not invoke shell apply_patch, git apply, or patch commands; do not create or hand-edit unified-diff files in scratch or repeatedly repair their hunk headers. Treat an edit or shell patch failure as recoverable state: classify the error, perform the required fresh Read or use a complete reveal, regenerate the change, and retry with a corrected payload. A path may have three counted failures per prompt; stop after the third and report the exact mismatch instead of looping. Never issue concurrent Write/Edit calls for the same path. When a dedicated worktree is outside the advertised workspace, make one guarded, deterministic edit inside that worktree with Bash, then verify it with git diff or an equivalent check.",
+      // Declared task list steering (ADR 0260). Paired with the tool, not with
+      // the mode check inside it: naming a tool the model cannot see buys a
+      // refusal, and Plan/Goal already carry their contract in the prompt.
+      ...(this.mode === "agent" ? [UPDATE_TASKS_PROMPT] : []),
       // Work panel browser preview (D100): workspace HTML files render
       // in the embedded browser with live reload on file changes.
       `For user-visible HTML pages, call the BrowserPreview tool once after creating the page or making the first meaningful visual edit, using its workspace-relative path (e.g. \`index.html\` or \`demo/index.html\`) to show it in PI-Desktop's built-in browser panel. Reuse that preview while iterating: it live-reloads as you edit, so no repeat call or manual refresh is needed. Skip generated, test-only, and non-visual HTML files. If BrowserPreview is not in the current tool list, load it first with ${TOOL_SEARCH_NAME}.`,
@@ -2939,6 +2951,12 @@ Delegation rules:
     const contextTools = this.compactionEnabled
       ? [this.buildContextCompactionTool()]
       : [];
+    // Declaring a task list is how a long Agent-mode turn stays readable from
+    // the progress card (ADR 0260). Chat stays out because it answers questions
+    // rather than works, and Plan/Goal already present the same information as
+    // an approved contract, so a second list would compete with it.
+    const taskListTools =
+      this.mode === "agent" ? [buildUpdateTasksTool()] : [];
     // Trusted extension tools are non-core: the per-mode allowlist and
     // ToolSearch deferral treat them like plugin tools (spec 16 §7).
     const extensionTools = this.extensionRunner?.getAgentTools() ?? [];
@@ -2950,6 +2968,7 @@ Delegation rules:
       ...modeTools,
       ...subagentTools,
       ...contextTools,
+      ...taskListTools,
       ...extensionTools,
     ];
   }

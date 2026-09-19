@@ -56,7 +56,7 @@ import { SubagentTopology } from "./SubagentDetail";
 import { ToolRow } from "./ToolRow";
 import { TranscriptSearchContext } from "../../../lib/transcript-search-context";
 
-type Translate = (key: string, options?: Record<string, unknown>) => string;
+export type Translate = (key: string, options?: Record<string, unknown>) => string;
 
 type ActivityItem = AssistantActivityItem;
 

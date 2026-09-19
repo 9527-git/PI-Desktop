@@ -4740,3 +4740,77 @@ D450 构建上的反馈：「左侧会话列表显示当前会话状态的胶囊
 - 见 `04-ux/07-ui-design-system.md` §4.5 与 §16、
   `04-ux/08-component-spec.md` §2.2/§3.3/§3.4，以及
   `06-delivery/04-e2e-test-plan.md` 的 E2E-SIDEBAR-status-dot-pending-union。
+
+## 2026-09-19 — 由代理自己申报任务清单，一张卡片承载整个回合（D452）
+
+> **修订 ADR 0175 那条普遍的无进度卡禁令。继续被否决的是数字靠推断的卡片；
+> 上线的是分母由模型自己给出的卡片。**
+
+需求是一张显示当前任务执行进度的卡片。对话先定下诚实的形状：**不造分母**——
+只报已用时长、步骤数与最新步骤，绝不报百分比——停靠在转录本之上、两行外加就地
+展开的清单、不带停止控件。按这个形状做完，再拿用户真正要的形态（一份每步一个
+标记的清单，页脚写着 `step 10 / 10 · 26 files changed +897 -48`）对照，卡片就
+露了底：它能报“发生了多少步”，报不出“本来打算多少步”。于是剩下两个回答，而这
+两个都是去改 ADR 0175 的禁令，不是绕开它：
+
+- **清单是申报的，不是推断的。** 新增 Agent 模式的 `UpdateTasks` 工具，承载
+  有序步骤与状态，卡片读最新一次申报。这是拿到真 `N / M` 的唯一路线，也是在
+  明知它最贵的情况下选的那一项——它增加了协议面。
+- **卡片是常驻的，不是滚动门控的。** 第一版只在实时尾部离屏时出现，于是它成了
+  一条通知：恰好在用户没在看活的时候才存在。申报式清单在转录本在屏时同样值得
+  读，所以卡片现在贯穿整个执行中的回合，§2.4 的普遍禁令被正面修订而不是绕过。
+
+- `UpdateTasks` 是带自己 `execute` 的 sidecar 本地 `AgentTool`，与 `asktool`
+  同族：不碰工作区路径、不请求权限、不经 host-core 分发、没有新 IPC 通道、
+  没有 `SCHEMA_VERSION`、没有持久化列。每次调用整表替换，上限 24 项——补丁式
+  语言会让模型写错 schema，而在这个规模上什么也没换来。结果里回写归一化后的
+  清单（`details.tasks`），于是那条持久化的工具调用本身就是全部记录。
+- 它注册进 `AGENT_CORE_TOOL_NAMES` 成为**核心**工具。若被 `ToolSearch` 延后，
+  它就是一张永远填不满的卡片；除此之外 ADR 0048 的延后集合不变。仅 Agent 模式：
+  chat 是在回答而不是在干活，Plan/Goal 已经把步骤呈作为一份已批准的契约。
+- 申报是转录本数据，不是应用状态。`AssistantTurnEntry.taskDeclarations` 由既有
+  的 `buildTranscriptEntries` 一趟填好，于是一次申报就能开出一个尚无他行的回合。
+  它被排除在 `visible` 与该回合的 parts 之外，因此既不是第二条转录本行，也不是
+  一个背后没有挂载物的小地图目标（D261）；`reuseTranscriptEntries` 逐元素比较
+  这份清单以保住其身份。store 既有的“不得有进度状态”禁令分毫未动。
+- `lib/turn-progress.ts` 用两种来源解析出同一个形状：能读到的申报清单优先，
+  否则是本回合自己的工具行，`toolStatus` 映射为 pending / active / done / error。
+  `getToolSummary`、`assistantTurnTools`、`formatToolDuration` 与
+  `summarizeReviewChanges(reviewChangesFromMessages(...))` 一律复用，因此卡片
+  不可能报出与转录本或评审面不一致的计数。渲染层读不懂的申报回落到工具行，
+  而不是把卡片藏起来。
+- 卡片是 `.thread-wrap` 的浮动层，与 `.jump-latest-btn` 同族：同一锚点
+  （`bottom: 12px`、水平居中）、同一抬升、同一 `z-index: 5`，宽度同样跟随转录本
+  的居中内容列。门控是回合执行中 + 拥有尾部 + 没有权限/询问/审批卡在场 + 面板
+  可见 + 没有落定遮罩；卡片保持挂载只切 `hidden`，因此展开能穿过一次来回滚动。
+  既无申报也无工具行的回合什么都不渲染，把开场那一秒留给转录本自己的
+  `Working…` 指示。
+- 卡片在屏时胶囊退场，而卡片只在跟随模式被释放时才持有滚动到底部控件
+  （`showReturn={showJump}`）——下方表面从不同时挂着两个都在说“你没在看最新内容”
+  的浮动控件。
+- 实时区域收敛：只有状态行是 `role="status"` / `aria-live="polite"`，跳秒的时长
+  与标记清单都不是，于是执行中的回合不会每秒为自己播报一次。每一步的状态另带一
+  个视觉隐藏的词，因为单靠一个着色的图形读不出状态。
+- 命名依旧刻意：`turn-progress*` 与 `chat.turnProgress*`。被禁的
+  `AgentProgress`/`agent-progress` 转录本名与 store 里的进度状态继续缺席，而契约
+  测试如今还钉住工具被关在 sidecar 内、申报不进气泡区、常驻门控与胶囊抑制。
+- 本地化：五个键（`turnProgressLabel`、`turnProgressShowSteps`、
+  `turnProgressEarlier_one/_other`、`turnProgressSteps`）加四个步骤状态键写入
+  全部八份已发布目录，因为 `@pi-desktop/i18n` 会用 `en` 的形状逐份类型校验；
+  组件仍带着自己的 `defaultValue` 文本。
+- 减少动效如今**确实**有进度卡动效需要照顾，因此入场动画、箭头旋转与进行中步骤
+  的旋转标记在该偏好下全部禁用——§2.4 中声称“没有”的那句已一并修订。
+- 每次步骤跃迁都要重发整张清单，这笔 token 开销是真实的；分母也只可靠到模型
+  愿意申报的程度。因此“按观察到的行”是一等模式，不是错误状态。
+- 回归覆盖：`packages/agent-runtime/src/task-list.test.ts` 钉住归一化、对状态
+  宽松读法、上限与参数非法时的结果；`turn-progress.test.mjs` 钉住聚合、申报优先
+  于工具行、最新一次申报胜出、回落路径与页脚计数；`assistant-turns.test.mjs`
+  钉住一次申报能开出自己的回合却不成为一行、且重建后身份保持；
+  `active-turn-surface.test.mjs` 钉住门控、胶囊抑制、定时器与 `hidden` 的配对，
+  以及新增的本地化键。
+- 见 `adr/0260-declared-task-progress-card.md`、
+  `03-runtime/03-tools-and-permissions.md` §2/§10.3、
+  `04-ux/09-interaction-patterns.md` §2.3/§2.4、
+  `04-ux/08-component-spec.md` §4.3/§4.4，以及
+  `06-delivery/04-e2e-test-plan.md` 的 E2E-094 与
+  `E2E-PROGRESS-declared-task-list-card`。

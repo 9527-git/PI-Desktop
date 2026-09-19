@@ -194,7 +194,7 @@ Each ADR includes:
 | 0172 | Contained in-chat image display | Accepted (amends fs/read workspace-only clause) |
 | 0173 | Plugin-owned token usage dashboard | Accepted (amends 0171) |
 | 0174 | Host-owned plugin completions and session context | Accepted (amends D019) |
-| 0175 | Explain quiet active turns with live agent activity status | Accepted |
+| 0175 | Explain quiet active turns with live agent activity status | Accepted (no-progress-card clause amended by ADR 0260) |
 | 0176 | Per-provider User-Agent override | Accepted (amends 0095 / 0156; header map superseded by 0178) |
 | 0177 | User-configurable outbound proxy | Accepted |
 | 0178 | Per-provider custom HTTP headers | Accepted (amends 0176 / 0095 / 0156) |
@@ -282,4 +282,5 @@ Each ADR includes:
 | 0257 | [Existence probe for transcript path rows](0257-transcript-path-existence-probe.md) | Accepted (amends ADR 0256; D424) |
 | 0258 | [Keep the docked conversation composer in normal flow](0258-in-flow-chat-composer.md) | Accepted (amends ADR 0065 clause 4 / D264) |
 | 0259 | [Send a queued row by steering and return it to the composer on edit](0259-queue-row-steer-and-edit.md) | Accepted (amends ADR 0118 send-now clause / ADR 0213 clause 4; D430) |
+| 0260 | [Let the agent declare its task list to drive one persistent progress card](0260-declared-task-progress-card.md) | Accepted (amends ADR 0175 no-progress-card clause / §2.4; D452) |
 | context-inspector-compact-action | [Compact the context from the usage inspector card](context-inspector-compact-action.md) | Accepted (amends ADR 0103 / ADR 0106; D434) |

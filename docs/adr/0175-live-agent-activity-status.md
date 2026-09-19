@@ -1,6 +1,6 @@
 # ADR 0175: Explain quiet active turns with live agent activity status
 
-- Status: Accepted
+- Status: Accepted (the rejection of a multi-step progress card is amended by ADR 0260)
 - Date: 2026-09-07
 
 ## Context

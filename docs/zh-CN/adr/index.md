@@ -62,6 +62,7 @@ ADR 记录那些不应被静默改变的架构选择。中文入口与英文索�
 | [ADR 0252：插件的宿主回合结束事件](/adr/0252-plugin-host-turn-end-event) | 宿主在每次已开始的回合结束时向插件宣告一次 `session:turnEnded`，携带回合身份与终止原因 |
 | [ADR 0258：线程输入框采用正常流布局](/adr/0258-in-flow-chat-composer) | 输入框作为会话面板后的正常流兄弟，消息区永不被输入框覆盖 |
 | [ADR 0259：排队行立即发送改为转向，编辑则回到输入框](/adr/0259-queue-row-steer-and-edit) | 运行中点立即发送会把该行注入当前回合作为引导，点 × 则把文本与文件引用退回输入框重新编辑 |
+| [ADR 0260：由代理申报任务清单，一张进度卡承载整个回合](/adr/0260-declared-task-progress-card) | `UpdateTasks` 交出真实的 `done / total` 分母，卡片在执行中的整个回合都在屏，进度不再依赖滚动位置 |
 
 ## 完整索引
 
@@ -243,7 +244,7 @@ ADR 记录那些不应被静默改变的架构选择。中文入口与英文索�
 | 0172 | [受约束的聊天内图片显示](/adr/0172-contained-in-chat-image-display) | 已接受（修订 fs/read 仅工作区条款） |
 | 0173 | [插件拥有的 token 用量仪表盘](/adr/0173-plugin-owned-token-usage-dashboard) | 已接受（修订 ADR 0171） |
 | 0174 | [宿主代发的插件补全与会话上下文](/adr/0174-plugin-host-owned-completion-and-session-context) | 已接受（修订 D019） |
-| 0175 | [解释安静的进行中回合](/adr/0175-live-agent-activity-status) | 已接受 |
+| 0175 | [解释安静的进行中回合](/adr/0175-live-agent-activity-status) | 已接受（无进度卡条款由 ADR 0260 修订） |
 | 0176 | [按供应商覆盖 User-Agent](/adr/0176-per-provider-user-agent) | 已接受（修订 ADR 0095 / ADR 0156；请求头映射已被 ADR 0178 取代） |
 | 0177 | [用户可配置的出站代理](/adr/0177-user-configurable-outbound-proxy) | 已接受 |
 | 0178 | [按供应商自定义 HTTP 请求头](/adr/0178-per-provider-custom-headers) | 已接受（修订 ADR 0176 / ADR 0095 / ADR 0156） |
@@ -284,6 +285,7 @@ ADR 记录那些不应被静默改变的架构选择。中文入口与英文索�
 | 0253 | [移除子智能体轮次上限](/adr/0253-remove-subagent-turn-limit) | 已接受（取代 0062 / 0063 / 0119 / 0126 / 0166 / 0210 中关于 `maxTurns` 的条款） |
 | 0258 | [线程输入框采用正常流布局](/adr/0258-in-flow-chat-composer) | 已接受（修订 ADR 0065 第 4 条 / D264） |
 | 0259 | [排队行立即发送改为转向，编辑则回到输入框](/adr/0259-queue-row-steer-and-edit) | 已接受（修订 ADR 0118 的立即发送条款 / ADR 0213 第 4 条；D430） |
+| 0260 | [由代理申报任务清单，一张进度卡承载整个回合](/adr/0260-declared-task-progress-card) | 已接受（修订 ADR 0175 的无进度卡条款 / §2.4；D452） |
 | context-inspector-compact-action | [从上下文用量卡片启动压缩](/adr/context-inspector-compact-action) | 已接受待实现（修订 ADR 0103 / ADR 0106；D434） |
 
 ## 什么时候看 ADR
