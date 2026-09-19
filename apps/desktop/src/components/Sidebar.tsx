@@ -1538,11 +1538,6 @@ export function Sidebar({
           );
         }}
       >
-        {status
-          ? isAttentionStatus(status)
-            ? renderSessionStatusChip(status)
-            : renderSessionStatus(status)
-          : null}
         <button
           type="button"
           className="thread-item-main"
@@ -1567,6 +1562,11 @@ export function Sidebar({
           aria-current={active ? "page" : undefined}
           aria-describedby={sessionHoverCard?.session.id === session.id ? `session-hover-${session.id}` : undefined}
         >
+          {status
+            ? isAttentionStatus(status)
+              ? renderSessionStatusChip(status)
+              : renderSessionStatus(status)
+            : null}
           {sessionPinned(session, meta) ? (
             <IconPin size={11} className="thread-item-pin" aria-hidden />
           ) : null}

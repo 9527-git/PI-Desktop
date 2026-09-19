@@ -9,7 +9,7 @@
   display: flex;
   width: 100%;
   align-items: center;
-  gap: var(--ds-sidebar-status-gap);
+  gap: 2px;
   overflow: hidden;
   border-radius: var(--radius-sm);
   padding: 0 2px 0 0;
@@ -23,8 +23,11 @@
   min-width: 0;
   flex: 1;
   align-items: center;
-  gap: 5px;
-  padding: 5px 6px;
+  /* D449: the status marker leads this button, and this gap is the only space
+     between it and the title, so the marker stays flush on the row's left edge
+     while the whole row - marker included - remains the click target. */
+  gap: var(--ds-sidebar-status-gap);
+  padding: 5px 6px 5px 0;
   text-align: left;
   color: inherit;
 }
@@ -40,7 +43,7 @@
 /* D446: the two attention states (running / needs input) read as one tinted
    chip — the live dot and its status word share a single group, so the word can
    never drift onto the title line while the dot stays centred on a two-line row.
-   D449: that chip leads the row itself instead of standing in a reserved column,
+   D449: that chip leads the row button instead of standing in a reserved column,
    so the status and its title are one group with no dead band between them. The
    chip may shrink (its word ellipsises) but never pushes the title off the row;
    the dot keeps its tooltip and accessible name, and the word is its visual twin
@@ -53,7 +56,7 @@
   flex: 0 1 auto;
   border-radius: var(--radius-full);
   padding: 1px 7px 1px 5px;
-  /* Visual only: the row button underneath owns the click, while the dot
+  /* Visual only: the enclosing row button owns the click, while the dot
      re-enables pointer input for its own tooltip. */
   pointer-events: none;
 }

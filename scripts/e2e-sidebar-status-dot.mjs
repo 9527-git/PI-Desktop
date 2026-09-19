@@ -211,11 +211,14 @@ function probeExpression(ids) {
         ? [...label.classList].find((c) => c !== "thread-item-status-label") ?? null
         : null,
       titleShown: !!row.querySelector(".thread-item-title"),
-      // D449: the marker is the row's first flex item, so its left edge is the
-      // row's left edge and the title starts right after it. Measure the marker
-      // as the chip when there is one, otherwise the plain dot.
+      // D449: the marker is the row button's first flex item, so its left edge is
+      // the row's left edge and the title starts right after it. Measure the
+      // marker as the chip when there is one, otherwise the plain dot.
       markerLeft: Math.round(leadBox.left - rowBox.left),
       markerRight: Math.round(leadBox.right - rowBox.left),
+      // The marker has to belong to the row's own button, or clicking it would
+      // select nothing (D449 amendment).
+      insideRowButton: !!status.closest("button.thread-item-main"),
       titleLeft: titleBox ? Math.round(titleBox.left - rowBox.left) : null,
       titleGap: titleBox ? Math.round(titleBox.left - leadBox.right) : null,
       // Positive when the marker starts left of the project header's own edge.
@@ -496,9 +499,11 @@ async function main() {
     );
     const everyRow = [base.rows.selected, ...attentionRows];
     check(
-      everyRow.every((row) => row.markerLeft === 0),
-      "every status marker sits flush on its row's left edge",
-      JSON.stringify(everyRow.map((row) => row.markerLeft)),
+      everyRow.every((row) => row.markerLeft === 0 && row.insideRowButton),
+      "every status marker sits flush on its row's left edge, inside its button",
+      JSON.stringify(
+        everyRow.map((row) => [row.markerLeft, row.insideRowButton]),
+      ),
     );
     check(
       everyRow.every(

@@ -1626,7 +1626,8 @@ and identify the platform validation still needed.
   its own: every marker's left edge sits flush on the row's left edge, no further
   left than the project header's own left edge, and its title begins within 6px of
   the marker's right edge — so status and title read as one group with no dead
-  band between them, and no row reserves width a marker may never use. The
+  band between them, and no row reserves width a marker may never use. Each marker
+  also belongs to the row's own button, so clicking it selects that session. The
   conversation topbar has no `.ct-status-slot` or
   `.ct-status-chip`. No IPC, host, or persisted state is touched.
 - **Specs linked**: `04-ux/07-ui-design-system.md` §4.5, `04-ux/08-component-spec.md` §2/§3

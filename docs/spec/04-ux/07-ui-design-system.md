@@ -278,10 +278,11 @@ render a localized word (`nav.sessionRunningShort` / `nav.sessionNeedsInputShort
 inside the same rounded chip as the live dot, on a 14% tint of the dot's own
 `--ds-warning` / `--ds-purple` token, so a glance at the list reads as text
 rather than as color decoding (D445, grouped by D446, placed by D449). The chip
-leads the row itself: it is the row's first flex item, flush on the same left edge
-the project header starts on, and the title follows it after
+leads the row's own button: it is that button's first flex item, flush on the
+same left edge the project header starts on, and the title follows it after
 `--ds-sidebar-status-gap`. A status and its title are therefore one group with no
-dead band between them, and no row reserves width a marker may never use. The chip
+dead band between them, the whole row - status included - stays the click target
+that selects the session, and no row reserves width a marker may never use. The chip
 shrinks before it squeezes a title — its word ellipsises while the dot keeps its
 own box — and the word is the dot's visual twin (`aria-hidden`); the full phrase
 (`nav.sessionRunning` / `nav.sessionNeedsInput`) stays on the dot's tooltip and
