@@ -4497,6 +4497,19 @@ v0.14.34 构建之后用户反馈：D445 的文字「跑到会话标题最前面
 - 见 `04-ux/07-ui-design-system.md` §4.5、`04-ux/08-component-spec.md` §2 与 §3，
   以及 `06-delivery/04-e2e-test-plan.md` 的 E2E-SIDEBAR-status-dot-pending-union。
 
+## 2026-09-19 — 应用内退出与关闭行为确认框替换原生消息框（D452）
+
+> **替代退出路径上的 `dialog.showMessageBox`。** D363 显式退出的契约、D216 托盘，以及 Windows/Linux 的关闭行为（`ask` / `tray` / `quit`）保持不变。
+
+渲染层现在绘制两个确认框，使它们锚定在窗口上而不是由操作系统随意浮动，且退出确认可以显示实际仍在运行的内容。当渲染层无法应答时（窗口已销毁、渲染进程消失或 5 秒超时），原生框作为后备保留。
+
+- 新增两条 IPC 通道：`IPC.event.quitDialogRequest`（主进程 → 渲染层推送 `{ requestId, kind, runningTurns }`）和 `IPC.invoke.quitDialogRespond`（渲染层 → 主进程响应 `{ requestId, choice }`）。主进程侧运行时维护一个待处理映射表并带 5 秒计时器；如果渲染层始终不回答，promise 解析为 `null`，调用方回退到 `showMessageBox`。
+- 关闭行为的 `askCloseBehavior(window)` 和关机流程中的 `confirmQuitDialog()` 是运行时的薄包装；它们保持原有的签名和返回值。原生实现以 `nativeAskCloseBehavior` 和 `nativeConfirmQuitDialog` 的形式保留用于后备情况。
+- 渲染层收到 `quit-confirm` 请求时，会渲染一个确认框：先显示引言（"Quitting interrupts the work below..."），然后是一个影响块，包含计数徽章和"{sessions} running replies will be stopped"以及"Unsaved drafts may be lost"。对于 `close-ask`，它渲染两行选项："关闭到托盘"（默认，按 Enter）和"退出"，底部有提示"Change this any time in Settings"。两个确认框都支持 Escape → 取消、Enter → 默认操作，以及焦点闭环。
+- i18n 在全部八个语言包的 `tray.*` 下新增六个键：`confirmQuitIntro`、`confirmQuitRunning`、`confirmQuitDrafts`、`askTrayDesc`、`askQuitDesc`、`askSettingsHint`。
+- 回归覆盖：`apps/desktop/test/quit-dialog-inapp.test.mjs` 中的源码契约测试断言两个确认框都通过运行时路由、运行时具有有界超时、以及 IPC 通道已在白名单中。现有的 E2E-204 场景（"显式退出必须先确认"）保持不变，因为可观察契约完全相同。
+- 仅渲染层、样式、语言包、文档与测试；不触碰 host-core、RPC、schema、权限或持久化状态。
+
 ## 2026-09-18 —— 胶囊走在每行都保留的状态列里（D447）
 
 > **取代 D446 的落点。** 点与词的配对、淡彩令牌、垂直居中、`aria-hidden` 孪生文字
@@ -4534,84 +4547,18 @@ v0.14.35 构建之后用户反馈：「状态胶囊不要挤标题啊，标题�
   定位、旧 `:has()` 留白释放规则已不存在，以及八个语言包里的两个新键。
 - 见 `04-ux/07-ui-design-system.md` §4.5、`04-ux/08-component-spec.md` §2 与 §3，
   以及 `06-delivery/04-e2e-test-plan.md` 的 E2E-SIDEBAR-status-dot-pending-union。
+## 2026-09-19 — 应用内退出与关闭行为确认框替换原生消息框（D452）
 
-## 2026-09-19 —— 悬停卡停留 3 秒、ID 一键复制、预览文字带上样式与颜色（D448）
+> **替代退出路径上的 `dialog.showMessageBox`。** D363 显式退出的契约、D216 托盘，以及 Windows/Linux 的关闭行为（`ask` / `tray` / `quit`）保持不变。
 
-用户对已上线的会话悬停卡的反馈：「会话标题悬停弹出的卡片要停留3秒钟，
-会话ID支持快捷复制，卡片里面的文字内容要渲染样式和颜色文字」。此前指针离开
-160ms 卡片就消失——连跨过 6px 缝隙的时间都不够；会话 ID 只能从开发者模式右键菜单
-复制；卡片里的预览文字全是无样式的单调文本。
+渲染层现在绘制两个确认框，使它们锚定在窗口上而不是由操作系统随意浮动，且退出确认可以显示实际仍在运行的内容。当渲染层无法应答时（窗口已销毁、渲染进程消失或 5 秒超时），原生框作为后备保留。
 
-- 指针离开与焦点移出现在只启动 **3 秒停留**（`useSessionHoverCard` 的
-  `scheduleHide`）：卡片留在原地，鼠标移回即取消消失，复制按钮因此可达。滚动、
-  缩放、打开上下文菜单、Escape、窗口隐藏仍立即取消；改悬停其他行的 500ms 出现
-  规则不变。
-- 卡片的会话 ID 行新增**一键复制按钮**（复用共享 `useCopy`、`nav.copyConversationId`
-  文案、复制→对勾反馈），复制原始 ID；开发者菜单里的旧路径保持原样。
-- 三处预览（当前任务、最近往来、最终结果）改走 **`MarkdownInline`**：代码段、加粗、
-  文件路径直接沿用 `messages.css` 里单行摘要已有的蓝/紫/黄色调，未新增色彩令牌。
-- 仅渲染层、CSS、文档与测试：无 IPC 通道、宿主 RPC、schema、权限或持久化状态变更；
-  未新增语言包键。
-- 回归覆盖：`session-hover-card-dwell-copy.test.mjs` 固定钩子里的 3 秒停留、ID 行
-  复制按钮的标记、三处 MarkdownInline 预览，以及共享色调的 CSS 选择器。
-- 见 `04-ux/09-interaction-patterns.md` §9.1b 与 `06-delivery/04-e2e-test-plan.md`
-  的 E2E-047b。
-
-## 2026-09-19 —— 悬停卡改为鼠标移上立即出现（D448 同日勘误）
-
-用户对 D448 构建的反馈：「现在是鼠标指针移动上去卡片不是立即停留」。D448 沿用了
-项目路径提示的 500ms 出现延迟，指针都落到行上半秒了卡片才出来，手感像死了一样。
-
-- `useSessionHoverCard.show` 现在同步落卡：彻底去掉出现定时器。`isConnected` /
-  `document.hidden` 守卫与同行短路保留，待显示请求/定时器簿记删除。
-- D448 的停留契约不变：离开仍启动 3 秒关闭计时，移回即取消；滚动/缩放/右键菜单/
-  Escape/窗口隐藏仍立即取消。快速扫过指针现在会闪出卡片——这是即时反馈的既定取舍。
-- 仅渲染层、文档与测试：无 IPC、RPC、schema、权限或持久化状态变更；语言包键无增删。
-- 回归覆盖：`sidebar-navigation.test.mjs` 改钉同步 `setCard(request)` 与 500ms
-  定时器不存在；`session-hover-card-dwell-copy.test.mjs` 新增即时出现契约。
-- 见 `04-ux/09-interaction-patterns.md` §9.1b 与 E2E-047b。
-
-## 2026-09-19 —— 状态标记领先所在行，顶在左边缘（D449）
-
-> **取代 D447 的保留状态列。** D446 的点+词胶囊完整保留；变的是标记不再站在一条
-> 自己的车道里，而是成为它自己标题分组的第一项。
->
-> **同日勘误。** 标记改为领先「行自己的按钮」，而不是与按钮并排。已上线的几何请读
-> D449 勘误。
->
-> **同日由 D450 取代。** 随流排布与胶囊里的词都不了：随流的标记由标题付账，而这正是
-> 用户否掉的事。当前契约请读 D450。
-
-v0.14.36 构建之后用户反馈：「状态要和标题在一起，中间不要有空档，可以和项目左侧
-对齐，标题不能收缩」，随后「状态胶囊顶到左侧最边缘，最多不能超过一级项目边缘」。
-在已上线的行上量下来：72px 的列把胶囊画在 x=4→61、标题画在 x=77——每个关注行都在
-行内留出一条 11px 的死区，而 275px 的侧边栏里每一行标题（包括完全没有标记的行）
-都要付 72px。这条列与上述约束互斥：任何固定车道要么留下一条死区（当标记比车道窄），
-要么留下参差的边缘（当它不比车道窄）。用户选择了分组。
-
-- 保留列消失。`--ds-sidebar-status-column` 变成 `--ds-sidebar-status-gap`（4px），
-  `.thread-item-main` 回到普通的 `padding: 5px 6px`，`.thread-item` 用这条间隔令牌
-  排布自己的子元素。
-- 标记现在是行自身的第一个 flex 项。`.thread-item-status` 放弃
-  `position: absolute; left: 4px; top: 50%; transform: translateY(-50%)` 改为随流
-  排布，`.thread-item-status-chip` 用 `flex: 0 1 auto; min-width: 0` 换掉了绝对定位
-  钉点与列宽上限。于是标记的左边缘就是行的左边缘——与一级项目标头起始的那条边同
-  一条线——而过长的译文只在胶囊内部收缩省略，不会把标题推出行尾。
-- D446 的配对不动：点与词仍在同一枚淡彩胶囊里，动画、`aria-label`、工具提示与完整
-  短语仍归圆点所有，文字仍是 `aria-hidden`，安静状态仍是那枚没有胶囊的普通圆点。
-- 已确认的代价：标题不再共享同一条左边缘。安静行的标题在 12px 圆点之后开始，关注行
-  在自己的胶囊之后开始，而完全没有标记的行直接从左边缘起笔。这正是所要求的结果——
-  状态与标题作为一个组移动，没有任何一行为一条永远用不到的车道付费。会话开始与停止
-  运行时标题仍会移动；移动它的是胶囊。
-- 仅渲染器、样式、文档与测试：不改 IPC 渠道、Host RPC、存储 schema、权限或持久化
-  状态。未改任何语言键——D447 引入的短形式胶囊词保留，如今多担一份职责：让行首胶囊
-  窄到能与自己的标题并肩。
-- 回归覆盖：`sidebar-session-status.test.mjs` 固定间隔令牌、随流的点与胶囊、胶囊的
-  收缩保护，以及被删掉的列确实已不存在；`scripts/e2e-sidebar-status-dot.mjs` 通过
-  CDP 量出每枚标记的左边缘等于其行的左边缘、没有标记比一级项目标头更靠左，且每个
-  标题都从自己标记右边缘起 6px 内开始。
-- 见 `04-ux/07-ui-design-system.md` §4.5、`04-ux/08-component-spec.md` §2 与 §3，
-  以及 `06-delivery/04-e2e-test-plan.md` 的 E2E-SIDEBAR-status-dot-pending-union。
+- 新增两条 IPC 通道：`IPC.event.quitDialogRequest`（主进程 → 渲染层推送 `{ requestId, kind, runningTurns }`）和 `IPC.invoke.quitDialogRespond`（渲染层 → 主进程响应 `{ requestId, choice }`）。主进程侧运行时维护一个待处理映射表并带 5 秒计时器；如果渲染层始终不回答，promise 解析为 `null`，调用方回退到 `showMessageBox`。
+- 关闭行为的 `askCloseBehavior(window)` 和关机流程中的 `confirmQuitDialog()` 是运行时的薄包装；它们保持原有的签名和返回值。原生实现以 `nativeAskCloseBehavior` 和 `nativeConfirmQuitDialog` 的形式保留用于后备情况。
+- 渲染层收到 `quit-confirm` 请求时，会渲染一个确认框：先显示引言（"Quitting interrupts the work below..."），然后是一个影响块，包含计数徽章和"{sessions} running replies will be stopped"以及"Unsaved drafts may be lost"。对于 `close-ask`，它渲染两行选项："关闭到托盘"（默认，按 Enter）和"退出"，底部有提示"Change this any time in Settings"。两个确认框都支持 Escape → 取消、Enter → 默认操作，以及焦点闭环。
+- i18n 在全部八个语言包的 `tray.*` 下新增六个键：`confirmQuitIntro`、`confirmQuitRunning`、`confirmQuitDrafts`、`askTrayDesc`、`askQuitDesc`、`askSettingsHint`。
+- 回归覆盖：`apps/desktop/test/quit-dialog-inapp.test.mjs` 中的源码契约测试断言两个确认框都通过运行时路由、运行时具有有界超时、以及 IPC 通道已在白名单中。现有的 E2E-204 场景（"显式退出必须先确认"）保持不变，因为可观察契约完全相同。
+- 仅渲染层、样式、语言包、文档与测试；不触碰 host-core、RPC、schema、权限或持久化状态。
 
 ## 2026-09-19 —— 标记领先行自己的按钮（D449 同日勘误）
 

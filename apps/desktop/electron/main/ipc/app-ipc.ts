@@ -10,6 +10,7 @@ import {
   PROTOCOL_VERSION,
   assertFeedbackIssueUrl,
   buildBugReportUrl,
+  type QuitDialogResponse,
 } from "@pi-desktop/shared";
 import { globalInstructionPath } from "@pi-desktop/agent-runtime";
 import type { HostProcess } from "../host-process";
@@ -23,6 +24,7 @@ export type AppIpcDependencies = {
   togglePluginLauncher: () => Promise<void>;
   safeOpenExternal: (url: unknown) => Promise<void>;
   updater: AppUpdaterController;
+  quitDialog: { respond: (response: QuitDialogResponse) => void };
 };
 
 /** Register app, instruction, launcher and update channels. */
@@ -33,8 +35,14 @@ export function registerAppIpc({
   togglePluginLauncher,
   safeOpenExternal,
   updater,
+  quitDialog,
 }: AppIpcDependencies): void {
   const { handle, handleWithEvent } = registrar;
+
+  handle(IPC.invoke.quitDialogRespond, async (response: QuitDialogResponse) => {
+    quitDialog.respond(response);
+    return { ok: true };
+  });
 
   handle(IPC.invoke.pluginLauncherToggle, async () => {
     await togglePluginLauncher();

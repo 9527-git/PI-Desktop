@@ -48,6 +48,7 @@ export * from "./network-proxy.js";
 export * from "./attachment-limits.js";
 export * from "./font-size.js";
 export * from "./racp.js";
+export * from "./quit-dialog.js";
 export * from "./trusted-extensions.js";
 export * from "./provider-retry.js";
 export * from "./message-stream.js";

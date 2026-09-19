@@ -34,6 +34,16 @@ export const tr = {
     confirmQuitBody:
       "Çıkmak istediğinizden emin misiniz? Tüm çalışan oturumlar durdurulur ve kaydedilmemiş değişiklikler kaybolabilir.",
     confirmQuit: "Çık",
+    /** D452: in-app confirmation shows what is actually running. */
+    confirmQuitIntro:
+      "Çıkmak aşağıdaki işleri durdurur. Kaydedilmiş oturum geçmişi etkilenmez.",
+    confirmQuitRunning:
+      "{sessions} devam eden yanıt durdurulacak",
+    confirmQuitDrafts: "Kaydedilmemiş taslaklar kaybolabilir",
+    askTrayDesc:
+      "Pencere gizlenir, oturumlar arka planda çalışmaya devam eder. Sistem tepsisi simgesiyle geri dönün.",
+    askQuitDesc: "Tüm oturumları durdur ve süreci sonlandır.",
+    askSettingsHint: "Ayarlar'dan istediğin zaman değiştir"
   },
   /**
    * Native consent dialog for a file access a plugin's manifest did not

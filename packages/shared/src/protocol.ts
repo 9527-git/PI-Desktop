@@ -54,6 +54,8 @@ export const IPC = {
     appHealth: "pi-desktop/app/health",
     appGetOnboarding: "pi-desktop/app/getOnboarding",
     appDismissOnboarding: "pi-desktop/app/dismissOnboarding",
+    /** Renderer's answer to a main-initiated quit / close-behavior dialog (D452). */
+    quitDialogRespond: "pi-desktop/app/quitDialog/respond",
     /** Installed system font families, resolved by Electron main. */
     systemFontsList: "pi-desktop/app/systemFonts",
     updatesGetState: "pi-desktop/updates/getState",
@@ -263,6 +265,8 @@ export const IPC = {
     agentQueueChanged: "pi-desktop/agent/event/queueChanged",
     hostStatus: "pi-desktop/app/event/hostStatus",
     toast: "pi-desktop/app/event/toast",
+    /** Main asks the renderer to show the in-app quit / close-behavior dialog (D452). */
+    quitDialogRequest: "pi-desktop/app/event/quitDialogRequest",
     browserState: "pi-desktop/browser/event/state",
     browserPreview: "pi-desktop/browser/event/preview",
     windowMaximized: "pi-desktop/window/event/maximized",

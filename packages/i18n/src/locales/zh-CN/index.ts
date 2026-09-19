@@ -33,6 +33,16 @@ export const zhCN = {
     confirmQuitBody:
       "退出将停止所有正在进行的会话，未保存的内容可能会丢失。你确定要退出吗？",
     confirmQuit: "退出",
+    /** D452: 应用内确认框显示实际运行内容。 */
+    confirmQuitIntro:
+      "退出会立即中断以下工作，已落盘的会话记录不受影响。",
+    confirmQuitRunning:
+      "{sessions} 个会话正在回复，将被停止",
+    confirmQuitDrafts: "未落盘的草稿可能丢失",
+    askTrayDesc:
+      "窗口隐藏，会话继续在后台运行，点托盘图标随时回来",
+    askQuitDesc: "停止所有会话并结束进程",
+    askSettingsHint: "可在设置中更改",
   },
   pluginDesktopConsent: {
     message: "{name} 想要执行 {operation}",
