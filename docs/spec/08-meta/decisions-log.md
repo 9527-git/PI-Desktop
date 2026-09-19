@@ -5751,7 +5751,8 @@ looks: inline on the session row.
 ## 2026-09-18 — The status word rides inside the dot's own chip (D446)
 
 > Amended by D447 the same day: the pairing stays, the chip leaves the title's
-> lane. D449 later brought it back into the group. Read D449 for the current
+> lane. D449 later brought it back into the group, and D450 then dropped the word
+> and the chip with it — the row shows its title alone. Read D450 for the current
 > contract.
 
 User feedback on the v0.14.34 build: the D445 word "wandered off to the front of
@@ -5798,7 +5799,7 @@ checks passed on a layout no real row renders.
 >
 > **Superseded by D449 the next day.** The column bought title alignment at the
 > price of a dead band between the pill and its title, and it charged every title
-> 72px whether or not a marker used them. Read D449 for the current contract.
+> 72px whether or not a marker used them. Read D450 for the current contract.
 
 User feedback on the v0.14.35 build: "状态胶囊不要挤标题啊，标题对齐，状态胶囊要在最前
 面突出". D446 made the chip a flex child of the row button, so an attention row
@@ -5898,6 +5899,10 @@ before anything appeared.
 >
 > **Amended the same day.** The marker leads the row's own button instead of
 > sitting beside it. Read the D449 amendment for the shipped geometry.
+>
+> **Superseded by D450 the same day.** The flush-left flow and the chip's word
+> both go: an in-flow marker is paid for out of the title, which is exactly what
+> the user rejected. Read D450 for the current contract.
 
 User feedback on the v0.14.36 build: "状态要和标题在一起，中间不要有空档，可以和项目
 左侧对齐，标题不能收缩", then "状态胶囊顶到左侧最边缘，最多不能超过一级项目边缘".
@@ -5964,3 +5969,79 @@ still the control that selects the session.
   renders inside `thread-item-main` and that the button opens with zero left
   padding.
 - See `04-ux/07-ui-design-system.md` §4.5.
+
+## 2026-09-19 — Each row keeps a status lane and shows its title alone (D450)
+
+> **Supersedes D449's placement and D446's in-row word, and D427's sidebar row
+> preview.** The D444 state model, the D445 tokens, and both animations stay.
+
+Feedback on the shipped v0.14.37 build came in four steps: "会话标题前面的状态胶囊要
+突出，不要把标题往里面挤", then "左侧只显示会话标题，不要显示会话里面的内容", then a
+screenshot with two boxes drawn at the far left of an attention row — "我要的效果是
+实心胶囊，胶囊不要占标题的位置" — and finally the governing constraint: "我都说了不要
+把标题往右挤，你只能往左调整，胶囊的左侧位置我不限制了，你可以把项目目录往右移一点保持
+协调". Measured on the shipped row, D449's in-flow chip was the problem: a row with
+no status drew its title straight off the row's own left edge, while an attention
+row paid the whole chip - its word alone is 57px in zh-CN, plus the 4px gap - out of
+the title, roughly 60px further right. The title also
+jumped sideways every time its session started or stopped running, and the row's
+second line — D427's last-message preview — was what made 22px of vertical room
+disappear for a status that only needs one.
+
+- Every row now reserves `--ds-sidebar-status-lane` (22px) of its own left edge,
+  and `.thread-item-main` opens with that padding. The 22px is exactly the indent
+  `.sidebar-session-group-body.project` used to hang its rows by
+  (`margin-left: 13px; padding-left: 9px`), so moving it inside the row left the
+  project title column on the x it already had: **22px from the row's own left edge,
+  for every row, status or not**.
+  The lane is inside the button, so the marker remains part of the click target —
+  `.thread-item` clips at `overflow: hidden`, which is why the marker could not
+  simply hang outside the row box.
+- `.thread-item-status` is absolutely pinned inside that lane
+  (`left: 0; width: var(--ds-sidebar-status-lane)`) and centres whatever it holds.
+  The two attention states render a **solid 16×8 capsule** in their own token —
+  the emphasis the earlier 7px dot and the tinted chip never reached — leaving
+  3px clear on both sides of the lane. The quiet states keep their smaller glyph
+  (9px ring, check, circled alert) in the same lane, so a capsule still means
+  "this row needs you".
+- The row's second line is gone: `.thread-item-preview` no longer renders, and the
+  sidebar shows the session title alone. Rows return to one line at the 28px pitch.
+- `--ds-sidebar-status-gap`, `.thread-item-status-chip`, and
+  `.thread-item-status-label` are removed, and with the word the two short locale
+  keys D447 introduced (`nav.sessionRunningShort`, `nav.sessionNeedsInputShort`)
+  became unused and are deleted from all eight shipped locales.
+- Time-group headers, the load-more row, and a project group's empty state carry
+  the same 22px as their own left padding, so none of them moved either.
+- Pinned and standalone rows had no 22px body indent to reclaim, so their titles
+  move right into that lane. This is the one place D450 spends a rightward shift:
+  those two groups were the only rows whose title column did not already sit where
+  the project rows' does, and a lane every row reserves is what keeps a marker from
+  ever being traded against title width again.
+- The authorized header nudge was measured and dropped: the project header's
+  disclosure glyph centres 3.5px from the capsule's axis as things stand, and
+  pushing it right to clear the lane would have carried the chevron past the title
+  column it is meant to sit left of. No `padding-left` change ships.
+- Accepted consequences. The full state phrase now lives only on the marker's
+  tooltip and accessible name, so the two attention states share one capsule shape
+  and are told apart by token plus motion cadence — under
+  `prefers-reduced-motion` that is hue alone until the pointer reaches the marker
+  (§4.5). And the newest-message text leaves the list entirely: it stays available
+  in the session hover card, which reads it from the session summary.
+- Renderer, styles, locales, docs, and tests only. The host session summary keeps
+  its `last_message` field and `SessionSummary.lastMessage` stays in the shared
+  contract — D427's additive host field is untouched; only its sidebar rendering is
+  superseded. No IPC channel, host RPC, schema version, permission, or
+  persisted-state change.
+- Regression coverage: `sidebar-session-status.test.mjs` pins the lane token, the
+  absolutely pinned marker, the shared capsule rule, the removed chip, and the
+  removed short keys; `sidebar-navigation.test.mjs` pins that a row's text column
+  holds the title alone; `scripts/e2e-sidebar-status-dot.mjs` measures over CDP
+  that every marker spans 0→22px of its own row inside its own button, that every
+  title starts at exactly 22px, that each capsule clears the title by 2–6px, and
+  that no row renders a preview line or a status word. The capture rig no longer
+  seeds forced preview lines.
+- See `04-ux/07-ui-design-system.md` §4.5 and §16,
+  `04-ux/08-component-spec.md` §2.2/§2.5/§3.3/§3.4/§3.6, and
+  E2E-SIDEBAR-status-dot-pending-union plus
+  E2E-CHAT-other-sessions-render-without-switching in
+  `06-delivery/04-e2e-test-plan.md`.

@@ -23,11 +23,13 @@
   min-width: 0;
   flex: 1;
   align-items: center;
-  /* D449: the status marker leads this button, and this gap is the only space
-     between it and the title, so the marker stays flush on the row's left edge
-     while the whole row - marker included - remains the click target. */
-  gap: var(--ds-sidebar-status-gap);
-  padding: 5px 6px 5px 0;
+  gap: 4px;
+  /* D450: the lane's first 22px belongs to the status marker, which pins itself
+     there (see .thread-item-status) instead of flowing before the title. The
+     title column starts at the same x whether or not the row carries a status,
+     so no marker ever trades width with the title it labels - and the lane is
+     inside this button, so the marker stays part of the click target. */
+  padding: 5px 6px 5px var(--ds-sidebar-status-lane);
   text-align: left;
   color: inherit;
 }
@@ -40,79 +42,12 @@
   white-space: nowrap;
 }
 
-/* D446: the two attention states (running / needs input) read as one tinted
-   chip — the live dot and its status word share a single group, so the word can
-   never drift onto the title line while the dot stays centred on a two-line row.
-   D449: that chip leads the row button instead of standing in a reserved column,
-   so the status and its title are one group with no dead band between them. The
-   chip may shrink (its word ellipsises) but never pushes the title off the row;
-   the dot keeps its tooltip and accessible name, and the word is its visual twin
-   and is hidden from assistive tech. */
-.thread-item-status-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  min-width: 0;
-  flex: 0 1 auto;
-  border-radius: var(--radius-full);
-  padding: 1px 7px 1px 5px;
-  /* Visual only: the enclosing row button owns the click, while the dot
-     re-enables pointer input for its own tooltip. */
-  pointer-events: none;
-}
-
-.thread-item-status-chip .thread-item-status {
-  width: 8px;
-  height: 8px;
-  flex: 0 0 auto;
-  pointer-events: auto;
-}
-
-.thread-item-status-chip .thread-item-status::before {
-  box-shadow: none;
-}
-
-.thread-item-status-chip.running {
-  background: color-mix(in oklab, var(--ds-warning) 14%, transparent);
-}
-
-.thread-item-status-chip.permission {
-  background: color-mix(in oklab, var(--ds-purple) 14%, transparent);
-}
-
-.thread-item-status-label {
-  min-width: 0;
-  overflow: hidden;
-  font-size: var(--text-2xs);
-  font-weight: var(--font-weight-strong);
-  line-height: var(--leading-compact);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.thread-item-status-chip.running .thread-item-status-label {
-  color: var(--ds-warning);
-}
-
-.thread-item-status-chip.permission .thread-item-status-label {
-  color: var(--ds-purple);
-}
-
 .thread-item-text {
   display: flex;
   min-width: 0;
   flex: 1;
   flex-direction: column;
   gap: 1px;
-}
-
-.thread-item-preview {
-  overflow: hidden;
-  color: var(--ds-text-muted);
-  font-size: var(--text-2xs);
-  line-height: var(--leading-compact);
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .thread-item:hover,
@@ -336,20 +271,20 @@
   pointer-events: none;
 }
 
-/* Nested session rows read as children through the indent alone; the tree
-   rail is gone (D297). */
-.sidebar-session-group-body.project {
-  margin-left: 13px;
-  padding-left: 9px;
-}
-
+/* D450: the indent that used to hang the session rows inside their project block
+   is now each row's own status lane, so the marker sits inside the click target
+   and a row's hover and active fill reach the group's left edge. The title column
+   keeps the x it had before. */
+.sidebar-session-group-body.project,
 .sidebar-session-group-body.temporary {
-  margin-left: 13px;
-  padding-left: 9px;
+  margin-left: 0;
+  padding-left: 0;
 }
 
+/* These two sit inside a project body, so they carry the 22px the body no longer
+   indents and keep the x they had before D450 moved the lane into the row. */
 .sidebar-time-group-header {
-  padding: 6px 6px 2px 20px;
+  padding: 6px 6px 2px 42px;
   color: var(--ds-text-muted);
   font-size: var(--text-2xs);
   font-weight: var(--font-weight-medium);
@@ -364,7 +299,7 @@
   display: flex;
   width: 100%;
   align-items: center;
-  padding: 4px 6px 4px 20px;
+  padding: 4px 6px 4px 42px;
   border-radius: var(--radius-sm);
   color: var(--ds-text-muted);
   font-size: var(--text-xs-plus);
@@ -396,6 +331,12 @@
   color: var(--ds-text-muted);
   font-size: var(--text-md); /* empty-state copy tracks group titles */
   line-height: var(--leading-compact);
+}
+
+/* Same 22px compensation as the time-group headers: a project body no longer
+   indents its own content. */
+.sidebar-session-group-body.project .sidebar-session-empty {
+  padding-left: 30px;
 }
 
 .sidebar-pinned-sessions {

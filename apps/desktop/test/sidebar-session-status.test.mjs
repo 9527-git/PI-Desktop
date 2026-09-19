@@ -130,66 +130,46 @@ test("renders semantic, shape-distinct sidebar status indicators", () => {
   assert.match(styles, /thread-item-status\.selected::before[\s\S]*--ds-accent/);
   assert.match(styles, /thread-item-status\.completed[\s\S]*--ds-success/);
   assert.match(styles, /thread-item-status\.failed[\s\S]*--ds-error/);
-  // D446: running and needs-input rows carry their word inside the SAME tinted
-  // chip as the dot, so the word can never drift onto the title line of a
-  // two-line row; quiet states show the plain dot in that same leading slot.
+  // D450: the row shows the session title alone. The marker is pinned inside the
+  // lane each row reserves on its own left edge, so it never trades width with
+  // the title it labels and no locale word has to fit beside it — the state is
+  // named by the marker's own tooltip and accessible name.
   assert.match(
     sidebar,
-    /renderSessionStatusChip[\s\S]*thread-item-status-chip[\s\S]*renderSessionStatus\(status\)[\s\S]*thread-item-status-label/,
+    /className="thread-item-main"[\s\S]*?\{status \? renderSessionStatus\(status\) : null\}/,
   );
-  // D449: the marker leads the row BUTTON, so selecting the session stays a
-  // click anywhere on the row — including on the status itself.
-  assert.match(
-    sidebar,
-    /isAttentionStatus\(status\)\s*\?\s*renderSessionStatusChip\(status\)\s*:\s*renderSessionStatus\(status\)/,
-  );
-  const rowHead = sidebar.slice(
-    sidebar.indexOf("data-sidebar-session-row={session.id}"),
-    sidebar.indexOf('className="thread-item-main"'),
-  );
-  assert.doesNotMatch(rowHead, /isAttentionStatus/);
-  assert.match(
-    sidebar,
-    /className="thread-item-main"[\s\S]*?isAttentionStatus\(status\)/,
-  );
-  assert.match(sidebar, /className="thread-item-status-label" aria-hidden/);
-  assert.doesNotMatch(sidebar, /thread-item-title-row/);
-  // The chip shares its row with the title instead of a lane of its own, so the
-  // pill word stays a short form while the dot keeps the full phrase as its
-  // accessible name.
-  assert.match(
-    sidebar,
-    /nav\.sessionRunningShort[\s\S]*nav\.sessionNeedsInputShort/,
-  );
+  assert.doesNotMatch(sidebar, /renderSessionStatusChip|thread-item-status-chip/);
+  assert.doesNotMatch(sidebar, /isAttentionStatus|thread-item-status-label/);
+  assert.doesNotMatch(sidebar, /thread-item-preview|session\.lastMessage/);
+  assert.doesNotMatch(sidebar, /nav\.sessionRunningShort|nav\.sessionNeedsInputShort/);
+  assert.doesNotMatch(sidebar, /className="thread-item-title-row/);
   for (const locale of ["de", "en", "es", "fr", "ko", "tr", "zh-CN", "zh-TW"]) {
     const source = fs.readFileSync(
       new URL(`../../../packages/i18n/src/locales/${locale}/index.ts`, import.meta.url),
       "utf8",
     );
-    assert.match(source, /sessionRunningShort/);
-    assert.match(source, /sessionNeedsInputShort/);
+    assert.doesNotMatch(source, /sessionRunningShort|sessionNeedsInputShort/);
   }
-  assert.match(styles, /thread-item-status-chip\.running[\s\S]*--ds-warning/);
-  assert.match(styles, /thread-item-status-chip\.permission[\s\S]*--ds-purple/);
-  const chipDotRule =
-    styles.match(/^\.thread-item-status-chip \.thread-item-status \{[^}]*\}/m)?.[0] ??
-    "";
-  assert.match(chipDotRule, /flex: 0 0 auto/);
-  // D449: the reserved status column is gone. The marker leads the row button in
-  // normal flow flush on the row's left edge, the gap token is all that separates
-  // it from the title, and the chip shrinks instead of squeezing the title.
-  assert.match(styles, /--ds-sidebar-status-gap: 4px/);
-  assert.doesNotMatch(styles, /--ds-sidebar-status-column/);
+  // The lane is the row button's own left padding, so the marker stays inside the
+  // click target, and the list body no longer hangs its rows inside the project
+  // block — the title column keeps the x it had before the marker existed.
+  assert.match(styles, /--ds-sidebar-status-lane: 22px/);
+  assert.doesNotMatch(styles, /--ds-sidebar-status-gap|--ds-sidebar-status-column/);
+  assert.doesNotMatch(styles, /thread-item-status-chip|thread-item-status-label/);
+  assert.doesNotMatch(styles, /\.thread-item-preview \{/);
   const mainRule = styles.match(/^\.thread-item-main \{[^}]*\}/m)?.[0] ?? "";
-  assert.match(mainRule, /gap: var\(--ds-sidebar-status-gap\)/);
-  assert.match(mainRule, /padding: 5px 6px 5px 0/);
+  assert.match(mainRule, /padding: 5px 6px 5px var\(--ds-sidebar-status-lane\)/);
   const dotRule = styles.match(/^\.thread-item-status \{[^}]*\}/m)?.[0] ?? "";
-  assert.match(dotRule, /display: inline-flex/);
-  assert.doesNotMatch(dotRule, /position: absolute/);
-  const chipRule = styles.match(/^\.thread-item-status-chip \{[^}]*\}/m)?.[0] ?? "";
-  assert.match(chipRule, /flex: 0 1 auto/);
-  assert.match(chipRule, /min-width: 0/);
-  assert.doesNotMatch(chipRule, /position: absolute/);
+  assert.match(dotRule, /position: absolute/);
+  assert.match(dotRule, /left: 0/);
+  assert.match(dotRule, /width: var\(--ds-sidebar-status-lane\)/);
+  const capsuleRule =
+    styles.match(
+      /^\.thread-item-status\.running::before,\n\.thread-item-status\.permission::before \{[^}]*\}/m,
+    )?.[0] ?? "";
+  assert.match(capsuleRule, /width: 16px/);
+  assert.match(capsuleRule, /height: 8px/);
+  assert.match(capsuleRule, /border-radius: var\(--radius-full\)/);
   assert.doesNotMatch(styles, /thread-item-main:has\(/);
   assert.match(
     styles,

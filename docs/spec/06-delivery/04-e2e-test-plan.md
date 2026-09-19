@@ -1597,46 +1597,38 @@ and identify the platform validation still needed.
   app plus a host-core binary are available (the CDP runner supplies its own
   throwaway profile and seeds the rows through the capture rig).
 - **Steps**: 1) Seed one row per state — selected, running, permission, ask,
-  Plan/Goal approval — each with a preview line so the rows are two lines tall
-  like real sessions. 2) Inspect each row's leading status dot, its chip, any
-  status word inside that chip, and where the marker sits on the row against the
-  project header's left edge and against its own title. 3) Repeat the running and
-  needs-input rows in light and dark themes. 4) Re-inspect under
-  `prefers-reduced-motion: reduce`, then after clearing it. 5) Confirm the
-  conversation topbar carries no status slot or chip.
-- **Expected**: The running row shows an orange breathing dot (`--ds-warning`,
-  `sidebar-status-breathe`). The permission, ask, and Plan/Goal rows all render
-  the SAME needs-input dot — class `permission`, purple (`--ds-purple`,
-  `sidebar-status-pulse-purple`) — proving the D444 union, and share one
-  accessible label (`nav.sessionNeedsInput`) distinct from the running label.
-  The needs-input dot outranks running. The selected row keeps its static accent
-  ring. Both themes resolve each dot to their own warning/purple token. With
-  `prefers-reduced-motion: reduce` every dot animation is off, and clearing the
-  preference restores them. On top of that, per D445 as grouped by D446 the
-  running row and all three needs-input rows carry their status word INSIDE the
-  same tinted chip as the dot: the chip holds both the dot and the word, the dot
-  is statically positioned inside it, the chip is tinted, and the group's centre
-  stays within 2px of the row's vertical centre even though the row is two lines
-  tall — so the word can never drift onto the title line. The word is the short
-  form of the dot's accessible name (never longer than it, never clipped) and
-  uses the dot's own token (`--ds-warning` for running, `--ds-purple` for every
-  intervention source, in both themes), while the selected row has no chip, no
-  word, and keeps its plain dot in the same leading slot, with its title still
-  rendering. Per D449 the marker leads its row instead of standing in a lane of
-  its own: every marker's left edge sits flush on the row's left edge, no further
-  left than the project header's own left edge, and its title begins within 6px of
-  the marker's right edge — so status and title read as one group with no dead
-  band between them, and no row reserves width a marker may never use. Each marker
-  also belongs to the row's own button, so clicking it selects that session. The
-  conversation topbar has no `.ct-status-slot` or
+  Plan/Goal approval. 2) Inspect each row's status marker, its own status lane, and
+  where the row's title starts, against the project header's disclosure glyph.
+  3) Repeat the running and needs-input rows in light and dark themes.
+  4) Re-inspect under `prefers-reduced-motion: reduce`, then after clearing it.
+  5) Confirm the conversation topbar carries no status slot or chip.
+- **Expected**: The running row shows a solid orange 16×8 capsule
+  (`--ds-warning`, `sidebar-status-breathe`). The permission, ask, and Plan/Goal
+  rows all render the SAME needs-input marker — class `permission`, a solid purple
+  16×8 capsule (`--ds-purple`, `sidebar-status-pulse-purple`) — proving the D444
+  union, and share one accessible label (`nav.sessionNeedsInput`) distinct from the
+  running label, which is also that marker's tooltip. The needs-input marker
+  outranks running. The selected row keeps its static accent ring. Both themes
+  resolve each capsule to its own warning/purple token. With
+  `prefers-reduced-motion: reduce` every animation is off, and clearing the
+  preference restores them. No row carries a status word or a second line of
+  transcript text: the row's only text is its title, and no `.thread-item-preview`,
+  `.thread-item-status-label`, or `.thread-item-status-chip` renders. Per D450 each
+  row reserves a 22px status lane on its own left edge: every marker is absolutely
+  pinned inside that lane (left edge 0, right edge 22px from the row's own edge),
+  every row's title starts at exactly 22px from that edge whether or not the row
+  carries a status, each capsule clears the title column by 2–6px, and the marker
+  belongs to the row's own button, so clicking it selects that session. A capsule
+  under a project header stays on that header's disclosure-glyph axis rather than
+  sticking out of it. The conversation topbar has no `.ct-status-slot` or
   `.ct-status-chip`. No IPC, host, or persisted state is touched.
 - **Specs linked**: `04-ux/07-ui-design-system.md` §4.5, `04-ux/08-component-spec.md` §2/§3
 - **Acceptance**: Quality
 - **Milestone**: Post-M6 desktop shell maintenance
 - **Status**: Automated (`scripts/e2e-sidebar-status-dot.mjs` via
-  `pnpm test:e2e:sidebar-status` — per-row dot state, union parity, label,
-  priority, both-theme tokens, the flush-left marker and its title gap,
-  reduced-motion, and the topbar-absence probe);
+  `pnpm test:e2e:sidebar-status` — per-row marker state, union parity, label,
+  priority, both-theme tokens, the 22px lane and its shared title column, the
+  title-only row, reduced-motion, and the topbar-absence probe);
   unit coverage in `sidebar-session-status.test.mjs`
 
 #### E2E-CHAT-turn-usage-and-timestamps: Completed replies show per-turn token usage and message times
@@ -12371,21 +12363,22 @@ plugin-form fixtures in an isolated temporary directory at runtime.
 - **Preconditions:** Two or more sessions; one runs a turn while another is
   selected. A subagent detail is open in the running session.
 - **Steps:** 1) While session A is selected, start a long turn in session B
-  from a second entry point. 2) Inspect the sidebar: session B's row shows a
-  one-line preview of its newest user/assistant text under the title. 3)
-  Switch to session B mid-run and confirm the live tail renders without a
-  rebuild blank. 4) Open a subagent detail in session B, then switch back to
-  session A and confirm the dock keeps showing the selected subagent.
+  from a second entry point. 2) Inspect the sidebar: session B's row carries its
+  title alone, and hovering it opens the card that shows its current task and
+  recent exchanges. 3) Switch to session B mid-run and confirm the live tail
+  renders without a rebuild blank. 4) Open a subagent detail in session B, then
+  switch back to session A and confirm the dock keeps showing the selected
+  subagent.
 - **Expected:** The background session's streaming rows accumulate in the
   renderer cache even when the renderer never held that session, so opening
   it mid-run shows the live rows instead of only the durable read. The
   subagent dock belongs to its selection, not to the visible session:
   switching sessions keeps the dock open and re-finds its rows in the
   destination pane's retained transcript; only leaving the chat page closes
-  it. Sidebar rows show the bounded last-message preview (host-truncated to
-  120 code points, CSS-ellipsized, muted `--text-2xs`), absent while a
-  transcript has no readable text.
-- **Specs:** `04-ux/07-ui-design-system.md` §16; D427.
+  it. Sidebar rows show the session title alone — the bounded last-message
+  preview line was dropped (D450) — while the hover card still surfaces the
+  current task and recent exchanges from the session summary.
+- **Specs:** `04-ux/07-ui-design-system.md` §16; D427; D450.
 - **Status:** Documented; run after integration into main.
 
 #### E2E-CHAT-compact-from-context-inspector: Compact from the context usage card

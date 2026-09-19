@@ -158,35 +158,43 @@
   opacity: 0.68;
 }
 
-/* D449: the marker leads its row in normal flow instead of floating in a
-   reserved gutter, so the status and the title it belongs to sit side by side. */
+/* D450: the marker is pinned inside its row's status lane rather than flowing
+   before the title, so every row's title starts on the same x and no marker
+   trades width with the title it labels. The lane is inside the row button, so
+   the marker stays part of the click target, and the state is still named by the
+   marker's own tooltip and accessible name. */
 .thread-item-status {
+  position: absolute;
+  top: 50%;
+  left: 0;
   display: inline-flex;
-  width: 12px;
+  width: var(--ds-sidebar-status-lane);
   height: 12px;
-  flex: 0 0 auto;
+  transform: translateY(-50%);
   align-items: center;
   justify-content: center;
   color: var(--ds-text-muted);
 }
 
-.thread-item-status.running::before {
-  width: 7px;
-  height: 7px;
+/* The two attention states carry no word of their own (the row shows the title
+   alone), so they read as a solid capsule in the state colour instead of the
+   quiet 7px dot the terminal states keep. The capsule stays 3px inside the lane
+   on both sides so it never touches the title column it leads. */
+.thread-item-status.running::before,
+.thread-item-status.permission::before {
+  width: 16px;
+  height: 8px;
   border-radius: var(--radius-full);
-  background: var(--ds-warning);
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ds-warning) 15%, transparent);
   content: "";
+}
+
+.thread-item-status.running::before {
+  background: var(--ds-warning);
   animation: sidebar-status-breathe 1.6s ease-in-out infinite;
 }
 
 .thread-item-status.permission::before {
-  width: 7px;
-  height: 7px;
-  border-radius: var(--radius-full);
   background: var(--ds-purple);
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ds-purple) 15%, transparent);
-  content: "";
   animation: sidebar-status-pulse-purple 1.2s ease-in-out infinite;
 }
 
