@@ -1008,19 +1008,34 @@ export async function createWindow({
                 const probe = await windowState.mainWindow!.webContents.executeJavaScript(`(() => ({
                   theme: document.documentElement.dataset.theme,
                   reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
+                  lane: getComputedStyle(document.documentElement)
+                    .getPropertyValue('--ds-sidebar-status-lane')
+                    .trim(),
                   rows: [...document.querySelectorAll('.thread-item-status')].map((status) => {
                     const row = status.closest('.thread-item');
                     const rect = status.getBoundingClientRect();
-                    const before = getComputedStyle(status, '::before');
+                    const rowRect = row?.getBoundingClientRect();
+                    const word = status.querySelector('.thread-item-status-word');
+                    const dot = status.querySelector('.thread-item-status-dot');
+                    const title = row?.querySelector('.thread-item-title');
                     return {
                       state: [...status.classList].find((name) => name !== 'thread-item-status'),
                       label: status.getAttribute('aria-label'),
-                      color: getComputedStyle(status).color,
-                      fill: before.backgroundColor,
-                      animation: before.animationName,
+                      tooltip: status.getAttribute('title'),
+                      word: word?.textContent ?? null,
+                      wordClipped: word ? word.scrollWidth > word.clientWidth : null,
+                      fill: getComputedStyle(status).backgroundColor,
+                      ink: getComputedStyle(status).color,
+                      animation: dot ? getComputedStyle(dot).animationName : null,
                       width: Math.round(rect.width),
                       height: Math.round(rect.height),
-                      rowHeight: Math.round(row?.getBoundingClientRect().height || 0),
+                      pillLeft: rowRect ? Math.round(rect.left - rowRect.left) : null,
+                      pillRight: rowRect ? Math.round(rect.right - rowRect.left) : null,
+                      titleLeft:
+                        rowRect && title
+                          ? Math.round(title.getBoundingClientRect().left - rowRect.left)
+                          : null,
+                      rowHeight: Math.round(rowRect?.height || 0),
                     };
                   }),
                 }))()`);

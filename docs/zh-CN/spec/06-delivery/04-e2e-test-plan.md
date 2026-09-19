@@ -653,34 +653,37 @@ unit/integration 测试；代码 pull request 使用有选择且高价值的 E2E
 - **先决条件**：PI-Desktop 打开且至少有五个会话，已有构建好的应用与
   host-core 二进制（CDP 运行器自带一次性配置，并通过捕获装置植入各行）。
 - **步骤**：1) 每种状态各种植一行——选中、运行中、权限、ask、Plan/Goal 审批。
-  2) 检查每行的状态标记、它自己的状态车道，以及该行标题从哪里开始，并把它们与
-  一级项目标头自己的展开图标放在一次量。
+  2) 检查每行的状态胶囊、它自己的状态车道、该行标题从哪里开始，以及项目目录头的
+  名字从哪里开始。
   3) 在明暗两种主题下重复运行中与待确认两行。
   4) 在 `prefers-reduced-motion: reduce` 下重新检查，再清除该偏好后检查。
   5) 确认对话顶部栏不含状态槽或胶囊。
-- **预期**：运行中行显示一枚实心橙色 16×8 胶囊（`--ds-warning`，
-  `sidebar-status-breathe`）。权限、ask 与 Plan/Goal 三行都渲染同一个待确认
-  标记——class `permission`、一枚实心紫色 16×8 胶囊（`--ds-purple`，
-  `sidebar-status-pulse-purple`）——以此证明 D444 的并集，且共享同一个可访问名称
-  （`nav.sessionNeedsInput`），与运行中名称不同，而该名称也是这枚标记的工具提示。
-  待确认标记优先于运行中。选中行保持静态的强调环。两种主题各自把胶囊解析为自身的
-  warning/purple 令牌。在
+- **预期**：运行中行显示一枚携带短词的实心橙色胶囊（`--ds-warning`，
+  `sidebar-status-breathe` 作用于胶囊的圆点）。权限、ask 与 Plan/Goal 三行都渲染
+  同一个待确认胶囊——class `permission`、一枚实心紫色胶囊（`--ds-purple`，
+  `sidebar-status-pulse-purple` 作用于圆点）——以此证明 D444 的并集，且共享同一个
+  可访问名称（`nav.sessionNeedsInput`），与运行中名称不同，而该名称也是这枚胶囊的
+  工具提示。待确认胶囊优先于运行中。选中行保持安静的轮廓强调胶囊。两种主题各自把
+  胶囊解析为自身的 warning/purple 令牌并配共享的深色墨色。在
   `prefers-reduced-motion: reduce` 下所有动画关闭，清除该偏好后恢复。
-  任何一行都不携带状态词，也不携带第二行记录区文字：一行里唯一的文字就是它的标题，
-  `.thread-item-preview`、`.thread-item-status-label`、`.thread-item-status-chip`
-  都不再渲染。按 D450，每一行在自己的左边缘留出一条 22px 的状态车道：每枚标记都以
-  绝对定位钉在该车道内（左边缘距行自身的边缘 0px、右边缘 22px），无论一行有没有状态，
-  它的标题都恰好从距该行边缘 22px 处开始，每枚胶囊与标题列之间留 2–6px，并且标记属于
-  行自己的按钮，所以点它就能选中该会话。项目标头之下的胶囊停在该标头展开图标的中轴上，
-  而不是凸出于它之外。
+  每枚胶囊都携带其状态的短词且不被截断（`nav.session<状态>Short`），任何一行都不
+  渲染第二行记录区文字：`.thread-item-preview`、`.thread-item-status-label`、
+  `.thread-item-status-chip` 都不再渲染。按 D451，每一行在自己的左边缘留出一条
+  80px 的状态车道：每枚胶囊都是一枚 20px 高的标签，以绝对定位钉在该车道的起点
+  （左边缘距行自身的边缘 0px），贴住自己的短词，并以
+  `lane - --ds-sidebar-status-pill-gap` 为宽度上限，因此绝不会碰到标题列；无论一行
+  有没有状态，它的标题都恰好从车道末端开始，并且胶囊属于行自己的按钮，所以点它就
+  能选中该会话。列表保持唯一文字列：项目目录头的名字从会话标题列起笔、其字形簇留在
+  车道内，时间分隔则带着自己的提前量随车道行进。
   对话顶部栏没有 `.ct-status-slot` 或 `.ct-status-chip`。不触碰任何 IPC、
   Host 或持久化状态。
 - **链接规格**：`04-ux/07-ui-design-system.md` §4.5、`04-ux/08-component-spec.md` §2/§3
 - **验收**：质量
 - **里程碑**：M6 后桌面外壳维护
 - **状态**：自动化（`scripts/e2e-sidebar-status-dot.mjs`，经
-  `pnpm test:e2e:sidebar-status` —— 逐行标记状态、并集一致性、名称、优先级、
-  明暗主题令牌、22px 车道与共享的标题列、只有标题的行、减少动效，以及顶部栏缺失探针）；
+  `pnpm test:e2e:sidebar-status` —— 逐行胶囊状态、并集一致性、名称、优先级、
+  明暗主题令牌、80px 车道与共享的标题列、不截断的短词、唯一文字列、减少动效，以及
+  顶部栏缺失探针）；
   单元覆盖见
   `sidebar-session-status.test.mjs`
 

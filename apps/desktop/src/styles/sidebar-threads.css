@@ -24,11 +24,12 @@
   flex: 1;
   align-items: center;
   gap: 4px;
-  /* D450: the lane's first 22px belongs to the status marker, which pins itself
-     there (see .thread-item-status) instead of flowing before the title. The
-     title column starts at the same x whether or not the row carries a status,
-     so no marker ever trades width with the title it labels - and the lane is
-     inside this button, so the marker stays part of the click target. */
+  /* D451: the lane holds the row's labelled status pill, which pins itself
+     inside it (see .thread-item-status) instead of flowing before the title.
+     The lane is wider than the pill it used to hold, so every row's title
+     column moves right with it - and it moves for every row, status or not, so
+     the column never reflows when a session gains a state. The lane is inside
+     this button, so the pill stays part of the click target. */
   padding: 5px 6px 5px var(--ds-sidebar-status-lane);
   text-align: left;
   color: inherit;
@@ -159,7 +160,12 @@
   min-height: 28px;
   align-items: center;
   gap: 2px;
-  padding: 0 2px;
+  /* D451: the project header shifts right with the lane it sits above. The 36px
+     is the glyph cluster its name follows (13px disclosure + 5px gap + 13px
+     project glyph + 5px gap) and the 6px is the title button's own inset, so
+     the project's name starts exactly on the session titles' column and the
+     whole list keeps one text column. */
+  padding: 0 2px 0 38px;
 }
 
 .project-group.is-dragging {
@@ -281,10 +287,12 @@
   padding-left: 0;
 }
 
-/* These two sit inside a project body, so they carry the 22px the body no longer
-   indents and keep the x they had before D450 moved the lane into the row. */
+/* D451: list furniture rides the same column as the rows it belongs to. The 20px
+   is the head start these two had over the title column when the lane was the
+   body's own indent; expressing it off the lane keeps that relationship when
+   the lane changes again. */
 .sidebar-time-group-header {
-  padding: 6px 6px 2px 42px;
+  padding: 6px 6px 2px calc(var(--ds-sidebar-status-lane) + 20px);
   color: var(--ds-text-muted);
   font-size: var(--text-2xs);
   font-weight: var(--font-weight-medium);
@@ -299,7 +307,7 @@
   display: flex;
   width: 100%;
   align-items: center;
-  padding: 4px 6px 4px 42px;
+  padding: 4px 6px 4px calc(var(--ds-sidebar-status-lane) + 20px);
   border-radius: var(--radius-sm);
   color: var(--ds-text-muted);
   font-size: var(--text-xs-plus);
@@ -327,16 +335,12 @@
 }
 
 .sidebar-session-empty {
-  padding: 5px 8px;
+  /* D451: empty copy sits on the list's text column, 8px inside the title
+     column like the project body's copy always did. */
+  padding: 5px 8px 5px calc(var(--ds-sidebar-status-lane) + 8px);
   color: var(--ds-text-muted);
   font-size: var(--text-md); /* empty-state copy tracks group titles */
   line-height: var(--leading-compact);
-}
-
-/* Same 22px compensation as the time-group headers: a project body no longer
-   indents its own content. */
-.sidebar-session-group-body.project .sidebar-session-empty {
-  padding-left: 30px;
 }
 
 .sidebar-pinned-sessions {

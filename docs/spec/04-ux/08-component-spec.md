@@ -219,10 +219,10 @@ does not duplicate it. Keyboard shortcuts and the application menu remain
 available.)
 
 The top bar carries no per-session status indicator. Run and needs-input state
-lives on the sidebar session row status indicator — a solid capsule pinned inside
-the status lane every row reserves on its own left edge, so the marker never
-trades width with the title it labels — and the row shows the session title alone,
-which keeps the title cluster calm (D444, D445, D450, §3).
+lives on the sidebar session row status pill — a labelled capsule pinned inside
+the status lane every row reserves on its own left edge, so the pill column and
+the title column are stable whether or not a row carries a status (D444, D445,
+D451, §3).
 The conversation top bar renders for the chat route only;
 Pull requests, Scheduled, Plugins, and Settings keep the frameless drag band. It
 owns the task title and window actions only. Project scope remains in the title
@@ -369,7 +369,7 @@ tier; weight, indentation, and disclosure icons preserve their hierarchy:
 | Surface | Token | Notes |
 |---|---|---|
 | Footer action icons | `--text-base` (14px) | Settings, Extensions, notifications; left side of footer |
-| Session / thread titles | `--text-md` (13px) | Compact list content; a row's only text — the transcript's newest message no longer renders under the title (D450) |
+| Session / thread titles | `--text-md` (13px) | Compact list content; the row's list text beside its status pill's short word — the transcript's newest message no longer renders under the title (D450, D451) |
 | Project / group titles, empty copy | `--text-md` (13px) | Hierarchy comes from weight and indentation |
 | Section labels (`PINNED`, `SESSIONS`, `PROJECTS`) | `--text-sm` (12px) | Uppercase secondary labels; global pin project context uses the same size |
 | Footer profile name + profile menu items | `--text-base` (14px) | Identity cluster matches nav body |
@@ -386,13 +386,13 @@ visually distinct from list content.
 | Expanded | Full session titles visible |
 | Sidebar width | Fixed at 275px; collapse/open changes only column presence |
 | Collapsed | Icon rail — hover shows tooltip with session title |
-| Active session | Accent-blue outlined status ring plus active row background |
+| Active session | Accent-blue outlined status pill plus active row background |
 | Selecting session | Destination row receives the active treatment immediately while transcript/workspace resolution continues |
-| Session needs input | A solid purple capsule pinned inside the row's own status lane (`--ds-sidebar-status-lane`), pulsing, when a permission request, asktool question, or Plan/Goal approval awaits the user; outranks in-progress; static under reduced motion; the state is named by the capsule's tooltip and accessible label, never by a word in the row (D444, D445, D450) |
-| Session in progress | A solid orange capsule in the same lane, breathing; static under reduced motion (D445, D450) |
-| Session completed | Green check mark from the latest unread task notification when the row is not selected; it sits in that same lane, so the title column does not move (D445, D450) |
-| Session failed | Red circled alert mark from the latest unread task notification when the row is not selected; same lane, same title column (D445, D450) |
-| Session title alignment | Every row reserves `--ds-sidebar-status-lane` (22px) of its own left edge for the marker and starts its title right after it, so a quiet row and a marked row share one title column and no marker ever costs its title width; the lane is inside the row button, so the marker stays part of the click target (D450) |
+| Session needs input | A solid purple pill pinned inside the row's own status lane (`--ds-sidebar-status-lane`), its dot pulsing, when a permission request, asktool question, or Plan/Goal approval awaits the user; outranks in-progress; static under reduced motion; the pill carries its short locale word in the row and the full phrase on its tooltip and accessible label (D444, D445, D451) |
+| Session in progress | A solid orange pill in the same lane carrying its short word, its dot breathing; static under reduced motion (D445, D451) |
+| Session completed | A tinted green pill with a check mark and its short word, from the latest unread task notification when the row is not selected; it sits in that same lane (D445, D451) |
+| Session failed | A tinted red pill with a circled alert mark and its short word, from the latest unread task notification when the row is not selected; same lane, same title column (D445, D451) |
+| Session title alignment | Every row reserves `--ds-sidebar-status-lane` (80px) of its own left edge for the pill and starts its title right after it, so a quiet row and a marked row share one title column and the column never reflows when a session gains a state; the lane is inside the row button, so the pill stays part of the click target (D451) |
 | Hover session | bg-tertiary background |
 | Active project | Header carries active state; topbar follows that workspace; composer exposes no workspace identity |
 | Collapsed project | Header remains visible; unpinned child conversations are hidden; global pins remain visible |

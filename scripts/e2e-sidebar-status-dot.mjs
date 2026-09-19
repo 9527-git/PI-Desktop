@@ -6,21 +6,21 @@
  * renderer over CDP: seeds one sidebar row per state through the capture rig
  * (selected / running / permission / ask / plan) and asserts the D444 contract —
  *
- *   - the running row breathes in the warning token;
- *   - permission, ask, and Plan/Goal approval rows all render the SAME
- *     needs-input dot (class `permission`, purple pulse), proving the union;
- *   - the selected row keeps its accent ring and no animation;
+ *   - the running pill is a solid warning capsule whose dot breathes;
+ *   - permission, ask, and Plan/Goal approval rows all render the SAME solid
+ *     needs-input pill (class `permission`, purple), proving the union;
+ *   - the selected row keeps a quiet outlined accent pill and no animation;
  *   - the conversation topbar carries no status slot/chip of its own;
  *   - prefers-reduced-motion disables every dot animation;
- *   - both themes resolve the dots to their own warning/purple tokens.
+ *   - both themes resolve the pills to their own warning/purple tokens.
  *
- * and the D450 contract on top of it — the row shows the session title alone
- * (no transcript line, no status word), and every row reserves a fixed status
- * lane on its own left edge: the marker is pinned inside that lane, so the title
- * column starts on the same x whether or not the row carries a status, the two
- * attention states read as a solid capsule in their own token, and the lane's
- * leading glyph stays on the project header's own axis. The full phrase lives on
- * the marker's tooltip and accessible name.
+ * and the D451 contract on top of it — every pill names its state in the row
+ * with a short locale word (never clipped), every row reserves the same fixed
+ * status lane on its own left edge so the pill column and the title column are
+ * stable whether or not a row carries a status, and the list's furniture keeps
+ * one text column: a project header's name starts on the session titles'
+ * column and a time separator rides the lane. The full phrase lives on the
+ * pill's tooltip and accessible name.
  *
  * Screenshots land in PI_DESKTOP_E2E_ARTIFACT_DIR (or a temp dir) for visual
  * inspection.
@@ -143,8 +143,9 @@ async function waitFor(predicate, label, timeoutMs = 60_000) {
   );
 }
 
-// Probes every seeded row plus the shared tokens. The dot's painted color and
-// animation live on the ::before pseudo-element, so we read that explicitly.
+// Probes every seeded row plus the shared tokens. The pill's fill, its word and
+// its dot's motion are what the eye reads, so all three are measured directly,
+// along with the lane geometry the row reserves around them.
 function probeExpression(ids) {
   return `((ids) => {
   const token = (name) => {
@@ -155,37 +156,40 @@ function probeExpression(ids) {
     probe.remove();
     return value;
   };
+  const cssPx = (name) => {
+    const probe = document.createElement("span");
+    // An inline box ignores a set width, which silently resolved every lane
+    // token to 0; the probe has to be a block for the variable to become pixels.
+    probe.style.display = "block";
+    probe.style.width = "var(" + name + ")";
+    document.body.appendChild(probe);
+    const value = probe.getBoundingClientRect().width;
+    probe.remove();
+    return Math.round(value);
+  };
   const rowInfo = (id) => {
     const row = document.querySelector('[data-sidebar-session-row="' + id + '"]');
     const status = row ? row.querySelector(".thread-item-status") : null;
     if (!status) return { present: false };
-    const before = getComputedStyle(status, "::before");
     const cs = getComputedStyle(status);
+    const word = status.querySelector(".thread-item-status-word");
+    const dot = status.querySelector(".thread-item-status-dot");
     const title = row.querySelector(".thread-item-title");
     const rowBox = row.getBoundingClientRect();
     const statusBox = status.getBoundingClientRect();
     const titleBox = title ? title.getBoundingClientRect() : null;
-    const beforeWidth = parseFloat(before.width) || 0;
-    // The lane box is 22px wide whatever the marker inside it, so the capsule's
-    // own edges — not the lane's — are what the eye reads against the title.
-    const capsuleLeft = statusBox.left + (statusBox.width - beforeWidth) / 2;
-    const capsuleCenter = statusBox.left + statusBox.width / 2;
-    // D450: the marker gutter is the group's own left band, so the project
-    // header's disclosure glyph should stay on the capsule's axis.
-    const headerGlyph =
-      row.closest(".sidebar-session-group")?.querySelector(".sidebar-disclosure-icon") ?? null;
-    const headerBox = headerGlyph ? headerGlyph.getBoundingClientRect() : null;
     return {
       present: true,
       stateClass: [...status.classList].find((c) => c !== "thread-item-status") ?? null,
       label: status.getAttribute("aria-label"),
       tooltip: status.getAttribute("title"),
-      color: cs.color,
-      beforeBackground: before.backgroundColor,
-      beforeAnimation: before.animationName,
-      beforeBorderTopColor: before.borderTopColor,
-      beforeWidth,
-      beforeHeight: parseFloat(before.height) || 0,
+      word: word ? word.textContent : null,
+      wordClipped: word ? word.scrollWidth > word.clientWidth : null,
+      pillBackground: cs.backgroundColor,
+      pillInk: cs.color,
+      pillBorder: cs.borderTopColor,
+      pillHeight: Math.round(statusBox.height),
+      dotAnimation: dot ? getComputedStyle(dot).animationName : null,
       markerPosition: cs.position,
       // D446: the status group must stay centred on the whole row, not drift onto
       // one of its lines.
@@ -193,23 +197,32 @@ function probeExpression(ids) {
         statusBox.top + statusBox.height / 2 - (rowBox.top + rowBox.height / 2),
       ),
       previewShown: !!row.querySelector(".thread-item-preview"),
-      statusWordShown: !!row.querySelector(".thread-item-status-label"),
-      chipShown: !!row.querySelector(".thread-item-status-chip"),
       titleShown: !!title,
-      // D450: the lane belongs to the row button, so the marker is part of the
+      // D451: the lane belongs to the row button, so the pill is part of the
       // click target and never shares the title's line.
-      markerLeft: Math.round(statusBox.left - rowBox.left),
-      markerRight: Math.round(statusBox.right - rowBox.left),
       insideRowButton: !!status.closest("button.thread-item-main"),
+      markerLeft: Math.round(statusBox.left - rowBox.left),
+      pillRight: Math.round(statusBox.right - rowBox.left),
       titleLeft: titleBox ? Math.round(titleBox.left - rowBox.left) : null,
-      capsuleGapToTitle: titleBox
-        ? Math.round(titleBox.left - (capsuleLeft + beforeWidth))
-        : null,
-      markerHeaderAxisOffset: headerBox
-        ? Math.round(headerBox.left + headerBox.width / 2 - capsuleCenter)
-        : null,
     };
   };
+  // D451: the list keeps one text column. A project header's name starts on the
+  // session titles' column with its glyph cluster inside the lane, and a time
+  // separator rides the lane with its own head start.
+  const groupEl = document.querySelector(".sidebar-session-group.project-group");
+  const groupLeft = groupEl ? groupEl.getBoundingClientRect().left : null;
+  const rel = (el) =>
+    el && groupLeft !== null
+      ? Math.round(el.getBoundingClientRect().left - groupLeft)
+      : null;
+  const groupRow = groupEl ? groupEl.querySelector(".thread-item") : null;
+  const headerName = groupEl
+    ? groupEl.querySelector(".sidebar-session-group-title.project-toggle > span")
+    : null;
+  const headerNameLeft = rel(headerName);
+  const groupTitleLeft = rel(groupRow ? groupRow.querySelector(".thread-item-title") : null);
+  const headerGlyphLeft = rel(groupEl ? groupEl.querySelector(".sidebar-disclosure-icon") : null);
+  const timeHeader = document.querySelector(".sidebar-time-group-header");
   const topbar = document.querySelector(".conversation-topbar");
   return {
     rows: {
@@ -219,9 +232,18 @@ function probeExpression(ids) {
       ask: rowInfo(ids.ask),
       plan: rowInfo(ids.plan),
     },
+    laneWidth: cssPx("--ds-sidebar-status-lane"),
+    pillGap: cssPx("--ds-sidebar-status-pill-gap"),
     warningToken: token("--ds-warning"),
     purpleToken: token("--ds-purple"),
     accentToken: token("--ds-accent"),
+    inkToken: token("--ds-status-ink"),
+    headerNameLeft,
+    groupTitleLeft,
+    headerGlyphLeft,
+    timeHeaderLeft: timeHeader
+      ? Math.round(parseFloat(getComputedStyle(timeHeader).paddingLeft))
+      : null,
     topbarHasStatusSlot: !!topbar && !!topbar.querySelector(".ct-status-slot"),
     topbarHasChip: !!topbar && !!topbar.querySelector(".ct-status-chip"),
     reducedMotion: matchMedia("(prefers-reduced-motion: reduce)").matches,
@@ -382,25 +404,28 @@ async function main() {
 
     const base = await probe(ids);
 
-    // 1. Running row breathes in the warning token.
+    // 1. D451: the running pill is a solid warning capsule that names its state,
+    //    and its dot carries the breathe motion.
     check(
       base.rows.running.present &&
         base.rows.running.stateClass === "running" &&
-        base.rows.running.beforeAnimation === "sidebar-status-breathe" &&
-        base.rows.running.beforeBackground === base.warningToken,
-      "the running row shows an orange breathing dot",
+        base.rows.running.dotAnimation === "sidebar-status-breathe" &&
+        base.rows.running.pillBackground === base.warningToken &&
+        base.rows.running.pillInk === base.inkToken,
+      "the running row shows a solid warning pill whose dot breathes",
       JSON.stringify(base.rows.running),
     );
 
-    // 2. Permission / ask / plan rows all render the SAME needs-input dot.
+    // 2. Permission / ask / plan rows all render the SAME solid needs-input pill.
     for (const source of ["permission", "ask", "plan"]) {
       const row = base.rows[source];
       check(
         row.present &&
           row.stateClass === "permission" &&
-          row.beforeAnimation === "sidebar-status-pulse-purple" &&
-          row.beforeBackground === base.purpleToken,
-        `a pending ${source} raises the purple needs-input dot`,
+          row.dotAnimation === "sidebar-status-pulse-purple" &&
+          row.pillBackground === base.purpleToken &&
+          row.pillInk === base.inkToken,
+        `a pending ${source} raises the solid purple needs-input pill`,
         JSON.stringify(row),
       );
     }
@@ -419,103 +444,129 @@ async function main() {
       }),
     );
 
-    // 3. Selected row keeps its accent ring and never animates.
+    // 3. The selected row keeps a quiet outlined accent pill and never animates.
+    //    D451 gives the quiet states no dot at all, so "no animation" is either a
+    //    missing dot (null) or a dot whose animation resolved to `none`.
     check(
       base.rows.selected.present &&
         base.rows.selected.stateClass === "selected" &&
-        base.rows.selected.beforeAnimation === "none" &&
-        base.rows.selected.beforeBorderTopColor === base.accentToken,
-      "the selected row shows a static accent ring",
+        (base.rows.selected.dotAnimation === null ||
+          base.rows.selected.dotAnimation === "none") &&
+        base.rows.selected.pillBorder === base.accentToken &&
+        base.rows.selected.pillInk === base.accentToken,
+      "the selected row shows a static outlined accent pill",
       JSON.stringify(base.rows.selected),
     );
 
-    // 4. D450: the attention states are a solid capsule in their own token, the
-    //    row carries its title alone, and the state is named by the marker's
-    //    accessible name instead of a word competing for row width.
-    const capsuleIsOneGroup = (row, token) =>
+    // 4. D451: every state is named in the row. Each pill carries its short
+    //    locale word unclipped beside its dot or glyph, the row still shows its
+    //    title alone, and the full phrase stays on the pill's tooltip and
+    //    accessible name.
+    const pillIsLabelled = (row) =>
       row.titleShown === true &&
       row.previewShown === false &&
-      row.statusWordShown === false &&
-      row.chipShown === false &&
-      row.beforeWidth === 16 &&
-      row.beforeHeight === 8 &&
-      row.beforeBackground === token &&
-      Math.abs(row.statusCenterOffset) <= 2 &&
+      typeof row.word === "string" &&
+      row.word.length > 0 &&
+      row.wordClipped === false &&
       typeof row.label === "string" &&
       row.label.length > 0 &&
       row.label === row.tooltip;
     check(
-      capsuleIsOneGroup(base.rows.running, base.warningToken),
-      "the running row shows a solid warning capsule and its title alone",
+      pillIsLabelled(base.rows.running),
+      "the running row's pill carries its short word unclipped",
       JSON.stringify(base.rows.running),
     );
     for (const source of ["permission", "ask", "plan"]) {
-      const row = base.rows[source];
       check(
-        capsuleIsOneGroup(row, base.purpleToken),
-        `a pending ${source} shows the shared solid needs-input capsule, title only`,
-        JSON.stringify(row),
+        pillIsLabelled(base.rows[source]),
+        `a pending ${source}'s pill carries the shared needs-input word unclipped`,
+        JSON.stringify(base.rows[source]),
       );
     }
     check(
-      base.rows.selected.previewShown === false &&
-        base.rows.selected.statusWordShown === false &&
-        base.rows.selected.beforeWidth === 9 &&
-        base.rows.selected.titleShown,
-      "the selected row keeps its quiet ring and carries its title alone",
+      pillIsLabelled(base.rows.selected),
+      "the selected row's pill carries its short word unclipped",
       JSON.stringify(base.rows.selected),
     );
 
-    // 4b. D450: every row reserves the same status lane on its own left edge, so
-    //     the title column never moves for a status and the marker never trades
-    //     width with the title it labels.
+    // 4b. D451: every row reserves the same fixed lane on its own left edge, so
+    //     the title column is stable whether or not a row carries a status. The
+    //     pill hugs its own word inside that lane and must never cross the gap
+    //     into the title column.
     const attentionRows = ["running", "permission", "ask", "plan"].map(
       (key) => base.rows[key],
     );
     const everyRow = [base.rows.selected, ...attentionRows];
+    const laneCap = base.laneWidth - base.pillGap;
     check(
-      everyRow.every(
-        (row) =>
-          row.markerPosition === "absolute" &&
-          row.markerLeft === 0 &&
-          row.markerRight === 22 &&
-          row.insideRowButton,
-      ),
-      "every marker is pinned inside its own row's 22px lane, inside the row button",
-      JSON.stringify(
-        everyRow.map((row) => [
+      base.laneWidth > 0 &&
+        base.pillGap > 0 &&
+        everyRow.every(
+          (row) =>
+            row.markerPosition === "absolute" &&
+            row.markerLeft === 0 &&
+            row.pillRight > 0 &&
+            row.pillRight <= laneCap &&
+            row.insideRowButton,
+        ),
+      "every pill hugs its word inside its own row's lane without crossing into the title column",
+      JSON.stringify({
+        laneWidth: base.laneWidth,
+        pillGap: base.pillGap,
+        rows: everyRow.map((row) => [
           row.markerPosition,
           row.markerLeft,
-          row.markerRight,
+          row.pillRight,
           row.insideRowButton,
         ]),
-      ),
+      }),
     );
     check(
-      everyRow.every((row) => row.titleLeft === 22),
-      "every row's title starts on the same x, status or not",
+      everyRow.every((row) => row.titleLeft === base.laneWidth),
+      "every row's title starts on the lane's end, status or not",
       JSON.stringify(everyRow.map((row) => row.titleLeft)),
     );
     check(
-      attentionRows.every((row) => row.capsuleGapToTitle >= 2 && row.capsuleGapToTitle <= 6),
-      "each capsule clears the title column without a dead band",
-      JSON.stringify(
-        attentionRows.map((row) => ({
-          capsuleGapToTitle: row.capsuleGapToTitle,
-          titleLeft: row.titleLeft,
-        })),
+      everyRow.every(
+        (row) => row.pillHeight === 20 && Math.abs(row.statusCenterOffset) <= 2,
       ),
+      "every pill keeps the row's vertical centre without changing the row pitch",
+      JSON.stringify(everyRow.map((row) => [row.pillHeight, row.statusCenterOffset])),
+    );
+
+    // 4c. D451: the list keeps one text column. A project header's name starts on
+    //     the session titles' column with its glyph cluster inside the lane, and
+    //     a time separator rides the lane with its own head start. A null
+    //     measurement means the fixture seeded no such furniture, so the detail
+    //     says SKIPPED instead of letting an unmeasured check read as a real one.
+    const skipNote = (missing) => (missing ? " — SKIPPED: furniture not seeded" : "");
+    const noGroup = base.groupTitleLeft === null;
+    check(
+      base.headerNameLeft === null ||
+        noGroup ||
+        Math.abs(base.headerNameLeft - base.groupTitleLeft) <= 1,
+      "a project header's name starts on the session titles' column",
+      JSON.stringify({
+        headerNameLeft: base.headerNameLeft,
+        groupTitleLeft: base.groupTitleLeft,
+      }) + skipNote(base.headerNameLeft === null || noGroup),
     );
     check(
-      attentionRows.every(
-        (row) =>
-          row.markerHeaderAxisOffset === null ||
-          Math.abs(row.markerHeaderAxisOffset) <= 6,
-      ),
-      "a capsule under a project header stays on that header's own axis",
-      JSON.stringify(
-        attentionRows.map((row) => row.markerHeaderAxisOffset),
-      ),
+      base.headerGlyphLeft === null ||
+        noGroup ||
+        (base.headerGlyphLeft >= 0 && base.headerGlyphLeft < base.groupTitleLeft),
+      "a project header's glyph cluster stays inside the status lane",
+      JSON.stringify({
+        headerGlyphLeft: base.headerGlyphLeft,
+        groupTitleLeft: base.groupTitleLeft,
+      }) + skipNote(base.headerGlyphLeft === null || noGroup),
+    );
+    check(
+      base.timeHeaderLeft === null ||
+        Math.abs(base.timeHeaderLeft - (base.laneWidth + 20)) <= 1,
+      "a time separator rides the lane with its own head start",
+      JSON.stringify({ timeHeaderLeft: base.timeHeaderLeft, laneWidth: base.laneWidth }) +
+        skipNote(base.timeHeaderLeft === null),
     );
 
     // 5. The topbar carries no status slot/chip of its own (D444 relocation).
@@ -530,21 +581,21 @@ async function main() {
 
     await screenshot("sidebar-status-union-dark");
 
-    // 6. Both themes paint the capsules with their own tokens.
+    // 6. Both themes paint the pills with their own tokens.
     for (const theme of ["light", "dark"]) {
       await cdp.evaluate(`window.__PI_DESKTOP__.setThemeAttr("${theme}")`);
       await delay(250);
       await forceFrame();
       const themed = await probe(ids);
       check(
-        themed.rows.running.beforeBackground === themed.warningToken &&
-          themed.rows.permission.beforeBackground === themed.purpleToken,
-        `the ${theme} theme paints the running and needs-input capsules in their own tokens`,
+        themed.rows.running.pillBackground === themed.warningToken &&
+          themed.rows.permission.pillBackground === themed.purpleToken,
+        `the ${theme} theme paints the running and needs-input pills in their own tokens`,
         JSON.stringify({
           theme,
-          running: themed.rows.running.beforeBackground,
+          running: themed.rows.running.pillBackground,
           warning: themed.warningToken,
-          permission: themed.rows.permission.beforeBackground,
+          permission: themed.rows.permission.pillBackground,
           purple: themed.purpleToken,
         }),
       );
@@ -562,12 +613,12 @@ async function main() {
     const reduced = await probe(ids);
     check(
       reduced.reducedMotion === true &&
-        reduced.rows.running.beforeAnimation === "none" &&
-        reduced.rows.permission.beforeAnimation === "none",
+        reduced.rows.running.dotAnimation === "none" &&
+        reduced.rows.permission.dotAnimation === "none",
       "prefers-reduced-motion disables the running and needs-input animations",
       JSON.stringify({
-        running: reduced.rows.running.beforeAnimation,
-        permission: reduced.rows.permission.beforeAnimation,
+        running: reduced.rows.running.dotAnimation,
+        permission: reduced.rows.permission.dotAnimation,
       }),
     );
     await screenshot("sidebar-status-union-reduced-motion");
@@ -576,12 +627,12 @@ async function main() {
     await forceFrame();
     const restored = await probe(ids);
     check(
-      restored.rows.running.beforeAnimation === "sidebar-status-breathe" &&
-        restored.rows.permission.beforeAnimation === "sidebar-status-pulse-purple",
+      restored.rows.running.dotAnimation === "sidebar-status-breathe" &&
+        restored.rows.permission.dotAnimation === "sidebar-status-pulse-purple",
       "clearing the emulated preference restores both animations",
       JSON.stringify({
-        running: restored.rows.running.beforeAnimation,
-        permission: restored.rows.permission.beforeAnimation,
+        running: restored.rows.running.dotAnimation,
+        permission: restored.rows.permission.dotAnimation,
       }),
     );
 

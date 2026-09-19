@@ -124,6 +124,10 @@
   --ds-error: #ff6764;
   --ds-info: var(--gray-300);
   --ds-purple: #c27aff;
+  /* D451: ink for a pill whose fill is a solid semantic token. Warning orange
+     and purple are light in both themes, so one dark ink keeps the pill's word
+     readable without a per-state foreground. */
+  --ds-status-ink: var(--gray-900);
   --ds-blue: #5ca7ff;
   --ds-yellow: #ffd23f;
   --ds-shadow-dialog: 0 16px 48px rgba(0, 0, 0, 0.55);
@@ -133,12 +137,16 @@
   --ds-shadow-composer: 0 3px 7.5px #0000000a, 0 0 20px #0000000d;
   --ds-bg-elevated-primary: color-mix(in oklab, var(--gray-800) 96%, transparent);
   --ds-sidebar-width: clamp(240px, 275px, min(520px, calc(100vw - 320px)));
-  /* D450: every sidebar session row reserves this much of its own left edge for
-     the status marker, and the title column starts right after it - at the same
-     x a quiet row's title already used before the marker existed. The marker is
-     pinned inside that lane, so it never costs the title a pixel of width and
-     every row's title shares one left edge, status or not. */
-  --ds-sidebar-status-lane: 22px;
+  /* D451: every sidebar session row reserves this much of its own left edge for
+     its status pill, and the title column starts right after the lane, so a
+     quiet row and a marked row still share one title column. The lane is the
+     pill's fixed column - wide enough for the longest shipped short state word
+     beside its dot - and every row pays it, so the column never reflows when a
+     session gains or loses a state. */
+  --ds-sidebar-status-lane: 80px;
+  /* D451: the pill's clearance from the title column, taken out of the lane
+     rather than added to it, so the title column keeps the lane's exact end. */
+  --ds-sidebar-status-pill-gap: 6px;
   /* Settings rail border-box width, including its 1px right border. The
    * settings drag band starts after the rail so the rail keeps a single
    * surface tone from the window top edge down. */
