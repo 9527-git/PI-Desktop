@@ -1597,38 +1597,43 @@ and identify the platform validation still needed.
   app plus a host-core binary are available (the CDP runner supplies its own
   throwaway profile and seeds the rows through the capture rig).
 - **Steps**: 1) Seed one row per state — selected, running, permission, ask,
-  Plan/Goal approval. 2) Inspect each row's status marker, its own status lane, and
-  where the row's title starts, against the project header's disclosure glyph.
+  Plan/Goal approval. 2) Inspect each row's status pill, its own status lane,
+  where the row's title starts, and where the project header's name starts.
   3) Repeat the running and needs-input rows in light and dark themes.
   4) Re-inspect under `prefers-reduced-motion: reduce`, then after clearing it.
   5) Confirm the conversation topbar carries no status slot or chip.
-- **Expected**: The running row shows a solid orange 16×8 capsule
-  (`--ds-warning`, `sidebar-status-breathe`). The permission, ask, and Plan/Goal
-  rows all render the SAME needs-input marker — class `permission`, a solid purple
-  16×8 capsule (`--ds-purple`, `sidebar-status-pulse-purple`) — proving the D444
-  union, and share one accessible label (`nav.sessionNeedsInput`) distinct from the
-  running label, which is also that marker's tooltip. The needs-input marker
-  outranks running. The selected row keeps its static accent ring. Both themes
-  resolve each capsule to its own warning/purple token. With
-  `prefers-reduced-motion: reduce` every animation is off, and clearing the
-  preference restores them. No row carries a status word or a second line of
-  transcript text: the row's only text is its title, and no `.thread-item-preview`,
-  `.thread-item-status-label`, or `.thread-item-status-chip` renders. Per D450 each
-  row reserves a 22px status lane on its own left edge: every marker is absolutely
-  pinned inside that lane (left edge 0, right edge 22px from the row's own edge),
-  every row's title starts at exactly 22px from that edge whether or not the row
-  carries a status, each capsule clears the title column by 2–6px, and the marker
-  belongs to the row's own button, so clicking it selects that session. A capsule
-  under a project header stays on that header's disclosure-glyph axis rather than
-  sticking out of it. The conversation topbar has no `.ct-status-slot` or
-  `.ct-status-chip`. No IPC, host, or persisted state is touched.
+- **Expected**: The running row shows a solid orange pill carrying its short
+  locale word (`--ds-warning`, `sidebar-status-breathe` on the pill's dot). The
+  permission, ask, and Plan/Goal rows all render the SAME needs-input pill —
+  class `permission`, a solid purple pill (`--ds-purple`,
+  `sidebar-status-pulse-purple` on the dot) — proving the D444 union, and share
+  one accessible label (`nav.sessionNeedsInput`) distinct from the running
+  label, which is also that pill's tooltip. The needs-input pill outranks
+  running. The selected row keeps its quiet outlined accent pill. Both themes
+  resolve each pill to its own warning/purple token with the shared dark ink.
+  With `prefers-reduced-motion: reduce` every animation is off, and clearing the
+  preference restores them. Every pill carries its state's short locale word
+  unclipped (`nav.session<State>Short`), and no row renders a second line of
+  transcript text: no `.thread-item-preview`, `.thread-item-status-label`, or
+  `.thread-item-status-chip` renders. Per D451 each row reserves an 80px status
+  lane on its own left edge: every pill is a 20px-tall tag absolutely pinned at
+  that lane's start (left edge 0) which hugs its own word and is capped at
+  `lane - --ds-sidebar-status-pill-gap`, so it never reaches the title column;
+  every row's title starts at exactly the lane's end whether or not the row
+  carries a status, and the pill belongs to the row's own button, so clicking it
+  selects that session. The list keeps one text column: a project header's name
+  starts on the session titles' column with its glyph cluster inside the lane,
+  and a time separator rides the lane with its own head start. The conversation
+  topbar has no `.ct-status-slot` or `.ct-status-chip`. No IPC, host, or
+  persisted state is touched.
 - **Specs linked**: `04-ux/07-ui-design-system.md` §4.5, `04-ux/08-component-spec.md` §2/§3
 - **Acceptance**: Quality
 - **Milestone**: Post-M6 desktop shell maintenance
 - **Status**: Automated (`scripts/e2e-sidebar-status-dot.mjs` via
-  `pnpm test:e2e:sidebar-status` — per-row marker state, union parity, label,
-  priority, both-theme tokens, the 22px lane and its shared title column, the
-  title-only row, reduced-motion, and the topbar-absence probe);
+  `pnpm test:e2e:sidebar-status` — per-row pill state, union parity, label,
+  priority, both-theme tokens, the 80px lane, its shared title column, the
+  unclipped short words, the one text column, reduced-motion, and the
+  topbar-absence probe);
   unit coverage in `sidebar-session-status.test.mjs`
 
 #### E2E-CHAT-turn-usage-and-timestamps: Completed replies show per-turn token usage and message times

@@ -103,7 +103,7 @@ test("opening a conversation acknowledges its outcome badge", () => {
   assert.match(ackBlock, /markNotificationRead\(item\.id\)/);
 });
 
-test("renders semantic, shape-distinct sidebar status indicators", () => {
+test("renders word-bearing sidebar status pills in a fixed lane", () => {
   const sidebar = fs.readFileSync(
     new URL("../src/components/Sidebar.tsx", import.meta.url),
     "utf8",
@@ -125,15 +125,30 @@ test("renders semantic, shape-distinct sidebar status indicators", () => {
   assert.match(sidebar, /pendingAsks\[session\.id\][\s\S]*pendingPlans\[session\.id\]/);
   assert.match(sidebar, /nav\.sessionNeedsInput/);
   assert.doesNotMatch(sidebar, /nav\.sessionPermission/);
-  assert.match(styles, /thread-item-status\.running::before[\s\S]*--ds-warning/);
-  assert.match(styles, /thread-item-status\.permission::before[\s\S]*--ds-purple/);
-  assert.match(styles, /thread-item-status\.selected::before[\s\S]*--ds-accent/);
-  assert.match(styles, /thread-item-status\.completed[\s\S]*--ds-success/);
-  assert.match(styles, /thread-item-status\.failed[\s\S]*--ds-error/);
-  // D450: the row shows the session title alone. The marker is pinned inside the
-  // lane each row reserves on its own left edge, so it never trades width with
-  // the title it labels and no locale word has to fit beside it — the state is
-  // named by the marker's own tooltip and accessible name.
+  // D451: every state pill names itself with the state's own token colour.
+  assert.match(styles, /thread-item-status\.running \{[\s\S]*?--ds-warning/);
+  assert.match(styles, /thread-item-status\.permission \{[\s\S]*?--ds-purple/);
+  assert.match(styles, /thread-item-status\.selected \{[\s\S]*?--ds-accent/);
+  assert.match(styles, /thread-item-status\.completed \{[\s\S]*?--ds-success/);
+  assert.match(styles, /thread-item-status\.failed \{[\s\S]*?--ds-error/);
+  // D451: the pill carries the state's short word in the row, so the state is
+  // named at a glance; the full phrase stays on the pill's tooltip and
+  // accessible name. The two attention states stay solid fills with the shared
+  // dark ink, so they still read as mass the way the bare capsule did.
+  const runningRule = styles.match(/^\.thread-item-status\.running \{[^}]*\}/m)?.[0] ?? "";
+  const permissionRule =
+    styles.match(/^\.thread-item-status\.permission \{[^}]*\}/m)?.[0] ?? "";
+  assert.match(runningRule, /background: var\(--ds-warning\)/);
+  assert.match(runningRule, /color: var\(--ds-status-ink\)/);
+  assert.match(permissionRule, /background: var\(--ds-purple\)/);
+  assert.match(permissionRule, /color: var\(--ds-status-ink\)/);
+  assert.match(sidebar, /sessionStatusShortLabel/);
+  assert.match(sidebar, /nav\.sessionRunningShort[\s\S]*nav\.sessionNeedsInputShort/);
+  assert.match(sidebar, /thread-item-status-dot/);
+  assert.match(sidebar, /thread-item-status-word/);
+  // The row still shows the session title alone, and every row keeps reserving
+  // the same lane on its own left edge — now wide enough for the pill's word —
+  // so the column never reflows when a session gains a state.
   assert.match(
     sidebar,
     /className="thread-item-main"[\s\S]*?\{status \? renderSessionStatus\(status\) : null\}/,
@@ -141,43 +156,60 @@ test("renders semantic, shape-distinct sidebar status indicators", () => {
   assert.doesNotMatch(sidebar, /renderSessionStatusChip|thread-item-status-chip/);
   assert.doesNotMatch(sidebar, /isAttentionStatus|thread-item-status-label/);
   assert.doesNotMatch(sidebar, /thread-item-preview|session\.lastMessage/);
-  assert.doesNotMatch(sidebar, /nav\.sessionRunningShort|nav\.sessionNeedsInputShort/);
   assert.doesNotMatch(sidebar, /className="thread-item-title-row/);
   for (const locale of ["de", "en", "es", "fr", "ko", "tr", "zh-CN", "zh-TW"]) {
     const source = fs.readFileSync(
       new URL(`../../../packages/i18n/src/locales/${locale}/index.ts`, import.meta.url),
       "utf8",
     );
-    assert.doesNotMatch(source, /sessionRunningShort|sessionNeedsInputShort/);
+    // Every shipped locale carries a short word per state, and a short word
+    // never outgrows the full phrase it abbreviates (counted in code points, so
+    // CJK labels compare fairly).
+    for (const state of ["Running", "Selected", "Completed", "Failed", "NeedsInput"]) {
+      const long = source.match(new RegExp(`"?session${state}"?:\\s*"([^"]+)"`));
+      const short = source.match(new RegExp(`"?session${state}Short"?:\\s*"([^"]+)"`));
+      assert.ok(long && short, `${locale} ships session${state} and its Short form`);
+      assert.ok(
+        [...short[1]].length <= [...long[1]].length,
+        `${locale} session${state}Short must not outgrow the full phrase: "${short[1]}" vs "${long[1]}"`,
+      );
+    }
   }
-  // The lane is the row button's own left padding, so the marker stays inside the
-  // click target, and the list body no longer hangs its rows inside the project
-  // block — the title column keeps the x it had before the marker existed.
-  assert.match(styles, /--ds-sidebar-status-lane: 22px/);
+  // The lane is the row button's own left padding, so the pill stays inside the
+  // click target, and the pill's clearance to the title column comes out of the
+  // lane rather than adding to it.
+  assert.match(styles, /--ds-sidebar-status-lane: 80px/);
+  assert.match(styles, /--ds-sidebar-status-pill-gap: 6px/);
+  assert.match(styles, /--ds-status-ink: var\(--gray-900\)/);
   assert.doesNotMatch(styles, /--ds-sidebar-status-gap|--ds-sidebar-status-column/);
   assert.doesNotMatch(styles, /thread-item-status-chip|thread-item-status-label/);
   assert.doesNotMatch(styles, /\.thread-item-preview \{/);
   const mainRule = styles.match(/^\.thread-item-main \{[^}]*\}/m)?.[0] ?? "";
   assert.match(mainRule, /padding: 5px 6px 5px var\(--ds-sidebar-status-lane\)/);
-  const dotRule = styles.match(/^\.thread-item-status \{[^}]*\}/m)?.[0] ?? "";
-  assert.match(dotRule, /position: absolute/);
-  assert.match(dotRule, /left: 0/);
-  assert.match(dotRule, /width: var\(--ds-sidebar-status-lane\)/);
-  const capsuleRule =
-    styles.match(
-      /^\.thread-item-status\.running::before,\n\.thread-item-status\.permission::before \{[^}]*\}/m,
-    )?.[0] ?? "";
-  assert.match(capsuleRule, /width: 16px/);
-  assert.match(capsuleRule, /height: 8px/);
-  assert.match(capsuleRule, /border-radius: var\(--radius-full\)/);
+  const pillRule = styles.match(/^\.thread-item-status \{[^}]*\}/m)?.[0] ?? "";
+  assert.match(pillRule, /position: absolute/);
+  assert.match(pillRule, /left: 0/);
+  // The pill hugs its word like a tag and the lane only caps it, so a fixed
+  // `width` here would put the bar back; the cap keeps a long locale word from
+  // pushing into the title column.
+  assert.doesNotMatch(pillRule, /^\s*width:/m);
+  assert.match(
+    pillRule,
+    /max-width: calc\(var\(--ds-sidebar-status-lane\) - var\(--ds-sidebar-status-pill-gap\)\)/,
+  );
+  assert.match(pillRule, /height: 20px/);
+  assert.match(pillRule, /padding: 0 8px/);
+  assert.match(pillRule, /font-size: var\(--text-2xs\)/);
+  const wordRule = styles.match(/^\.thread-item-status-word \{[^}]*\}/m)?.[0] ?? "";
+  assert.match(wordRule, /text-overflow: ellipsis/);
   assert.doesNotMatch(styles, /thread-item-main:has\(/);
   assert.match(
     styles,
-    /prefers-reduced-motion: reduce[\s\S]*thread-item-status\.running::before[\s\S]*animation: none/,
+    /prefers-reduced-motion: reduce[\s\S]*thread-item-status\.running \.thread-item-status-dot[\s\S]*animation: none/,
   );
   assert.match(
     styles,
-    /prefers-reduced-motion: reduce[\s\S]*thread-item-status\.permission::before[\s\S]*animation: none/,
+    /prefers-reduced-motion: reduce[\s\S]*thread-item-status\.permission \.thread-item-status-dot[\s\S]*animation: none/,
   );
   assert.match(
     app,

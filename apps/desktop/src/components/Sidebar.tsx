@@ -980,12 +980,43 @@ export function Sidebar({
     return t(labelKey, { defaultValue: fallback });
   };
 
+  const sessionStatusShortLabel = (status: SidebarSessionStatus) => {
+    // D451: the pill names its state in the row, so each state carries a short
+    // locale word that fits the fixed status lane. The full phrase above stays
+    // on the pill's tooltip and accessible name.
+    const labelKey =
+      status === "running"
+        ? "nav.sessionRunningShort"
+        : status === "selected"
+          ? "nav.sessionSelectedShort"
+          : status === "completed"
+            ? "nav.sessionCompletedShort"
+            : status === "failed"
+              ? "nav.sessionFailedShort"
+              : "nav.sessionNeedsInputShort";
+    const fallback =
+      status === "running"
+        ? "Working"
+        : status === "selected"
+          ? "Selected"
+          : status === "completed"
+            ? "Done"
+            : status === "failed"
+              ? "Failed"
+              : "Input";
+    return t(labelKey, { defaultValue: fallback });
+  };
+
   const renderSessionStatus = (status: SidebarSessionStatus) => {
     const label = sessionStatusLabel(status);
     return (
       <span className={`thread-item-status ${status}`} aria-label={label} title={label}>
+        {status === "running" || status === "permission" ? (
+          <span className="thread-item-status-dot" aria-hidden />
+        ) : null}
         {status === "completed" ? <IconCheck size={10} aria-hidden /> : null}
         {status === "failed" ? <IconCircleAlert size={11} aria-hidden /> : null}
+        <span className="thread-item-status-word">{sessionStatusShortLabel(status)}</span>
       </span>
     );
   };

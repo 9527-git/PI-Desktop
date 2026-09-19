@@ -243,25 +243,29 @@ Light-surface polish (D148):
 
 ### 4.5 Sidebar task status semantics
 
-Compact task rows show their session title and nothing else. Each row reserves
-`--ds-sidebar-status-lane` (`22px`) of its own left edge for the status marker and
-starts its title right after that lane, so the marker is pinned where its title
-begins without ever trading width with it: a quiet row and a marked row share one
-title column (D450). The lane lives inside the row's own button, so the marker
-stays part of the click target that selects the session. State is never carried by
-text in the row, and each status consumes an existing semantic token rather than
-introducing a decorative palette:
+Compact task rows reserve `--ds-sidebar-status-lane` (`80px`) of their own left
+edge for a labelled status pill and start their title right after that lane, so
+a quiet row and a marked row still share one title column: the lane is the
+pill's fixed column, paid by every row, so the column never reflows when a
+session gains or loses a state (D451, superseding D450's 22px shape-only lane).
+The lane lives inside the row's own button, so the pill stays part of the click
+target that selects the session, and the pill's clearance to the title column
+is the `--ds-sidebar-status-pill-gap` (`6px`) taken out of the lane rather than
+added to it. Every status pill names its state with a short locale word beside
+the state's own token colour, so the row says what is happening instead of
+asking the reader to decode a shape; each status consumes an existing semantic
+token rather than introducing a decorative palette:
 
-| State | Semantic color | Shape / motion | Meaning |
-|---|---|---|---|
-| Needs input | purple | solid 16×8 capsule with a restrained pulse | a permission request, asktool question, or Plan/Goal approval awaits the user |
-| Selected | neutral accent | static outlined ring | current conversation |
-| In progress | warning orange | solid 16×8 capsule with a restrained breathing pulse | agent is producing or executing |
-| Completed | success green | check mark | latest unread task turn completed |
-| Failed | error red | circled alert mark | latest unread task turn failed |
+| State | Semantic color | Pill | Short word (zh-CN / en) | Meaning |
+|---|---|---|---|---|
+| Needs input | purple | solid fill, dark ink, restrained pulse on the dot | 待确认 / Input | a permission request, asktool question, or Plan/Goal approval awaits the user |
+| In progress | warning orange | solid fill, dark ink, restrained breathing pulse on the dot | 进行中 / Working | agent is producing or executing |
+| Selected | neutral accent | outlined pill, no fill | 已选中 / Selected | current conversation |
+| Completed | success green | tinted pill with a check mark | 已完成 / Done | latest unread task turn completed |
+| Failed | error red | tinted pill with a circled alert mark | 未完成 / Failed | latest unread task turn failed |
 
 Precedence is `needs input → in progress → selected → completed/failed`. The
-needs-input marker is the union of every human-intervention source on the session
+needs-input pill is the union of every human-intervention source on the session
 (D444): a non-empty permission queue, a non-empty asktool queue, or a pending
 Plan/Goal approval. It outranks in-progress, because a blocked agent needs the
 user while a running agent only needs time; the state id and class stay
@@ -271,23 +275,30 @@ conversation acknowledges its unread terminal outcome: the terminal mark clears
 immediately and the matching durable task notification is marked read so the
 mark cannot return after a notification refresh or app restart. Outcomes already
 marked read never produce a terminal mark. Reduced-motion mode disables the
-breathing and pulse animations while retaining each capsule's fill and localized
-accessible name (`nav.sessionNeedsInput` for the needs-input state).
+breathing and pulse animations while retaining each pill's fill, its word and
+localized accessible name (`nav.sessionNeedsInput` for the needs-input state).
 
-The two attention states are the solid capsules, so attention reads as mass rather
-than as a hairline dot at list scale, each painted with its own `--ds-warning` or
-`--ds-purple` token (D445, sized by D450). They keep one shared capsule shape and
-are told apart by their own token and their own motion cadence; the row carries no
-status word, so the full phrase (`nav.sessionRunning` / `nav.sessionNeedsInput`)
-lives on the marker's tooltip and accessible name, which is also where a screen
-reader hears the state. The quiet states (selected, completed, failed) keep a
-smaller glyph in the same lane, so a capsule still means "this row needs you".
-Both themes resolve every marker to its own token.
+The two attention states are solid fills in their own `--ds-warning` or
+`--ds-purple` token with the shared `--ds-status-ink` dark ink, so attention
+still reads as mass at list scale (D445, widened by D451); their dot carries the
+motion and the word carries the state, so they are told apart by text first and
+hue plus cadence second. The quiet states keep their token colour on a tinted
+(selected: outlined) pill, so a solid fill still means "this row needs you".
+Both themes resolve every pill to its own token; the ink is a single dark token
+because both attention tokens are light in both themes.
 
-This is a recorded trade-off: the shape distinction D446 carried as a word is now
-carried by hue plus cadence, and under `prefers-reduced-motion` the two attention
-states differ by hue alone until the user reaches the marker's tooltip
-(D450, §4.5).
+Short words are a locale contract, not a truncation: every shipped locale
+carries `nav.session<State>Short` for all five states, each no longer than the
+full phrase it abbreviates, and each measured to fit the pill without the
+ellipsis in the E2E suite. The full phrase (`nav.sessionRunning` /
+`nav.sessionNeedsInput`) stays on the pill's tooltip and accessible name.
+
+The wider lane is a recorded trade-off: every row spends 80px of its leading
+edge on the pill column, so titles get roughly 58px less width than the D450
+layout, and the list's furniture moves right with the column — a project
+header's name starts on the session titles' column (its disclosure and project
+glyphs sit inside the lane) and time separators, load-more rows, and empty copy
+ride the lane with their previous head starts (D451, §16).
 
 ### 4.6 Chat transcript status semantics
 
@@ -1269,9 +1280,9 @@ Full component contract and usage rules: [08-component-spec.md §17](08-componen
     backdrop-filter repaint behind the composer
 14. Expanded sidebar session titles, project/group titles, and empty-state copy
     use the 13px compact token without changing the 28–32px row pitch
-15. Sidebar session rows show the title alone, with their status marker pinned
-    inside the row's own status lane; other sessions' transcripts and the
-    subagent dock render without switching (§16)
+15. Sidebar session rows show a labelled status pill pinned inside the row's own
+    status lane with the title starting on the lane's end; other sessions'
+    transcripts and the subagent dock render without switching (§16)
 
 ## Dark floating surfaces (Codex parity)
 
@@ -1312,7 +1323,8 @@ Content that belongs to another session renders without switching to it:
   visible session. Switching sessions keeps it open and re-finds its rows in
   the destination pane's retained transcript; only leaving the chat page
   closes it.
-- **Sidebar row**: each session row shows its title alone (D450). The newest
+- **Sidebar row**: each session row shows a labelled status pill in its own
+  leading lane plus its title, which starts on the lane's end (D451). The newest
   user/assistant text is no longer rendered under the title; it stays available in
   the session hover card, which reads the current task and recent exchanges from
   the session summary on hover.

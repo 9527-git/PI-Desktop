@@ -158,67 +158,98 @@
   opacity: 0.68;
 }
 
-/* D450: the marker is pinned inside its row's status lane rather than flowing
-   before the title, so every row's title starts on the same x and no marker
-   trades width with the title it labels. The lane is inside the row button, so
-   the marker stays part of the click target, and the state is still named by the
-   marker's own tooltip and accessible name. */
+/* D451: the marker is a labelled status pill that owns the lane every row
+   reserves on its own left edge. The lane is the pill's fixed column, so a
+   quiet row and a marked row still share one title column, and the pill names
+   its state with a short locale word beside the state's own token colour - the
+   row says what is happening instead of asking the reader to decode a shape.
+   The pill stays inside the row button, so it remains part of the click
+   target, and the full phrase stays on its tooltip and accessible name.
+   It hugs its own word like a tag instead of stretching across the lane, so
+   the lane only ever caps the pill's width. */
 .thread-item-status {
   position: absolute;
   top: 50%;
   left: 0;
   display: inline-flex;
-  width: var(--ds-sidebar-status-lane);
-  height: 12px;
+  max-width: calc(var(--ds-sidebar-status-lane) - var(--ds-sidebar-status-pill-gap));
+  height: 20px;
   transform: translateY(-50%);
   align-items: center;
-  justify-content: center;
-  color: var(--ds-text-muted);
-}
-
-/* The two attention states carry no word of their own (the row shows the title
-   alone), so they read as a solid capsule in the state colour instead of the
-   quiet 7px dot the terminal states keep. The capsule stays 3px inside the lane
-   on both sides so it never touches the title column it leads. */
-.thread-item-status.running::before,
-.thread-item-status.permission::before {
-  width: 16px;
-  height: 8px;
+  gap: 4px;
+  border: 1px solid transparent;
   border-radius: var(--radius-full);
-  content: "";
+  padding: 0 8px;
+  color: var(--ds-text-secondary);
+  font-size: var(--text-2xs);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--leading-none);
 }
 
-.thread-item-status.running::before {
+/* The ellipsis is the safety net for a locale whose short word outgrows the
+   pill; every shipped short word fits without it (the E2E measures this). */
+.thread-item-status-word {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The dot carries the two attention states' motion; the fill and the word
+   survive `prefers-reduced-motion`. */
+.thread-item-status-dot {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: var(--radius-full);
+  background: currentColor;
+}
+
+/* The two attention states read as mass in their own token: a solid fill with
+   dark ink cut out of it, so a row that needs someone reads from across the
+   list the way the bare capsule used to. */
+.thread-item-status.running {
   background: var(--ds-warning);
+  color: var(--ds-status-ink);
+}
+
+.thread-item-status.running .thread-item-status-dot {
   animation: sidebar-status-breathe 1.6s ease-in-out infinite;
 }
 
-.thread-item-status.permission::before {
+.thread-item-status.permission {
   background: var(--ds-purple);
+  color: var(--ds-status-ink);
+}
+
+.thread-item-status.permission .thread-item-status-dot {
   animation: sidebar-status-pulse-purple 1.2s ease-in-out infinite;
 }
 
-.thread-item-status.selected::before {
-  width: 9px;
-  height: 9px;
-  border: 1.5px solid var(--ds-accent);
-  border-radius: var(--radius-full);
-  content: "";
+/* The quiet states keep their token colour on a tinted (selected: outlined)
+   pill, so a solid fill still means "this row needs you". */
+.thread-item-status.selected {
+  border-color: var(--ds-accent);
+  color: var(--ds-accent);
 }
 
 .thread-item-status.completed {
+  background: color-mix(in oklab, var(--ds-success) 16%, transparent);
   color: var(--ds-success);
 }
 
 .thread-item-status.failed {
+  background: color-mix(in oklab, var(--ds-error) 16%, transparent);
   color: var(--ds-error);
 }
 
 .thread-item-status.completed svg {
+  flex: 0 0 auto;
   stroke-width: 3;
 }
 
 .thread-item-status.failed svg {
+  flex: 0 0 auto;
   stroke-width: 2.25;
 }
 
@@ -247,10 +278,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .thread-item-status.running::before {
+  .thread-item-status.running .thread-item-status-dot {
     animation: none;
   }
-  .thread-item-status.permission::before {
+  .thread-item-status.permission .thread-item-status-dot {
     animation: none;
   }
 }

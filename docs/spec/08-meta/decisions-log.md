@@ -6045,3 +6045,66 @@ disappear for a status that only needs one.
   E2E-SIDEBAR-status-dot-pending-union plus
   E2E-CHAT-other-sessions-render-without-switching in
   `06-delivery/04-e2e-test-plan.md`.
+
+## 2026-09-19 — The status pill widens into a labelled lane and the row pays it (D451)
+
+> **Supersedes D450's 22px shape-only lane and its "no word in the row" rule.**
+> The D444 state model, the D445 tokens, and both motion cadences stay.
+
+Feedback on the D450 build: "左侧会话列表显示当前会话状态的胶囊太小且里面没有文字",
+then the governing constraint: keep the pill at the row's start, widen the lane to
+a fixed 72-80px, move every row's title column right with it, move the project
+directory, group titles, and time separators right in sync, and compress the
+labels to short words so nothing overflows.
+
+- `--ds-sidebar-status-lane` grows from 22px to a fixed 80px, and a new
+  `--ds-sidebar-status-pill-gap` (6px) is the pill's clearance to the title
+  column, taken out of the lane rather than added to it. The lane is still each
+  row's own left padding inside its button, so the pill stays part of the click
+  target and a quiet row and a marked row still share one title column - but the
+  column now starts at 80px, so every title gives up about 58px of width. That is
+  the accepted cost: the lane exists so the state can be named.
+- The marker becomes a labelled pill that hugs its own word like a tag (20px
+  tall, 8px of side padding), the lane only capping its width at `lane - gap`:
+  every state renders its short locale word beside the state's own token. A bar
+  stretched across the whole lane was the first build and read as a stripe
+  behind the title, so review chose the tag shape and kept the lane as the
+  column. The two attention states (running, needs input) are solid fills in
+  `--ds-warning` / `--ds-purple` with the new shared `--ds-status-ink` dark ink,
+  so they still read as mass; their dot carries the D445 motion. The quiet states
+  keep their token colour on a tinted (selected: outlined) pill, so a solid fill
+  still means "this row needs you".
+- Short words are a locale contract: all eight shipped locales gain
+  `nav.sessionRunningShort`, `nav.sessionSelectedShort`, `nav.sessionCompletedShort`,
+  `nav.sessionFailedShort`, and `nav.sessionNeedsInputShort` - the short keys
+  D450 deleted, re-introduced as a complete five-state set - each no longer than
+  the full phrase it abbreviates. The full phrase stays on the pill's tooltip and
+  accessible name, and the visible word joins the row button's accessible name.
+- List furniture rides the same column: the project header's `padding-left`
+  moves to 38px so its name starts exactly on the session titles' column with its
+  disclosure and project glyphs inside the lane; time-group headers and the
+  load-more row ride `lane + 20px` (their previous head start over the title
+  column); empty-state copy rides `lane + 8px` in every body, which retires
+  D450's project-body override and moves the standalone empty copy onto the
+  column. Section labels (PINNED / SESSIONS / PROJECTS) keep their outer-edge x:
+  they label the whole section, not a row.
+- Accepted consequences. Titles are roughly 58px narrower than the D450 layout at
+  the 275px sidebar; the pill column is paid by every row including quiet ones;
+  and under `prefers-reduced-motion` the two attention states differ by hue and
+  word, which removes D450's hue-only ambiguity.
+- Renderer, styles, locales, docs, and tests only; no IPC, RPC, schema,
+  permission, or persisted-state change.
+- Regression coverage: `sidebar-session-status.test.mjs` pins the 80px lane, the
+  gap and ink tokens, the pill's labelled structure and tag geometry (no fixed
+  `width`, the `lane - gap` cap, 20px tall, 8px of side padding), and the
+  per-locale short words (a short word never outgrows the full phrase);
+  `scripts/e2e-sidebar-status-dot.mjs` - now tracked, with the
+  `pnpm test:e2e:sidebar-status` script D450's log already promised - measures
+  over CDP that every pill is pinned at its own row's left edge and hugs its
+  word inside `lane - gap` without reaching the title column, that every title
+  starts at the lane's end, that every shipped short word renders unclipped,
+  that the project header's name starts on the titles' column, and that a time
+  separator rides the lane.
+- See `04-ux/07-ui-design-system.md` sections 4.5 and 16 and
+  `04-ux/08-component-spec.md` sections 2.2, 3.3, and 3.4, and
+  E2E-SIDEBAR-status-dot-pending-union in `06-delivery/04-e2e-test-plan.md`.
