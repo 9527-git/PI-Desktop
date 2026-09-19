@@ -1551,7 +1551,7 @@ export function Sidebar({
       >
         <button
           type="button"
-          className="thread-item-main"
+          className={`thread-item-main ${status ? "marked" : ""}`}
           onPointerEnter={() => scheduleSessionPrefetch(session.id)}
           onPointerLeave={cancelSessionPrefetch}
           onFocus={() => void prefetchSession(session.id).catch(() => undefined)}
@@ -1573,7 +1573,14 @@ export function Sidebar({
           aria-current={active ? "page" : undefined}
           aria-describedby={sessionHoverCard?.session.id === session.id ? `session-hover-${session.id}` : undefined}
         >
-          {status ? renderSessionStatus(status) : null}
+          {status ? (() => {
+            const label = sessionStatusLabel(status);
+            return (
+              <span className={`thread-item-status ${status} marked`} aria-label={label} title={label}>
+                {renderSessionStatus(status)}
+              </span>
+            );
+          })() : null}
           {sessionPinned(session, meta) ? (
             <IconPin size={11} className="thread-item-pin" aria-hidden />
           ) : null}

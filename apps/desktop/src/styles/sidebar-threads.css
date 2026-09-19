@@ -35,6 +35,11 @@
   color: inherit;
 }
 
+/* B: marked rows reduce left padding since pills sit statically inside */
+.marked.thread-item-main {
+  padding-left: calc(var(--ds-sidebar-status-pill-gap) + 20px);
+}
+
 .thread-item-title {
   overflow: hidden;
   font-size: var(--text-md); /* session titles stay compact within the sidebar */

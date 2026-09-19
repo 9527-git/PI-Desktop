@@ -186,6 +186,13 @@
   line-height: var(--leading-none);
 }
 
+/* B: marked rows use static layout so titles hug their pills */
+.marked .thread-item-status {
+  position: static;
+  transform: none;
+  margin-right: var(--ds-sidebar-status-pill-gap);
+}
+
 /* The ellipsis is the safety net for a locale whose short word outgrows the
    pill; every shipped short word fits without it (the E2E measures this). */
 .thread-item-status-word {
