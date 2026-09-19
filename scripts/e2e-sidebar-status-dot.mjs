@@ -14,19 +14,13 @@
  *   - prefers-reduced-motion disables every dot animation;
  *   - both themes resolve the dots to their own warning/purple tokens.
  *
- * and the D446 contract on top of it — the two attention states spell the
- * status out as a colored word INSIDE the same tinted chip as the live dot
- * (running in the warning token, every needs-input source in the purple one),
- * and that chip stays centred on the whole row so the word cannot drift onto the
- * title line of a two-line row. Quiet states show the plain dot in that same
- * leading slot.
- *
- * and the D449 contract on top of that — the marker leads its row instead of
- * standing in a reserved column: its left edge is the row's left edge, no further
- * left than the project header's own edge, and its title begins right after it,
- * so status and title read as one group with no dead band between them. The dot
- * keeps the full phrase as its accessible name; the chip shows a short word and
- * shrinks before it can squeeze the title.
+ * and the D450 contract on top of it — the row shows the session title alone
+ * (no transcript line, no status word), and every row reserves a fixed status
+ * lane on its own left edge: the marker is pinned inside that lane, so the title
+ * column starts on the same x whether or not the row carries a status, the two
+ * attention states read as a solid capsule in their own token, and the lane's
+ * leading glyph stays on the project header's own axis. The full phrase lives on
+ * the marker's tooltip and accessible name.
  *
  * Screenshots land in PI_DESKTOP_E2E_ARTIFACT_DIR (or a temp dir) for visual
  * inspection.
@@ -167,68 +161,53 @@ function probeExpression(ids) {
     if (!status) return { present: false };
     const before = getComputedStyle(status, "::before");
     const cs = getComputedStyle(status);
-    const label = row.querySelector(".thread-item-status-label");
-    const chip = row.querySelector(".thread-item-status-chip");
     const title = row.querySelector(".thread-item-title");
     const rowBox = row.getBoundingClientRect();
     const statusBox = status.getBoundingClientRect();
-    const chipBox = chip ? chip.getBoundingClientRect() : null;
     const titleBox = title ? title.getBoundingClientRect() : null;
-    // D449: the marker leads the row, so the reference it must not cross is the
-    // project header's own left edge - the group block's edge, which is also the
-    // row's edge. Standalone rows have no header, so fall back to the list.
-    const groupHeader =
-      row.closest(".sidebar-session-group")?.querySelector(".sidebar-session-group-header") ??
-      document.querySelector(".sidebar-session-groups");
-    const headerBox = groupHeader ? groupHeader.getBoundingClientRect() : null;
-    const leadBox = chipBox ?? statusBox;
+    const beforeWidth = parseFloat(before.width) || 0;
+    // The lane box is 22px wide whatever the marker inside it, so the capsule's
+    // own edges — not the lane's — are what the eye reads against the title.
+    const capsuleLeft = statusBox.left + (statusBox.width - beforeWidth) / 2;
+    const capsuleCenter = statusBox.left + statusBox.width / 2;
+    // D450: the marker gutter is the group's own left band, so the project
+    // header's disclosure glyph should stay on the capsule's axis.
+    const headerGlyph =
+      row.closest(".sidebar-session-group")?.querySelector(".sidebar-disclosure-icon") ?? null;
+    const headerBox = headerGlyph ? headerGlyph.getBoundingClientRect() : null;
     return {
       present: true,
       stateClass: [...status.classList].find((c) => c !== "thread-item-status") ?? null,
       label: status.getAttribute("aria-label"),
+      tooltip: status.getAttribute("title"),
       color: cs.color,
       beforeBackground: before.backgroundColor,
       beforeAnimation: before.animationName,
       beforeBorderTopColor: before.borderTopColor,
-      width: Math.round(status.getBoundingClientRect().width),
-      dotPosition: cs.position,
-      // D446: the word travels with the light, so the status group must stay
-      // centred on the whole row - not on the title line of a two-line row.
+      beforeWidth,
+      beforeHeight: parseFloat(before.height) || 0,
+      markerPosition: cs.position,
+      // D446: the status group must stay centred on the whole row, not drift onto
+      // one of its lines.
       statusCenterOffset: Math.round(
         statusBox.top + statusBox.height / 2 - (rowBox.top + rowBox.height / 2),
       ),
       previewShown: !!row.querySelector(".thread-item-preview"),
-      inChip: !!chip,
-      chipClass: chip
-        ? [...chip.classList].find((c) => c !== "thread-item-status-chip") ?? null
-        : null,
-      chipBackground: chip ? getComputedStyle(chip).backgroundColor : null,
-      chipHoldsDot: !!chip && !!chip.querySelector(".thread-item-status"),
-      chipHoldsLabel: !!chip && !!chip.querySelector(".thread-item-status-label"),
-      inlineLabel: label ? label.textContent.trim() : null,
-      inlineLabelColor: label ? getComputedStyle(label).color : null,
-      inlineLabelClass: label
-        ? [...label.classList].find((c) => c !== "thread-item-status-label") ?? null
-        : null,
-      titleShown: !!row.querySelector(".thread-item-title"),
-      // D449: the marker is the row button's first flex item, so its left edge is
-      // the row's left edge and the title starts right after it. Measure the
-      // marker as the chip when there is one, otherwise the plain dot.
-      markerLeft: Math.round(leadBox.left - rowBox.left),
-      markerRight: Math.round(leadBox.right - rowBox.left),
-      // The marker has to belong to the row's own button, or clicking it would
-      // select nothing (D449 amendment).
+      statusWordShown: !!row.querySelector(".thread-item-status-label"),
+      chipShown: !!row.querySelector(".thread-item-status-chip"),
+      titleShown: !!title,
+      // D450: the lane belongs to the row button, so the marker is part of the
+      // click target and never shares the title's line.
+      markerLeft: Math.round(statusBox.left - rowBox.left),
+      markerRight: Math.round(statusBox.right - rowBox.left),
       insideRowButton: !!status.closest("button.thread-item-main"),
       titleLeft: titleBox ? Math.round(titleBox.left - rowBox.left) : null,
-      titleGap: titleBox ? Math.round(titleBox.left - leadBox.right) : null,
-      // Positive when the marker starts left of the project header's own edge.
-      markerBeyondHeader: headerBox
-        ? Math.round(headerBox.left - leadBox.left)
+      capsuleGapToTitle: titleBox
+        ? Math.round(titleBox.left - (capsuleLeft + beforeWidth))
         : null,
-      chipPosition: chip ? getComputedStyle(chip).position : null,
-      chipLeft: chipBox ? Math.round(chipBox.left - rowBox.left) : null,
-      chipRight: chipBox ? Math.round(chipBox.right - rowBox.left) : null,
-      chipWordClipped: label ? label.scrollWidth > label.clientWidth + 1 : null,
+      markerHeaderAxisOffset: headerBox
+        ? Math.round(headerBox.left + headerBox.width / 2 - capsuleCenter)
+        : null,
     };
   };
   const topbar = document.querySelector(".conversation-topbar");
@@ -450,89 +429,92 @@ async function main() {
       JSON.stringify(base.rows.selected),
     );
 
-    // 4. D446: both attention states spell the status out in words inside the
-    //    same tinted chip as the live dot, and the chip stays centred on the
-    //    whole row - so the word can never sit on the title line of a two-line
-    //    row while the light floats below it. The word is the short form of the
-    //    dot's own accessible name (D447), never longer than it.
-    const chipIsOneGroup = (row, state, token) =>
-      !!row.inlineLabel &&
-      row.inlineLabel.length <= row.label.length &&
-      row.inlineLabelColor === token &&
-      row.inChip === true &&
-      row.chipClass === state &&
-      row.chipHoldsDot === true &&
-      row.chipHoldsLabel === true &&
-      row.dotPosition === "static" &&
-      row.chipBackground !== "rgba(0, 0, 0, 0)" &&
+    // 4. D450: the attention states are a solid capsule in their own token, the
+    //    row carries its title alone, and the state is named by the marker's
+    //    accessible name instead of a word competing for row width.
+    const capsuleIsOneGroup = (row, token) =>
+      row.titleShown === true &&
+      row.previewShown === false &&
+      row.statusWordShown === false &&
+      row.chipShown === false &&
+      row.beforeWidth === 16 &&
+      row.beforeHeight === 8 &&
+      row.beforeBackground === token &&
       Math.abs(row.statusCenterOffset) <= 2 &&
-      row.chipWordClipped === false &&
-      row.previewShown === true &&
-      row.titleShown;
+      typeof row.label === "string" &&
+      row.label.length > 0 &&
+      row.label === row.tooltip;
     check(
-      chipIsOneGroup(base.rows.running, "running", base.warningToken),
-      "the running word rides with its breathing dot in one warning chip",
+      capsuleIsOneGroup(base.rows.running, base.warningToken),
+      "the running row shows a solid warning capsule and its title alone",
       JSON.stringify(base.rows.running),
     );
     for (const source of ["permission", "ask", "plan"]) {
       const row = base.rows[source];
       check(
-        chipIsOneGroup(row, "permission", base.purpleToken),
-        `a pending ${source} word rides with the shared needs-input chip`,
+        capsuleIsOneGroup(row, base.purpleToken),
+        `a pending ${source} shows the shared solid needs-input capsule, title only`,
         JSON.stringify(row),
       );
     }
     check(
-      base.rows.selected.inlineLabel === null &&
-        base.rows.selected.inChip === false &&
-        base.rows.selected.dotPosition === "static" &&
+      base.rows.selected.previewShown === false &&
+        base.rows.selected.statusWordShown === false &&
+        base.rows.selected.beforeWidth === 9 &&
         base.rows.selected.titleShown,
-      "the selected row keeps its quiet dot leading the row, with no chip or word",
+      "the selected row keeps its quiet ring and carries its title alone",
       JSON.stringify(base.rows.selected),
     );
 
-    // 4b. D449: the marker leads its row in normal flow instead of standing in a
-    //     reserved column, so status and title form one group - and the pill can
-    //     never cross the project header's edge or leave a dead band.
+    // 4b. D450: every row reserves the same status lane on its own left edge, so
+    //     the title column never moves for a status and the marker never trades
+    //     width with the title it labels.
     const attentionRows = ["running", "permission", "ask", "plan"].map(
       (key) => base.rows[key],
     );
     const everyRow = [base.rows.selected, ...attentionRows];
     check(
-      everyRow.every((row) => row.markerLeft === 0 && row.insideRowButton),
-      "every status marker sits flush on its row's left edge, inside its button",
+      everyRow.every(
+        (row) =>
+          row.markerPosition === "absolute" &&
+          row.markerLeft === 0 &&
+          row.markerRight === 22 &&
+          row.insideRowButton,
+      ),
+      "every marker is pinned inside its own row's 22px lane, inside the row button",
       JSON.stringify(
-        everyRow.map((row) => [row.markerLeft, row.insideRowButton]),
+        everyRow.map((row) => [
+          row.markerPosition,
+          row.markerLeft,
+          row.markerRight,
+          row.insideRowButton,
+        ]),
       ),
     );
     check(
-      everyRow.every(
-        (row) => row.markerBeyondHeader !== null && row.markerBeyondHeader <= 1,
-      ),
-      "no marker reaches further left than the project header's own edge",
+      everyRow.every((row) => row.titleLeft === 22),
+      "every row's title starts on the same x, status or not",
+      JSON.stringify(everyRow.map((row) => row.titleLeft)),
+    );
+    check(
+      attentionRows.every((row) => row.capsuleGapToTitle >= 2 && row.capsuleGapToTitle <= 6),
+      "each capsule clears the title column without a dead band",
       JSON.stringify(
-        everyRow.map((row) => ({
-          markerLeft: row.markerLeft,
-          beyondHeader: row.markerBeyondHeader,
+        attentionRows.map((row) => ({
+          capsuleGapToTitle: row.capsuleGapToTitle,
+          titleLeft: row.titleLeft,
         })),
       ),
     );
     check(
       attentionRows.every(
         (row) =>
-          row.chipPosition === "static" &&
-          row.titleGap >= 0 &&
-          row.titleGap <= 6 &&
-          row.chipRight < row.titleLeft,
+          row.markerHeaderAxisOffset === null ||
+          Math.abs(row.markerHeaderAxisOffset) <= 6,
       ),
-      "each chip's title begins within 6px of it, with no dead band in between",
+      "a capsule under a project header stays on that header's own axis",
       JSON.stringify(
-        attentionRows.map((row) => ({
-          position: row.chipPosition,
-          chipRight: row.chipRight,
-          titleLeft: row.titleLeft,
-          titleGap: row.titleGap,
-        })),
+        attentionRows.map((row) => row.markerHeaderAxisOffset),
       ),
     );
 
@@ -548,7 +530,7 @@ async function main() {
 
     await screenshot("sidebar-status-union-dark");
 
-    // 6. Both themes resolve the dots and status words to their own tokens.
+    // 6. Both themes paint the capsules with their own tokens.
     for (const theme of ["light", "dark"]) {
       await cdp.evaluate(`window.__PI_DESKTOP__.setThemeAttr("${theme}")`);
       await delay(250);
@@ -556,18 +538,14 @@ async function main() {
       const themed = await probe(ids);
       check(
         themed.rows.running.beforeBackground === themed.warningToken &&
-          themed.rows.permission.beforeBackground === themed.purpleToken &&
-          themed.rows.running.inlineLabelColor === themed.warningToken &&
-          themed.rows.permission.inlineLabelColor === themed.purpleToken,
-        `the ${theme} theme paints the running and needs-input dots and words in their own tokens`,
+          themed.rows.permission.beforeBackground === themed.purpleToken,
+        `the ${theme} theme paints the running and needs-input capsules in their own tokens`,
         JSON.stringify({
           theme,
           running: themed.rows.running.beforeBackground,
           warning: themed.warningToken,
           permission: themed.rows.permission.beforeBackground,
           purple: themed.purpleToken,
-          runningWord: themed.rows.running.inlineLabelColor,
-          permissionWord: themed.rows.permission.inlineLabelColor,
         }),
       );
       await screenshot(`sidebar-status-union-${theme}`);

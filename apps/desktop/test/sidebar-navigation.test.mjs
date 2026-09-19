@@ -269,30 +269,23 @@ test("sidebar row menus omit project reassignment and switching actions", () => 
   );
 });
 
-test("session rows show the bounded last-message preview under the title", () => {
+test("session rows show the title alone in a column no status marker shifts", () => {
   const sessionMain = sidebarSource.match(
     /className="thread-item-main"[\s\S]*?<\/button>/,
   )?.[0] ?? "";
 
-  // The title and the preview share one text column so the preview never
-  // competes with the project label for row width.
+  // D450: the row carries nothing but its title, so the transcript's newest
+  // message stays out of the list and only the title competes for row width.
   assert.match(
     sessionMain,
-    /<span className="thread-item-text">\s*<span className="thread-item-title">\{taskTitle\(session\.title\)\}<\/span>/,
+    /<span className="thread-item-text">\s*<span className="thread-item-title">\{taskTitle\(session\.title\)\}<\/span>\s*<\/span>/,
   );
-  // Absent while a transcript has no readable text.
-  assert.match(
-    sessionMain,
-    /\{session\.lastMessage \? \(\s*<span className="thread-item-preview">\{session\.lastMessage\}<\/span>\s*\) : null\}/,
-  );
+  assert.doesNotMatch(sessionMain, /thread-item-preview|session\.lastMessage/);
   assert.match(
     globalStyles,
     /\.thread-item-text\s*\{[^}]*display:\s*flex;[^}]*min-width:\s*0;[^}]*flex-direction:\s*column;/s,
   );
-  assert.match(
-    globalStyles,
-    /\.thread-item-preview\s*\{[^}]*overflow:\s*hidden;[^}]*color:\s*var\(--ds-text-muted\);[^}]*font-size:\s*var\(--text-2xs\);[^}]*text-overflow:\s*ellipsis;[^}]*white-space:\s*nowrap;/s,
-  );
+  assert.doesNotMatch(globalStyles, /\.thread-item-preview\s*\{/s);
 });
 
 test("session rows use the hover card instead of a native title tooltip", () => {

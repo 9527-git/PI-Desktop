@@ -170,8 +170,6 @@ export const en = {
     sessionCompleted: "Done",
     sessionFailed: "Needs attention",
     sessionNeedsInput: "Needs your input",
-    sessionRunningShort: "Working",
-    sessionNeedsInputShort: "Input",
     sortSessions: "Sort projects and chats",
     sortRecent: "Recently updated",
     sortOldest: "Oldest first",

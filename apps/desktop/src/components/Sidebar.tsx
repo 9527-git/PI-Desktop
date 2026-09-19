@@ -980,9 +980,6 @@ export function Sidebar({
     return t(labelKey, { defaultValue: fallback });
   };
 
-  const isAttentionStatus = (status: SidebarSessionStatus) =>
-    status === "running" || status === "permission";
-
   const renderSessionStatus = (status: SidebarSessionStatus) => {
     const label = sessionStatusLabel(status);
     return (
@@ -992,23 +989,6 @@ export function Sidebar({
       </span>
     );
   };
-
-  /* The pill is pinned inside the row's reserved status column (D447), so its
-     word has to fit that column in every locale. The full phrase stays on the
-     dot's tooltip and accessible name; the chip shows the short form. */
-  const sessionStatusChipLabel = (status: SidebarSessionStatus) =>
-    status === "running"
-      ? t("nav.sessionRunningShort", { defaultValue: "Working" })
-      : t("nav.sessionNeedsInputShort", { defaultValue: "Input" });
-
-  const renderSessionStatusChip = (status: SidebarSessionStatus) => (
-    <span className={`thread-item-status-chip ${status}`}>
-      {renderSessionStatus(status)}
-      <span className="thread-item-status-label" aria-hidden>
-        {sessionStatusChipLabel(status)}
-      </span>
-    </span>
-  );
 
   const reportError = useCallback(
     (error: unknown) => {
@@ -1562,11 +1542,7 @@ export function Sidebar({
           aria-current={active ? "page" : undefined}
           aria-describedby={sessionHoverCard?.session.id === session.id ? `session-hover-${session.id}` : undefined}
         >
-          {status
-            ? isAttentionStatus(status)
-              ? renderSessionStatusChip(status)
-              : renderSessionStatus(status)
-            : null}
+          {status ? renderSessionStatus(status) : null}
           {sessionPinned(session, meta) ? (
             <IconPin size={11} className="thread-item-pin" aria-hidden />
           ) : null}
@@ -1575,9 +1551,6 @@ export function Sidebar({
           ) : null}
           <span className="thread-item-text">
             <span className="thread-item-title">{taskTitle(session.title)}</span>
-            {session.lastMessage ? (
-              <span className="thread-item-preview">{session.lastMessage}</span>
-            ) : null}
           </span>
           {options?.global ? (
             <span className="thread-item-project">

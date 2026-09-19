@@ -243,24 +243,25 @@ Light-surface polish (D148):
 
 ### 4.5 Sidebar task status semantics
 
-Compact task rows lead with the status marker itself: it sits flush on the row's
-left edge - the same edge the project header starts on - and the title follows it
-after `--ds-sidebar-status-gap` (`4px`), so a status and its title read as one
-group with no dead band between them (D449). A row without a marker starts its
-title on that same left edge. State is never communicated by color alone, and
-each status consumes an existing semantic token rather than introducing a
-decorative palette:
+Compact task rows show their session title and nothing else. Each row reserves
+`--ds-sidebar-status-lane` (`22px`) of its own left edge for the status marker and
+starts its title right after that lane, so the marker is pinned where its title
+begins without ever trading width with it: a quiet row and a marked row share one
+title column (D450). The lane lives inside the row's own button, so the marker
+stays part of the click target that selects the session. State is never carried by
+text in the row, and each status consumes an existing semantic token rather than
+introducing a decorative palette:
 
 | State | Semantic color | Shape / motion | Meaning |
 |---|---|---|---|
-| Needs input | purple | filled dot with a restrained pulse, its status word in the same tinted chip | a permission request, asktool question, or Plan/Goal approval awaits the user |
+| Needs input | purple | solid 16×8 capsule with a restrained pulse | a permission request, asktool question, or Plan/Goal approval awaits the user |
 | Selected | neutral accent | static outlined ring | current conversation |
-| In progress | warning orange | filled dot with a restrained breathing pulse, its status word in the same tinted chip | agent is producing or executing |
+| In progress | warning orange | solid 16×8 capsule with a restrained breathing pulse | agent is producing or executing |
 | Completed | success green | check mark | latest unread task turn completed |
 | Failed | error red | circled alert mark | latest unread task turn failed |
 
 Precedence is `needs input → in progress → selected → completed/failed`. The
-needs-input dot is the union of every human-intervention source on the session
+needs-input marker is the union of every human-intervention source on the session
 (D444): a non-empty permission queue, a non-empty asktool queue, or a pending
 Plan/Goal approval. It outranks in-progress, because a blocked agent needs the
 user while a running agent only needs time; the state id and class stay
@@ -270,25 +271,23 @@ conversation acknowledges its unread terminal outcome: the terminal mark clears
 immediately and the matching durable task notification is marked read so the
 mark cannot return after a notification refresh or app restart. Outcomes already
 marked read never produce a terminal mark. Reduced-motion mode disables the
-breathing and pulse animations while retaining each dot's fill and localized
+breathing and pulse animations while retaining each capsule's fill and localized
 accessible name (`nav.sessionNeedsInput` for the needs-input state).
 
-The two attention states also spell their state out. In progress and needs input
-render a localized word (`nav.sessionRunningShort` / `nav.sessionNeedsInputShort`)
-inside the same rounded chip as the live dot, on a 14% tint of the dot's own
-`--ds-warning` / `--ds-purple` token, so a glance at the list reads as text
-rather than as color decoding (D445, grouped by D446, placed by D449). The chip
-leads the row's own button: it is that button's first flex item, flush on the
-same left edge the project header starts on, and the title follows it after
-`--ds-sidebar-status-gap`. A status and its title are therefore one group with no
-dead band between them, the whole row - status included - stays the click target
-that selects the session, and no row reserves width a marker may never use. The chip
-shrinks before it squeezes a title — its word ellipsises while the dot keeps its
-own box — and the word is the dot's visual twin (`aria-hidden`); the full phrase
-(`nav.sessionRunning` / `nav.sessionNeedsInput`) stays on the dot's tooltip and
-accessible name. The quiet states (selected, completed, failed) keep the plain dot
-in the same leading slot with no chip, so the label keeps meaning "this row needs
-your attention". Both themes resolve chip, dot, and word to their own tokens.
+The two attention states are the solid capsules, so attention reads as mass rather
+than as a hairline dot at list scale, each painted with its own `--ds-warning` or
+`--ds-purple` token (D445, sized by D450). They keep one shared capsule shape and
+are told apart by their own token and their own motion cadence; the row carries no
+status word, so the full phrase (`nav.sessionRunning` / `nav.sessionNeedsInput`)
+lives on the marker's tooltip and accessible name, which is also where a screen
+reader hears the state. The quiet states (selected, completed, failed) keep a
+smaller glyph in the same lane, so a capsule still means "this row needs you".
+Both themes resolve every marker to its own token.
+
+This is a recorded trade-off: the shape distinction D446 carried as a word is now
+carried by hue plus cadence, and under `prefers-reduced-motion` the two attention
+states differ by hue alone until the user reaches the marker's tooltip
+(D450, §4.5).
 
 ### 4.6 Chat transcript status semantics
 
@@ -1270,9 +1269,9 @@ Full component contract and usage rules: [08-component-spec.md §17](08-componen
     backdrop-filter repaint behind the composer
 14. Expanded sidebar session titles, project/group titles, and empty-state copy
     use the 13px compact token without changing the 28–32px row pitch
-15. Sidebar session rows show the bounded last-message preview under the
-    title; other sessions' transcripts and the subagent dock render without
-    switching (§16)
+15. Sidebar session rows show the title alone, with their status marker pinned
+    inside the row's own status lane; other sessions' transcripts and the
+    subagent dock render without switching (§16)
 
 ## Dark floating surfaces (Codex parity)
 
@@ -1313,6 +1312,7 @@ Content that belongs to another session renders without switching to it:
   visible session. Switching sessions keeps it open and re-finds its rows in
   the destination pane's retained transcript; only leaving the chat page
   closes it.
-- **Sidebar preview**: each session row shows the newest user/assistant text
-  under the title — host-truncated to 120 code points, CSS-ellipsized,
-  `--text-2xs` muted, absent while a transcript has no readable text.
+- **Sidebar row**: each session row shows its title alone (D450). The newest
+  user/assistant text is no longer rendered under the title; it stays available in
+  the session hover card, which reads the current task and recent exchanges from
+  the session summary on hover.
