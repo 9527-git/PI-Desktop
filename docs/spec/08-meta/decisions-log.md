@@ -6108,3 +6108,16 @@ labels to short words so nothing overflows.
 - See `04-ux/07-ui-design-system.md` sections 4.5 and 16 and
   `04-ux/08-component-spec.md` sections 2.2, 3.3, and 3.4, and
   E2E-SIDEBAR-status-dot-pending-union in `06-delivery/04-e2e-test-plan.md`.
+
+## 2026-09-19 — In-app quit and close-behavior confirmation replaces native message boxes (D452)
+
+> **Supersedes `dialog.showMessageBox` on the exit path.** The D363 explicit-quit contract, the D216 tray, and the Windows/Linux close-behavior (`ask` / `tray` / `quit`) stay.
+
+The renderer now draws both confirmations so they stay anchored to the window instead of floating wherever the OS decides, and the quit-confirm can show what is actually still running. The native box remains as a fallback when the renderer cannot answer (window destroyed, renderer gone, or 5s timeout).
+
+- Two new IPC channels: `IPC.event.quitDialogRequest` (main → renderer push with `{ requestId, kind, runningTurns }`) and `IPC.invoke.quitDialogRespond` (renderer → main response with `{ requestId, choice }`). Main-side runtime holds a pending map with a 5s timer; if the renderer never answers, the promise resolves `null` and the caller falls back to `showMessageBox`.
+- Close-behavior's `askCloseBehavior(window)` and shutdown's `confirmQuitDialog()` are thin wrappers around the runtime; they keep their original signatures and return values. The native implementations live on as `nativeAskCloseBehavior` and `nativeConfirmQuitDialog` for the fallback case.
+- When the renderer receives a `quit-confirm` request, it renders a dialog showing the intro ("Quitting interrupts the work below..."), then an impact block with a count badge and "{sessions} running replies will be stopped" plus "Unsaved drafts may be lost". For `close-ask`, it renders two choice rows: "Close to tray" (default, Enter) and "Quit", with a footer hint "Change this any time in Settings". Both dialogs have Escape → cancel, Enter → default, and focus trap.
+- i18n adds six keys under `tray.*` across all eight locales: `confirmQuitIntro`, `confirmQuitRunning`, `confirmQuitDrafts`, `askTrayDesc`, `askQuitDesc`, `askSettingsHint`.
+- Regression coverage: a source-contract test in `apps/desktop/test/quit-dialog-inapp.test.mjs` asserts that both dialogs route through the runtime, that the runtime has a bounded timeout, and that the IPC channels are whitelisted. The existing E2E-204 scenario ("explicit quit confirms before shutdown") stays unchanged because the observable contract is identical.
+- Renderer, styles, locales, docs, and tests only; no host-core, RPC, schema, permission, or persisted-state change.

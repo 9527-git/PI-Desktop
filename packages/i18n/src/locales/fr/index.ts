@@ -31,6 +31,16 @@ export const fr = {
     "confirmQuitTitle": "Quitter PI-Desktop ?",
     "confirmQuitBody": "Êtes-vous sûr de vouloir arrêter ? Toutes les sessions en cours seront arrêtées et les modifications non enregistrées risquent d'être perdues.",
     "confirmQuit": "Quitter"
+    /** D452: in-app confirmation shows what is actually running. */
+    "confirmQuitIntro":
+      "Quitter interrompt les travaux ci-dessous. L'historique enregistré des sessions n'est pas affecté.",
+    "confirmQuitRunning":
+      "{sessions} réponses en cours seront arrêtées",
+    "confirmQuitDrafts": "Les brouillons non enregistrés peuvent être perdus",
+    "askTrayDesc":
+      "La fenêtre se masque et les sessions continuent en arrière-plan. Revenez via l'icône de la zone de notification.",
+    "askQuitDesc": "Arrêter toutes les sessions et quitter le processus.",
+    "askSettingsHint": "Modifiable à tout moment dans les paramètres"
   },
   "pluginDesktopConsent": {
     "message": "{name} veut exécuter {operation}",

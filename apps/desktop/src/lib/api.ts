@@ -96,6 +96,8 @@ import type {
   TrustedExtensionStatusEvent,
   TrustedExtensionUiPrompt,
   TrustedExtensionUiPromptResponse,
+  QuitDialogRequest,
+  QuitDialogResponse,
 } from "@pi-desktop/shared";
 import {
   defaultCommandShellForPlatform,
@@ -874,6 +876,8 @@ export const api = {
     invoke<{ ok: boolean }>(IPC.invoke.extensionsCommandRun, input),
   respondExtensionPrompt: (response: TrustedExtensionUiPromptResponse) =>
     invoke<{ ok: boolean }>(IPC.invoke.extensionsUiRespond, response),
+  respondQuitDialog: (response: QuitDialogResponse) =>
+    invoke<{ ok: boolean }>(IPC.invoke.quitDialogRespond, response),
   searchCommands: (query: string) =>
     invoke<{ commands: CommandItem[] }>(
       IPC.invoke.commandPaletteSearch,
@@ -1038,6 +1042,12 @@ export const api = {
     if (!window.piDesktop?.on) return () => undefined;
     return window.piDesktop.on(IPC.event.extensionsUiPrompt, (payload) =>
       listener(payload as TrustedExtensionUiPrompt),
+    );
+  },
+  onQuitDialogRequest: (listener: (request: QuitDialogRequest) => void) => {
+    if (!window.piDesktop?.on) return () => undefined;
+    return window.piDesktop.on(IPC.event.quitDialogRequest, (payload) =>
+      listener(payload as QuitDialogRequest),
     );
   },
   onExtensionStatus: (listener: (event: TrustedExtensionStatusEvent) => void) => {

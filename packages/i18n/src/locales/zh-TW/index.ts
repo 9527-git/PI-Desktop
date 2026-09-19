@@ -33,6 +33,16 @@ export const zhTW = {
     confirmQuitBody:
       "退出將停止所有正在進行的會話，未儲存的內容可能會丟失。你確定要退出嗎？",
     confirmQuit: "退出",
+    /** D452: 應用內確認框顯示實際運行內容。 */
+    confirmQuitIntro:
+      "結束會立即中斷以下工作，已存檔的工作階段記錄不受影響。",
+    confirmQuitRunning:
+      "{sessions} 個工作階段正在回覆，將被停止",
+    confirmQuitDrafts: "未存檔的草稿可能遺失",
+    askTrayDesc:
+      "視窗隱藏，工作階段繼續在背景執行，點系統匣圖示隨時回來",
+    askQuitDesc: "停止所有工作階段並結束程序",
+    askSettingsHint: "可隨時在設定中變更",
   },
   pluginDesktopConsent: {
     message: "{name} 想要執行 {operation}",

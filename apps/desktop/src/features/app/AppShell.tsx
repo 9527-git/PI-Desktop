@@ -12,6 +12,7 @@ import { ChatSurface } from "../../components/ChatSurface";
 import { SearchDialog } from "../../components/SearchDialog";
 import { ToastHost } from "../../components/Toast";
 import { ExtensionPromptHost } from "../../components/ExtensionPromptDialog";
+import { QuitDialogHost } from "../../components/QuitDialogHost";
 import { ProjectCreateDialog } from "../../components/ProjectCreateDialog";
 import { UpdateBanner } from "../../components/UpdateBanner";
 import { WindowControls } from "../../components/WindowControls";
@@ -92,6 +93,7 @@ export function AppShell() {
           <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
           <ToastHost />
           <ExtensionPromptHost />
+          <QuitDialogHost />
           <UpdateBanner />
         </>
       );
@@ -287,6 +289,7 @@ export function AppShell() {
           <SearchDialog open={searchOpen} onClose={() => setSearchOpen(false)} />
           <ToastHost />
           <ExtensionPromptHost />
+          <QuitDialogHost />
         </>
       );
     }

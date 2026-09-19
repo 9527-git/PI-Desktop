@@ -181,6 +181,7 @@ export function registerIpcHandlers(dependencies: RegisterIpcDependencies) {
     togglePluginLauncher,
     safeOpenExternal,
     updater,
+    quitDialog: dependencies.quitDialog,
   });
   registerNotificationIpc({
     registrar,

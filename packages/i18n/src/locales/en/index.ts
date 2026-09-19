@@ -32,6 +32,16 @@ export const en = {
     confirmQuitBody:
       "Are you sure you want to quit? All running sessions will be stopped and unsaved changes may be lost.",
     confirmQuit: "Quit",
+    /** D452: in-app confirmation shows what is actually running. */
+    confirmQuitIntro:
+      "Quitting interrupts the work below. Saved session history is not affected.",
+    confirmQuitRunning:
+      "{sessions} running replies will be stopped",
+    confirmQuitDrafts: "Unsaved drafts may be lost",
+    askTrayDesc:
+      "The window hides and sessions keep running in the background. Click the tray icon to come back.",
+    askQuitDesc: "Stop all sessions and end the process.",
+    askSettingsHint: "Change this any time in Settings",
   },
   /**
    * Native consent dialog for a file access a plugin's manifest did not

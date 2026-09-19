@@ -146,6 +146,7 @@ import {
 } from "./bootstrap/launcher";
 import { createWorkPanelRuntime } from "./bootstrap/work-panel";
 import { createCloseBehaviorRuntime } from "./bootstrap/close-behavior";
+import { createQuitDialogRuntime } from "./bootstrap/quit-dialog";
 import { registerShutdownHandlers, type ShutdownState } from "./bootstrap/shutdown";
 import { registerDiagnosticsIpc } from "./ipc/diagnostics-ipc";
 import { registerMarketIpc } from "./ipc/market-ipc";
@@ -957,11 +958,18 @@ wirePluginThemeRuntimeServices({
   broadcastAppearance,
 });
 
+const quitDialogRuntime = createQuitDialogRuntime({
+  getWindow: () => mainWindow,
+  getRunningTurns: () => activeTurns.size,
+  send: sendToRenderer,
+});
+
 closeBehaviorRuntime = createCloseBehaviorRuntime({
   state: windowLifecycleState,
   dataDir,
   getLocale: () => updaterLocale,
   createTray,
+  quitDialog: quitDialogRuntime,
 });
 const {
   applyCloseBehavior,
@@ -1254,6 +1262,7 @@ function registerIpc() {
     togglePluginLauncher,
     safeOpenExternal,
     updater,
+    quitDialog: quitDialogRuntime,
     dataDir,
     activeTurns,
     isTurnDispatchable,

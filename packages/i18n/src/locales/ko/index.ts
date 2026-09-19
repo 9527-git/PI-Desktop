@@ -34,6 +34,16 @@ export const ko = {
     confirmQuitBody:
       "정말 종료할까요? 실행 중인 모든 세션이 중지되며 저장하지 않은 변경 사항을 잃을 수 있습니다.",
     confirmQuit: "종료",
+    /** D452: in-app confirmation shows what is actually running. */
+    confirmQuitIntro:
+      "종료하면 아래 작업이 즉시 중단됩니다. 저장된 세션 기록은 영향을 받지 않습니다.",
+    confirmQuitRunning:
+      "{sessions} 응답 중인 세션이 중지됩니다",
+    confirmQuitDrafts: "저장되지 않은 초안이 손실될 수 있습니다",
+    askTrayDesc:
+      "창은 숨겨지고 세션은 백그라운드에서 계속 실행됩니다. 트레이 아이콘으로 돌아오세요.",
+    askQuitDesc: "모든 세션을 중지하고 프로세스를 종료합니다.",
+    askSettingsHint: "설정에서 언제든지 변경 가능"
   },
   /**
    * Native consent dialog for a file access a plugin's manifest did not

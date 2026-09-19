@@ -30,7 +30,17 @@ export const es = {
     "closeToTray": "Cerca de la bandeja",
     "confirmQuitTitle": "¿Salir de PI-Desktop?",
     "confirmQuitBody": "¿Está seguro de que desea salir? Se detendrán todas las sesiones en ejecución y es posible que se pierdan los cambios no guardados.",
-    "confirmQuit": "Salir"
+    "confirmQuit": "Salir",
+    /** D452: in-app confirmation shows what is actually running. */
+    "confirmQuitIntro":
+      "Salir interrumpe el trabajo siguiente. El historial guardado de sesiones no se ve afectado.",
+    "confirmQuitRunning":
+      "{sessions} respuestas en curso se detendrán",
+    "confirmQuitDrafts": "Los borradores sin guardar pueden perderse",
+    "askTrayDesc":
+      "La ventana se oculta y las sesiones siguen en segundo plano. Vuelve con el icono de la bandeja.",
+    "askQuitDesc": "Detener todas las sesiones y cerrar el proceso.",
+    "askSettingsHint": "Cámbialo cuando quieras en Ajustes"
   },
   "pluginDesktopConsent": {
     "message": "{name} quiere ejecutar {operation}",

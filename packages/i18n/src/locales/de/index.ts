@@ -30,7 +30,17 @@ export const de = {
     "closeToTray": "In der Taskleiste",
     "confirmQuitTitle": "PI-Desktop beenden?",
     "confirmQuitBody": "Sind Sie sicher, dass Sie beenden möchten? Alle laufenden Sitzungen werden gestoppt und nicht gespeicherte Änderungen gehen möglicherweise verloren.",
-    "confirmQuit": "Beenden"
+    "confirmQuit": "Beenden",
+    /** D452: in-app confirmation shows what is actually running. */
+    "confirmQuitIntro":
+      "Beenden unterbricht die folgenden Vorgänge. Gespeicherte Sitzungsverläufe bleiben erhalten.",
+    "confirmQuitRunning":
+      "{sessions} laufende Antworten werden gestoppt",
+    "confirmQuitDrafts": "Nicht gespeicherte Entwürfe können verloren gehen",
+    "askTrayDesc":
+      "Das Fenster wird ausgeblendet, Sitzungen laufen im Hintergrund weiter. Über das Tray-Symbol kommst du zurück.",
+    "askQuitDesc": "Alle Sitzungen stoppen und den Prozess beenden.",
+    "askSettingsHint": "Jederzeit in den Einstellungen änderbar"
   },
   "pluginDesktopConsent": {
     "message": "{name} möchte {operation} ausführen",
