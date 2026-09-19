@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.37",
+    "date": "2026-09-19",
+    "highlights": [
+      "Oturum kartı artık bir satırın üzerine döner dönmez açılır ve ayrıldıktan sonra 3 saniye kalır; içindekileri kullanmaya vaktiniz olur.",
+      "Karttaki oturum kimliği tek tıkla kopyalama düğmesi kazandı; önizleme satırları satır içi Markdown işliyor — kod, kalın yazı ve dosya yolları düz gri yerine kendi renkleriyle görünüyor.",
+      "Durum artık ayrılan bir sütunda durmuyor: nokta ya da kapsül her oturum satırını sol kenara yapışık açıyor, başlık hemen arkasından geliyor — ikisi tek bir bütün olarak okunuyor ve hiçbir başlık sıkışmıyor.",
+    ],
+  },
+  {
     "version": "0.14.36",
     "date": "2026-09-18",
     "highlights": [

@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.37",
+    "date": "2026-09-19",
+    "highlights": [
+      "Die Sitzung-Hover-Card öffnet sich jetzt in dem Moment, in dem du über einer Zeile verweilst, und bleibt 3 Sekunden, nachdem du weitergezogen bist – lang genug, um sie zu benutzen.",
+      "Ihre Sitzungs-ID bekam einen Ein-Klick-Kopieren-Knopf, und die Vorschauzeilen rendern Inline-Markdown: Code, Fettung und Dateipfade zeigen ihre Farben statt Einheitsgrau.",
+      "Der Status steht nicht mehr in einer reservierten Spalte: Punkt oder Kapsel führen jede Zeile bündig am linken Rand, der Titel folgt direkt dahinter – die beiden lesen sich als eine Gruppe, und kein Titel wird gedrängt.",
+    ],
+  },
+  {
     "version": "0.14.36",
     "date": "2026-09-18",
     "highlights": [

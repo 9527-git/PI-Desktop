@@ -29,6 +29,15 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.37",
+    date: "2026-09-19",
+    highlights: [
+      "The session hover card now opens the moment you rest on a row and stays for 3 seconds after you leave, so you can actually reach what is on it.",
+      "Its session id gained a one-click copy button, and its preview lines render inline markdown - code, bold, and file paths show their colors instead of flat gray.",
+      "Status no longer stands in a reserved column: the dot or pill now leads each session row flush with its left edge and the title follows right behind, so the two read as one group and no title gets squeezed.",
+    ],
+  },
+  {
     version: "0.14.36",
     date: "2026-09-18",
     highlights: [
@@ -922,6 +931,15 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.37",
+    date: "2026-09-19",
+    highlights: [
+      "鼠标停在会话行上时，悬停卡片立刻弹出；移开后还会停留 3 秒，足够你伸手用到卡片上的内容。",
+      "卡片里的会话 ID 增加了一键复制按钮，预览文字改为行内 Markdown 渲染——代码、加粗和文件路径都有各自的颜色，不再是一片灰。",
+      "状态不再独占一条预留列：圆点或胶囊现在紧贴所在行的左边缘打头，标题紧跟其后，两者读起来是一组，标题也不会被挤。",
+    ],
+  },
+  {
     version: "0.14.36",
     date: "2026-09-18",
     highlights: [
@@ -1813,6 +1831,15 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.37",
+    date: "2026-09-19",
+    highlights: [
+      "滑鼠停在會話行上時，懸停卡片立刻彈出；移開後仍會停留 3 秒，足夠你伸手用到卡片上的內容。",
+      "卡片裡的會話 ID 新增一鍵複製按鈕，預覽文字改以行內 Markdown 渲染——程式碼、粗體與檔案路徑都有各自的顏色，不再是一片灰。",
+      "狀態不再獨佔一條預留欄：圓點或膠囊現在緊貼所在行的左邊緣打頭，標題緊跟其後，兩者讀起來是一組，標題也不會被擠。",
+    ],
+  },
   {
     version: "0.14.36",
     date: "2026-09-18",
