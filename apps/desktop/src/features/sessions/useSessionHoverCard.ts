@@ -37,7 +37,7 @@ export function useSessionHoverCard() {
     dismissTimerRef.current = setTimeout(() => {
       dismissTimerRef.current = undefined;
       hide();
-    }, 160);
+    }, 3000);
   }, [cancelDismiss, hide]);
 
   const show = useCallback((request: SessionHoverCardData) => {

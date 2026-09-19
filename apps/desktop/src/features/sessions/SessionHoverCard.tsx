@@ -3,7 +3,16 @@ import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import type { ProjectWorkspace, SessionCollaborationSummary, SessionReference } from "@pi-desktop/shared";
 import { api } from "../../lib/api";
-import { IconArrowUpRight, IconBranch, IconClock, IconFolder } from "../../components/icons";
+import {
+  IconArrowUpRight,
+  IconBranch,
+  IconCheck,
+  IconClock,
+  IconCopy,
+  IconFolder,
+} from "../../components/icons";
+import { MarkdownInline } from "../../components/MarkdownInline";
+import { useCopy } from "../../components/Markdown";
 import { observeSessionCollaboration } from "./session-collaboration-reader";
 import {
   collaborationStatusKey,
@@ -38,6 +47,7 @@ export function SessionHoverCard({
     branch: card.branch,
   });
   const { session, target } = card;
+  const { copied, copy } = useCopy();
 
   useEffect(() => {
     // The card is reusable; its per-session read state must not leak into the
@@ -127,7 +137,19 @@ export function SessionHoverCard({
             : readState === "unavailable" ? t("sessionCollaboration.unavailable") : t("sessionCollaboration.loading")}
         </span>
       </div>
-      <code className="sidebar-session-hover-card-id">{session.id}</code>
+      <div className="sidebar-session-hover-card-id-row">
+        <code className="sidebar-session-hover-card-id">{session.id}</code>
+        <button
+          type="button"
+          className="sidebar-session-hover-card-id-copy"
+          data-action="copy-session-id"
+          title={t("nav.copyConversationId")}
+          aria-label={t("nav.copyConversationId")}
+          onClick={() => copy(session.id)}
+        >
+          {copied ? <IconCheck size={12} /> : <IconCopy size={12} />}
+        </button>
+      </div>
       {summary?.createdBySession ? (
         <div className="sidebar-session-hover-card-section">
           <span className="sidebar-session-hover-card-section-label">{t("sessionCollaboration.createdBy")}</span>
@@ -197,7 +219,7 @@ export function SessionHoverCard({
           <span className="sidebar-session-hover-card-peer">
             {t("sessionCollaboration.receivedFrom", { name: summary.currentTask.senderSession.title || summary.currentTask.senderSession.sessionId })}
           </span>
-          <span className="sidebar-session-hover-card-preview">{sessionPreview(summary.currentTask.text)}</span>
+          <span className="sidebar-session-hover-card-preview"><MarkdownInline source={sessionPreview(summary.currentTask.text)} /></span>
         </div>
       ) : null}
       {summary?.recentExchanges.length ? (
@@ -211,7 +233,7 @@ export function SessionHoverCard({
                     name: exchange.peer.title || exchange.peer.sessionId,
                   })}
                 </span>
-                <span className="sidebar-session-hover-card-preview">{sessionPreview(exchange.preview, 180)}</span>
+                <span className="sidebar-session-hover-card-preview"><MarkdownInline source={sessionPreview(exchange.preview, 180)} /></span>
               </li>
             ))}
           </ol>
@@ -222,7 +244,7 @@ export function SessionHoverCard({
           <span className="sidebar-session-hover-card-section-label">
             {result.error ? t("sessionCollaboration.failure") : t("sessionCollaboration.result")}
           </span>
-          <span className="sidebar-session-hover-card-preview">{sessionPreview(result.error || result.text)}</span>
+          <span className="sidebar-session-hover-card-preview"><MarkdownInline source={sessionPreview(result.error || result.text)} /></span>
         </div>
       ) : null}
       <div className="sidebar-session-hover-card-meta">

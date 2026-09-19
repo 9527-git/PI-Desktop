@@ -1345,7 +1345,12 @@ Project drag/drop follows these patterns:
   show a live `running` or `waiting_permission` state, but never loads the
   complete transcript or exposes message content beyond the host's bounded
   preview. Completion and failure results are derived from the durable target
-  turn and remain visible after reload.
+  turn and remain visible after reload. Preview text renders through the
+  shared inline-markdown treatment (code spans, bold, and file paths keep the
+  same hues as one-line row summaries), not as flat monochrome text.
+- The card shows the session id with a one-click copy button; the button
+  copies the raw id through the clipboard and confirms with the shared
+  copied check state. No native tooltip or context-menu path replaces it.
 - Before showing a project session card, the renderer re-reads the active
   workspace through the existing project-read operation. This keeps the Git
   branch current after an external checkout without activating a project or
@@ -1357,8 +1362,11 @@ Project drag/drop follows these patterns:
 - The session row does not set a native `title` attribute. The hover card is
   the only full-title surface, so the browser tooltip never stacks on the
   card.
-- The card cancels on pointer leave, focus blur, scroll (any scroll
-  container), resize, and the moment a context menu opens.
+- Leaving the card does not dismiss it instantly: pointer leave and focus blur
+  start a 3s dwell, and moving back onto the card cancels it, so the user can
+  cross the gap and reach the copy button. Scroll (any scroll container),
+  resize, opening a context menu, Escape, and hiding the window still cancel
+  the card immediately.
 
 ### 9.2 Sidebar scrolling
 

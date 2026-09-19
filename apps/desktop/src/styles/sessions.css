@@ -710,12 +710,43 @@
   color: var(--ds-warning);
 }
 
+.sidebar-session-hover-card-id-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
 .sidebar-session-hover-card-id {
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   line-height: var(--leading-compact);
   color: var(--ds-text-muted);
   overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.sidebar-session-hover-card-id-copy {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ds-text-muted);
+  cursor: pointer;
+}
+
+.sidebar-session-hover-card-id-copy:hover {
+  background: var(--ds-bg-hover);
+  color: var(--ds-text-primary);
+}
+
+.sidebar-session-hover-card-id-copy:focus-visible {
+  outline: 2px solid var(--ds-accent);
+  outline-offset: 1px;
 }
 
 .sidebar-session-hover-card-section {
