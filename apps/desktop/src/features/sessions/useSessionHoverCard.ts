@@ -11,15 +11,8 @@ export type SessionHoverCardData = {
 
 export function useSessionHoverCard() {
   const [card, setCard] = useState<SessionHoverCardData | null>(null);
-  const requestRef = useRef<SessionHoverCardData | null>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const shownTargetRef = useRef<HTMLElement | null>(null);
   const dismissTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-
-  const cancelPending = useCallback(() => {
-    requestRef.current = null;
-    clearTimeout(timerRef.current);
-    timerRef.current = undefined;
-  }, []);
 
   const cancelDismiss = useCallback(() => {
     clearTimeout(dismissTimerRef.current);
@@ -28,9 +21,9 @@ export function useSessionHoverCard() {
 
   const hide = useCallback(() => {
     cancelDismiss();
-    cancelPending();
+    shownTargetRef.current = null;
     setCard(null);
-  }, [cancelDismiss, cancelPending]);
+  }, [cancelDismiss]);
 
   const scheduleHide = useCallback(() => {
     cancelDismiss();
@@ -41,17 +34,12 @@ export function useSessionHoverCard() {
   }, [cancelDismiss, hide]);
 
   const show = useCallback((request: SessionHoverCardData) => {
-    if (requestRef.current?.target === request.target) return;
+    if (shownTargetRef.current === request.target) return;
     cancelDismiss();
-    cancelPending();
-    setCard(null);
-    requestRef.current = request;
-    timerRef.current = setTimeout(() => {
-      timerRef.current = undefined;
-      if (requestRef.current !== request || !request.target.isConnected || document.hidden) return;
-      setCard(request);
-    }, 500);
-  }, [cancelDismiss, cancelPending]);
+    if (!request.target.isConnected || document.hidden) return;
+    shownTargetRef.current = request.target;
+    setCard(request);
+  }, [cancelDismiss]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -67,14 +55,13 @@ export function useSessionHoverCard() {
     document.addEventListener("visibilitychange", onVisibility);
     return () => {
       cancelDismiss();
-      cancelPending();
       window.removeEventListener("scroll", hide, true);
       window.removeEventListener("resize", hide);
       window.removeEventListener("pointerdown", hide);
       window.removeEventListener("keydown", onKey);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [cancelDismiss, cancelPending, hide]);
+  }, [cancelDismiss, hide]);
 
   useEffect(() => {
     if (card && !card.target.isConnected) hide();

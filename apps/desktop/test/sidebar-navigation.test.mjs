@@ -307,7 +307,8 @@ test("session rows use the hover card instead of a native title tooltip", () => 
   assert.match(hoverSource, /className="sidebar-session-hover-card-title"/);
   assert.match(sessionMain, /onFocusCapture=/);
   assert.match(sessionMain, /aria-describedby=/);
-  assert.match(hoverHookSource, /\}, 500\)/);
+  assert.match(hoverHookSource, /setCard\(request\);/);
+  assert.doesNotMatch(hoverHookSource, /\}, 500\)/, "the card reveals instantly, no 500ms timer");
   assert.match(hoverHookSource, /event\.key === "Escape"/);
   assert.match(hoverHookSource, /addEventListener\("scroll", hide, true\)/);
   assert.match(hoverHookSource, /addEventListener\("visibilitychange", onVisibility\)/);
@@ -323,7 +324,7 @@ test("session hover cards expose readable models and keyboard-navigable session 
   assert.match(hoverSource, /type="button"/);
   assert.match(hoverSource, /onClick=\{\(\) => openSessionReference/);
   assert.match(hoverSource, /onFocusCapture=\{keepVisible\}/);
-  assert.match(hoverHookSource, /setTimeout\(\(\) => \{[\s\S]*?hide\(\);[\s\S]*?\}, 160\)/);
+  assert.match(hoverHookSource, /setTimeout\(\(\) => \{[\s\S]*?hide\(\);[\s\S]*?\}, 3000\)/);
   assert.match(globalStyles, /\.sidebar-session-hover-card\s*\{[\s\S]*?pointer-events:\s*auto;/);
   assert.match(globalStyles, /\.sidebar-session-hover-card-session-link:focus-visible\s*\{[\s\S]*?outline:/);
 });
