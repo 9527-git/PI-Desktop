@@ -146,12 +146,21 @@ test("renders word-bearing sidebar status pills in a fixed lane", () => {
   assert.match(sidebar, /nav\.sessionRunningShort[\s\S]*nav\.sessionNeedsInputShort/);
   assert.match(sidebar, /thread-item-status-dot/);
   assert.match(sidebar, /thread-item-status-word/);
-  // The row still shows the session title alone, and every row keeps reserving
-  // the same lane on its own left edge — now wide enough for the pill's word —
-  // so the column never reflows when a session gains a state.
-  assert.match(
-    sidebar,
-    /className="thread-item-main"[\s\S]*?\{status \? renderSessionStatus\(status\) : null\}/,
+  // The marked-row static layout (D453) keeps the pill in the row's own left
+  // lane and ahead of the title, so a title never shifts when its session gains
+  // a state. Both the row button and the pill carry the mark.
+  assert.ok(
+    sidebar.includes('className={`thread-item-main ${status ? "marked" : ""}`}'),
+    "the row button is marked while a state is set",
+  );
+  assert.ok(
+    sidebar.includes("thread-item-status ${status} marked"),
+    "the pill marks itself for the static lane",
+  );
+  assert.ok(
+    sidebar.indexOf("thread-item-status ${status} marked") <
+      sidebar.indexOf('<span className="thread-item-title">'),
+    "the pill renders before the title",
   );
   assert.doesNotMatch(sidebar, /renderSessionStatusChip|thread-item-status-chip/);
   assert.doesNotMatch(sidebar, /isAttentionStatus|thread-item-status-label/);
