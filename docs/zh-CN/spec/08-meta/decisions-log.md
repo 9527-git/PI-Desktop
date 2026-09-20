@@ -4896,3 +4896,17 @@ ADR 0261 的带文字胶囊被报告为“不见了”，而这正是事实：�
 - 内容、字号层级、portal 挂载、下/上/侧向定位、3 秒停留与会话 id 复制按钮均不变。
   仅渲染层样式：无 IPC、schema、权限或持久化状态变化。
 - 参见 `04-ux/09-interaction-patterns.md` §9.1b 与 E2E-047b。
+
+## 2026-09-20 — 侧边栏会话悬浮卡片改为按所在行测量宽度（D460）
+
+- 修订 D459 的固定数值：卡片不再以恒定宽度打开。它取所悬停行的实测宽度，并以 `264px`
+  为上限，因此在任何侧边栏宽度下都不会越出会话列——`240px..520px` 的侧边栏收窄，卡片
+  随之收窄；侧边栏很宽时，卡片仍是一张有上限的摘要，而不是和整列一样宽的面板。
+- 规则由 `session-collaboration-view.ts` 中的 `SESSION_HOVER_CARD_MAX_WIDTH` 与
+  `sessionHoverCardWidth()` 拥有。卡片在测量自身之前先把行宽写入
+  `--session-hover-card-width`，所以第一帧不会按兜底宽度绘制与定位；行无法测量（已断开、
+  宽度为 0）时回退到该上限。
+- D459 的 `10px 12px` 内边距与 8px 纵向节奏不变，内容、字号层级、portal 挂载、定位、
+  3 秒停留与会话 id 复制按钮同样不变。
+- 回归覆盖：`session-hover-card-width.test.mjs`。
+- 参见 `04-ux/09-interaction-patterns.md` §9.1b 与 E2E-047b。

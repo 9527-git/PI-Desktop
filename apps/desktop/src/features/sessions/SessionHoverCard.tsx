@@ -19,6 +19,7 @@ import {
   currentCollaborationResult,
   formatSessionTimestamp,
   positionSessionHoverCard,
+  sessionHoverCardWidth,
   sessionPreview,
   sessionReferenceAvailable,
 } from "./session-collaboration-view";
@@ -85,8 +86,16 @@ export function SessionHoverCard({
     if (!element) return;
     const place = () => {
       if (!target.isConnected) return;
+      const anchor = target.getBoundingClientRect();
+      // The card summarizes its own row, so it never leaves the session column.
+      // The width is applied before the measurement, or the first frame would
+      // paint the wider fallback and re-place on the resize callback.
+      element.style.setProperty(
+        "--session-hover-card-width",
+        `${sessionHoverCardWidth(anchor.width)}px`,
+      );
       setPosition(positionSessionHoverCard(
-        target.getBoundingClientRect(),
+        anchor,
         { width: element.offsetWidth, height: element.offsetHeight },
         { width: window.innerWidth, height: window.innerHeight },
       ));

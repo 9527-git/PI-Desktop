@@ -6431,3 +6431,21 @@ bar, and the jump control off the pane's center axis.
   dwell, and the session-id copy button are unchanged. Renderer styles only:
   no IPC, schema, permission, or persisted-state change.
 - See `04-ux/09-interaction-patterns.md` §9.1b and E2E-047b.
+
+## 2026-09-20 — The sidebar session hover card measures its own row (D460)
+
+- Amends D459's fixed numbers: the card no longer opens at a constant width. It
+  takes the hovered row's measured width, capped at `264px`, so it can never
+  leave the session column at any sidebar width — narrowing the `240px..520px`
+  sidebar narrows the card with it, and a wide sidebar still gets a bounded
+  summary instead of a panel as wide as the column.
+- `SESSION_HOVER_CARD_MAX_WIDTH` and `sessionHoverCardWidth()` in
+  `session-collaboration-view.ts` own the rule. The card writes the row width to
+  `--session-hover-card-width` before it measures itself, so the first frame is
+  never painted and placed at the fallback width; a row that cannot be measured
+  (disconnected, zero width) falls back to the cap.
+- D459's `10px 12px` padding and 8px internal rhythm are unchanged, as are the
+  content, type scale, portal placement, positioning, the 3s dwell, and the
+  session-id copy button.
+- Regression coverage: `session-hover-card-width.test.mjs`.
+- See `04-ux/09-interaction-patterns.md` §9.1b and E2E-047b.

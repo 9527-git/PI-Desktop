@@ -82,3 +82,11 @@ export function positionSessionHoverCard(
   }
   return { left, top };
 }
+
+/** The card summarizes one session row, so it never outgrows that row. */
+export const SESSION_HOVER_CARD_MAX_WIDTH = 264;
+
+export function sessionHoverCardWidth(rowWidth: number): number {
+  if (!Number.isFinite(rowWidth) || rowWidth <= 0) return SESSION_HOVER_CARD_MAX_WIDTH;
+  return Math.min(SESSION_HOVER_CARD_MAX_WIDTH, rowWidth);
+}
