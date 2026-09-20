@@ -653,8 +653,8 @@ unit/integration 测试；代码 pull request 使用有选择且高价值的 E2E
 - **先决条件**：PI-Desktop 打开且至少有五个会话，已有构建好的应用与
   host-core 二进制（CDP 运行器自带一次性配置，并通过捕获装置植入各行）。
 - **步骤**：1) 每种状态各种植一行——选中、运行中、权限、ask、Plan/Goal 审批。
-  2) 检查每行的状态胶囊、它自己的状态车道、该行标题从哪里开始，以及项目目录头的
-  名字从哪里开始。
+  2) 检查每行的状态胶囊、它的左缘相对该行自身左缘的位置、该行标题从哪里开始，以及
+  列表家具从哪里开始。
   3) 在明暗两种主题下重复运行中与待确认两行。
   4) 在 `prefers-reduced-motion: reduce` 下重新检查，再清除该偏好后检查。
   5) 确认对话顶部栏不含状态槽或胶囊。
@@ -668,13 +668,15 @@ unit/integration 测试；代码 pull request 使用有选择且高价值的 E2E
   `prefers-reduced-motion: reduce` 下所有动画关闭，清除该偏好后恢复。
   每枚胶囊都携带其状态的短词且不被截断（`nav.session<状态>Short`），任何一行都不
   渲染第二行记录区文字：`.thread-item-preview`、`.thread-item-status-label`、
-  `.thread-item-status-chip` 都不再渲染。按 D451，每一行在自己的左边缘留出一条
-  80px 的状态车道：每枚胶囊都是一枚 20px 高的标签，以绝对定位钉在该车道的起点
-  （左边缘距行自身的边缘 0px），贴住自己的短词，并以
-  `lane - --ds-sidebar-status-pill-gap` 为宽度上限，因此绝不会碰到标题列；无论一行
-  有没有状态，它的标题都恰好从车道末端开始，并且胶囊属于行自己的按钮，所以点它就
-  能选中该会话。列表保持唯一文字列：项目目录头的名字从会话标题列起笔、其字形簇留在
-  车道内，时间分隔则带着自己的提前量随车道行进。
+  `.thread-item-status-chip` 都不再渲染。按 D455，带标记的行以胶囊领在行首、不再
+  预留车道：胶囊是一枚 20px 高的静态标签、位于行按钮内部，其左缘落在该行自身左缘
+  内缩 4px 处，短词贴住它，宽度上限为
+  `--ds-sidebar-status-lane - --ds-sidebar-status-pill-gap`；标题经
+  `--ds-sidebar-status-pill-gap` 紧跟在胶囊右缘之后 6px。无状态的行标题也从这同一个
+  4px 内缩开始，因此带标记行与无状态行不再共享同一标题列（D449 的规则），并且胶囊
+  属于行自己的按钮，所以点它就能选中该会话。列表家具——时间分隔、加载更多、空态
+  文案——都从这同一个 4px 内缩开始，项目目录头也在自己的内缩处领起、不再等一条
+  车道。
   对话顶部栏没有 `.ct-status-slot` 或 `.ct-status-chip`。不触碰任何 IPC、
   Host 或持久化状态。
 - **链接规格**：`04-ux/07-ui-design-system.md` §4.5、`04-ux/08-component-spec.md` §2/§3
@@ -682,10 +684,9 @@ unit/integration 测试；代码 pull request 使用有选择且高价值的 E2E
 - **里程碑**：M6 后桌面外壳维护
 - **状态**：自动化（`scripts/e2e-sidebar-status-dot.mjs`，经
   `pnpm test:e2e:sidebar-status` —— 逐行胶囊状态、并集一致性、名称、优先级、
-  明暗主题令牌、80px 车道与共享的标题列、不截断的短词、唯一文字列、减少动效，以及
-  顶部栏缺失探针）；
-  单元覆盖见
-  `sidebar-session-status.test.mjs`
+  明暗主题令牌、胶囊的 4px 内缩与标题的 6px 间隙、不截断的短词、行高、减少动效，
+  以及顶部栏缺失探针）；家具的静态内缩由
+  `sidebar-session-status.test.mjs` 覆盖。
 
 #### E2E-CHAT-turn-usage-and-timestamps：完成的回复显示本轮 token 用量与消息时间
 

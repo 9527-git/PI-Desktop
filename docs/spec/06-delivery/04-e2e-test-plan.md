@@ -1601,8 +1601,9 @@ and identify the platform validation still needed.
   app plus a host-core binary are available (the CDP runner supplies its own
   throwaway profile and seeds the rows through the capture rig).
 - **Steps**: 1) Seed one row per state — selected, running, permission, ask,
-  Plan/Goal approval. 2) Inspect each row's status pill, its own status lane,
-  where the row's title starts, and where the project header's name starts.
+  Plan/Goal approval. 2) Inspect each row's status pill, its left edge relative
+  to the row's own left edge, where the row's title starts, and where the list
+  furniture starts.
   3) Repeat the running and needs-input rows in light and dark themes.
   4) Re-inspect under `prefers-reduced-motion: reduce`, then after clearing it.
   5) Confirm the conversation topbar carries no status slot or chip.
@@ -1619,15 +1620,18 @@ and identify the platform validation still needed.
   preference restores them. Every pill carries its state's short locale word
   unclipped (`nav.session<State>Short`), and no row renders a second line of
   transcript text: no `.thread-item-preview`, `.thread-item-status-label`, or
-  `.thread-item-status-chip` renders. Per D451 each row reserves an 80px status
-  lane on its own left edge: every pill is a 20px-tall tag absolutely pinned at
-  that lane's start (left edge 0) which hugs its own word and is capped at
-  `lane - --ds-sidebar-status-pill-gap`, so it never reaches the title column;
-  every row's title starts at exactly the lane's end whether or not the row
-  carries a status, and the pill belongs to the row's own button, so clicking it
-  selects that session. The list keeps one text column: a project header's name
-  starts on the session titles' column with its glyph cluster inside the lane,
-  and a time separator rides the lane with its own head start. The conversation
+  `.thread-item-status-chip` renders. Per D455 a marked row leads with its pill
+  instead of reserving a lane: the pill is a 20px-tall static tag inside the row
+  button whose left edge sits 4px inside the row's own left edge, its short word
+  hugs it and its width is capped at `--ds-sidebar-status-lane -
+  --ds-sidebar-status-pill-gap`, and the title follows 6px after the pill's
+  right edge via `--ds-sidebar-status-pill-gap`. A quiet row starts its title at
+  that same 4px inset, so a marked row and a quiet row no longer share one title
+  column (D449's rule); the pill belongs to the row's own button, so clicking it
+  selects that session. The list's furniture — a time separator, a load-more
+  row, the empty copy — starts at that same 4px inset, and a project header
+  leads its own row's column at its own inset instead of waiting for a lane. The
+  conversation
   topbar has no `.ct-status-slot` or `.ct-status-chip`. No IPC, host, or
   persisted state is touched.
 - **Specs linked**: `04-ux/07-ui-design-system.md` §4.5, `04-ux/08-component-spec.md` §2/§3
@@ -1635,10 +1639,10 @@ and identify the platform validation still needed.
 - **Milestone**: Post-M6 desktop shell maintenance
 - **Status**: Automated (`scripts/e2e-sidebar-status-dot.mjs` via
   `pnpm test:e2e:sidebar-status` — per-row pill state, union parity, label,
-  priority, both-theme tokens, the 80px lane, its shared title column, the
-  unclipped short words, the one text column, reduced-motion, and the
-  topbar-absence probe);
-  unit coverage in `sidebar-session-status.test.mjs`
+  priority, both-theme tokens, the pill's 4px inset and the title's 6px gap,
+  unclipped short words, row pitch, reduced-motion, and the topbar-absence
+  probe); the static furniture inset is covered by
+  `sidebar-session-status.test.mjs`.
 
 #### E2E-CHAT-turn-usage-and-timestamps: Completed replies show per-turn token usage and message times
 

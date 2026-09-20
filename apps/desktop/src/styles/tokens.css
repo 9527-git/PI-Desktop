@@ -137,15 +137,11 @@
   --ds-shadow-composer: 0 3px 7.5px #0000000a, 0 0 20px #0000000d;
   --ds-bg-elevated-primary: color-mix(in oklab, var(--gray-800) 96%, transparent);
   --ds-sidebar-width: clamp(240px, 275px, min(520px, calc(100vw - 320px)));
-  /* D451: every sidebar session row reserves this much of its own left edge for
-     its status pill, and the title column starts right after the lane, so a
-     quiet row and a marked row still share one title column. The lane is the
-     pill's fixed column - wide enough for the longest shipped short state word
-     beside its dot - and every row pays it, so the column never reflows when a
-     session gains or loses a state. */
+  /* D455: the row reserves no status lane. This width survives only as the cap
+     on the labelled status pill, wide enough for the longest shipped short state
+     word beside its dot, so no locale can take the row away from its title. */
   --ds-sidebar-status-lane: 80px;
-  /* D451: the pill's clearance from the title column, taken out of the lane
-     rather than added to it, so the title column keeps the lane's exact end. */
+  /* D455: the pill's clearance from the title it leads. */
   --ds-sidebar-status-pill-gap: 6px;
   /* Settings rail border-box width, including its 1px right border. The
    * settings drag band starts after the rail so the rail keeps a single

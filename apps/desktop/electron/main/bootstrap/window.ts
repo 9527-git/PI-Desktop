@@ -1008,6 +1008,8 @@ export async function createWindow({
                 const probe = await windowState.mainWindow!.webContents.executeJavaScript(`(() => ({
                   theme: document.documentElement.dataset.theme,
                   reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches,
+                  // D455: the lane token survives as the pill's width cap, not
+                  // as a reserved column; the pill now leads the row itself.
                   lane: getComputedStyle(document.documentElement)
                     .getPropertyValue('--ds-sidebar-status-lane')
                     .trim(),

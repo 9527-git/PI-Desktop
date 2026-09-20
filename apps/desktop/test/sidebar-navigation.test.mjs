@@ -270,8 +270,10 @@ test("sidebar row menus omit project reassignment and switching actions", () => 
 });
 
 test("session rows show the title alone in a column no status marker shifts", () => {
+  // D453 gave the row button a conditional `marked` class, so the row's markup
+  // is a template literal rather than a plain attribute.
   const sessionMain = sidebarSource.match(
-    /className="thread-item-main"[\s\S]*?<\/button>/,
+    /className=\{`thread-item-main[^`]*`\}[\s\S]*?<\/button>/,
   )?.[0] ?? "";
 
   // D450: the row carries nothing but its title, so the transcript's newest
@@ -289,13 +291,20 @@ test("session rows show the title alone in a column no status marker shifts", ()
 });
 
 test("session rows use the hover card instead of a native title tooltip", () => {
+  // D453 gave the row button a conditional `marked` class, so the row's markup
+  // is a template literal rather than a plain attribute.
   const sessionMain = sidebarSource.match(
-    /className="thread-item-main"[\s\S]*?<\/button>/,
+    /className=\{`thread-item-main[^`]*`\}[\s\S]*?<\/button>/,
   )?.[0] ?? "";
 
   assert.match(sessionMain, /showSessionHoverCard\(/);
   assert.doesNotMatch(sessionMain, /title=\{taskTitle\(session\.title\)\}/);
-  assert.doesNotMatch(sessionMain, /\btitle=\{/);
+  // The row's only `title` attribute is the status pill's own label (D451);
+  // the row itself still carries no native title tooltip.
+  assert.deepEqual(
+    [...sessionMain.matchAll(/\btitle=\{([^}]*)\}/g)].map((match) => match[1]),
+    ["label"],
+  );
   assert.match(hoverSource, /className="sidebar-session-hover-card"/);
   assert.match(hoverSource, /className="sidebar-session-hover-card-title"/);
   assert.match(sessionMain, /onFocusCapture=/);

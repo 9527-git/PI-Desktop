@@ -158,23 +158,17 @@
   opacity: 0.68;
 }
 
-/* D451: the marker is a labelled status pill that owns the lane every row
-   reserves on its own left edge. The lane is the pill's fixed column, so a
-   quiet row and a marked row still share one title column, and the pill names
-   its state with a short locale word beside the state's own token colour - the
-   row says what is happening instead of asking the reader to decode a shape.
-   The pill stays inside the row button, so it remains part of the click
-   target, and the full phrase stays on its tooltip and accessible name.
-   It hugs its own word like a tag instead of stretching across the lane, so
-   the lane only ever caps the pill's width. */
+/* D455: the marker is a labelled status pill that flows at the head of its own
+   row, right after the row's 4px left inset, and names its state with a short
+   locale word beside the state's own token colour - the row says what is
+   happening instead of asking the reader to decode a shape. It keeps a cap on
+   its width so no locale's word can take the row away from its title, and it
+   stays inside the row button, so it remains part of the click target. The full
+   phrase stays on its tooltip and accessible name. */
 .thread-item-status {
-  position: absolute;
-  top: 50%;
-  left: 0;
   display: inline-flex;
   max-width: calc(var(--ds-sidebar-status-lane) - var(--ds-sidebar-status-pill-gap));
   height: 20px;
-  transform: translateY(-50%);
   align-items: center;
   gap: 4px;
   border: 1px solid transparent;
@@ -186,10 +180,10 @@
   line-height: var(--leading-none);
 }
 
-/* B: marked rows use static layout so titles hug their pills */
+/* A marked row's pill takes the one clearance that separates it from the title
+   it labels (`--ds-sidebar-status-pill-gap`); the row's own `gap: 0` leaves that
+   clearance as the only space between them. */
 .marked .thread-item-status {
-  position: static;
-  transform: none;
   margin-right: var(--ds-sidebar-status-pill-gap);
 }
 

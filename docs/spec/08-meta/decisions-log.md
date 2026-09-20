@@ -6249,3 +6249,37 @@ neither invents a figure it cannot justify.
 - See `03-runtime/01-ipc-protocol.md`, `04-ux/08-component-spec.md` §8.3/§8.5,
   `04-ux/09-interaction-patterns.md` §3A, and
   E2E-CHAT-compact-from-context-inspector in `06-delivery/04-e2e-test-plan.md`.
+
+## 2026-09-20 — The row gives up its status lane and the pill leads the row (D455)
+
+> **Supersedes D451's 80px lane and its "every row pays" trade-off**, completes
+> D453's flush title, and picks D449's flush-to-the-left-edge rule back up for a
+> labelled pill. The D444 state model, the D445 tokens, and both motion cadences
+> stay.
+
+The lane was D451's answer to the requirement that a row name its state, and it
+bought a stable title column by making every row pay 80px of its leading edge.
+That cost never sat well: a mostly empty column pushed every title to the right
+and broke the row's read as one group. The row now gives the lane back. A marked
+row shows its labelled pill flush at its own left edge, 4px in, and starts its
+title right after the pill via the `--ds-sidebar-status-pill-gap` (`6px`); a
+quiet row starts its title at that same 4px inset. A quiet row and a marked row
+therefore no longer share one title column — the pill leads the title, rather
+than a reserved column holding it (D449's rule), which is the accepted trade for
+the row reading as one group and for leading with the pill. The result restores
+0.14.41's flush-to-the-edge layout for the sidebar status marker.
+
+- The pill's look does not change: it is still a 20px-tall solid/tinted capsule
+  with 8px of side padding, its own token, its dot's motion, and its short locale
+  word; `--ds-sidebar-status-lane` (`80px`) survives only as the pill's maximum
+  width, not as a reserved column.
+- `.marked.thread-item-main` drops the 80px left padding and the pill's own
+  padding-left calculation and sets `gap: 0`, so the pill's trailing
+  `--ds-sidebar-status-pill-gap` is the only space before the title. A marked
+  row's pin or native-Pi marker takes 4px of margin so it never touches the pill.
+- The list's furniture rides the row's own text column again: the time-group
+  header, the load-more row, and the empty copy all start at the row's 4px inset,
+  the column they had before D451 moved them.
+- See `04-ux/07-ui-design-system.md` §4.5/§16 and
+  `04-ux/08-component-spec.md` §2.2/§3.4/§3.6, and
+  E2E-SIDEBAR-status-dot-pending-union in `06-delivery/04-e2e-test-plan.md`.

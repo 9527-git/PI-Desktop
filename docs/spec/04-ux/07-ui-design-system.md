@@ -243,18 +243,20 @@ Light-surface polish (D148):
 
 ### 4.5 Sidebar task status semantics
 
-Compact task rows reserve `--ds-sidebar-status-lane` (`80px`) of their own left
-edge for a labelled status pill and start their title right after that lane, so
-a quiet row and a marked row still share one title column: the lane is the
-pill's fixed column, paid by every row, so the column never reflows when a
-session gains or loses a state (D451, superseding D450's 22px shape-only lane).
-The lane lives inside the row's own button, so the pill stays part of the click
-target that selects the session, and the pill's clearance to the title column
-is the `--ds-sidebar-status-pill-gap` (`6px`) taken out of the lane rather than
-added to it. Every status pill names its state with a short locale word beside
-the state's own token colour, so the row says what is happening instead of
-asking the reader to decode a shape; each status consumes an existing semantic
-token rather than introducing a decorative palette:
+Compact task rows no longer reserve a status lane: a marked row shows its
+labelled status pill flush at its own left edge, 4px in, and starts its title
+right after the pill, while a quiet row starts its title at that same 4px inset
+— so a quiet row and a marked row no longer share one title column. The pill
+leads its row and the row reads as one group, the trade the layout takes to stop
+every row paying for the lane (D455, superseding D451's 80px lane and completing
+D453's flush title). The pill lives inside the row's own button, so it stays
+part of the click target that selects the session, and its clearance to the
+title is the `--ds-sidebar-status-pill-gap` (`6px`) the pill carries rather
+than a lane it is taken out of. `--ds-sidebar-status-lane` (`80px`) survives
+only as the pill's maximum width. Every status pill names its state with a short
+locale word beside the state's own token colour, so the row says what is
+happening instead of asking the reader to decode a shape; each status consumes
+an existing semantic token rather than introducing a decorative palette:
 
 | State | Semantic color | Pill | Short word (zh-CN / en) | Meaning |
 |---|---|---|---|---|
@@ -293,12 +295,14 @@ full phrase it abbreviates, and each measured to fit the pill without the
 ellipsis in the E2E suite. The full phrase (`nav.sessionRunning` /
 `nav.sessionNeedsInput`) stays on the pill's tooltip and accessible name.
 
-The wider lane is a recorded trade-off: every row spends 80px of its leading
-edge on the pill column, so titles get roughly 58px less width than the D450
-layout, and the list's furniture moves right with the column — a project
-header's name starts on the session titles' column (its disclosure and project
-glyphs sit inside the lane) and time separators, load-more rows, and empty copy
-ride the lane with their previous head starts (D451, §16).
+Dropping the lane is a recorded trade-off: a quiet row and a marked row no
+longer line their titles up, because the pill now sits ahead of the title
+instead of in a reserved column (D449's rule). What the layout buys with that
+is the row reading as one group and the pill leading it, restoring 0.14.41's
+flush-to-the-edge layout; the titles that used to pay an 80px lane now start at
+the row's own 4px inset. The list's furniture moves left to match: time
+separators, load-more rows, and empty copy start at that same 4px inset, and the
+project header keeps its own leading inset (D455, §16).
 
 ### 4.6 Chat transcript status semantics
 
@@ -1280,8 +1284,8 @@ Full component contract and usage rules: [08-component-spec.md §17](08-componen
     backdrop-filter repaint behind the composer
 14. Expanded sidebar session titles, project/group titles, and empty-state copy
     use the 13px compact token without changing the 28–32px row pitch
-15. Sidebar session rows show a labelled status pill pinned inside the row's own
-    status lane with the title starting on the lane's end; other sessions'
+15. Sidebar session rows show a labelled status pill flush at the row's own
+    left edge with the title starting right after it; other sessions'
     transcripts and the subagent dock render without switching (§16)
 
 ## Dark floating surfaces (Codex parity)
@@ -1323,8 +1327,8 @@ Content that belongs to another session renders without switching to it:
   visible session. Switching sessions keeps it open and re-finds its rows in
   the destination pane's retained transcript; only leaving the chat page
   closes it.
-- **Sidebar row**: each session row shows a labelled status pill in its own
-  leading lane plus its title, which starts on the lane's end (D451). The newest
+- **Sidebar row**: each session row shows a labelled status pill leading its
+  own row plus its title, which starts right after the pill (D455). The newest
   user/assistant text is no longer rendered under the title; it stays available in
   the session hover card, which reads the current task and recent exchanges from
   the session summary on hover.

@@ -24,20 +24,28 @@
   flex: 1;
   align-items: center;
   gap: 4px;
-  /* D451: the lane holds the row's labelled status pill, which pins itself
-     inside it (see .thread-item-status) instead of flowing before the title.
-     The lane is wider than the pill it used to hold, so every row's title
-     column moves right with it - and it moves for every row, status or not, so
-     the column never reflows when a session gains a state. The lane is inside
-     this button, so the pill stays part of the click target. */
-  padding: 5px 6px 5px var(--ds-sidebar-status-lane);
+  /* D455: the row stops reserving a status lane. The labelled pill leads the
+     row's own left edge again (D449) and its title starts right after it
+     instead of on a fixed column, so the row reads as one group again and a
+     mostly empty column no longer pushes every title to the right. The pill
+     stays inside this button, so it remains part of the click target. */
+  padding: 5px 6px 5px 4px;
   text-align: left;
   color: inherit;
 }
 
-/* B: marked rows reduce left padding since pills sit statically inside */
+/* A marked row's title belongs to its pill: no flex gap, so the pill's own
+   trailing clearance (see .marked .thread-item-status) is the only space before
+   the title. A pin or the native-Pi marker then keeps the row's 4px rhythm on
+   both its sides, so it never touches the pill ahead of it or the title after
+   it. */
 .marked.thread-item-main {
-  padding-left: calc(var(--ds-sidebar-status-pill-gap) + 20px);
+  gap: 0;
+}
+
+.marked.thread-item-main .thread-item-pin,
+.marked.thread-item-main .thread-item-source {
+  margin-inline: 4px;
 }
 
 .thread-item-title {
@@ -165,11 +173,11 @@
   min-height: 28px;
   align-items: center;
   gap: 2px;
-  /* D451: the project header shifts right with the lane it sits above. The 36px
-     is the glyph cluster its name follows (13px disclosure + 5px gap + 13px
-     project glyph + 5px gap) and the 6px is the title button's own inset, so
-     the project's name starts exactly on the session titles' column and the
-     whole list keeps one text column. */
+  /* D455: the status lane is gone, so this header no longer rides a title
+     column. It keeps its own inset - the 16px is the disclosure glyph's own
+     leading space, which it had before D451 aligned it to the session titles'
+     column - so a project head stays indented under its rows the way it always
+     did outside that lane's life. */
   padding: 0 2px 0 16px;
 }
 
@@ -282,22 +290,20 @@
   pointer-events: none;
 }
 
-/* D450: the indent that used to hang the session rows inside their project block
-   is now each row's own status lane, so the marker sits inside the click target
-   and a row's hover and active fill reach the group's left edge. The title column
-   keeps the x it had before. */
+/* D455: project and temporary bodies no longer add a separate leading indent;
+   each session row owns its 4px text inset, and its hover/active fill reaches
+   the group's left edge while the status pill leads from inside the row button. */
 .sidebar-session-group-body.project,
 .sidebar-session-group-body.temporary {
   margin-left: 0;
   padding-left: 0;
 }
 
-/* D451: list furniture rides the same column as the rows it belongs to. The 20px
-   is the head start these two had over the title column when the lane was the
-   body's own indent; expressing it off the lane keeps that relationship when
-   the lane changes again. */
+/* D455: with the lane gone, the list furniture rides the row's own text column,
+   so a time-group header, the load-more row, and the empty copy all start where
+   the session titles start. */
 .sidebar-time-group-header {
-  padding: 6px 6px 2px calc(var(--ds-sidebar-status-lane) - 12px);
+  padding: 6px 6px 2px 4px;
   color: var(--ds-text-muted);
   font-size: var(--text-2xs);
   font-weight: var(--font-weight-medium);
@@ -312,7 +318,7 @@
   display: flex;
   width: 100%;
   align-items: center;
-  padding: 4px 6px 4px calc(var(--ds-sidebar-status-lane) - 12px);
+  padding: 4px 6px 4px 4px;
   border-radius: var(--radius-sm);
   color: var(--ds-text-muted);
   font-size: var(--text-xs-plus);
@@ -340,9 +346,9 @@
 }
 
 .sidebar-session-empty {
-  /* D451: empty copy sits on the list's text column, 8px inside the title
-     column like the project body's copy always did. */
-  padding: 5px 8px 5px calc(var(--ds-sidebar-status-lane) - 12px);
+  /* D455: empty copy sits on the row's own text column, 8px inside it like the
+     project body's copy always did. */
+  padding: 5px 8px 5px 4px;
   color: var(--ds-text-muted);
   font-size: var(--text-md); /* empty-state copy tracks group titles */
   line-height: var(--leading-compact);

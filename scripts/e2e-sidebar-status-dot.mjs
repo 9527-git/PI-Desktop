@@ -14,13 +14,17 @@
  *   - prefers-reduced-motion disables every dot animation;
  *   - both themes resolve the pills to their own warning/purple tokens.
  *
- * and the D451 contract on top of it — every pill names its state in the row
- * with a short locale word (never clipped), every row reserves the same fixed
- * status lane on its own left edge so the pill column and the title column are
- * stable whether or not a row carries a status, and the list's furniture keeps
- * one text column: a project header's name starts on the session titles'
- * column and a time separator rides the lane. The full phrase lives on the
- * pill's tooltip and accessible name.
+ * and the D455 contract on top of it — every pill names its state in the row
+ * with a short locale word (never clipped), the pill leads its own row's left
+ * edge, the title it labels follows the pill's own clearance, and a quiet row's
+ * title starts on that same left edge. The full phrase lives on the pill's
+ * tooltip and accessible name.
+ *
+ * The list furniture's inset (time separator, load-more row, empty copy) is a
+ * static CSS contract and belongs to the source test,
+ * `apps/desktop/test/sidebar-session-status.test.mjs`; this scenario's
+ * throwaway profile seeds no project group and no non-today session, so it
+ * cannot render that furniture to measure.
  *
  * Screenshots land in PI_DESKTOP_E2E_ARTIFACT_DIR (or a temp dir) for visual
  * inspection.
@@ -203,27 +207,31 @@ function probeExpression(ids) {
       insideRowButton: !!status.closest("button.thread-item-main"),
       markerLeft: Math.round(statusBox.left - rowBox.left),
       pillRight: Math.round(statusBox.right - rowBox.left),
+      pillWidth: Math.round(statusBox.width),
+      rowHeight: Math.round(rowBox.height),
+      fontScale: getComputedStyle(document.documentElement)
+        .getPropertyValue("--font-scale")
+        .trim(),
       titleLeft: titleBox ? Math.round(titleBox.left - rowBox.left) : null,
     };
   };
-  // D451: the list keeps one text column. A project header's name starts on the
-  // session titles' column with its glyph cluster inside the lane, and a time
-  // separator rides the lane with its own head start.
-  const groupEl = document.querySelector(".sidebar-session-group.project-group");
-  const groupLeft = groupEl ? groupEl.getBoundingClientRect().left : null;
-  const rel = (el) =>
-    el && groupLeft !== null
-      ? Math.round(el.getBoundingClientRect().left - groupLeft)
-      : null;
-  const groupRow = groupEl ? groupEl.querySelector(".thread-item") : null;
-  const headerName = groupEl
-    ? groupEl.querySelector(".sidebar-session-group-title.project-toggle > span")
-    : null;
-  const headerNameLeft = rel(headerName);
-  const groupTitleLeft = rel(groupRow ? groupRow.querySelector(".thread-item-title") : null);
-  const headerGlyphLeft = rel(groupEl ? groupEl.querySelector(".sidebar-disclosure-icon") : null);
-  const timeHeader = document.querySelector(".sidebar-time-group-header");
   const topbar = document.querySelector(".conversation-topbar");
+  // D455: a row without a status is the control for the row's own text column.
+  // A pin or the native-Pi marker takes 4px on each side of itself, so a plain
+  // row is the one that has to land exactly on the inset.
+  const quietRow = [...document.querySelectorAll(".thread-item")].find(
+    (row) =>
+      !row.querySelector(".thread-item-status") &&
+      !row.querySelector(".thread-item-pin") &&
+      !row.querySelector(".thread-item-source") &&
+      row.querySelector(".thread-item-title"),
+  );
+  const quietRowTitleLeft = quietRow
+    ? Math.round(
+        quietRow.querySelector(".thread-item-title").getBoundingClientRect().left -
+          quietRow.getBoundingClientRect().left,
+      )
+    : null;
   return {
     rows: {
       selected: rowInfo(ids.selected),
@@ -238,12 +246,7 @@ function probeExpression(ids) {
     purpleToken: token("--ds-purple"),
     accentToken: token("--ds-accent"),
     inkToken: token("--ds-status-ink"),
-    headerNameLeft,
-    groupTitleLeft,
-    headerGlyphLeft,
-    timeHeaderLeft: timeHeader
-      ? Math.round(parseFloat(getComputedStyle(timeHeader).paddingLeft))
-      : null,
+    quietRowTitleLeft,
     topbarHasStatusSlot: !!topbar && !!topbar.querySelector(".ct-status-slot"),
     topbarHasChip: !!topbar && !!topbar.querySelector(".ct-status-chip"),
     reducedMotion: matchMedia("(prefers-reduced-motion: reduce)").matches,
@@ -489,85 +492,85 @@ async function main() {
       JSON.stringify(base.rows.selected),
     );
 
-    // 4b. D451: every row reserves the same fixed lane on its own left edge, so
-    //     the title column is stable whether or not a row carries a status. The
-    //     pill hugs its own word inside that lane and must never cross the gap
-    //     into the title column.
+    // 4b. D455: the row reserves no lane. The pill leads the row's own left
+    //     edge, the title it labels starts on the pill's own clearance, and a
+    //     quiet row's title starts on that same left edge - so the marker never
+    //     shares the title's line and never takes it off the row.
     const attentionRows = ["running", "permission", "ask", "plan"].map(
       (key) => base.rows[key],
     );
     const everyRow = [base.rows.selected, ...attentionRows];
+    const skipNote = (missing) => (missing ? " — SKIPPED: not seeded" : "");
+    const rowInset = 4;
     const laneCap = base.laneWidth - base.pillGap;
     check(
-      base.laneWidth > 0 &&
-        base.pillGap > 0 &&
+      base.pillGap > 0 &&
         everyRow.every(
           (row) =>
-            row.markerPosition === "absolute" &&
-            row.markerLeft === 0 &&
-            row.pillRight > 0 &&
-            row.pillRight <= laneCap &&
+            row.markerPosition === "static" &&
+            Math.abs(row.markerLeft - rowInset) <= 1 &&
+            row.pillWidth > 0 &&
+            // The pill leads the row's 4px inset, so its own width - not its
+            // right edge - is what the lane token still caps.
+            row.pillWidth <= laneCap &&
             row.insideRowButton,
         ),
-      "every pill hugs its word inside its own row's lane without crossing into the title column",
+      "every pill leads its own row's left edge, inside the row button",
       JSON.stringify({
-        laneWidth: base.laneWidth,
         pillGap: base.pillGap,
+        laneCap,
         rows: everyRow.map((row) => [
           row.markerPosition,
           row.markerLeft,
-          row.pillRight,
+          row.pillWidth,
           row.insideRowButton,
         ]),
       }),
     );
     check(
-      everyRow.every((row) => row.titleLeft === base.laneWidth),
-      "every row's title starts on the lane's end, status or not",
-      JSON.stringify(everyRow.map((row) => row.titleLeft)),
+      everyRow.every(
+        (row) =>
+          row.titleLeft !== null &&
+          row.titleLeft >= row.pillRight + base.pillGap &&
+          // A pinned row or a native-Pi row puts its marker between the pill and
+          // the title, which costs the marker's own 4px + its 11px glyph.
+          row.titleLeft <= row.pillRight + base.pillGap + 20,
+      ),
+      "every marked row's title follows its own pill, marker or not",
+      JSON.stringify(
+        everyRow.map((row) => [row.titleLeft, row.pillRight + base.pillGap]),
+      ),
+    );
+    check(
+      base.quietRowTitleLeft === null ||
+        Math.abs(base.quietRowTitleLeft - rowInset) <= 1,
+      "a quiet row's title starts on the row's own left edge",
+      JSON.stringify({ quietRowTitleLeft: base.quietRowTitleLeft }) +
+        skipNote(base.quietRowTitleLeft === null),
     );
     check(
       everyRow.every(
-        (row) => row.pillHeight === 20 && Math.abs(row.statusCenterOffset) <= 2,
+        (row) =>
+          row.pillHeight === 20 &&
+          row.rowHeight === 28 &&
+          Math.abs(row.statusCenterOffset) <= 2,
       ),
       "every pill keeps the row's vertical centre without changing the row pitch",
-      JSON.stringify(everyRow.map((row) => [row.pillHeight, row.statusCenterOffset])),
+      JSON.stringify(
+        everyRow.map((row) => [
+          row.pillHeight,
+          row.statusCenterOffset,
+          row.rowHeight,
+        ]),
+      ),
     );
 
-    // 4c. D451: the list keeps one text column. A project header's name starts on
-    //     the session titles' column with its glyph cluster inside the lane, and
-    //     a time separator rides the lane with its own head start. A null
-    //     measurement means the fixture seeded no such furniture, so the detail
-    //     says SKIPPED instead of letting an unmeasured check read as a real one.
-    const skipNote = (missing) => (missing ? " — SKIPPED: furniture not seeded" : "");
-    const noGroup = base.groupTitleLeft === null;
-    check(
-      base.headerNameLeft === null ||
-        noGroup ||
-        Math.abs(base.headerNameLeft - base.groupTitleLeft) <= 1,
-      "a project header's name starts on the session titles' column",
-      JSON.stringify({
-        headerNameLeft: base.headerNameLeft,
-        groupTitleLeft: base.groupTitleLeft,
-      }) + skipNote(base.headerNameLeft === null || noGroup),
-    );
-    check(
-      base.headerGlyphLeft === null ||
-        noGroup ||
-        (base.headerGlyphLeft >= 0 && base.headerGlyphLeft < base.groupTitleLeft),
-      "a project header's glyph cluster stays inside the status lane",
-      JSON.stringify({
-        headerGlyphLeft: base.headerGlyphLeft,
-        groupTitleLeft: base.groupTitleLeft,
-      }) + skipNote(base.headerGlyphLeft === null || noGroup),
-    );
-    check(
-      base.timeHeaderLeft === null ||
-        Math.abs(base.timeHeaderLeft - (base.laneWidth + 20)) <= 1,
-      "a time separator rides the lane with its own head start",
-      JSON.stringify({ timeHeaderLeft: base.timeHeaderLeft, laneWidth: base.laneWidth }) +
-        skipNote(base.timeHeaderLeft === null),
-    );
+    // 4c. The row's own text column is the control: a marked row and a quiet
+    //     row now start their titles on DIFFERENT x positions (the pill's own
+    //     clearance apart), which is the trade D455 accepted. The list's
+    //     furniture inset is a static CSS contract and is asserted in
+    //     sidebar-session-status.test.mjs, since this profile seeds neither a
+    //     project group nor a non-today session to render.
 
     // 5. The topbar carries no status slot/chip of its own (D444 relocation).
     check(

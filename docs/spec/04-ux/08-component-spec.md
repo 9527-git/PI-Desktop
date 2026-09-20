@@ -219,10 +219,9 @@ does not duplicate it. Keyboard shortcuts and the application menu remain
 available.)
 
 The top bar carries no per-session status indicator. Run and needs-input state
-lives on the sidebar session row status pill — a labelled capsule pinned inside
-the status lane every row reserves on its own left edge, so the pill column and
-the title column are stable whether or not a row carries a status (D444, D445,
-D451, §3).
+lives on the sidebar session row status pill — a labelled capsule flush at the
+row's own left edge, leading the row so its title starts right after it rather
+than on a shared column (D444, D445, D455, §3).
 The conversation top bar renders for the chat route only;
 Pull requests, Scheduled, Plugins, and Settings keep the frameless drag band. It
 owns the task title and window actions only. Project scope remains in the title
@@ -296,11 +295,11 @@ Agent/Plan/Goal control and the combined model × reasoning selection (§11).
 - Composer stop control has `aria-label="Stop generating"`
 - The top bar exposes no status live region; per-session run and needs-input
   state is announced from the sidebar row marker's accessible label and tooltip
-  instead (D444, §3). The row shows no status word, so a screen reader still
-  hears exactly one label per row, and that full phrase is the only place the
-  state is spelled out — the capsule itself carries colour and motion, never
-  text (D445, D450). The Composer submit control and transcript working feedback
-  remain the primary running-state cues.
+  instead (D444, §3). The row carries its short status word for quick scanning,
+  while the marker's accessible label and tooltip retain the full phrase; the
+  capsule's colour and motion reinforce that same state (D445, D455). The
+  Composer submit control and transcript working feedback remain the primary
+  running-state cues.
 
 ### 2.6 MVP constraints
 
@@ -388,11 +387,11 @@ visually distinct from list content.
 | Collapsed | Icon rail — hover shows tooltip with session title |
 | Active session | Accent-blue outlined status pill plus active row background |
 | Selecting session | Destination row receives the active treatment immediately while transcript/workspace resolution continues |
-| Session needs input | A solid purple pill pinned inside the row's own status lane (`--ds-sidebar-status-lane`), its dot pulsing, when a permission request, asktool question, or Plan/Goal approval awaits the user; outranks in-progress; static under reduced motion; the pill carries its short locale word in the row and the full phrase on its tooltip and accessible label (D444, D445, D451) |
-| Session in progress | A solid orange pill in the same lane carrying its short word, its dot breathing; static under reduced motion (D445, D451) |
-| Session completed | A tinted green pill with a check mark and its short word, from the latest unread task notification when the row is not selected; it sits in that same lane (D445, D451) |
-| Session failed | A tinted red pill with a circled alert mark and its short word, from the latest unread task notification when the row is not selected; same lane, same title column (D445, D451) |
-| Session title alignment | Every row reserves `--ds-sidebar-status-lane` (80px) of its own left edge for the pill and starts its title right after it, so a quiet row and a marked row share one title column and the column never reflows when a session gains a state; the lane is inside the row button, so the pill stays part of the click target (D451) |
+| Session needs input | A solid purple pill flush at the row's own left edge, its dot pulsing, when a permission request, asktool question, or Plan/Goal approval awaits the user; outranks in-progress; static under reduced motion; the pill carries its short locale word in the row and the full phrase on its tooltip and accessible label (D444, D445, D455) |
+| Session in progress | A solid orange pill flush at the row's own left edge carrying its short word, its dot breathing; static under reduced motion (D445, D455) |
+| Session completed | A tinted green pill with a check mark and its short word, from the latest unread task notification when the row is not selected; it sits flush at the row's own left edge (D445, D455) |
+| Session failed | A tinted red pill with a circled alert mark and its short word, from the latest unread task notification when the row is not selected; flush at the row's own left edge (D445, D455) |
+| Session title alignment | A marked row shows its pill flush at the row's own left edge and starts its title right after it, while a quiet row starts its title at that same 4px inset, so the two no longer share one title column; the pill is inside the row button, so it stays part of the click target, and `--ds-sidebar-status-lane` (80px) survives only as the pill's maximum width (D455) |
 | Hover session | bg-tertiary background |
 | Active project | Header carries active state; topbar follows that workspace; composer exposes no workspace identity |
 | Collapsed project | Header remains visible; unpinned child conversations are hidden; global pins remain visible |
@@ -566,10 +565,10 @@ visually distinct from list content.
 - Every visible session indicator has a localized accessible name and tooltip;
   color is reinforced by ring, capsule, check, or alert geometry. The two
   attention states share one solid capsule shape and are told apart by their own
-  token plus their own motion cadence — the row carries no status word, so the
-  marker's tooltip and accessible name are where the state is spelled out
-  (D445, D450). The capsule is pinned inside the lane its own row reserves, so it
-  reads as the head of that title without ever costing it width (D450)
+  token plus their own motion cadence — the row's short word names the state at
+  a glance, while the marker's tooltip and accessible name carry the full phrase
+  (D445, D450). The capsule leads its own row, so it reads as the head of that
+  title (D455)
 - Project directory rows expose `aria-expanded` and `aria-controls`; menu
   check/radio items expose `aria-checked`
 - Hover-hidden section and project actions remain in the tab order and reveal

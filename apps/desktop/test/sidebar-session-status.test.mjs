@@ -103,7 +103,7 @@ test("opening a conversation acknowledges its outcome badge", () => {
   assert.match(ackBlock, /markNotificationRead\(item\.id\)/);
 });
 
-test("renders word-bearing sidebar status pills in a fixed lane", () => {
+test("renders word-bearing sidebar status pills at the row's own edge", () => {
   const sidebar = fs.readFileSync(
     new URL("../src/components/Sidebar.tsx", import.meta.url),
     "utf8",
@@ -146,9 +146,9 @@ test("renders word-bearing sidebar status pills in a fixed lane", () => {
   assert.match(sidebar, /nav\.sessionRunningShort[\s\S]*nav\.sessionNeedsInputShort/);
   assert.match(sidebar, /thread-item-status-dot/);
   assert.match(sidebar, /thread-item-status-word/);
-  // The marked-row static layout (D453) keeps the pill in the row's own left
-  // lane and ahead of the title, so a title never shifts when its session gains
-  // a state. Both the row button and the pill carry the mark.
+  // The marked-row layout (D455) keeps the pill at the head of its own row and
+  // ahead of the title, so the marker reads as the row's own lead-in. Both the
+  // row button and the pill carry the mark.
   assert.ok(
     sidebar.includes('className={`thread-item-main ${status ? "marked" : ""}`}'),
     "the row button is marked while a state is set",
@@ -184,9 +184,9 @@ test("renders word-bearing sidebar status pills in a fixed lane", () => {
       );
     }
   }
-  // The lane is the row button's own left padding, so the pill stays inside the
-  // click target, and the pill's clearance to the title column comes out of the
-  // lane rather than adding to it.
+  // D455: the row reserves no lane. Its own left inset is what seats the pill
+  // inside the click target, the marked row's `gap: 0` lets the title follow the
+  // pill's one clearance, and the lane token survives only as the pill's cap.
   assert.match(styles, /--ds-sidebar-status-lane: 80px/);
   assert.match(styles, /--ds-sidebar-status-pill-gap: 6px/);
   assert.match(styles, /--ds-status-ink: var\(--gray-900\)/);
@@ -194,13 +194,46 @@ test("renders word-bearing sidebar status pills in a fixed lane", () => {
   assert.doesNotMatch(styles, /thread-item-status-chip|thread-item-status-label/);
   assert.doesNotMatch(styles, /\.thread-item-preview \{/);
   const mainRule = styles.match(/^\.thread-item-main \{[^}]*\}/m)?.[0] ?? "";
-  assert.match(mainRule, /padding: 5px 6px 5px var\(--ds-sidebar-status-lane\)/);
+  assert.match(mainRule, /padding: 5px 6px 5px 4px/);
+  assert.doesNotMatch(mainRule, /--ds-sidebar-status-lane/);
+  const markedMainRule =
+    styles.match(/^\.marked\.thread-item-main \{[^}]*\}/m)?.[0] ?? "";
+  assert.match(markedMainRule, /gap: 0/);
+  assert.doesNotMatch(markedMainRule, /padding-left/);
+  const markedMarkerRule =
+    styles.match(/\.marked\.thread-item-main \.thread-item-pin,[\s\S]*?\}/)?.[0] ?? "";
+  assert.match(markedMarkerRule, /\.thread-item-source/);
+  // Both sides of the marker keep the row's 4px rhythm, so it touches neither
+  // the pill ahead of it nor the title after it.
+  assert.match(markedMarkerRule, /margin-inline: 4px/);
+  // The list's furniture rides the row's own text column: each one has to exist
+  // (a missing selector would otherwise make the `doesNotMatch` below vacuous)
+  // and each one starts on the pill's own inset. This is the static home of the
+  // contract the E2E cannot render, because its throwaway profile seeds neither
+  // a project group nor a non-today session.
+  const furnitureRules = {
+    ".sidebar-time-group-header": styles.match(
+      /^\.sidebar-time-group-header \{[^}]*\}/m,
+    )?.[0],
+    ".sidebar-load-more": styles.match(/^\.sidebar-load-more \{[^}]*\}/m)?.[0],
+    ".sidebar-session-empty": styles.match(/^\.sidebar-session-empty \{[^}]*\}/m)?.[0],
+  };
+  for (const [selector, rule] of Object.entries(furnitureRules)) {
+    assert.ok(rule, `${selector} keeps a rule the inset can be read from`);
+    assert.doesNotMatch(rule, /--ds-sidebar-status-lane/);
+    const inset = rule
+      .match(/padding:\s*([^;]+);/)?.[1]
+      .trim()
+      .split(/\s+/)
+      .pop();
+    assert.equal(inset, "4px", `${selector} starts on the pill's own inset`);
+  }
   const pillRule = styles.match(/^\.thread-item-status \{[^}]*\}/m)?.[0] ?? "";
-  assert.match(pillRule, /position: absolute/);
-  assert.match(pillRule, /left: 0/);
+  assert.doesNotMatch(pillRule, /position: absolute/);
+  assert.doesNotMatch(pillRule, /^\s*left:/m);
   // The pill hugs its word like a tag and the lane only caps it, so a fixed
   // `width` here would put the bar back; the cap keeps a long locale word from
-  // pushing into the title column.
+  // taking the row away from the title.
   assert.doesNotMatch(pillRule, /^\s*width:/m);
   assert.match(
     pillRule,
@@ -211,6 +244,13 @@ test("renders word-bearing sidebar status pills in a fixed lane", () => {
   assert.match(pillRule, /font-size: var\(--text-2xs\)/);
   const wordRule = styles.match(/^\.thread-item-status-word \{[^}]*\}/m)?.[0] ?? "";
   assert.match(wordRule, /text-overflow: ellipsis/);
+  const markedPillRule =
+    styles.match(/^\.marked \.thread-item-status \{[^}]*\}/m)?.[0] ?? "";
+  assert.match(
+    markedPillRule,
+    /margin-right: var\(--ds-sidebar-status-pill-gap\)/,
+  );
+  assert.doesNotMatch(markedPillRule, /position: absolute/);
   assert.doesNotMatch(styles, /thread-item-main:has\(/);
   assert.match(
     styles,
