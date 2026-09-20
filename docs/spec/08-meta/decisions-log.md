@@ -6419,3 +6419,15 @@ bar, and the jump control off the pane's center axis.
   `adr/0260-declared-task-progress-card.md`,
   `04-ux/09-interaction-patterns.md` §2.4, `04-ux/08-component-spec.md`, and
   E2E-PROGRESS-declared-task-list-card in `06-delivery/04-e2e-test-plan.md`.
+
+## 2026-09-20 — Compact sidebar session hover card (D459)
+
+- The sidebar session hover card is now a smaller summary layer: the width cap
+  drops from `320px` to `280px`, padding tightens from `12px 14px` to
+  `10px 12px`, and the column gap from `10px` to `8px`. The card reads at the
+  expanded sidebar's own width (default `275px`) instead of as a second panel
+  wider than the column it summarizes.
+- Content, type scale, portal placement, below/above/side positioning, the 3s
+  dwell, and the session-id copy button are unchanged. Renderer styles only:
+  no IPC, schema, permission, or persisted-state change.
+- See `04-ux/09-interaction-patterns.md` §9.1b and E2E-047b.
