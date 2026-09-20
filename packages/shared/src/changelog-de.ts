@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.0",
+    "date": "2026-09-20",
+    "highlights": [
+      "Die Hover-Karte einer Sitzung in der Seitenleiste ist jetzt eine schlankere Zusammenfassung: sie misst die Zeile, zu der sie gehört, und wird nie breiter als diese Zeile, ragt also nicht mehr in den Chat neben der Seitenleiste.",
+      "Die ausgeklappte Seitenleiste lässt sich wieder in der Breite ziehen: zwischen 240px und 520px, und die Breite wird gemerkt; unter 160px klappt sie ein, mit den Pfeiltasten, Home und End geht es auch per Tastatur.",
+      "Die Fortschrittskarte des laufenden Durchgangs ist statt eines Streifens über den Nachrichten jetzt eine kleine runde Schaltfläche unter der oberen Leiste: ein Klick zeigt Phase, Uhr und den laufenden Schritt. Die Übersicht wartet beim Lesen und blendet sich fünf Sekunden nach dem Verlassen aus; „Zum Neuesten springen“ sitzt rechts.",
+    ],
+  },
+  {
     "version": "0.14.43",
     "date": "2026-09-20",
     "highlights": [

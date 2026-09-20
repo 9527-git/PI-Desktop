@@ -29,6 +29,15 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.16.0",
+    date: "2026-09-20",
+    highlights: [
+      "The sidebar session hover card is now a slimmer summary: it measures the row it belongs to and never grows wider than that row, so it no longer spills over the conversation beside the sidebar.",
+      "The expanded sidebar is resizable again: drag its right edge between 240px and 520px and the width is remembered, drag below 160px to collapse it, and use ArrowLeft/ArrowRight, Home, and End from the keyboard.",
+      "The running turn's progress card is now a small round button under the topbar instead of a strip over the messages: click it for the phase, the clock, and the step in flight. The overview waits while you read it and hides itself five seconds after you leave; Jump to latest moved to the right.",
+    ],
+  },
+  {
     version: "0.14.43",
     date: "2026-09-20",
     highlights: [
@@ -960,6 +969,15 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.16.0",
+    date: "2026-09-20",
+    highlights: [
+      "侧边栏的会话悬浮卡片更窄了：它按所在行测量宽度，绝不比该行更宽，因此不会再压到侧边栏旁的对话区。",
+      "展开的侧边栏重新可以调整宽度：拖动右边缘可在 240px 到 520px 之间取值并记住，拖到 160px 以下即收起，键盘也能用左右方向键、Home 和 End。",
+      "运行中回合的进度卡不再是盖在消息上的横条，而是顶栏下方的小圆钮：点开可看阶段、计时与正在执行的步骤。概览在你阅读时会等待，离开五秒后自动隐藏；「跳到最新」移到右侧。",
+    ],
+  },
+  {
     version: "0.14.43",
     date: "2026-09-20",
     highlights: [
@@ -1889,6 +1907,15 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.16.0",
+    date: "2026-09-20",
+    highlights: [
+      "側邊欄的對話懸浮卡片更窄了：它依所在列的寬度測量，絕不會比該列更寬，因此不會再壓到側邊欄旁的對話區。",
+      "展開的側邊欄重新可以調整寬度：拖曳右邊緣可在 240px 到 520px 之間調整並記住，拖到 160px 以下即收合，鍵盤也能用左右方向鍵、Home 與 End。",
+      "執行中回合的進度卡不再是蓋在訊息上的橫條，而是頂列下方的小圓鈕：點開可看階段、計時與進行中的步驟。概覽在你閱讀時會等待，離開五秒後自動隱藏；「跳到最新」移到右側。",
+    ],
+  },
   {
     version: "0.14.43",
     date: "2026-09-20",

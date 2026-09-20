@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.0",
+    "date": "2026-09-20",
+    "highlights": [
+      "Kenar çubuğundaki oturum hover kartı artık daha dar bir özet: ait olduğu satırı ölçüyor ve o satırdan asla geniş olmuyor, böylece kenar çubuğunun yanındaki sohbete taşmıyor.",
+      "Genişletilmiş kenar çubuğu yeniden sürüklenerek boyutlandırılabiliyor: sağ kenarını 240px ile 520px arasında sürükleyin, genişlik hatırlanır; 160px altına çekince katlanır, klavyeden ok tuşları, Home ve End de çalışır.",
+      "Çalışan turun ilerleme kartı artık mesajların üstünde bir şerit değil, üst çubuğun altında küçük yuvarlak bir düğme: tıklayınca aşama, süre ve sürmekte olan adım görünür. Özet siz okurken bekler, ayrıldıktan beş saniye sonra gizlenir ve “En yeniye git” sağa taşındı.",
+    ],
+  },
+  {
     "version": "0.14.43",
     "date": "2026-09-20",
     "highlights": [

@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.0",
+    "date": "2026-09-20",
+    "highlights": [
+      "La tarjeta flotante de sesión de la barra lateral es ahora un resumen más estrecho: mide la fila a la que pertenece y nunca crece más que ella, así que ya no invade la conversación que hay junto a la barra.",
+      "La barra lateral expandida vuelve a poder redimensionarse: arrastra su borde derecho entre 240px y 520px y el ancho se recuerda; por debajo de 160px se pliega, y con el teclado sirven las flechas, Inicio y Fin.",
+      "La tarjeta de progreso del turno en curso ya no es una franja sobre los mensajes, sino un pequeño botón redondo bajo la barra superior: haz clic para ver la fase, el reloj y el paso en curso. El resumen te espera mientras lees y se oculta cinco segundos después de salir; «Ir a lo más reciente» pasa a la derecha.",
+    ],
+  },
+  {
     "version": "0.14.43",
     "date": "2026-09-20",
     "highlights": [

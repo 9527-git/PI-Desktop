@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.0",
+    "date": "2026-09-20",
+    "highlights": [
+      "La carte de survol d'une session dans la barre latérale est désormais un résumé plus étroit : elle mesure la ligne à laquelle elle appartient et ne la dépasse jamais, elle n'empiète donc plus sur la conversation voisine.",
+      "La barre latérale déployée est de nouveau redimensionnable : faites glisser son bord droit entre 240px et 520px et la largeur est mémorisée ; sous 160px elle se replie, et les flèches, Origine et Fin font de même au clavier.",
+      "La carte de progression du tour en cours n'est plus un bandeau au-dessus des messages mais un petit bouton rond sous la barre supérieure : cliquez pour voir la phase, le chrono et l'étape en cours. L'aperçu attend pendant votre lecture et se masque cinq secondes après votre départ ; « Aller au plus récent » passe à droite.",
+    ],
+  },
+  {
     "version": "0.14.43",
     "date": "2026-09-20",
     "highlights": [
