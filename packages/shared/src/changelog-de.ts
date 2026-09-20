@@ -2,6 +2,17 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.42",
+    "date": "2026-09-20",
+    "highlights": [
+      "Kontext zu komprimieren bewegt den Ring im Eingabefeld jetzt sofort: er meldet den komprimierten Wert statt des gerade ersetzten Kontexts, und die Kontextkarte nennt ihn „Nach dieser Komprimierung“.",
+      "Ein laufender Durchgang trägt seine erklärte Aufgabenliste auf einer Karte im Verlauf, und diese Karte besitzt den Sprung zum Neuesten, solange sie sichtbar ist.",
+      "Beenden und Schließen bestätigt die App selbst: der Dialog nennt, wie viele Antworten abgebrochen werden, warnt vor ungespeicherten Entwürfen, bietet „In den Tray schließen“ oder „Beenden“ und reagiert auf Escape und Enter.",
+      "Die Sitzungsmarkierung wurde eine beschriftete Kapsel, und eine markierte Zeile hält ihren Titel bündig - zwischen Markierungsspur und Titel entsteht keine Lücke mehr.",
+      "Die Änderungszahl des laufenden Durchgangs liest wieder den Schlüssel, den die Kataloge definieren, sodass die Karte die Zahl zeigt statt einer Lücke.",
+    ],
+  },
+  {
     "version": "0.14.38",
     "date": "2026-09-19",
     "highlights": [

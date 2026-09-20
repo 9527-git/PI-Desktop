@@ -2,6 +2,17 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.42",
+    "date": "2026-09-20",
+    "highlights": [
+      "Compacter le contexte déplace désormais la pastille du champ de saisie immédiatement : elle annonce la valeur compactée au lieu du contexte qui vient d'être remplacé, et la carte de contexte la nomme « Après cette compaction ».",
+      "Un tour en cours porte sa liste de tâches déclarée sur une carte du fil, et cette carte détient le passage au plus récent tant qu'elle est à l'écran.",
+      "Quitter et fermer se confirment dans l'application : la boîte indique combien de réponses seront interrompues, signale les brouillons non enregistrés, propose « Fermer dans la zone de notification » ou « Quitter », et répond à Échap et Entrée.",
+      "Le marqueur d'état de session est devenu une pastille libellée, et une ligne marquée garde son titre aligné : plus d'écart entre la piste du marqueur et le titre.",
+      "Le nombre de modifications du tour en cours relit la clé définie par les catalogues, donc la carte affiche le nombre au lieu de rien.",
+    ],
+  },
+  {
     "version": "0.14.38",
     "date": "2026-09-19",
     "highlights": [

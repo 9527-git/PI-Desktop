@@ -29,6 +29,17 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.14.42",
+    date: "2026-09-20",
+    highlights: [
+      "Compacting the context now moves the composer's ring at once: it reports the compacted figure instead of the context the checkpoint just replaced, and the context card names that figure as “After this compaction”.",
+      "A running turn carries its declared task list on a card in the transcript, and that card owns the “Jump to latest” control while it is on screen.",
+      "Quitting and closing confirm inside the app: the dialog names how many replies will be stopped, warns about unsaved drafts, offers “Close to tray” or “Quit”, and answers to Escape and Enter.",
+      "The session status marker became a labelled pill, and a marked row keeps its title flush - no gap opens between the marker lane and the title.",
+      "The running turn's change count reads the key the catalogs define again, so the card shows the number instead of leaving it blank.",
+    ],
+  },
+  {
     version: "0.14.38",
     date: "2026-09-19",
     highlights: [
@@ -940,6 +951,17 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.14.42",
+    date: "2026-09-20",
+    highlights: [
+      "压缩上下文后，输入框的圆环立刻跟到压缩后的占用率——它不再继续显示刚被替换掉的上下文，上下文卡片把该数字标为「压缩后」。",
+      "运行中的回合把已声明的任务列表带进对话卡片，卡片在屏幕上时持有「跳到最新」。",
+      "退出与关闭改成应用内确认：对话框说明会中断几个回复、提醒未保存的草稿，给出「最小化到托盘」与「退出」，并响应 Esc 与 Enter。",
+      "会话状态标记改成带文字的胶囊，被标记行的标题保持贴齐——标记车道与标题之间不再出现空隙。",
+      "回合卡片的文件变更数重新从语言目录定义的键读取，数字正常显示，不再留空。",
+    ],
+  },
+  {
     version: "0.14.38",
     date: "2026-09-19",
     highlights: [
@@ -1849,6 +1871,17 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.14.42",
+    date: "2026-09-20",
+    highlights: [
+      "壓縮上下文後，輸入框的圓環立刻跟到壓縮後的佔用率——它不再繼續顯示剛被取代的上下文，上下文卡片把該數字標為「壓縮後」。",
+      "執行中的回合把已宣告的工作清單帶進對話卡片，卡片在畫面上時持有「跳到最新」。",
+      "結束與關閉改成應用內確認：對話框說明會中斷幾個回覆、提醒尚未儲存的草稿，提供「縮到系統匣」與「結束」，並回應 Esc 與 Enter。",
+      "工作階段狀態標記改成帶文字的膠囊，被標記列的標題保持貼齊——標記車道與標題之間不再出現空隙。",
+      "回合卡片的檔案變更數重新從語系目錄定義的鍵讀取，數字正常顯示，不再留空。",
+    ],
+  },
   {
     version: "0.14.38",
     date: "2026-09-19",

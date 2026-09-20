@@ -2,6 +2,17 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.42",
+    "date": "2026-09-20",
+    "highlights": [
+      "Compactar el contexto mueve ya el anillo del compositor al instante: informa de la cifra compactada en lugar del contexto que acaba de sustituirse, y la tarjeta de contexto la rotula como «Después de esta compactación».",
+      "Un turno en curso lleva su lista de tareas declarada en una tarjeta del historial, y esa tarjeta controla el salto a lo más reciente mientras está en pantalla.",
+      "Salir y cerrar se confirman dentro de la aplicación: el diálogo indica cuántas respuestas se detendrán, avisa de los borradores sin guardar, ofrece «Cerrar a la bandeja» o «Salir», y responde a Escape y Enter.",
+      "El marcador de estado de la sesión pasó a ser una cápsula con etiqueta, y una fila marcada mantiene el título a ras: ya no se abre un hueco entre el carril del marcador y el título.",
+      "El recuento de cambios del turno en curso vuelve a leer la clave que definen los catálogos, así que la tarjeta muestra el número en lugar de dejarlo en blanco.",
+    ],
+  },
+  {
     "version": "0.14.38",
     "date": "2026-09-19",
     "highlights": [

@@ -2,6 +2,17 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.42",
+    "date": "2026-09-20",
+    "highlights": [
+      "Bağlamı sıkıştırmak artık besteci halkasını anında hareket ettiriyor: az önce yerine geçilen bağlamı değil, sıkıştırılmış değeri bildiriyor ve bağlam kartı bu değeri “Bu sıkıştırmadan sonra” olarak etiketliyor.",
+      "Süren bir tur, bildirdiği görev listesini konuşma içindeki bir kartta taşıyor ve kart ekranda olduğu sürece en yeniye atlama denetimi ona ait.",
+      "Çıkma ve kapatma artık uygulama içinde onaylanıyor: iletişim kutusu kaç yanıtın duracağını söylüyor, kaydedilmemiş taslaklar için uyarıyor, “Tepsiye kapat” veya “Çık” seçeneklerini sunuyor ve Escape ile Enter'a yanıt veriyor.",
+      "Oturum durum işareti etiketli bir kapsüle dönüştü ve işaretli satır başlığını hizalı tutuyor: işaret şeridi ile başlık arasında artık boşluk açılmıyor.",
+      "Süren turun değişiklik sayısı yine katalogların tanımladığı anahtardan okunuyor, böylece kart sayıyı gösteriyor ve boş kalmıyor.",
+    ],
+  },
+  {
     "version": "0.14.38",
     "date": "2026-09-19",
     "highlights": [
