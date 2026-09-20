@@ -184,6 +184,11 @@ function probeExpression(ids) {
     const titleBox = title ? title.getBoundingClientRect() : null;
     return {
       present: true,
+      // A pill nested in another status element would have drawn its
+      // capsule twice — two concentric rings for an outlined state, a
+      // double-tinted fill for a translucent one — while every geometry probe
+      // below measured only the outer element.
+      pillCount: row.querySelectorAll(".thread-item-status").length,
       stateClass: [...status.classList].find((c) => c !== "thread-item-status") ?? null,
       label: status.getAttribute("aria-label"),
       tooltip: status.getAttribute("title"),
@@ -551,13 +556,15 @@ async function main() {
     check(
       everyRow.every(
         (row) =>
-          row.pillHeight === 20 &&
+          row.pillCount === 1 &&
+          row.pillHeight === 18 &&
           row.rowHeight === 28 &&
           Math.abs(row.statusCenterOffset) <= 2,
       ),
-      "every pill keeps the row's vertical centre without changing the row pitch",
+      "every pill is drawn once, at its own height, on the row's vertical centre",
       JSON.stringify(
         everyRow.map((row) => [
+          row.pillCount,
           row.pillHeight,
           row.statusCenterOffset,
           row.rowHeight,

@@ -299,11 +299,17 @@ test("session rows use the hover card instead of a native title tooltip", () => 
 
   assert.match(sessionMain, /showSessionHoverCard\(/);
   assert.doesNotMatch(sessionMain, /title=\{taskTitle\(session\.title\)\}/);
-  // The row's only `title` attribute is the status pill's own label (D451);
-  // the row itself still carries no native title tooltip.
+  // The row button carries no native title tooltip at all. The status pill's own
+  // label lives on the pill's element inside `renderSessionStatus`, not inline
+  // in the row markup, so the row segment holds no `title=` attribute.
   assert.deepEqual(
     [...sessionMain.matchAll(/\btitle=\{([^}]*)\}/g)].map((match) => match[1]),
-    ["label"],
+    [],
+  );
+  assert.match(
+    sidebarSource,
+    /<span className=\{`thread-item-status \$\{status\}`\} aria-label=\{label\} title=\{label\}>/,
+    "the pill keeps its label as its own tooltip",
   );
   assert.match(hoverSource, /className="sidebar-session-hover-card"/);
   assert.match(hoverSource, /className="sidebar-session-hover-card-title"/);

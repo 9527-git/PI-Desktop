@@ -6269,10 +6269,17 @@ than a reserved column holding it (D449's rule), which is the accepted trade for
 the row reading as one group and for leading with the pill. The result restores
 0.14.41's flush-to-the-edge layout for the sidebar status marker.
 
-- The pill's look does not change: it is still a 20px-tall solid/tinted capsule
-  with 8px of side padding, its own token, its dot's motion, and its short locale
+- The pill's look keeps its own token, its dot's motion, and its short locale
   word; `--ds-sidebar-status-lane` (`80px`) survives only as the pill's maximum
-  width, not as a reserved column.
+  width, not as a reserved column. Its compact metrics are 18px tall with 6px
+  of side padding, a 5px dot, and the `--text-3xs` (`10.5px`) word, so the
+  marker reads as a tag on the row's own rhythm rather than a chip beside it.
+- The pill is drawn exactly once. The row button carries the `marked` class and
+  the pill is its direct child; it is never wrapped in a second
+  `.thread-item-status`, which would have drawn the capsule twice — two
+  concentric rings for an outlined state, a double-tinted fill for a
+  translucent one — while the E2E's outer-element probe measured a single box
+  and stayed green.
 - `.marked.thread-item-main` drops the 80px left padding and the pill's own
   padding-left calculation and sets `gap: 0`, so the pill's trailing
   `--ds-sidebar-status-pill-gap` is the only space before the title. A marked

@@ -669,10 +669,11 @@ unit/integration 测试；代码 pull request 使用有选择且高价值的 E2E
   每枚胶囊都携带其状态的短词且不被截断（`nav.session<状态>Short`），任何一行都不
   渲染第二行记录区文字：`.thread-item-preview`、`.thread-item-status-label`、
   `.thread-item-status-chip` 都不再渲染。按 D455，带标记的行以胶囊领在行首、不再
-  预留车道：胶囊是一枚 20px 高的静态标签、位于行按钮内部，其左缘落在该行自身左缘
+  预留车道：胶囊是一枚 18px 高的静态标签、位于行按钮内部，其左缘落在该行自身左缘
   内缩 4px 处，短词贴住它，宽度上限为
   `--ds-sidebar-status-lane - --ds-sidebar-status-pill-gap`；标题经
-  `--ds-sidebar-status-pill-gap` 紧跟在胶囊右缘之后 6px。无状态的行标题也从这同一个
+  `--ds-sidebar-status-pill-gap` 紧跟在胶囊右缘之后 6px。每行只渲染一个
+  `.thread-item-status`：胶囊绝不会再嵌进第二个同类元素里，否则会把胶囊画两遍。无状态的行标题也从这同一个
   4px 内缩开始，因此带标记行与无状态行不再共享同一标题列（D449 的规则），并且胶囊
   属于行自己的按钮，所以点它就能选中该会话。列表家具——时间分隔、加载更多、空态
   文案——都从这同一个 4px 内缩开始，项目目录头也在自己的内缩处领起、不再等一条
