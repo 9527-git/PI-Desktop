@@ -159,7 +159,7 @@ export function TurnProgressCard({
           {progress && progress.filesChanged > 0 ? (
             <span className="turn-progress-changes">
               <span aria-hidden="true">{" · "}</span>
-              {t("workpanel.review.filesChanged", {
+              {t("panel.review.filesChanged", {
                 count: progress.filesChanged,
               })}
               <span className="turn-progress-additions">

@@ -220,7 +220,9 @@ test("the running turn's card stays on screen for the whole turn", () => {
   assert.match(card, /t\("chat\.turnProgressSteps"/);
   // The footer's change figures come from the same durable review record the
   // review cards read, so the two can never disagree.
-  assert.match(card, /t\("workpanel\.review\.filesChanged"/);
+  // `panel.` is the only namespace the catalogs define; `workpanel.` resolved
+  // to nothing and the card rendered the raw key.
+  assert.match(card, /t\("panel\.review\.filesChanged"/);
 
   // Only the status line is a live region; the elapsed timer ticks every second,
   // so announcing the card as a whole would talk over the transcript.
