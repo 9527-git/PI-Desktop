@@ -6249,3 +6249,44 @@ neither invents a figure it cannot justify.
 - See `03-runtime/01-ipc-protocol.md`, `04-ux/08-component-spec.md` §8.3/§8.5,
   `04-ux/09-interaction-patterns.md` §3A, and
   E2E-CHAT-compact-from-context-inspector in `06-delivery/04-e2e-test-plan.md`.
+
+## 2026-09-20 — The progress card shrinks to a pill, and its overview dismisses itself (D455)
+
+> **Amends ADR 0260's presentation, not its contract.** The declared
+> `UpdateTasks` list stays the only denominator; only the way the surface is
+> worn changes.
+
+ADR 0260's card docked full-width over the bottom of the transcript and
+expanded in place toward the composer. In use it covered the newest messages
+while the turn streamed, and its expanded state lay flat above the box the
+user types in. The report was precise: the task card blocks the messages it
+reports on.
+
+- The card is now a compact floating pill centered at the top of the thread
+  area: phase label, elapsed time, and the active step, in one button. The
+  layer spans the content column only to center the pill and takes no clicks.
+- Clicking the pill pops the step overview beneath it — a floating panel,
+  never an in-flow expansion — and the popup dismisses itself five seconds
+  after opening (`TURN_PROGRESS_POPUP_AUTO_HIDE_MS`); a hidden pane always
+  comes back to the pill alone.
+- The popup is overview-only: the declared or observed steps with markers,
+  the fold line, and the `done / total` count, in larger type with looser
+  lines. The files/additions/deletions figures leave the progress surface —
+  the review cards own change numbers, and two surfaces quoting one figure
+  can only drift apart.
+- Jump-to-latest returns to the transcript's own pill on its original gate;
+  a top pill cannot own a bottom control, and the two floaters never stack.
+- Every `.turn-progress-*` rule moves out of `chat-shell.css` into
+  `turn-progress.css`; `TurnProgressSteps` takes the checklist out of the
+  card module. Renderer, styles, docs, and tests only; no IPC, schema,
+  permission, or persisted-state change.
+- Regression coverage: `turn-progress-surface.test.mjs` pins the pill, the
+  popup, the five-second self-dismissal, the hidden-pane reset, the overview
+  without change figures, the stylesheet split, and the locale keys;
+  `active-turn-surface.test.mjs` keeps the tool and declaration contracts;
+  `turn-progress.test.mjs` is untouched.
+- See `adr/0261-turn-progress-pill.md`,
+  `adr/0260-declared-task-progress-card.md`,
+  `04-ux/09-interaction-patterns.md` §2.4, `04-ux/08-component-spec.md`
+  §4.3/§4.4, and E2E-PROGRESS-declared-task-list-card in
+  `06-delivery/04-e2e-test-plan.md`.

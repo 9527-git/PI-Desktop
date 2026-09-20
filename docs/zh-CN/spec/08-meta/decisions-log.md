@@ -4761,3 +4761,34 @@ D450 构建上的反馈：「左侧会话列表显示当前会话状态的胶囊
   `04-ux/08-component-spec.md` §4.3/§4.4，以及
   `06-delivery/04-e2e-test-plan.md` 的 E2E-094 与
   `E2E-PROGRESS-declared-task-list-card`。
+
+## 2026-09-20 — 进度卡收成一颗按钮，概览弹出后自动消隐（D455）
+
+> **修订 ADR 0260 的呈现方式，不动它的契约。** 申报的 `UpdateTasks` 清单仍是
+> 唯一的分母；改变的只是这个表面的佩戴方式。
+
+ADR 0260 的卡片整条停靠在转录本底部，并向输入框方向就地展开。实际使用中，
+它在回合流式输出时盖住最新的消息，展开态平铺在用户正在输入的框上方。
+反馈很直接：任务卡挡住了它所报告的消息。
+
+- 卡片现在是一颗紧凑的悬浮按钮，居中停在消息区顶部：阶段标签、已用时长与
+  进行中的步骤，合成一颗按钮。那一层横跨内容列只是为了居中，自身不响应点击。
+- 点击按钮在它下方弹出步骤概览——浮动面板，绝不在布局流里展开——弹出
+  五秒后自动消隐（`TURN_PROGRESS_POPUP_AUTO_HIDE_MS`）；隐藏的面板回来时
+  永远只带按钮。
+- 概览只讲概览：申报或观测到的步骤与标记、折叠行，以及 `done / total`
+  计数，字号更大、行距更宽。文件数与增删行数退出进度表面——评审卡才是
+  改动数字的所有者，两个表面引用同一个数字只会渐行渐远。
+- “滚动到底部”归还给转录本自己的胶囊与其原有门槛；顶部的按钮无法持有
+  底部的控件，两个浮动层也绝不叠在一起。
+- 所有 `.turn-progress-*` 规则从 `chat-shell.css` 迁入 `turn-progress.css`；
+  `TurnProgressSteps` 把清单拆出卡片模块。仅渲染层、样式、文档与测试；
+  无 IPC、schema、权限或持久化状态变化。
+- 回归覆盖：`turn-progress-surface.test.mjs` 钉住按钮、弹层、五秒自动
+  消隐、隐藏重置、不含改动数字的概览、样式拆分与本地化键；
+  `active-turn-surface.test.mjs` 保留工具与申报契约；`turn-progress.test.mjs`
+  不动。
+- 见 `adr/0261-turn-progress-pill.md`、`adr/0260-declared-task-progress-card.md`、
+  `04-ux/09-interaction-patterns.md` §2.4、`04-ux/08-component-spec.md`
+  §4.3/§4.4，以及 `06-delivery/04-e2e-test-plan.md` 中的
+  E2E-PROGRESS-declared-task-list-card。

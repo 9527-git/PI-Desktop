@@ -179,9 +179,10 @@ export const ChatTranscript = memo(function ChatTranscript({
       ? tailEntry
       : null;
   // Persistent, not off-tail-only (ADR 0260): a task list is worth reading
-  // while the transcript is in view too, and follow mode is one tap away in
-  // the card's own footer. A hidden retained pane has no viewport to read from,
-  // so it never puts the card on screen.
+  // while the transcript is in view too. Since ADR 0261 the card is a pill at
+  // the top of the thread area, so the jump pill below keeps owning
+  // return-to-latest on its own. A hidden retained pane has no viewport to
+  // read from, so it never puts the card on screen.
   const progressCardOnScreen =
     progressTurnEntry !== null && paneVisible && !veilCovering;
 
@@ -316,14 +317,9 @@ export const ChatTranscript = memo(function ChatTranscript({
           entry={progressTurnEntry}
           activity={specializedActivity}
           hidden={!progressCardOnScreen}
-          showReturn={showJump}
-          onReturnToLatest={() => {
-            onReturnToLatest?.();
-            jumpToLatest();
-          }}
         />
       ) : null}
-      {(showJump || readingWindow) && !veilCovering && !progressCardOnScreen ? (
+      {(showJump || readingWindow) && !veilCovering ? (
         <TooltipButton
           className="jump-latest-btn"
           ariaLabel={t("chat.scrollToBottom")}

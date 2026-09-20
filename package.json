@@ -25,6 +25,7 @@
     "test:e2e:plan-ui": "node scripts/e2e-plan-ui.mjs",
     "test:e2e:composer-paste": "node scripts/e2e-composer-paste.mjs",
     "test:e2e:transcript": "node scripts/e2e-transcript-render.mjs",
+    "test:e2e:turn-progress": "node scripts/e2e-turn-progress-pill.mjs",
     "test:e2e:native-side-chat": "node scripts/e2e-native-side-chat.mjs",
     "test:e2e:provider-model-selection": "node scripts/e2e-provider-model-selection.mjs",
     "test:e2e:boot": "node scripts/e2e-electron-boot.mjs",
