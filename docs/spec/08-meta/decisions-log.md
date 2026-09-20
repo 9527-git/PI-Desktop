@@ -6348,3 +6348,74 @@ reports on.
   the expanded sidebar at that threshold.
 - Renderer only: existing `pi.desktop.sidebarWidth` preference, no IPC or native
   window change. See ADR 0262 and E2E-168.
+## 2026-09-20 — The progress card becomes a glyph button, and the jump control stands on the right (D458)
+
+> **Amends ADR 0261's presentation, not its contract.** The declared
+> `UpdateTasks` list is still the only denominator, the overview still dismisses
+> itself, and the surface still owns neither a stop control nor
+> jump-to-latest.
+
+ADR 0261's labeled pill was reported missing, and the report was right: the card
+was positioned at `top: 12px` inside `.thread-wrap`, which is the first in-flow
+child of `.main-pane`, while `.conversation-topbar` is absolutely positioned
+over that pane at `top: 0`, 46px tall, `z-index: 10`, with an opaque fill. The
+card's `z-index: 5` put it behind that band, which is also the window's drag
+region, so it was neither visible nor clickable. The rest of the report was
+direction: a three-dot glyph the size of the jump control instead of a labeled
+bar, and the jump control off the pane's center axis.
+
+- The card draws below the topbar band: `.turn-progress-card` pads its content
+  by `calc(var(--ds-toolbar-height) + 12px)`, the same band the transcript's
+  first row and the minimap rail already clear.
+- The thread's chrome owns one shared floating-button rule,
+  `.thread-float-btn` in `chat-shell.css`: the same 32×32 round, raised,
+  shadow-lifted box with the same hover fill and `pointer-events: auto` as
+  `.jump-latest-btn`. Both controls wear it; each surface keeps its own
+  placement and entry animation, so the two can no longer drift apart.
+- `TurnProgressCard` is now a glyph button: a `TooltipButton` carrying
+  `IconMore` and no text, labelled with the existing
+  `chat.turnProgressShowSteps` string, still collapsed until clicked. The
+  phase, the clock, and the step in flight move into the overview.
+- The button always opens the overview, with or without a declared list: a
+  running turn with no rows yet still has a phase and a clock to show. The step
+  list and the `done / total` footer render only when there are steps.
+- The phase is spoken from a hidden `role="status" aria-live="polite"` line
+  whose text is captured when `activity.phase` changes — not with the clock, and
+  not with the retry countdown that `runActivityLabel` embeds in its `retrying`
+  label. The overview's head draws the same phase (`aria-hidden`) beside the
+  clock. ADR 0175's runtime activity row is unchanged.
+- Reading the overview holds it open: the five seconds pause on
+  `pointerenter`/`focus` and resume on `pointerleave`/`blur`.
+- The card becomes an `inset: 0` layer over the thread area that centers its two
+  children and takes no clicks of its own. That is what makes the overview's
+  bound honest: `max-height: min(46vh, 360px, max(140px, calc(100% - 78px)))`
+  measured against the layer's own content box, with `overflow-y: auto` beyond
+  it, so the overview stops a message row and the reading gap above the newest
+  messages instead of growing toward them.
+- The clock costs nothing while the overview is closed: the one-second interval
+  runs only while the popup is open.
+- Jump-to-latest stands on the reading column's right edge through
+  `.thread-wrap > .jump-latest-btn`. The shared class itself keeps centering, so
+  the delegation card's follow control and the work panel's keep the placement
+  they had.
+- The overview is set to be read: `--text-base-plus` with `--leading-prose`, a
+  10px row gap, 18px markers, and step titles that wrap instead of truncating;
+  the `done / total` footer uses `--text-base`. Change figures stay out of the
+  surface, no percentage exists, and the Composer keeps abort.
+- ADR 0261 also shipped two raw values — `border-radius: 999px` and
+  `line-height: 1.7` — that `scripts/check-style-tokens.mjs` rejects. Both are
+  retired for `--radius-round` and the token leading scale, so `pnpm lint` is
+  green again, and `turn-progress-surface.test.mjs` pins them away.
+- Regression coverage: `turn-progress-surface.test.mjs` pins the glyph button,
+  the shared chrome and its `pointer-events`, the topbar clearance, the
+  overview's head, the height bound, the token-based type, the right-aligned
+  jump control, the phase-keyed live line, the five-second self-dismissal, the
+  hidden-pane reset, and the locale keys; `turn-progress.test.mjs` and
+  `active-turn-surface.test.mjs` are untouched.
+- Renderer, styles, tests, and docs only; no IPC, schema, permission, or
+  persisted-state change.
+- See `adr/0263-turn-progress-glyph-button.md`,
+  `adr/0261-turn-progress-pill.md`,
+  `adr/0260-declared-task-progress-card.md`,
+  `04-ux/09-interaction-patterns.md` §2.4, `04-ux/08-component-spec.md`, and
+  E2E-PROGRESS-declared-task-list-card in `06-delivery/04-e2e-test-plan.md`.

@@ -246,22 +246,19 @@
   left: 50%;
   translate: -50% 0;
   z-index: 5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-round);
-  background: var(--ds-raised);
-  color: var(--ds-text-secondary);
-  /* Lifted by shadow alone (D297). */
-  box-shadow:
-    var(--ds-raised-shadow),
-    0 3px 7.5px rgba(0, 0, 0, 0.039),
-    0 0 20px rgba(0, 0, 0, 0.051);
   animation: jump-latest-in var(--motion-duration-normal) var(--motion-ease-out)
     both;
-  transition: background var(--motion-duration-fast) var(--motion-ease-out), color var(--motion-duration-fast) var(--motion-ease-out);
+}
+
+/* The thread's own jump control stands on the reading column's right edge
+ * instead of in the middle of the pane (ADR 0263), so it never shares an axis
+ * with the progress button above it. The delegation card's follow control and
+ * the work panel's keep the centered placement they already had: they belong to
+ * their own surfaces, not to the thread. */
+.thread-wrap > .jump-latest-btn {
+  left: auto;
+  right: max(24px, calc((100% - var(--chat-content-max-width)) / 2 + 8px));
+  translate: none;
 }
 
 @keyframes jump-latest-in {
@@ -275,7 +272,32 @@
   }
 }
 
-.jump-latest-btn:hover {
+/* One floating button, worn by the thread's jump control and by the running
+ * turn's progress button (ADR 0263): same size, same lift, same hover fill.
+ * Each surface owns its own placement and entry animation; only the chrome is
+ * shared, so the two can never drift apart. */
+.jump-latest-btn,
+.thread-float-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-round);
+  background: var(--ds-raised);
+  color: var(--ds-text-secondary);
+  /* Lifted by shadow alone (D297). */
+  box-shadow:
+    var(--ds-raised-shadow),
+    0 3px 7.5px rgba(0, 0, 0, 0.039),
+    0 0 20px rgba(0, 0, 0, 0.051);
+  /* The progress button floats on a layer that takes no clicks of its own. */
+  pointer-events: auto;
+  transition: background var(--motion-duration-fast) var(--motion-ease-out), color var(--motion-duration-fast) var(--motion-ease-out);
+}
+
+.jump-latest-btn:hover,
+.thread-float-btn:hover {
   background: var(--ds-raised);
   color: var(--ds-text-primary);
 }

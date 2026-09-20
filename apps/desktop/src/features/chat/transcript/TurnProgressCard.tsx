@@ -4,7 +4,8 @@ import type { AgentActivity } from "@pi-desktop/shared";
 import type { AssistantTurnEntry } from "../../../lib/assistant-turns";
 import { formatToolDuration } from "../../../lib/tool-display";
 import { turnProgress } from "../../../lib/turn-progress";
-import { IconChevronRight } from "../../../components/icons";
+import { IconMore } from "../../../components/icons";
+import { TooltipButton } from "../../../components/ui";
 import { runActivityLabel, type Translate } from "./ActivityGroup";
 import { TurnProgressSteps } from "./TurnProgressSteps";
 
@@ -12,14 +13,15 @@ import { TurnProgressSteps } from "./TurnProgressSteps";
 export const TURN_PROGRESS_POPUP_AUTO_HIDE_MS = 5000;
 
 /**
- * The running turn's task list, worn as a floating pill centered at the top
- * of the transcript so it never covers the messages it reports on (ADR 0261;
- * the list itself is still ADR 0260's declared-or-observed shape). The pill
- * names the phase, the elapsed time, and the active step; clicking it pops
- * the step overview beneath the pill, and the popup dismisses itself five
- * seconds later instead of lying flat over the composer. It is a reading
- * surface, not a control: cancellation stays in the Composer, and
- * jump-to-latest stays with the transcript's own pill.
+ * The running turn's task list (ADR 0260), worn since ADR 0263 as one small
+ * floating glyph button below the conversation topbar: the jump control's twin,
+ * three dots instead of an arrow, and no text of its own. Clicking it pops the
+ * overview beneath it — the phase, the clock, the step in flight, and the step
+ * list — which dismisses itself five seconds later, or holds while the pointer
+ * or the focus is inside it. The overview is bounded to the room it has, so a
+ * long list scrolls inside it instead of growing down over the newest messages.
+ * It is a reading surface, not a control: cancellation stays in the Composer,
+ * and jump-to-latest stays with the transcript's own button.
  */
 export function TurnProgressCard({
   entry,
@@ -33,30 +35,35 @@ export function TurnProgressCard({
 }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const [held, setHeld] = useState(false);
   const [now, setNow] = useState(Date.now);
+  const [spoken, setSpoken] = useState("");
   const popupId = useId();
 
-  // The 1s timer is the card's own cost, so it stops while the card is hidden.
+  // The clock is drawn inside the overview only, so it ticks only while the
+  // overview is up: a closed card costs nothing.
   useEffect(() => {
-    if (hidden) return;
+    if (hidden || !open) return;
     setNow(Date.now());
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(timer);
-  }, [hidden]);
+  }, [hidden, open]);
 
-  // An off-screen pane always comes back to the pill alone.
+  // An off-screen pane always comes back to the button alone.
   useEffect(() => {
     if (hidden) setOpen(false);
   }, [hidden]);
 
+  // Reading the overview holds it open: the five seconds resume once the
+  // pointer and the focus have left it.
   useEffect(() => {
-    if (!open || hidden) return;
+    if (!open || hidden || held) return;
     const timer = window.setTimeout(
       () => setOpen(false),
       TURN_PROGRESS_POPUP_AUTO_HIDE_MS,
     );
     return () => window.clearTimeout(timer);
-  }, [open, hidden]);
+  }, [open, hidden, held]);
 
   const progress = turnProgress(entry, now);
   // A turn with neither a declared list nor a single row has nothing for the
@@ -69,6 +76,14 @@ export function TurnProgressCard({
     ? runActivityLabel(activity, t as Translate, now)
     : t("chat.running");
   const steps = progress?.steps ?? 0;
+  const phase = activity?.phase ?? "running";
+
+  // The spoken phase follows the phase, never the clock: `retrying` embeds a
+  // countdown in its label, and re-announcing that once a second would talk
+  // over the transcript.
+  useEffect(() => {
+    setSpoken(status);
+  }, [phase]);
 
   return (
     <section
@@ -78,45 +93,55 @@ export function TurnProgressCard({
       data-declared={progress?.declared ? "true" : undefined}
       aria-label={t("chat.turnProgressLabel", "Current task progress")}
       hidden={hidden || isEmpty}
+      onPointerEnter={() => setHeld(true)}
+      onPointerLeave={() => setHeld(false)}
+      onFocus={() => setHeld(true)}
+      onBlur={() => setHeld(false)}
     >
-      <button
-        type="button"
-        className="turn-progress-head"
+      <TooltipButton
+        className="thread-float-btn turn-progress-head"
+        tooltip={t("chat.turnProgressShowSteps", "Show this turn's steps")}
+        ariaLabel={t("chat.turnProgressShowSteps", "Show this turn's steps")}
         aria-expanded={open}
         aria-controls={popupId}
-        aria-label={t("chat.turnProgressShowSteps", "Show this turn's steps")}
-        onClick={() => setOpen((value) => (steps > 0 ? !value : false))}
+        onClick={() => setOpen((value) => !value)}
       >
-        <span className="turn-progress-status" role="status" aria-live="polite">
-          <span className="turn-progress-dot" aria-hidden="true" />
-          {status}
-        </span>
-        <span className="turn-progress-metrics" aria-hidden="true">
-          {elapsed}
-        </span>
-        {!open && progress?.activeLabel ? (
-          <span className="turn-progress-action">{progress.activeLabel}</span>
-        ) : null}
-        <span className="turn-progress-caret" aria-hidden="true">
-          <IconChevronRight size={12} />
-        </span>
-      </button>
-      {open && steps > 0 ? (
+        <IconMore size={16} />
+      </TooltipButton>
+      {/* The button is a glyph, so the phase is spoken from here instead of being
+       * drawn on the message surface. */}
+      <span className="turn-progress-sr" role="status" aria-live="polite">
+        {spoken}
+      </span>
+      {open ? (
         <div className="turn-progress-popup" id={popupId}>
-          <TurnProgressSteps
-            steps={progress?.visible ?? []}
-            earlierSteps={progress?.earlierSteps ?? 0}
-            t={t as Translate}
-          />
-          <div className="turn-progress-foot">
-            <span className="turn-progress-count">
-              {t("chat.turnProgressSteps", {
-                done: progress?.completed ?? 0,
-                total: steps,
-                defaultValue: "Step {{done}} / {{total}}",
-              })}
-            </span>
-          </div>
+          {/* The drawn copy of the spoken line: the live region above already
+           * carries the phase, and the clock is not announced. */}
+          <p className="turn-progress-headline" aria-hidden="true">
+            <span className="turn-progress-status">{status}</span>
+            <span className="turn-progress-metrics">{elapsed}</span>
+          </p>
+          {progress?.activeLabel ? (
+            <p className="turn-progress-active">{progress.activeLabel}</p>
+          ) : null}
+          {steps > 0 ? (
+            <>
+              <TurnProgressSteps
+                steps={progress?.visible ?? []}
+                earlierSteps={progress?.earlierSteps ?? 0}
+                t={t as Translate}
+              />
+              <div className="turn-progress-foot">
+                <span className="turn-progress-count">
+                  {t("chat.turnProgressSteps", {
+                    done: progress?.completed ?? 0,
+                    total: steps,
+                    defaultValue: "Step {{done}} / {{total}}",
+                  })}
+                </span>
+              </div>
+            </>
+          ) : null}
         </div>
       ) : null}
     </section>

@@ -64,6 +64,7 @@ ADR 记录那些不应被静默改变的架构选择。中文入口与英文索�
 | [ADR 0259：排队行立即发送改为转向，编辑则回到输入框](/adr/0259-queue-row-steer-and-edit) | 运行中点立即发送会把该行注入当前回合作为引导，点 × 则把文本与文件引用退回输入框重新编辑 |
 | [ADR 0260：由代理申报任务清单，一张进度卡承载整个回合](/adr/0260-declared-task-progress-card) | `UpdateTasks` 交出真实的 `done / total` 分母，卡片在执行中的整个回合都在屏，进度不再依赖滚动位置 |
 | [ADR 0261：进度卡收成顶部悬浮按钮，概览自动消隐](/adr/0261-turn-progress-pill) | 卡片不再遮挡消息：缩成顶部居中的悬浮按钮，点击弹出步骤概览，五秒后自动消隐 |
+| [ADR 0263：进度卡改为三点图标按钮，跳转控件站到右侧](/adr/0263-turn-progress-glyph-button) | 进度表面收成一颗三点图标按钮，与跳转控件共用同一套悬浮外观；点击弹出步骤概览并五秒后自动消隐，跳转控件改停阅读列右侧 |
 
 ## 完整索引
 
@@ -289,6 +290,7 @@ ADR 记录那些不应被静默改变的架构选择。中文入口与英文索�
 | 0260 | [由代理申报任务清单，一张进度卡承载整个回合](/adr/0260-declared-task-progress-card) | 已接受（修订 ADR 0175 的无进度卡条款 / §2.4；D452） |
 | 0261 | [进度卡收成顶部悬浮按钮，概览自动消隐](/adr/0261-turn-progress-pill) | 已接受（修订 ADR 0260 的呈现方式；D456） |
 | 0262 | [恢复可拖拽侧边栏宽度，过窄时收起](/adr/0262-resizable-sidebar-collapse-threshold) | 已接受（D457；修订 ADR 0141 / ADR 0238） |
+| 0263 | [进度卡改为三点图标按钮，跳转控件站到右侧](/adr/0263-turn-progress-glyph-button) | 已接受（修订 ADR 0261 的呈现方式；D458） |
 | context-inspector-compact-action | [从上下文用量卡片启动压缩](/adr/context-inspector-compact-action) | 已接受待实现（修订 ADR 0103 / ADR 0106；D434） |
 
 ## 什么时候看 ADR
