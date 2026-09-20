@@ -6,7 +6,7 @@ export const frEntries: ChangelogEntry[] = [
     "date": "2026-09-20",
     "highlights": [
       "La carte de progression du tour en cours est désormais une pastille compacte centrée en haut du fil : elle ne recouvre plus les messages dont elle rend compte ; un clic ouvre l'aperçu des étapes, qui se masque tout seul cinq secondes après son ouverture.",
-      "La pastille d'état de la barre latérale mène à nouveau sa ligne, collée à son propre bord gauche et le titre juste derrière : plus de piste réservée qui poussait chaque titre vers la droite.",
+      "La pastille d'état de la barre latérale mène à nouveau sa ligne, collée à son propre bord gauche et le titre juste derrière : plus de piste réservée qui poussait chaque titre vers la droite. Elle n'est dessinée qu'une fois, une ligne sélectionnée n'affiche donc plus deux anneaux, et se lit comme une étiquette compacte.",
       "La compaction refonctionne chez les fournisseurs qui exigent leurs propres en-têtes de requête : la requête de résumé porte désormais les en-têtes du fournisseur de la session au lieu de partir sans eux.",
     ],
   },

@@ -33,7 +33,7 @@ const enEntries: ChangelogEntry[] = [
     date: "2026-09-20",
     highlights: [
       "The running turn's progress card is now a compact pill centered at the top of the thread, so it no longer covers the messages it reports on; click it for the step overview, which hides itself five seconds after it opens.",
-      "The sidebar's status pill leads its row again, flush at the row's own left edge with the title right behind it - no reserved lane pushing every title to the right.",
+      "The sidebar's status pill leads its row again, flush at the row's own left edge with the title right behind it - no reserved lane pushing every title to the right. It is drawn once, so a selected row no longer shows two rings, and it reads as a compact tag.",
       "Compaction works again on providers that need their own request headers: the summary request now carries the session's provider headers instead of going out bare.",
     ],
   },
@@ -964,7 +964,7 @@ const zhCNEntries: ChangelogEntry[] = [
     date: "2026-09-20",
     highlights: [
       "运行中的回合进度卡改成对话区顶部居中的小胶囊，不再压住它正在汇报的消息；点开可看步骤总览，弹层在打开五秒后自行收起。",
-      "侧边栏的状态胶囊重新领在行首、贴着行自己的左缘，标题紧随其后——不再有预留车道把每个标题都往右推。",
+      "侧边栏的状态胶囊重新领在行首、贴着行自己的左缘，标题紧随其后——不再有预留车道把每个标题都往右推。它只绘制一次，选中行不再出现两个圈，并以紧凑标签的尺度呈现。",
       "需要自带请求头的提供方上压缩恢复可用：摘要请求现在会带上该会话的提供方请求头，而不是空手发出。",
     ],
   },
@@ -1894,7 +1894,7 @@ const zhTWEntries: ChangelogEntry[] = [
     date: "2026-09-20",
     highlights: [
       "執行中的回合進度卡改成對話區頂端置中的小膠囊，不再蓋住它正在回報的訊息；點開可看步驟總覽，彈層在開啟五秒後自行收起。",
-      "側邊欄的狀態膠囊重新領在列首、貼著列自己的左緣，標題緊隨其後——不再有預留車道把每個標題都往右推。",
+      "側邊欄的狀態膠囊重新領在列首、貼著列自己的左緣，標題緊隨其後——不再有預留車道把每個標題都往右推。它只繪製一次，選取列不再出現兩個圈，並以緊湊標籤的尺度呈現。",
       "需要自帶請求標頭的提供者上壓縮恢復可用：摘要請求現在會帶上該工作階段的提供者標頭，而不是空手送出。",
     ],
   },

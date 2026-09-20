@@ -6,7 +6,7 @@ export const esEntries: ChangelogEntry[] = [
     "date": "2026-09-20",
     "highlights": [
       "La tarjeta de progreso del turno en curso ahora es una cápsula compacta centrada sobre el hilo, así que ya no tapa los mensajes de los que informa; al pulsarla se abre el resumen de pasos, que se oculta solo cinco segundos después.",
-      "La cápsula de estado de la barra lateral vuelve a encabezar su fila, pegada a su propio borde izquierdo y con el título justo detrás: ya no hay un carril reservado que empuje cada título hacia la derecha.",
+      "La cápsula de estado de la barra lateral vuelve a encabezar su fila, pegada a su propio borde izquierdo y con el título justo detrás: ya no hay un carril reservado que empuje cada título hacia la derecha. Se dibuja una sola vez, así que una fila seleccionada ya no muestra dos anillos, y tiene tamaño de etiqueta compacta.",
       "La compactación vuelve a funcionar en proveedores que necesitan sus propias cabeceras de petición: la petición del resumen ahora lleva las cabeceras del proveedor de la sesión en lugar de salir sin ellas.",
     ],
   },
