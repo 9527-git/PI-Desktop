@@ -68,6 +68,17 @@ describe("contextCompactionMark", () => {
         .summarized,
     ).toBe(false);
   });
+  it("carries the runtime's post-compaction estimate", () => {
+    expect(contextCompactionMark(record(), 92_000).tokensAfter).toBe(92_000);
+  });
+
+  it("leaves the estimate out when a mark comes from the record", () => {
+    expect(contextCompactionMark(record()).tokensAfter).toBeUndefined();
+    expect(contextCompactionMark(record(), 0).tokensAfter).toBeUndefined();
+    expect(
+      contextCompactionMark(record(), Number.NaN).tokensAfter,
+    ).toBeUndefined();
+  });
 });
 
 describe("estimateSummaryTokens", () => {

@@ -31,9 +31,22 @@ export function checkpointSummarized(details: unknown): boolean {
   return value !== "fresh_window";
 }
 
+/**
+ * Describe one checkpoint for its transcript row and the context inspector.
+ * `tokensAfter` is the runtime's estimate of the compacted context and only
+ * exists on the live event that installed the checkpoint; the durable record
+ * does not carry it, so a mark rebuilt from storage leaves it out.
+ */
 export function contextCompactionMark(
   record: ContextCompactionRecord,
+  tokensAfter?: number,
 ): ContextCompactionMark {
+  const after =
+    typeof tokensAfter === "number" &&
+    Number.isFinite(tokensAfter) &&
+    tokensAfter > 0
+      ? Math.round(tokensAfter)
+      : undefined;
   return {
     id: record.id,
     throughMessageId: record.throughMessageId,
@@ -41,5 +54,6 @@ export function contextCompactionMark(
     summaryTokens: estimateSummaryTokens(record.summary ?? ""),
     summarized: checkpointSummarized(record.details),
     tokensBefore: record.tokensBefore,
+    ...(after === undefined ? {} : { tokensAfter: after }),
   };
 }

@@ -282,7 +282,10 @@ test("the transcript shows one row per compaction, the inspector the newest", ()
   // The generation counter and the family both ride inside the opaque details
   // value, so the host persists them without a record schema change.
   assert.match(runtime, /checkpointDetailsWithGeneration/);
-  assert.match(runtime, /mark: contextCompactionMark\(checkpoint\)/);
+  assert.match(
+    runtime,
+    /mark: contextCompactionMark\(checkpoint, compactedBudget\.tokens\)/,
+  );
   // Both the durable records and the live event feed the same per-session list.
   assert.match(store, /sessionCompactions: Record<string, ContextCompactionMark\[\]>/);
   assert.match(store, /rememberSessionCompactions\(id, detail\.session\)/);
@@ -348,4 +351,15 @@ test("the inspector card starts a compaction and reports it in place", () => {
   assert.match(enLocale, /usageCompactionBefore: "Before this compaction"/);
   assert.match(zhCnLocale, /usageCompactAction: "压缩上下文"/);
   assert.match(zhCnLocale, /usageCompactionBefore: "本次压缩前占用"/);
+  // The checkpoint's own post-compaction estimate replaces the ring's occupancy
+  // until a request reports usage past it.
+  assert.match(types, /tokensAfter\?: number/);
+  assert.match(inspector, /calculateContextUsageFromOccupancy/);
+  assert.match(inspector, /postCompactionOccupancy === undefined/);
+  assert.match(inspector, /context-inspector-compaction-after/);
+  assert.match(inspector, /chat\.usageCompactionAfter/);
+  assert.match(styles, /\.context-inspector-compaction-after \{/);
+  assert.match(composer, /latestTurnContextInspector/);
+  assert.match(enLocale, /usageCompactionAfter: "After this compaction"/);
+  assert.match(zhCnLocale, /usageCompactionAfter: "本次压缩后占用"/);
 });

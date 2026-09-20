@@ -5,6 +5,7 @@ import {
   calculateCacheRate,
   calculateTokenRate,
   calculateContextUsage,
+  calculateContextUsageFromOccupancy,
   contextOccupancyTokens,
   contextUsageView,
   estimateResponseOutputTokens,
@@ -14,6 +15,7 @@ import {
   toolTokenUsage,
   usageTokenTotal,
   settleStoppedAssistantMetrics,
+  postCompactionOccupancy,
 } from "../src/lib/context-usage.ts";
 
 test("context usage exposes the remaining ring percentage", () => {
@@ -270,4 +272,73 @@ test("tool usage aggregates repeated calls in first-seen order", () => {
       estimated: true,
     },
   ]);
+});
+
+function compactionMark(overrides = {}) {
+  return {
+    id: "mark-1",
+    throughMessageId: "t1",
+    generation: 1,
+    summaryTokens: 40,
+    summarized: true,
+    tokensAfter: 12_000,
+    ...overrides,
+  };
+}
+
+test("post-compaction occupancy leads until a request reports past it", () => {
+  const messages = [
+    { id: "u1", role: "user", content: "hi" },
+    {
+      id: "a1",
+      role: "assistant",
+      content: "done",
+      usage: { inputTokens: 90_000, outputTokens: 200, totalTokens: 90_200 },
+    },
+    { id: "t1", role: "tool", content: "ok" },
+  ];
+
+  assert.equal(postCompactionOccupancy(messages, [compactionMark()]), 12_000);
+});
+
+test("post-compaction occupancy steps aside for a newer report", () => {
+  const messages = [
+    {
+      id: "a1",
+      role: "assistant",
+      content: "before",
+      usage: { inputTokens: 90_000, outputTokens: 200, totalTokens: 90_200 },
+    },
+    { id: "t1", role: "tool", content: "ok" },
+    {
+      id: "a2",
+      role: "assistant",
+      content: "after",
+      usage: { inputTokens: 11_000, outputTokens: 300, totalTokens: 11_300 },
+    },
+  ];
+
+  assert.equal(
+    postCompactionOccupancy(messages, [compactionMark()]),
+    undefined,
+  );
+});
+
+test("post-compaction occupancy needs a covered message and a figure", () => {
+  const messages = [{ id: "a1", role: "assistant", content: "x" }];
+  const unloaded = compactionMark({ throughMessageId: "gone" });
+  const unmeasured = compactionMark({ tokensAfter: undefined });
+
+  assert.equal(postCompactionOccupancy(messages, []), undefined);
+  assert.equal(postCompactionOccupancy(messages, [unloaded]), undefined);
+  assert.equal(postCompactionOccupancy(messages, [unmeasured]), undefined);
+});
+
+test("the ring maths take a measured occupancy directly", () => {
+  const context = calculateContextUsageFromOccupancy(32_000, 128_000);
+
+  assert.equal(context.usedTokens, 32_000);
+  assert.equal(context.usedPercent, 25);
+  assert.equal(context.remainingPercent, 75);
+  assert.equal(context.remainingTokens, 96_000);
 });

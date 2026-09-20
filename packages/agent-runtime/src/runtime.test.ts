@@ -5136,6 +5136,9 @@ describe("DesktopAgentRuntime inline context compaction", () => {
           summaryTokens: 7,
           summarized: true,
           tokensBefore: expect.any(Number),
+          // The live mark also carries the compacted occupancy the composer
+          // ring leads with until the next request reports usage (D454).
+          tokensAfter: expect.any(Number),
         },
       }),
     );

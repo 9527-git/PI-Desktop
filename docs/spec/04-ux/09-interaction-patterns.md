@@ -767,11 +767,19 @@ may be retained while exactly one workspace supplies the visible shell context.
   has no actions and is not selectable.
 - The context usage inspector keeps one muted line for the newest checkpoint,
   shown while its panel is open — the count, the summary cost, and, when the
-  newest checkpoint record carries it, the context occupancy the checkpoint
-  replaced ("Before this compaction") sit below the compact model/tool usage
-  summaries without adding explanatory copy. The card stays open across a
-  compaction started from it: the busy label, the updated checkpoint line, and
-  the before figure are the in-place feedback.
+  newest checkpoint record carries them, the context occupancy the checkpoint
+  replaced ("Before this compaction") and the occupancy it leaves behind
+  ("After this compaction") sit below the compact model/tool usage summaries
+  without adding explanatory copy. The card stays open across a compaction
+  started from it: the busy label, the updated checkpoint lines, and the before
+  figure are the in-place feedback.
+- The composer ring reflects a checkpoint as soon as it lands (D454). While the
+  newest live mark carries its post-compaction estimate and no usage-bearing
+  message follows it, the ring and its percentage report that estimate instead
+  of the pre-compaction request, so a manual compaction updates the figure
+  without waiting for another turn. The next request that reports usage takes
+  the figure back. A mark rebuilt from storage carries no estimate, so opening
+  or forking a session never changes what the ring reports.
 
 ## 4. Long content collapse / expand
 

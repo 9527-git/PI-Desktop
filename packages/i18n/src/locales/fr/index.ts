@@ -30,7 +30,7 @@ export const fr = {
     "closeToTray": "Près du bac",
     "confirmQuitTitle": "Quitter PI-Desktop ?",
     "confirmQuitBody": "Êtes-vous sûr de vouloir arrêter ? Toutes les sessions en cours seront arrêtées et les modifications non enregistrées risquent d'être perdues.",
-    "confirmQuit": "Quitter"
+    "confirmQuit": "Quitter",
     /** D452: in-app confirmation shows what is actually running. */
     "confirmQuitIntro":
       "Quitter interrompt les travaux ci-dessous. L'historique enregistré des sessions n'est pas affecté.",
@@ -386,6 +386,7 @@ export const fr = {
     "usageUnknownTool": "Outil inconnu",
     "usageCompaction": "Compacté {{times}}× · résumé",
     "usageCompactionBefore": "Avant ce compactage",
+    "usageCompactionAfter": "Après cette compaction",
     "usageCompactAction": "Compacter le contexte",
     "usageCompactBusy": "Compactage…",
     "usageCompactHint":

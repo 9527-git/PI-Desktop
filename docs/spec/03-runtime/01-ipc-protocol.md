@@ -652,7 +652,9 @@ type AgentEvent =
               generation: number; summaryTokens: number;
               summarized: boolean;
               /** Context occupancy the checkpoint replaced. */
-              tokensBefore?: number };
+              tokensBefore?: number;
+              /** Live-only estimate of the compacted occupancy. */
+              tokensAfter?: number };
      error?: { code: string; message: string } }
  | { type: "error"; error: AppError }
  | { type: "status"; status: AgentStatus };
@@ -714,6 +716,19 @@ far larger than an event should be — and is instead read from
 durable record's `tokensBefore`. It is additive and optional: a mark from an
 older runtime omits it and the inspector hides the "before this compaction"
 line.
+
+`mark.tokensAfter` is the occupancy the checkpoint leaves behind, as the
+runtime's own estimate of the compacted context it will send on the next
+request. It is the symmetric counterpart of `tokensBefore` (D454), and
+carrier-only: the durable compaction record does not store it, so a mark
+rebuilt from `SessionDetail.compactions` omits it and the consumer keeps its
+pre-change behavior. The composer ring shows this estimate instead of the
+newest reported request only while the newest mark carries it and no message
+after that mark's `throughMessageId` reports usage; the first later
+usage-bearing message is a newer observation and takes the figure back. A mark
+with no `tokensAfter`, or one whose `throughMessageId` is not among the loaded
+messages, also leaves the ring on the newest reported request: without that
+anchor the compaction cannot be ordered against the messages on hand.
 
 Automatic summary failures may still produce a successful lifecycle event with
 `fallback: "retained_tail"`; this means a durable, aggressively bounded tail
@@ -1073,7 +1088,10 @@ sidecar stream time used to display output tokens per second. `ToolTokenUsage`
 is a runtime estimate from the tool call arguments and result; providers do not
 report per-tool allocation, so the renderer labels these rows as estimates and
 never merges them into the exact provider total. Older peers may omit all of
-these optional fields without breaking the v6 handshake.
+these optional fields without breaking the v6 handshake. The live
+`compaction_end.mark.tokensAfter` estimate is additive in the same way: it
+carries no handshake surface of its own, and a mark without it leaves the ring
+on the newest reported request.
 
 `turn_end.subagentUsage` is the settled subagent total since the previous
 emitted `turn_end` of the same durable turn. Parent `message.usage` stays the

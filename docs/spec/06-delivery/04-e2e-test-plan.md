@@ -12449,18 +12449,30 @@ plugin-form fixtures in an isolated temporary directory at runtime.
   newest checkpoint record may or may not carry its pre-compaction occupancy.
 - **Steps**: 1) Open the context usage popover. 2) Inspect the action row at
   the bottom of the card. 3) Click `Compact context`. 4) Observe the button
-  and the popover while the runtime reports the compacting phase. 5) Repeat
-  with a running turn, with a checkpoint whose record carries no occupancy,
-  and with no checkpoint at all.
+  and the popover while the runtime reports the compacting phase. 5) Note the
+  ring percentage before the click, then send one more prompt after the
+  compaction settles and observe the ring again. 6) Repeat with a running turn,
+  with a checkpoint whose record carries no occupancy, and with no checkpoint at
+  all.
 - **Expected**: The idle card shows the hint copy and an enabled button. The
   click calls `agent.compact` for the active session and the popover stays
   open. While `activity.phase === "compacting"` the button is disabled, carries
   `aria-busy="true"`, and shows a spinner with the busy label and hint. While a
   turn is live the button is disabled and keeps the idle copy. The checkpoint
   line shows the pre-compaction occupancy only when the newest mark carries
-  `tokensBefore`; otherwise it degrades to the summary line alone, and with no
-  checkpoint the action row still renders.
+  `tokensBefore`, and the post-compaction estimate (`After this compaction`)
+  only while the newest live mark carries `tokensAfter`; a checkpoint read back
+  from storage omits the estimate; otherwise each line degrades to the summary
+  line alone, and with no checkpoint the action row still renders. Once the
+  manual compaction succeeds, the trigger's ring and percentage report the
+  compacted context — the estimate carried by the live mark — instead of the
+  pre-compaction request they showed before the click, so the figure drops
+  without any further prompt. After the next model request reports usage, the
+  ring reports that request's usage again.
 - **Specs linked**: `04-ux/08-component-spec.md`, `04-ux/09-interaction-patterns.md`,
   `03-runtime/01-ipc-protocol.md`, ADR context-inspector-compact-action
 - **Acceptance**: C — Conversation & stream; Quality
-- **Status**: Automated (CDP) — `pnpm test:e2e:inspector-compact`
+- **Status**: Automated (CDP) — `pnpm test:e2e:inspector-compact`. That script
+  seeds the live mark with `tokensBefore` and, in its own step, with
+  `tokensAfter`, so it asserts both the post-compaction occupancy line and the
+  ring dropping to the estimate before any further prompt.

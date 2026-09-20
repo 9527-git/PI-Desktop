@@ -5506,7 +5506,11 @@ Delegation rules:
       firstKeptMessageId: checkpoint.firstKeptMessageId,
       willRetry,
       ...(fallback ? { fallback } : {}),
-      mark: contextCompactionMark(checkpoint),
+      // Compaction rewrites the model context without adding a usage-bearing
+      // message, so the composer ring would keep reporting the context this
+      // checkpoint replaced until the next request answers. The compacted
+      // budget is what that next request will send.
+      mark: contextCompactionMark(checkpoint, compactedBudget.tokens),
     });
     return "persisted";
   }

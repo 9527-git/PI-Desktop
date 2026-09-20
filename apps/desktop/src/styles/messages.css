@@ -1613,6 +1613,12 @@
   margin-top: 6px;
 }
 
+/* The after-figure pairs with the before-figure directly above it, so the two
+ * read as one checkpoint readout (D454). */
+.context-inspector-compaction-after {
+  margin-top: 6px;
+}
+
 /* One full-width action row: a muted hint and the compact action, set apart
  * from the readout above by space and a hairline. */
 .context-inspector-actions {

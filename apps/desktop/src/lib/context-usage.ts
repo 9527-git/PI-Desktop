@@ -1,6 +1,7 @@
 import {
   effectiveContextWindow,
   modelIdsMatch,
+  type ContextCompactionMark,
   type ContextUsageDisplay,
   type MessageUsage,
   type ModelInfo,
@@ -101,24 +102,68 @@ export type ContextUsage = {
   remainingPercent: number;
 };
 
-export function calculateContextUsage(
-  usage: MessageUsage,
+/**
+ * Occupancy of a context that was already measured, so a compaction estimate
+ * and a reported request share one ring formula.
+ */
+export function calculateContextUsageFromOccupancy(
+  usedTokens: number,
   contextWindow: number,
 ): ContextUsage {
   const safeWindow = positiveTokenCount(contextWindow) || DEFAULT_CONTEXT_WINDOW;
-  const usedTokens = contextOccupancyTokens(usage);
-  const usedRatio = Math.min(1, usedTokens / safeWindow);
+  const used = positiveTokenCount(usedTokens);
+  const usedRatio = Math.min(1, used / safeWindow);
   const remainingRatio = 1 - usedRatio;
   const usedPercent = Math.round(usedRatio * 100);
 
   return {
-    usedTokens,
-    remainingTokens: Math.max(0, safeWindow - usedTokens),
+    usedTokens: used,
+    remainingTokens: Math.max(0, safeWindow - used),
     usedRatio,
     remainingRatio,
     usedPercent,
     remainingPercent: 100 - usedPercent,
   };
+}
+
+export function calculateContextUsage(
+  usage: MessageUsage,
+  contextWindow: number,
+): ContextUsage {
+  return calculateContextUsageFromOccupancy(
+    contextOccupancyTokens(usage),
+    contextWindow,
+  );
+}
+
+/**
+ * Occupancy the newest checkpoint installed, for as long as no request has
+ * reported usage past it. A compaction rewrites the model context without
+ * adding a message, so `latestMessageUsage` still answers with the
+ * pre-compaction request and the ring would keep reporting the context the
+ * checkpoint replaced. `throughMessageId` is the ordering proof: once a
+ * usage-bearing message lands after it, that report is newer and this estimate
+ * steps aside.
+ */
+export function postCompactionOccupancy(
+  messages: UiMessage[],
+  compactions: readonly ContextCompactionMark[],
+): number | undefined {
+  const mark = compactions.at(-1);
+  if (!mark) return undefined;
+  const tokensAfter = positiveTokenCount(mark.tokensAfter);
+  if (tokensAfter <= 0) return undefined;
+  const boundary = messages.findIndex(
+    (message) => message.id === mark.throughMessageId,
+  );
+  // A checkpoint whose covered message is not loaded cannot be ordered against
+  // the messages on hand, so the reported request keeps the ring.
+  if (boundary < 0) return undefined;
+  let newestUsage = -1;
+  for (let index = 0; index < messages.length; index += 1) {
+    if (messages[index].usage) newestUsage = index;
+  }
+  return newestUsage > boundary ? undefined : tokensAfter;
 }
 
 /**

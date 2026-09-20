@@ -15,6 +15,7 @@ import {
   aggregateToolTokenUsage,
   calculateCacheRate,
   calculateContextUsage,
+  calculateContextUsageFromOccupancy,
   calculateTokenRate,
   contextOccupancyTokens,
   contextUsageView,
@@ -43,6 +44,7 @@ export function ContextUsageInspector({
   responseDurationMs,
   responseOutputTokens,
   responseOutputEstimated = false,
+  postCompactionOccupancy,
   compactBlocked = false,
 }: {
   usage: MessageUsage;
@@ -54,6 +56,12 @@ export function ContextUsageInspector({
   responseOutputEstimated?: boolean;
   /** A live turn or a native session owns the composer; compaction must wait. */
   compactBlocked?: boolean;
+  /**
+   * The checkpoint's own post-compaction occupancy, while it is newer than the
+   * last reported request. It replaces the ring's occupancy so a manual
+   * compaction shows at once instead of at the next turn.
+   */
+  postCompactionOccupancy?: number;
 }) {
   const { t } = useTranslation();
   const panelId = useId();
@@ -78,7 +86,16 @@ export function ContextUsageInspector({
   const [open, setOpen] = useState(false);
   const [popoverPosition, setPopoverPosition] =
     useState<AnchoredPopoverPlacement | null>(null);
-  const context = calculateContextUsage(usage, contextWindow);
+  // A compaction rewrites the model context without a new request, so the
+  // checkpoint's own estimate leads the ring until a request reports usage
+  // past it.
+  const context =
+    postCompactionOccupancy === undefined
+      ? calculateContextUsage(usage, contextWindow)
+      : calculateContextUsageFromOccupancy(
+          postCompactionOccupancy,
+          contextWindow,
+        );
   // The display preference flips the leading figure only; capacity colors
   // still follow remaining space so the warning state keeps one meaning.
   const usageDisplay = useAppStore((state) =>
@@ -392,6 +409,12 @@ export function ContextUsageInspector({
         <div className="context-inspector-compaction context-inspector-compaction-before">
           <span>{t("chat.usageCompactionBefore")}</span>
           <strong>~{formatTokenCount(compaction.tokensBefore)}</strong>
+        </div>
+      ) : null}
+      {compaction?.tokensAfter !== undefined ? (
+        <div className="context-inspector-compaction context-inspector-compaction-after">
+          <span>{t("chat.usageCompactionAfter")}</span>
+          <strong>~{formatTokenCount(compaction.tokensAfter)}</strong>
         </div>
       ) : null}
       <div className="context-inspector-actions">

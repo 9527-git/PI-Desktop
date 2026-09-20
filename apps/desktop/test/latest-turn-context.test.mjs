@@ -216,3 +216,84 @@ test("latest turn inspector keeps last-request usage beside the turn sum", () =>
   assert.equal(inspector?.turnUsage.cacheReadTokens, 51_500);
   assert.equal(inspector?.turnUsage.inputTokens, 57_300);
 });
+
+test("latest turn inspector leads with the checkpoint's estimate", () => {
+  const inspector = latestTurnContextInspector(
+    [
+      message("u1", "user", "overflow"),
+      message("a1", "assistant", "old", {
+        providerId: "provider",
+        modelId: "catalog-model",
+        usage: {
+          inputTokens: 200_000,
+          outputTokens: 500,
+          totalTokens: 200_500,
+        },
+      }),
+      message("t1", "tool", "done", {
+        toolName: "Read",
+        toolCallId: "read-1",
+      }),
+    ],
+    providerModels,
+    providers,
+    [
+      {
+        id: "mark-1",
+        generation: 1,
+        summaryTokens: 400,
+        throughMessageId: "t1",
+        summarized: true,
+        tokensBefore: 200_500,
+        tokensAfter: 12_000,
+      },
+    ],
+  );
+
+  assert.equal(inspector?.usage.totalTokens, 200_500);
+  assert.equal(inspector?.postCompactionOccupancy, 12_000);
+});
+
+test("latest turn inspector drops the estimate after a newer report", () => {
+  const inspector = latestTurnContextInspector(
+    [
+      message("a1", "assistant", "old", {
+        providerId: "provider",
+        modelId: "catalog-model",
+        usage: {
+          inputTokens: 200_000,
+          outputTokens: 500,
+          totalTokens: 200_500,
+        },
+      }),
+      message("t1", "tool", "done", {
+        toolName: "Read",
+        toolCallId: "read-1",
+      }),
+      message("a2", "assistant", "fresh", {
+        providerId: "provider",
+        modelId: "catalog-model",
+        usage: {
+          inputTokens: 11_000,
+          outputTokens: 300,
+          totalTokens: 11_300,
+        },
+      }),
+    ],
+    providerModels,
+    providers,
+    [
+      {
+        id: "mark-1",
+        generation: 1,
+        summaryTokens: 400,
+        throughMessageId: "t1",
+        summarized: true,
+        tokensAfter: 12_000,
+      },
+    ],
+  );
+
+  assert.equal(inspector?.usage.totalTokens, 11_300);
+  assert.equal(inspector?.postCompactionOccupancy, undefined);
+});

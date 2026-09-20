@@ -36,6 +36,8 @@ export type CaptureRigMethods = {
     mark?: "compacted" | "legacy" | "none";
     phase?: "idle" | "compacting";
     running?: boolean;
+    /** Live-only post-compaction estimate; absent leaves the ring on the request. */
+    tokensAfter?: number;
   }) => void;
   seedReviewChanges: (count?: number) => void;
   seedRunRows: (count?: number) => void;
@@ -175,7 +177,12 @@ export function installCaptureRig(): CaptureRig {
       // replaced with a recorder because the synthetic transcript never
       // reaches the host, so a real round trip would fail by construction.
       if (!window.__PI_CAPTURE__) return;
-      const { mark = "compacted", phase = "idle", running = false } = options;
+      const {
+        mark = "compacted",
+        phase = "idle",
+        running = false,
+        tokensAfter,
+      } = options;
       const sessionId =
         useAppStore.getState().activeSessionId ?? "capture-inspector-session";
       const base = Date.parse("2026-07-20T09:00:00Z");
@@ -229,6 +236,9 @@ export function installCaptureRig(): CaptureRig {
                     summaryTokens: 4_200,
                     summarized: true,
                     ...(mark === "compacted" ? { tokensBefore: 92_000 } : {}),
+                    ...(mark === "compacted" && typeof tokensAfter === "number"
+                      ? { tokensAfter }
+                      : {}),
                   },
                 ],
         },

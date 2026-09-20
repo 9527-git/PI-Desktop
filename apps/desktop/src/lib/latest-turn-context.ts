@@ -14,7 +14,11 @@ import {
   buildTranscriptEntries,
   type AssistantTurnEntry,
 } from "./assistant-turns";
-import { latestMessageUsage, resolveContextWindow } from "./context-usage";
+import {
+  latestMessageUsage,
+  postCompactionOccupancy,
+  resolveContextWindow,
+} from "./context-usage";
 
 export type LatestTurnContextInspector = {
   usage: MessageUsage;
@@ -24,6 +28,12 @@ export type LatestTurnContextInspector = {
   responseDurationMs?: number;
   responseOutputTokens?: number;
   responseOutputEstimated: boolean;
+  /**
+   * The newest checkpoint's post-compaction occupancy, while no request has
+   * reported usage past it. The ring leads with it so a compaction shows at
+   * once instead of waiting for the next turn to answer.
+   */
+  postCompactionOccupancy?: number;
 };
 
 /**
@@ -53,10 +63,18 @@ export function latestTurnContextInspector(
     .reverse()
     .find((message) => message.usage);
 
+  const occupancyAfterCompaction = postCompactionOccupancy(
+    parentMessages,
+    compactions,
+  );
+
   return {
     // Occupancy and provider cache/input/output use this last request.
     // turnUsage remains the visual-turn sum for completed-turn speed.
     usage: latestUsage,
+    ...(occupancyAfterCompaction === undefined
+      ? {}
+      : { postCompactionOccupancy: occupancyAfterCompaction }),
     turnUsage:
       (latestTurn ? assistantTurnUsage(latestTurn) : undefined) ?? latestUsage,
     contextWindow: resolveContextWindow(

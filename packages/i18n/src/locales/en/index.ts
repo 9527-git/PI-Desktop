@@ -394,6 +394,7 @@ export const en = {
     usageUnknownTool: "Unknown tool",
     usageCompaction: "Compacted {{times}}× · summary",
     usageCompactionBefore: "Before this compaction",
+    usageCompactionAfter: "After this compaction",
     usageCompactAction: "Compact context",
     usageCompactBusy: "Compacting…",
     usageCompactHint:

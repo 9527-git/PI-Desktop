@@ -6219,3 +6219,33 @@ The renderer now draws both confirmations so they stay anchored to the window in
 - i18n adds six keys under `tray.*` across all eight locales: `confirmQuitIntro`, `confirmQuitRunning`, `confirmQuitDrafts`, `askTrayDesc`, `askQuitDesc`, `askSettingsHint`.
 - Regression coverage: a source-contract test in `apps/desktop/test/quit-dialog-inapp.test.mjs` asserts that both dialogs route through the runtime, that the runtime has a bounded timeout, and that the IPC channels are whitelisted. The existing E2E-204 scenario ("explicit quit confirms before shutdown") stays unchanged because the observable contract is identical.
 - Renderer, styles, locales, docs, and tests only; no host-core, RPC, schema, permission, or persisted-state change.
+
+## 2026-09-20 — The context ring follows a compaction at once (D454)
+
+The composer's context-usage ring reads its occupancy from the newest assistant
+message that reported usage, and a compaction installs a checkpoint without
+adding a message. Automatic compaction looked healthy only because it is always
+followed by another provider request, whose usage refreshed the ring; a manual
+compaction from the inspector card has no such request, so the ring kept
+reporting the context the checkpoint had just replaced and over-reported
+occupancy until the next turn answered. D434 named the updated checkpoint line
+as the in-place feedback, which left the ring itself stale.
+
+The mark now carries the figure: `ContextCompactionMark` gains an optional
+`tokensAfter`, filled from `compactedBudget.tokens` — the context budget the next
+request will send — and symmetric with the existing `tokensBefore`. The renderer
+leads the ring with it while no usage-bearing message lands after the
+checkpoint's `throughMessageId`, then steps aside for the reported request. Both
+fallbacks keep the previous behaviour: a mark rebuilt from the durable record
+omits the field, because the record does not store it, and a checkpoint whose
+covered message is not loaded cannot be ordered against the messages on hand, so
+neither invents a figure it cannot justify.
+
+- `tokensAfter` is live-`compaction_end`-only. No IPC channel, Host RPC, storage
+  schema, permission, or persisted-state change; the durable record and its
+  readers are untouched, and an older runtime build simply omits the field.
+- The inspector card shows it as a second line, "After this compaction",
+  directly under "Before this compaction", across all eight locales.
+- See `03-runtime/01-ipc-protocol.md`, `04-ux/08-component-spec.md` §8.3/§8.5,
+  `04-ux/09-interaction-patterns.md` §3A, and
+  E2E-CHAT-compact-from-context-inspector in `06-delivery/04-e2e-test-plan.md`.

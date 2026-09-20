@@ -386,6 +386,7 @@ export const de = {
     "usageUnknownTool": "Unbekanntes Tool",
     "usageCompaction": "Verdichtet {{times}}× · Zusammenfassung",
     "usageCompactionBefore": "Vor dieser Verdichtung",
+    "usageCompactionAfter": "Nach dieser Kompaktierung",
     "usageCompactAction": "Kontext verdichten",
     "usageCompactBusy": "Wird verdichtet…",
     "usageCompactHint":
