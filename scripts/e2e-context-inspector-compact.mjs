@@ -138,8 +138,12 @@ const READ_ROW = `(() => {
     after: after ? after.textContent.trim() : null,
     compactionRows: document.querySelectorAll(".context-inspector-compaction").length,
     ringPercent: document.querySelector(".context-inspector-ring-value")?.textContent?.trim() ?? null,
+    ringLabel: document.querySelector(".context-inspector-trigger")?.getAttribute("aria-label") ?? null,
   };
 })()`;
+
+/** The live post-compaction estimate the compaction fixture seeds, in tokens. */
+const COMPACTED_TOKENS = 12_000;
 
 const results = [];
 function check(ok, label, detail = "") {
@@ -346,20 +350,28 @@ async function main() {
 
     // 5. The live mark's post-compaction estimate leads the ring at once, so a
     //    manual compaction drops the figure without waiting for another turn.
-    await seed({ mark: "compacted", phase: "idle", tokensAfter: 12_000 });
+    await seed({ mark: "compacted", phase: "idle", tokensAfter: COMPACTED_TOKENS });
     const compacted = await evaluate(READ_ROW);
     check(
       compacted.compactionRows === 3 && /~12k/.test(compacted.after ?? ""),
       "a live mark carrying the estimate adds the post-compaction occupancy line",
       JSON.stringify(compacted),
     );
+    // The trigger announces the occupancy the ring leads with. Its token count
+    // is the mode-independent figure: the display preference only flips the
+    // percentage, and in the default "remaining" mode a compaction raises it.
+    const announcedTokens = (entry) => {
+      const match = String(entry.ringLabel ?? "").match(/(\d+(?:\.\d+)?)k\b/);
+      return match ? Number(match[1]) * 1000 : null;
+    };
+    const compactedTokens = announcedTokens(compacted);
+    const requestTokens = announcedTokens(idle);
     check(
-      compacted.ringPercent !== null &&
-        idle.ringPercent !== null &&
-        Number.parseInt(compacted.ringPercent, 10) <
-          Number.parseInt(idle.ringPercent, 10),
+      compactedTokens === COMPACTED_TOKENS &&
+        requestTokens !== null &&
+        compactedTokens < requestTokens,
       "the ring reports the compacted context instead of the pre-compaction request",
-      JSON.stringify({ before: idle.ringPercent, after: compacted.ringPercent }),
+      JSON.stringify({ before: idle.ringLabel, after: compacted.ringLabel }),
     );
 
     // 6. A legacy mark degrades to the single checkpoint line.
