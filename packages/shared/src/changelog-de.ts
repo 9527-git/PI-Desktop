@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.43",
+    "date": "2026-09-20",
+    "highlights": [
+      "Die Fortschrittskarte des laufenden Durchgangs ist jetzt eine kompakte Kapsel mittig über dem Verlauf und verdeckt damit nicht mehr die Nachrichten, über die sie berichtet; ein Klick öffnet die Schrittübersicht, die sich fünf Sekunden nach dem Öffnen selbst ausblendet.",
+      "Die Statuskapsel der Seitenleiste führt ihre Zeile wieder an, bündig an deren eigenem linken Rand und mit dem Titel direkt dahinter - keine reservierte Spur mehr, die jeden Titel nach rechts schiebt.",
+      "Die Komprimierung funktioniert wieder bei Anbietern, die eigene Anfrage-Header brauchen: die Zusammenfassungsanfrage trägt jetzt die Anbieter-Header der Sitzung statt ohne sie hinauszugehen.",
+    ],
+  },
+  {
     "version": "0.14.42",
     "date": "2026-09-20",
     "highlights": [

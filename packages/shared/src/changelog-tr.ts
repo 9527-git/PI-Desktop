@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.43",
+    "date": "2026-09-20",
+    "highlights": [
+      "Süren turun ilerleme kartı artık konu alanının üstünde ortalanmış kompakt bir kapsül, böylece hakkında bilgi verdiği mesajları kapatmıyor; tıklandığında adım özeti açılıyor ve açıldıktan beş saniye sonra kendini gizliyor.",
+      "Kenar çubuğunun durum kapsülü yeniden satırına öncülük ediyor, satırın kendi sol kenarına yapışık ve başlık hemen ardında - her başlığı sağa iten ayrılmış bir şerit yok.",
+      "Kendi istek başlıklarını gerektiren sağlayıcılarda sıkıştırma yeniden çalışıyor: özet isteği artık boş gitmek yerine oturumun sağlayıcı başlıklarını taşıyor.",
+    ],
+  },
+  {
     "version": "0.14.42",
     "date": "2026-09-20",
     "highlights": [

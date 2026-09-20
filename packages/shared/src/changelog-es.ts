@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.14.43",
+    "date": "2026-09-20",
+    "highlights": [
+      "La tarjeta de progreso del turno en curso ahora es una cápsula compacta centrada sobre el hilo, así que ya no tapa los mensajes de los que informa; al pulsarla se abre el resumen de pasos, que se oculta solo cinco segundos después.",
+      "La cápsula de estado de la barra lateral vuelve a encabezar su fila, pegada a su propio borde izquierdo y con el título justo detrás: ya no hay un carril reservado que empuje cada título hacia la derecha.",
+      "La compactación vuelve a funcionar en proveedores que necesitan sus propias cabeceras de petición: la petición del resumen ahora lleva las cabeceras del proveedor de la sesión en lugar de salir sin ellas.",
+    ],
+  },
+  {
     "version": "0.14.42",
     "date": "2026-09-20",
     "highlights": [
