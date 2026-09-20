@@ -357,21 +357,34 @@ async function main() {
       "a live mark carrying the estimate adds the post-compaction occupancy line",
       JSON.stringify(compacted),
     );
-    // The trigger announces the occupancy the ring leads with. Its token count
-    // is the mode-independent figure: the display preference only flips the
-    // percentage, and in the default "remaining" mode a compaction raises it.
+    // A fresh profile keeps the default "remaining" display, so the trigger
+    // announces remaining capacity and the count beside it is remaining tokens.
+    // Derive the occupancy the ring leads with from that pair: the check then
+    // reads the figure instead of a direction that flips with the preference.
     const announcedTokens = (entry) => {
       const match = String(entry.ringLabel ?? "").match(/(\d+(?:\.\d+)?)k\b/);
       return match ? Number(match[1]) * 1000 : null;
     };
-    const compactedTokens = announcedTokens(compacted);
-    const requestTokens = announcedTokens(idle);
+    const occupiedTokens = (entry) => {
+      const percent = Number.parseInt(entry.ringPercent ?? "", 10);
+      const remaining = announcedTokens(entry);
+      if (!Number.isFinite(percent) || percent <= 0 || percent >= 100 || remaining === null) {
+        return null;
+      }
+      return Math.round((remaining * (100 - percent)) / percent);
+    };
+    const compactedOccupancy = occupiedTokens(compacted);
+    const requestOccupancy = occupiedTokens(idle);
+    // The percentage is rounded, so the derived occupancy carries a small error;
+    // a tenth of the estimate is the band the fixture can guarantee.
+    const within = (value, target) =>
+      value !== null && Math.abs(value - target) <= target / 10;
     check(
-      compactedTokens === COMPACTED_TOKENS &&
-        requestTokens !== null &&
-        compactedTokens < requestTokens,
+      within(compactedOccupancy, COMPACTED_TOKENS) &&
+        requestOccupancy !== null &&
+        compactedOccupancy < requestOccupancy,
       "the ring reports the compacted context instead of the pre-compaction request",
-      JSON.stringify({ before: idle.ringLabel, after: compacted.ringLabel }),
+      JSON.stringify({ before: requestOccupancy, after: compactedOccupancy }),
     );
 
     // 6. A legacy mark degrades to the single checkpoint line.
