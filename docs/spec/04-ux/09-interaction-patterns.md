@@ -1390,12 +1390,13 @@ Project drag/drop follows these patterns:
   branch current after an external checkout without activating a project or
   changing the selected conversation. If the read fails, the last cached
   branch is used.
-- The card is rendered through a portal at `document.body`, never widens
-  beyond 280px, never causes horizontal scroll on the underlying row, and
-  stays non-interactive so the row keeps receiving pointer events. It is a
-  compact summary layer: the 280px width cap, `10px 12px` padding, and an 8px
-  internal rhythm keep it near the expanded sidebar's own 275px column rather
-  than reading as a wider second panel.
+- The card is rendered through a portal at `document.body`, never widens beyond
+  the hovered row's own measured width (capped at `264px`), never causes
+  horizontal scroll on the underlying row, and stays non-interactive so the row
+  keeps receiving pointer events. The width is re-read on every placement, so
+  shrinking the sidebar shrinks the card and it can never leave the session
+  column, while a wide sidebar still gets a bounded summary. `10px 12px` padding
+  and an 8px internal rhythm keep it denser than the row it summarizes.
 - The session row does not set a native `title` attribute. The hover card is
   the only full-title surface, so the browser tooltip never stacks on the
   card.

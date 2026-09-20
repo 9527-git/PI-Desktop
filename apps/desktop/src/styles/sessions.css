@@ -681,11 +681,12 @@
 
 /* WorkBuddy-style rich hover card for session rows. The related-session
    references are real buttons so the card remains usable with a keyboard and
-   can navigate to another durable conversation. */
+   can navigate to another durable conversation. The card's width comes from
+   the row it summarizes (D460), so it never leaves the session column. */
 .sidebar-session-hover-card {
   position: fixed;
   z-index: 71;
-  width: min(280px, calc(100vw - 16px));
+  width: min(var(--session-hover-card-width, 264px), calc(100vw - 16px));
   max-height: calc(100vh - 16px);
   overflow: auto;
   padding: 10px 12px;
