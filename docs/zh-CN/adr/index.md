@@ -26,7 +26,7 @@ ADR 记录那些不应被静默改变的架构选择。中文入口与英文索�
 | [ADR 0128：瞬时 provider 故障的有界重试](/adr/0128-bounded-transient-provider-retry) | 为瞬时 provider 故障共享一个有界重试预算，跨请求设置和流式传输阶段共用四次重试 |
 | [ADR 0131：大段 Composer 粘贴写入会话临时目录](/adr/0131-large-text-paste-session-reference) | 超过可配置阈值的纯文本粘贴保存为会话临时文件，并在原位置插入内联 `@` 引用 |
 | [ADR 0137：保留的会话面板](/adr/0137-retained-session-panes) | 最近访问的会话各自保留一个已挂载的面板（上限三个），切换是可见性交换而不是重建转录 |
-| [ADR 0141：展开侧边栏宽度可调整](/adr/0141-sidebar-width-resize) | 展开侧边栏通过右边缘手柄调整 240–520px 宽度，并持久化首选值 |
+| [ADR 0141：展开侧边栏宽度可调整](/adr/0141-sidebar-width-resize) | 展开侧边栏通过右边缘手柄调整 240–520px 宽度；拖过 160px 会收起（ADR 0262） |
 | [ADR 0142：允许非回环 HTTP MCP 端点](/adr/0142-allow-non-loopback-http-mcp) | 支持局域网 MCP，并明确提示明文连接风险，插件仍受网络白名单约束 |
 | [ADR 0145：发布本机 macOS Intel 工件](/adr/0145-native-macos-intel-release-lane) | 通过匹配的 macOS 原生运行器发布 arm64 与 Intel x64 DMG/ZIP，两个架构工件均带有明确后缀，并合并更新源 |
 | [ADR 0148：明确禁用应用快捷键](/adr/0148-explicitly-disable-keyboard-shortcuts) | 缺少覆盖使用默认值，`null` 表示未绑定并关闭渲染器、菜单和启动器分发 |
@@ -288,6 +288,7 @@ ADR 记录那些不应被静默改变的架构选择。中文入口与英文索�
 | 0259 | [排队行立即发送改为转向，编辑则回到输入框](/adr/0259-queue-row-steer-and-edit) | 已接受（修订 ADR 0118 的立即发送条款 / ADR 0213 第 4 条；D430） |
 | 0260 | [由代理申报任务清单，一张进度卡承载整个回合](/adr/0260-declared-task-progress-card) | 已接受（修订 ADR 0175 的无进度卡条款 / §2.4；D452） |
 | 0261 | [进度卡收成顶部悬浮按钮，概览自动消隐](/adr/0261-turn-progress-pill) | 已接受（修订 ADR 0260 的呈现方式；D456） |
+| 0262 | [恢复可拖拽侧边栏宽度，过窄时收起](/adr/0262-resizable-sidebar-collapse-threshold) | 已接受（D457；修订 ADR 0141 / ADR 0238） |
 | context-inspector-compact-action | [从上下文用量卡片启动压缩](/adr/context-inspector-compact-action) | 已接受待实现（修订 ADR 0103 / ADR 0106；D434） |
 
 ## 什么时候看 ADR

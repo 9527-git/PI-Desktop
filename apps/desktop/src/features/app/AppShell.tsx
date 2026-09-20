@@ -1,21 +1,21 @@
-import { lazy, Suspense, type CSSProperties, type ReactNode } from "react";
-import { TooltipButton, cx } from "../../components/ui";
+import { type CSSProperties, lazy, type ReactNode, Suspense } from "react";
+import { ChatSurface } from "../../components/ChatSurface";
+import { ConversationTopbar } from "../../components/ConversationTopbar";
+import { ExtensionPromptHost } from "../../components/ExtensionPromptDialog";
 import {
   IconNewSession,
   IconPanel,
   IconPanelOpen,
 } from "../../components/icons";
-import { Sidebar } from "../../components/Sidebar";
-import { ConversationTopbar } from "../../components/ConversationTopbar";
-import { WorkPanel } from "../../components/workpanel/WorkPanel";
-import { ChatSurface } from "../../components/ChatSurface";
-import { SearchDialog } from "../../components/SearchDialog";
-import { ToastHost } from "../../components/Toast";
-import { ExtensionPromptHost } from "../../components/ExtensionPromptDialog";
-import { QuitDialogHost } from "../../components/QuitDialogHost";
 import { ProjectCreateDialog } from "../../components/ProjectCreateDialog";
+import { QuitDialogHost } from "../../components/QuitDialogHost";
+import { SearchDialog } from "../../components/SearchDialog";
+import { Sidebar } from "../../components/Sidebar";
+import { ToastHost } from "../../components/Toast";
 import { UpdateBanner } from "../../components/UpdateBanner";
+import { cx, TooltipButton } from "../../components/ui";
 import { WindowControls } from "../../components/WindowControls";
+import { WorkPanel } from "../../components/workpanel/WorkPanel";
 import { api } from "../../lib/api";
 import { CollapsedTitlebarActions, RoutePending } from "./chrome";
 import { useAppShellRuntime } from "./useAppShellRuntime";
@@ -56,8 +56,10 @@ export function AppShell() {
     sidebarCollapsed,
     sidebarExiting,
     sidebarWidth,
+    sidebarWidthMax,
     handleSidebarWidthChange,
     handleSidebarWidthCommit,
+    handleSidebarResizeCollapse,
     toggleSidebar,
     reopenSidebar,
     autoCollapseSidebar,
@@ -107,8 +109,10 @@ export function AppShell() {
               onToggleSidebar={toggleSidebar}
               sidebarToggleShortcut={sidebarToggleShortcut}
               sidebarWidth={sidebarWidth}
+              widthMax={sidebarWidthMax}
               onWidthChange={handleSidebarWidthChange}
               onWidthCommit={handleSidebarWidthCommit}
+              onResizeCollapse={handleSidebarResizeCollapse}
             />
           ) : null}
 
