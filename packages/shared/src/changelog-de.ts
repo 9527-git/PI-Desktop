@@ -6,7 +6,7 @@ export const deEntries: ChangelogEntry[] = [
     "date": "2026-09-20",
     "highlights": [
       "Die Fortschrittskarte des laufenden Durchgangs ist jetzt eine kompakte Kapsel mittig über dem Verlauf und verdeckt damit nicht mehr die Nachrichten, über die sie berichtet; ein Klick öffnet die Schrittübersicht, die sich fünf Sekunden nach dem Öffnen selbst ausblendet.",
-      "Die Statuskapsel der Seitenleiste führt ihre Zeile wieder an, bündig an deren eigenem linken Rand und mit dem Titel direkt dahinter - keine reservierte Spur mehr, die jeden Titel nach rechts schiebt.",
+      "Die Statuskapsel der Seitenleiste führt ihre Zeile wieder an, bündig an deren eigenem linken Rand und mit dem Titel direkt dahinter - keine reservierte Spur mehr, die jeden Titel nach rechts schiebt. Sie wird nur einmal gezeichnet, eine ausgewählte Zeile zeigt also keine zwei Ringe mehr, und liest sich als kompakte Marke.",
       "Die Komprimierung funktioniert wieder bei Anbietern, die eigene Anfrage-Header brauchen: die Zusammenfassungsanfrage trägt jetzt die Anbieter-Header der Sitzung statt ohne sie hinauszugehen.",
     ],
   },

@@ -6,7 +6,7 @@ export const trEntries: ChangelogEntry[] = [
     "date": "2026-09-20",
     "highlights": [
       "Süren turun ilerleme kartı artık konu alanının üstünde ortalanmış kompakt bir kapsül, böylece hakkında bilgi verdiği mesajları kapatmıyor; tıklandığında adım özeti açılıyor ve açıldıktan beş saniye sonra kendini gizliyor.",
-      "Kenar çubuğunun durum kapsülü yeniden satırına öncülük ediyor, satırın kendi sol kenarına yapışık ve başlık hemen ardında - her başlığı sağa iten ayrılmış bir şerit yok.",
+      "Kenar çubuğunun durum kapsülü yeniden satırına öncülük ediyor, satırın kendi sol kenarına yapışık ve başlık hemen ardında - her başlığı sağa iten ayrılmış bir şerit yok. Artık yalnızca bir kez çiziliyor, yani seçili bir satırda iki halka görünmüyor, ve kompakt bir etiket boyutunda.",
       "Kendi istek başlıklarını gerektiren sağlayıcılarda sıkıştırma yeniden çalışıyor: özet isteği artık boş gitmek yerine oturumun sağlayıcı başlıklarını taşıyor.",
     ],
   },
