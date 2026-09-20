@@ -13,9 +13,7 @@ const [
   store,
   transcript,
   retryPopover,
-  card,
   messagesStyles,
-  shellStyles,
   proseStyles,
   en,
   zh,
@@ -26,9 +24,7 @@ const [
   readStoreSource(),
   readTranscriptSource(),
   readTranscriptModule("RetryErrorPopover.tsx"),
-  readTranscriptModule("TurnProgressCard.tsx"),
   read("../src/styles/messages.css"),
-  read("../src/styles/chat-shell.css"),
   read("../src/styles/prose.css"),
   read("../../../packages/i18n/src/locales/en/index.ts"),
   read("../../../packages/i18n/src/locales/zh-CN/index.ts"),
@@ -144,9 +140,9 @@ test("active turns show immediate and phase-specific feedback in the transcript"
 });
 
 /* ADR 0260 gives the running turn one persistent surface, and what it lists is
- * the agent's own declaration rather than a guess. These assertions pin both
- * halves — the tool the model calls, and the stand-downs that keep the card
- * from competing with an actionable interruption. */
+ * the agent's own declaration rather than a guess. These assertions pin the
+ * tool the model calls and the declaration's transcript shape; the card's own
+ * surface contract lives in turn-progress-surface.test.mjs (ADR 0261). */
 test("the agent declares its task list with a tool, not a guessable heuristic", () => {
   assert.match(
     taskList,
@@ -198,93 +194,4 @@ test("a declaration owns its turn without becoming a transcript row", () => {
   // Identity survives a rebuild: the array is fresh every pass, so the reuse
   // comparator has to read it by content or every token re-renders the card.
   assert.match(assistantTurns, /function taskDeclarationsEqual\(/);
-});
-
-test("the running turn's card stays on screen for the whole turn", () => {
-  assert.match(card, /data-testid="turn-progress-card"/);
-  assert.match(card, /const progress = turnProgress\(entry, now\)/);
-  assert.match(card, /runActivityLabel\(activity, t as Translate, now\)/);
-  assert.match(card, /from "\.\.\/\.\.\/\.\.\/lib\/turn-progress"/);
-  // Derived from the transcript's own turn entry: no store state, IPC call, or
-  // second copy of the tool rows.
-  assert.doesNotMatch(card, /useAppStore|api\.|window\.__pi|invoke\(/);
-  // Composer owns abort; the card must not compete with it.
-  assert.doesNotMatch(card, /onAbort|abort|stopTurn/);
-
-  // The checklist itself: one marker per declared status, one state word per
-  // marker for the reader that cannot see the glyph.
-  assert.match(card, /const STEP_STATUS_KEYS: Record<TurnProgressStatus, string>/);
-  assert.match(card, /className="turn-progress-step-marker/);
-  assert.match(card, /data-status=\{step\.status\}/);
-  assert.match(card, /className="turn-progress-sr"/);
-  assert.match(card, /t\("chat\.turnProgressSteps"/);
-  // The footer's change figures come from the same durable review record the
-  // review cards read, so the two can never disagree.
-  // `panel.` is the only namespace the catalogs define; `workpanel.` resolved
-  // to nothing and the card rendered the raw key.
-  assert.match(card, /t\("panel\.review\.filesChanged"/);
-
-  // Only the status line is a live region; the elapsed timer ticks every second,
-  // so announcing the card as a whole would talk over the transcript.
-  assert.match(
-    card,
-    /className="turn-progress-status" role="status" aria-live="polite"/,
-  );
-  assert.doesNotMatch(card, /<section[\s\S]{0,400}aria-live/);
-  assert.match(card, /className="turn-progress-metrics" aria-hidden="true"/);
-
-  // The 1s timer is the card's own cost, so it stops when the card is hidden.
-  assert.match(card, /if \(hidden\) return;/);
-  assert.match(card, /window\.setInterval\(\(\) => setNow\(Date\.now\(\)\), 1000\)/);
-  assert.match(card, /return \(\) => window\.clearInterval\(timer\)/);
-
-  assert.match(transcript, /import \{ TurnProgressCard \} from "\.\/TurnProgressCard"/);
-  // An actionable interruption comes first: a permission, question, or approval
-  // card is a decision, and §2.4 keeps it out of the progress surfaces.
-  assert.match(
-    transcript,
-    /const progressTurnEntry =\s*transcriptRunning &&\s*!pendingPermission &&\s*!askPending &&\s*!approvalPending &&\s*tailEntry\?\.kind === "assistant-turn"/,
-  );
-  // Persistent: follow state is not part of the gate (ADR 0260).
-  assert.match(
-    transcript,
-    /const progressCardOnScreen =\s*progressTurnEntry !== null && paneVisible && !veilCovering/,
-  );
-  assert.doesNotMatch(
-    transcript,
-    /const progressCardOnScreen =[\s\S]{0,140}?showJump/,
-  );
-  assert.match(
-    transcript,
-    /<TurnProgressCard[\s\S]*?hidden=\{!progressCardOnScreen\}\s*showReturn=\{showJump\}/,
-  );
-  // The card owns the return-to-latest control while it is up, so the pill
-  // stands down instead of stacking a second copy of the same affordance.
-  assert.match(transcript, /\(showJump \|\| readingWindow\) && !veilCovering && !progressCardOnScreen/);
-
-  assert.match(shellStyles, /\.turn-progress-card\s*\{/);
-  assert.match(shellStyles, /\.turn-progress-card\[hidden\]\s*\{\s*display:\s*none;\s*\}/);
-  assert.match(shellStyles, /\.turn-progress-steps\s*\{/);
-  assert.match(shellStyles, /\.turn-progress-step-marker\.is-active\s*\{/);
-  assert.match(shellStyles, /\.turn-progress-foot\s*\{/);
-  assert.match(
-    shellStyles,
-    /@media \(prefers-reduced-motion: reduce\) \{\s*\.turn-progress-card \{\s*animation: none;/,
-  );
-  assert.match(
-    shellStyles,
-    /\.turn-progress-step-marker\.is-active \{\s*animation: none;\s*\}/,
-  );
-
-  for (const catalog of [en, zh]) {
-    assert.match(catalog, /turnProgressLabel:/);
-    assert.match(catalog, /turnProgressShowSteps:/);
-    assert.match(catalog, /turnProgressEarlier_one:/);
-    assert.match(catalog, /turnProgressEarlier_other:/);
-    assert.match(catalog, /turnProgressSteps:/);
-    assert.match(catalog, /turnProgressStepPending:/);
-    assert.match(catalog, /turnProgressStepActive:/);
-    assert.match(catalog, /turnProgressStepDone:/);
-    assert.match(catalog, /turnProgressStepError:/);
-  }
 });

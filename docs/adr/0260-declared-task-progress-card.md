@@ -3,6 +3,7 @@
 - Status: Accepted
 - Date: 2026-09-19
 - Amends: ADR 0175 (clause: no multi-step progress card); `04-ux/09-interaction-patterns.md` §2.4
+- Amended by: ADR 0261 (presentation: top pill + self-dismissing overview popup)
 
 ## Context
 

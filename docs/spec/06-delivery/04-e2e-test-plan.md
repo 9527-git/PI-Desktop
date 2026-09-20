@@ -3785,48 +3785,49 @@ and identify the platform validation still needed.
   transcript; a second agent run never calls `UpdateTasks`; a second session
   can run in the background; `prefers-reduced-motion` can be toggled.
 - **Steps**: 1) Start a long turn that declares a task list and keep the
-  transcript pinned to the tail. 2) Watch the card as steps start and finish.
-  3) Collapse and re-expand its list, then continue watching while the turn adds
-  rows. 4) Scroll upward until follow mode releases. 5) Click the card's
-  jump-to-latest control. 6) Scroll up and trigger a permission request.
-  7) Scroll up, then run a turn in the second session and return.
-  8) Repeat steps 1 and 2 with the agent that declares nothing. 9) Repeat steps
-  1 to 3 with reduced motion enabled.
-- **Expected**: One compact card sits in the lower transcript layer for the whole
-  running turn, on screen whether or not follow mode is released, and is gone
-  when the turn ends. Its step list is the newest `UpdateTasks` declaration:
-  every step in its order with a pending, active, done, or error marker, the
-  footer counting `done / total` from that list beside the files, additions, and
-  deletions the turn changed. The declaration call itself renders no transcript
-  row and is not a minimap target, so the card is its only surface and the
-  transcript never repeats it. The card names the
-  same runtime phase as the inline row would and counts elapsed time from the
-  turn's own first row; it never shows a percentage, an estimate, or a predicted
-  end. At most the turn's last eight steps are listed, older ones folded into a
-  single line, and the card's height does not grow with the turn. With the tail
-  on screen the jump-to-latest pill is not rendered and the card shows no jump
-  control; releasing follow mode puts that control in the card's footer and keeps
-  the pill out of the layer, so the lower surface never carries two floating
-  controls. Clicking it re-pins follow mode and jumps to the bottom. Collapsing
-  and re-expanding survives a scroll round trip. A permission, question, or plan
-  approval card replaces it, because that is an actionable interruption. A
-  background session's turn never draws the card in the visible session, and a
-  hidden retained pane or a settling session-switch veil shows nothing. The card
-  carries no stop control; the composer remains the only way to cancel. When the
-  agent never calls `UpdateTasks`, the same card reports the turn's tool rows
-  with their returned status and no invented total, and a turn with neither a
+  transcript pinned to the tail. 2) Watch the pill as steps start and finish,
+  then click it to open the overview and watch the markers. 3) Wait for the
+  overview to dismiss itself, then click the pill again to reopen it. 4) Scroll
+  upward until follow mode releases and use the transcript's jump pill.
+  5) Scroll up and trigger a permission request. 6) Scroll up, then run a turn
+  in the second session and return. 7) Repeat steps 1 and 2 with the agent
+  that declares nothing. 8) Repeat steps 1 and 2 with reduced motion enabled.
+- **Expected**: One compact pill floats centered at the top of the thread area
+  for the whole running turn, on screen whether or not follow mode is released,
+  never covering the messages beneath it, and is gone when the turn ends.
+  Clicking it pops a step overview beneath the pill — a floating panel, never
+  a strip lying over the composer — showing the newest `UpdateTasks`
+  declaration: every step in its order with a pending, active, done, or error
+  marker, at most the turn's last eight steps with older ones folded into a
+  single line, and a footer counting `done / total` from that list, set in a
+  larger type size with looser lines than the transcript rows. The overview
+  dismisses itself five seconds after it opens, and clicking the pill brings
+  it back; it carries no files-changed figures, no percentage, no estimate,
+  and no stop control. The declaration call itself renders no transcript row
+  and is not a minimap target, so the card is its only surface and the
+  transcript never repeats it. The pill names the same runtime phase as the
+  inline row would and counts elapsed time from the turn's own first row. The
+  jump-to-latest pill keeps its own gate whether the progress pill is on
+  screen or not, and clicking it re-pins follow mode and jumps to the bottom.
+  A permission, question, or plan approval card replaces the progress
+  surface, because that is an actionable interruption. A background session's
+  turn never draws the pill in the visible session, and a hidden retained
+  pane or a settling session-switch veil shows nothing. When the agent never
+  calls `UpdateTasks`, the same surface reports the turn's tool rows with
+  their returned status and no invented total, and a turn with neither a
   declaration nor a row shows nothing, leaving the transcript's own working
-  indicator alone. Under reduced motion the card appears without its entry
-  animation, the caret does not animate, and the active-step marker does not
-  spin.
+  indicator alone. Under reduced motion the pill and the popup appear without
+  their entry animations, the caret does not animate, and the active-step
+  marker does not spin.
 - **Specs linked**: `04-ux/09-interaction-patterns.md` §2.4,
   `04-ux/08-component-spec.md` §4.3/§4.4,
   `03-runtime/03-tools-and-permissions.md` §10.3,
-  `adr/0260-declared-task-progress-card.md`
+  `adr/0260-declared-task-progress-card.md`, `adr/0261-turn-progress-pill.md`
 - **Acceptance**: C (chat stream), Quality (interaction and accessibility)
 - **Milestone**: M5
 - **Status**: Unit-covered (`turn-progress.test.mjs`,
-  `active-turn-surface.test.mjs`); full UI scenario Draft
+  `turn-progress-surface.test.mjs`, `active-turn-surface.test.mjs`); full UI
+  scenario Draft
 
 #### E2E-095: Terminal failures expose recovery without a success card
 

@@ -283,4 +283,5 @@ Each ADR includes:
 | 0258 | [Keep the docked conversation composer in normal flow](0258-in-flow-chat-composer.md) | Accepted (amends ADR 0065 clause 4 / D264) |
 | 0259 | [Send a queued row by steering and return it to the composer on edit](0259-queue-row-steer-and-edit.md) | Accepted (amends ADR 0118 send-now clause / ADR 0213 clause 4; D430) |
 | 0260 | [Let the agent declare its task list to drive one persistent progress card](0260-declared-task-progress-card.md) | Accepted (amends ADR 0175 no-progress-card clause / §2.4; D452) |
+| 0261 | [Wear the turn's progress card as a pill with a self-dismissing overview](0261-turn-progress-pill.md) | Accepted (amends ADR 0260 presentation; D456) |
 | context-inspector-compact-action | [Compact the context from the usage inspector card](context-inspector-compact-action.md) | Accepted (amends ADR 0103 / ADR 0106; D434) |

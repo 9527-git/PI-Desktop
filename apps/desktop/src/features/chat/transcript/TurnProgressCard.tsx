@@ -1,85 +1,62 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { AgentActivity } from "@pi-desktop/shared";
 import type { AssistantTurnEntry } from "../../../lib/assistant-turns";
 import { formatToolDuration } from "../../../lib/tool-display";
-import {
-  turnProgress,
-  type TurnProgressStatus,
-} from "../../../lib/turn-progress";
-import {
-  IconArrowDown,
-  IconCheck,
-  IconChevronRight,
-  IconCircleAlert,
-} from "../../../components/icons";
+import { turnProgress } from "../../../lib/turn-progress";
+import { IconChevronRight } from "../../../components/icons";
 import { runActivityLabel, type Translate } from "./ActivityGroup";
+import { TurnProgressSteps } from "./TurnProgressSteps";
 
-const STEP_STATUS_KEYS: Record<TurnProgressStatus, string> = {
-  pending: "chat.turnProgressStepPending",
-  active: "chat.turnProgressStepActive",
-  done: "chat.turnProgressStepDone",
-  error: "chat.turnProgressStepError",
-};
-
-function StepMarker({ status }: { status: TurnProgressStatus }) {
-  if (status === "done") {
-    return (
-      <span className="turn-progress-step-marker is-done" aria-hidden="true">
-        <IconCheck size={10} />
-      </span>
-    );
-  }
-  if (status === "error") {
-    return (
-      <span className="turn-progress-step-marker is-error" aria-hidden="true">
-        <IconCircleAlert size={10} />
-      </span>
-    );
-  }
-  return (
-    <span
-      className={`turn-progress-step-marker is-${status}`}
-      aria-hidden="true"
-    />
-  );
-}
+/** The overview is a glance, not a panel: it dismisses itself (ADR 0261). */
+export const TURN_PROGRESS_POPUP_AUTO_HIDE_MS = 5000;
 
 /**
- * The running turn's task list, docked over the transcript for the whole turn.
- *
- * The list is the agent's own declaration when it made one (ADR 0260), which is
- * the only source that knows the denominator, and the turn's tool rows when it
- * did not, which is the evidence the transcript already shows. Either way the
- * card is a reading surface, not a control: it reports progress and carries the
- * return-to-latest affordance, and it never stops the turn — Stop lives in the
- * Composer, where the user is already typing.
+ * The running turn's task list, worn as a floating pill centered at the top
+ * of the transcript so it never covers the messages it reports on (ADR 0261;
+ * the list itself is still ADR 0260's declared-or-observed shape). The pill
+ * names the phase, the elapsed time, and the active step; clicking it pops
+ * the step overview beneath the pill, and the popup dismisses itself five
+ * seconds later instead of lying flat over the composer. It is a reading
+ * surface, not a control: cancellation stays in the Composer, and
+ * jump-to-latest stays with the transcript's own pill.
  */
 export function TurnProgressCard({
   entry,
   activity,
   hidden,
-  showReturn,
-  onReturnToLatest,
 }: {
   entry: AssistantTurnEntry | null;
   activity?: AgentActivity;
   /** Keeps the card mounted across scroll and expansion so state survives. */
   hidden: boolean;
-  /** Only off-tail does the card own the jump-to-latest control. */
-  showReturn: boolean;
-  onReturnToLatest: () => void;
 }) {
   const { t } = useTranslation();
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [now, setNow] = useState(Date.now);
+  const popupId = useId();
 
+  // The 1s timer is the card's own cost, so it stops while the card is hidden.
   useEffect(() => {
     if (hidden) return;
     setNow(Date.now());
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(timer);
   }, [hidden]);
+
+  // An off-screen pane always comes back to the pill alone.
+  useEffect(() => {
+    if (hidden) setOpen(false);
+  }, [hidden]);
+
+  useEffect(() => {
+    if (!open || hidden) return;
+    const timer = window.setTimeout(
+      () => setOpen(false),
+      TURN_PROGRESS_POPUP_AUTO_HIDE_MS,
+    );
+    return () => window.clearTimeout(timer);
+  }, [open, hidden]);
 
   const progress = turnProgress(entry, now);
   // A turn with neither a declared list nor a single row has nothing for the
@@ -106,11 +83,9 @@ export function TurnProgressCard({
         type="button"
         className="turn-progress-head"
         aria-expanded={open}
-        aria-label={t(
-          "chat.turnProgressShowSteps",
-          "Show this turn's steps",
-        )}
-        onClick={() => setOpen((value) => !value)}
+        aria-controls={popupId}
+        aria-label={t("chat.turnProgressShowSteps", "Show this turn's steps")}
+        onClick={() => setOpen((value) => (steps > 0 ? !value : false))}
       >
         <span className="turn-progress-status" role="status" aria-live="polite">
           <span className="turn-progress-dot" aria-hidden="true" />
@@ -127,60 +102,21 @@ export function TurnProgressCard({
         </span>
       </button>
       {open && steps > 0 ? (
-        <ul className="turn-progress-steps">
-          {progress?.earlierSteps ? (
-            <li className="turn-progress-earlier">
-              {t("chat.turnProgressEarlier", {
-                count: progress.earlierSteps,
-                defaultValue: "…{{count}} earlier",
+        <div className="turn-progress-popup" id={popupId}>
+          <TurnProgressSteps
+            steps={progress?.visible ?? []}
+            earlierSteps={progress?.earlierSteps ?? 0}
+            t={t as Translate}
+          />
+          <div className="turn-progress-foot">
+            <span className="turn-progress-count">
+              {t("chat.turnProgressSteps", {
+                done: progress?.completed ?? 0,
+                total: steps,
+                defaultValue: "Step {{done}} / {{total}}",
               })}
-            </li>
-          ) : null}
-          {progress?.visible.map((step) => (
-            <li key={step.id} data-status={step.status}>
-              <StepMarker status={step.status} />
-              <span className="turn-progress-step-label">
-                {step.label || "—"}
-              </span>
-              <span className="turn-progress-sr">{t(STEP_STATUS_KEYS[step.status])}</span>
-            </li>
-          ))}
-        </ul>
-      ) : null}
-      {steps > 0 ? (
-        <div className="turn-progress-foot">
-          <span className="turn-progress-count">
-            {t("chat.turnProgressSteps", {
-              done: progress?.completed ?? 0,
-              total: steps,
-              defaultValue: "Step {{done}} / {{total}}",
-            })}
-          </span>
-          {progress && progress.filesChanged > 0 ? (
-            <span className="turn-progress-changes">
-              <span aria-hidden="true">{" · "}</span>
-              {t("panel.review.filesChanged", {
-                count: progress.filesChanged,
-              })}
-              <span className="turn-progress-additions">
-                +{progress.additions}
-              </span>
-              <span className="turn-progress-deletions">
-                -{progress.deletions}
-              </span>
             </span>
-          ) : null}
-          {showReturn ? (
-            <button
-              type="button"
-              className="turn-progress-jump"
-              title={t("chat.scrollToBottom")}
-              aria-label={t("chat.scrollToBottom")}
-              onClick={onReturnToLatest}
-            >
-              <IconArrowDown size={12} />
-            </button>
-          ) : null}
+          </div>
         </div>
       ) : null}
     </section>

@@ -612,22 +612,25 @@ may be retained while exactly one workspace supplies the visible shell context.
   the agent's own declaration through the `UpdateTasks` tool, which is the only
   source that knows how many steps were intended, so the card can carry a real
   `done / total` count; with no declaration it degrades to the tool rows the turn
-  actually produced. Either way the card reports elapsed time, per-step state,
-  and the files the turn changed — never a percentage, an estimate, or a
-  predicted end. It holds the phase label ADR 0175 already owns, expands in
-  place to the turn's last eight steps with older ones folded into one line, and
-  keeps the "Scroll to bottom" affordance in its footer while follow mode is
-  released. It carries no stop control, and never appears for a background
-  session, a hidden pane, a settling veil, or an actionable interruption. Every
+  actually produced. Either way the card reports elapsed time, per-step state, and a
+  `done / total` count — never a percentage, an estimate, or a predicted end,
+  and never the turn's per-file change figures, which the review surfaces own.
+  It holds the phase label ADR 0175 already owns, and is worn as a pill
+  floating at the top center of the thread area (ADR 0261): clicking it pops
+  the turn's last eight steps beneath the pill with older ones folded into one
+  line, and the popup dismisses itself five seconds after opening. It carries
+  no stop control and no jump-to-latest — the transcript's own pill keeps
+  that — and never appears for a background session, a hidden pane, a settling
+  veil, or an actionable interruption. Every
   value is derived in the renderer from the turn the transcript already holds; no
   protocol, store slice, or persisted field exists for it.
 - A permission card remains visible only when the agent is blocked on an
   explicit approval. It is an actionable interruption, not a progress status
   card, and it takes precedence over the progress card.
 - Background sessions continue without adding progress chrome to the visible
-  session or moving focus. The progress card is the only progress card, and it
-  has an entry animation, a caret rotation, and an active-step marker, so
-  reduced motion disables all three.
+  session or moving focus. The progress card is the only progress card, and
+  it has entry animations (pill and popup), a caret rotation, and an
+  active-step marker, so reduced motion disables them all.
 
 ### 2.5 Turn outcome closure
 
