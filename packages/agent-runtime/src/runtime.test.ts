@@ -1535,6 +1535,7 @@ describe("DesktopAgentRuntime deferred tool catalog", () => {
       "EnterPlanMode",
       "EnterGoalMode",
       "new_context",
+      "UpdateTasks",
       "ToolSearch",
     ]);
     expect(names).not.toContain("A2A");
