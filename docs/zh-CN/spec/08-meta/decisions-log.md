@@ -4835,3 +4835,55 @@ ADR 0260 的卡片整条停靠在转录本底部，并向输入框方向就地�
   选择的宽度不会触发 D408 的让位。工作面板增长与窗口缩小仍在该阈值处收起展开的侧边栏。
 - 仅渲染层：沿用既有的 `pi.desktop.sidebarWidth` 偏好，无 IPC 或原生窗口变化。参见
   ADR 0262 与 E2E-168。
+## 2026-09-20 — 进度卡改用图标按钮，跳转按钮站到右侧（D458）
+
+> **修订 ADR 0261 的呈现方式，不改其契约。** 申报的 `UpdateTasks` 清单仍是
+> 唯一的分母，概览仍会自行消隐，这个表面依然不持有中止控件，也不持有
+> “滚动到底部”。
+
+ADR 0261 的带文字胶囊被报告为“不见了”，而这正是事实：卡片被定位在
+`.thread-wrap` 内的 `top: 12px`，而 `.thread-wrap` 是 `.main-pane` 的第一个在流
+子元素；同一个 pane 上还叠着绝对定位的 `.conversation-topbar`（`top: 0`、46px 高、
+`z-index: 10`、不透明底色）。卡片 `z-index: 5` 落在它之后，而那条带子同时是窗口
+拖拽区，所以它既看不见也点不到。反馈的另一半是方向：要一颗与“滚动到底部”同尺寸的
+三点图标按钮，而不是横在阅读列中的带文字横条；也要把“滚动到底部”挪出 pane 的居中
+轴线。
+
+- 卡片改到顶栏带之下绘制：`.turn-progress-card` 的内容上内边距为
+  `calc(var(--ds-toolbar-height) + 12px)`，与转录本首行、minimap 轨道同一条带子。
+- 线程外壳持有一条共享的浮动按钮规则 `.thread-float-btn`（在 `chat-shell.css`）：
+  与 `.jump-latest-btn` 相同的 32×32 圆形、raised 底色、阴影抬升、悬停填充与
+  `pointer-events: auto`。两个控件都穿它；各自保留定位与入场动画，因此不会再漂移。
+- `TurnProgressCard` 现在是一颗图标按钮：一个只带 `IconMore` 的 `TooltipButton`，
+  没有文字，沿用既有 `chat.turnProgressShowSteps` 标签，默认仍是折叠的。阶段、
+  计时与当前步骤移入概览。
+- 按钮总是能打开概览，无论是否已申报清单：一个还没有工具行的运行中回合，仍有阶段
+  与计时可看。步骤清单与 `done / total` 页脚仅在存在步骤时渲染。
+- 阶段由一条隐藏的 `role="status" aria-live="polite"` 行朗读，其文本在
+  `activity.phase` 变化时才取一次——不跟着计时，也不跟着 `runActivityLabel` 在
+  `retrying` 标签里夹带的倒计时。概览头部画出同一句话（`aria-hidden`）与计时。
+  ADR 0175 的运行时活动行不变。
+- 阅读概览时它保持展开：五秒在 `pointerenter`/`focus` 时暂停，在
+  `pointerleave`/`blur` 后重新计时。
+- 卡片变为铺满消息区的 `inset: 0` 层：居中它的两个子元素，自身不响应点击。这正是
+  概览高度上限得以成立的原因——`max-height: min(46vh, 360px, max(140px, calc(100% -
+  78px)))` 锚在层自身的内容盒上，超出即 `overflow-y: auto`；因此概览停在最新消息
+  上方一行消息加阅读间距处，不会朝它们长过去。
+- 概览关闭时计时零成本：一秒间隔只在弹层打开时运行。
+- “滚动到底部”经由 `.thread-wrap > .jump-latest-btn` 站在阅读列的右边缘。共享类
+  本身仍保持居中，因此委派卡的跟随控件与工作面板的按钮维持原有定位。
+- 概览按“可读”排版：`--text-base-plus` 配 `--leading-prose`、10px 行距、18px 标记，
+  步骤标题改为换行而非截断；`done / total` 页脚用 `--text-base`。改动数字仍不进这个
+  表面，不存在百分比，中止仍归输入框。
+- ADR 0261 还带进了两处硬编码 `border-radius: 999px` 与 `line-height: 1.7`，会被
+  `scripts/check-style-tokens.mjs` 拒绝。二者分别回归 `--radius-round` 与 token 行距
+  刻度，`pnpm lint` 重新为绿；`turn-progress-surface.test.mjs` 把这两个字面量钉住。
+- 回归覆盖：`turn-progress-surface.test.mjs` 钉住图标按钮、共享造型与它的
+  `pointer-events`、顶栏让位、概览头部、高度上限、token 化排版、靠右的跳转控件、
+  以阶段为键的朗读行、五秒自动消隐、隐藏重置与本地化键；`turn-progress.test.mjs`
+  与 `active-turn-surface.test.mjs` 不动。
+- 仅渲染层、样式、测试与文档；无 IPC、schema、权限或持久化状态变化。
+- 见 `adr/0263-turn-progress-glyph-button.md`、`adr/0261-turn-progress-pill.md`、
+  `adr/0260-declared-task-progress-card.md`、`04-ux/09-interaction-patterns.md`
+  §2.4、`04-ux/08-component-spec.md`，以及 `06-delivery/04-e2e-test-plan.md` 中的
+  E2E-PROGRESS-declared-task-list-card。

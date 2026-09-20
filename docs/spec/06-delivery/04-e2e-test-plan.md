@@ -1833,7 +1833,8 @@ and identify the platform validation still needed.
   consistent gap) rather than far below it; the reserve follows the composer's
   normal-flow height so a taller multi-line draft reduces the transcript
   viewport instead of covering it. The jump-to-latest button and the minimap stay
-  anchored just above the composer at every draft height.
+  anchored within the thread area above the composer at every draft height — the
+  main thread's jump control on the reading column's right edge (ADR 0263).
 - **Specs linked**: `04-ux/08-component-spec.md` (§4.3 MainChat layout)
 - **Acceptance**: C (send/UI), Quality
 - **Milestone**: M2
@@ -3787,44 +3788,55 @@ and identify the platform validation still needed.
   transcript; a second agent run never calls `UpdateTasks`; a second session
   can run in the background; `prefers-reduced-motion` can be toggled.
 - **Steps**: 1) Start a long turn that declares a task list and keep the
-  transcript pinned to the tail. 2) Watch the pill as steps start and finish,
-  then click it to open the overview and watch the markers. 3) Wait for the
-  overview to dismiss itself, then click the pill again to reopen it. 4) Scroll
-  upward until follow mode releases and use the transcript's jump pill.
+  transcript pinned to the tail. 2) Watch the glyph button as steps start and
+  finish, then click it to open the overview and watch the phase, the clock,
+  and the step markers. 3) Wait for the overview to dismiss itself, then click
+  the button again to reopen it. 4) Scroll upward until follow mode releases
+  and use the transcript's jump control on the reading column's right edge.
   5) Scroll up and trigger a permission request. 6) Scroll up, then run a turn
   in the second session and return. 7) Repeat steps 1 and 2 with the agent
   that declares nothing. 8) Repeat steps 1 and 2 with reduced motion enabled.
-- **Expected**: One compact pill floats centered at the top of the thread area
-  for the whole running turn, on screen whether or not follow mode is released,
-  never covering the messages beneath it, and is gone when the turn ends.
-  Clicking it pops a step overview beneath the pill — a floating panel, never
-  a strip lying over the composer — showing the newest `UpdateTasks`
-  declaration: every step in its order with a pending, active, done, or error
-  marker, at most the turn's last eight steps with older ones folded into a
-  single line, and a footer counting `done / total` from that list, set in a
-  larger type size with looser lines than the transcript rows. The overview
-  dismisses itself five seconds after it opens, and clicking the pill brings
-  it back; it carries no files-changed figures, no percentage, no estimate,
-  and no stop control. The declaration call itself renders no transcript row
-  and is not a minimap target, so the card is its only surface and the
-  transcript never repeats it. The pill names the same runtime phase as the
-  inline row would and counts elapsed time from the turn's own first row. The
-  jump-to-latest pill keeps its own gate whether the progress pill is on
-  screen or not, and clicking it re-pins follow mode and jumps to the bottom.
-  A permission, question, or plan approval card replaces the progress
-  surface, because that is an actionable interruption. A background session's
-  turn never draws the pill in the visible session, and a hidden retained
-  pane or a settling session-switch veil shows nothing. When the agent never
-  calls `UpdateTasks`, the same surface reports the turn's tool rows with
-  their returned status and no invented total, and a turn with neither a
+  9) With a declaration long enough to overflow its height bound, open the
+  overview and confirm it scrolls inside itself and the newest messages stay
+  visible.
+- **Expected**: One 32×32 round glyph button carrying three dots floats at the
+  top center of the thread area for the whole running turn, on screen whether or
+  not follow mode is released, never covering the messages beneath it, and gone
+  when the turn ends; it shows no text and wears the same `.thread-float-btn`
+  chrome as the transcript's jump control. Clicking it pops a step overview
+  beneath the button — a floating panel, never a strip lying over the composer —
+  whose head carries the runtime phase, the elapsed clock, and the active step
+  label, and which shows the newest `UpdateTasks` declaration: every step in its
+  order with a pending, active, done, or error marker, at most the turn's last
+  eight steps with older ones folded into a single line, and a footer counting
+  `done / total` from that list, set in a larger type size with looser lines
+  than the transcript rows and with step titles that wrap. The overview is
+  bounded to `min(46vh, 360px, max(140px, calc(100% - 78px)))` of the thread layer and
+  scrolls inside itself, so it never reaches the newest messages or the
+  composer; it dismisses itself five seconds after it opens, and clicking the
+  button brings it back. It carries no files-changed figures, no percentage, no
+  estimate, and no stop control. The declaration call itself renders no
+  transcript row and is not a minimap target, so the card is its only surface
+  and the transcript never repeats it. The card's visually hidden
+  `role="status"` live line speaks the same runtime phase the inline row would,
+  with the ticking clock kept out of it; the overview head draws that phase, the
+  elapsed clock, and the active step. The transcript's jump control keeps its
+  own gate whether the progress button is on screen or not, stands on the
+  reading column's right edge (ADR 0263), and clicking it re-pins follow mode
+  and jumps to the bottom. A permission, question, or plan approval card
+  replaces the progress surface, because that is an actionable interruption. A
+  background session's turn never draws the button in the visible session, and a
+  hidden retained pane or a settling session-switch veil shows nothing. When the
+  agent never calls `UpdateTasks`, the same surface reports the turn's tool rows
+  with their returned status and no invented total, and a turn with neither a
   declaration nor a row shows nothing, leaving the transcript's own working
-  indicator alone. Under reduced motion the pill and the popup appear without
-  their entry animations, the caret does not animate, and the active-step
-  marker does not spin.
+  indicator alone. Under reduced motion the button and the popup appear without
+  their entry animations and the active-step marker does not spin.
 - **Specs linked**: `04-ux/09-interaction-patterns.md` §2.4,
   `04-ux/08-component-spec.md` §4.3/§4.4,
   `03-runtime/03-tools-and-permissions.md` §10.3,
-  `adr/0260-declared-task-progress-card.md`, `adr/0261-turn-progress-pill.md`
+  `adr/0260-declared-task-progress-card.md`, `adr/0261-turn-progress-pill.md`,
+  `adr/0263-turn-progress-glyph-button.md`
 - **Acceptance**: C (chat stream), Quality (interaction and accessibility)
 - **Milestone**: M5
 - **Status**: Unit-covered (`turn-progress.test.mjs`,

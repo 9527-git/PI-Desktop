@@ -3,6 +3,7 @@
 - Status: Accepted
 - Date: 2026-09-20
 - Amends: ADR 0260 (presentation clauses: one docked full-width card, in-place expansion, card-owned jump control)
+- Amended by: ADR 0263 (presentation clauses: the labeled pill and its text head, the caret, the pill's own chrome, and jump-to-latest's centered placement)
 
 ## Context
 

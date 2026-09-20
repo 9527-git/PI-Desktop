@@ -16,14 +16,14 @@ function StepMarker({ status }: { status: TurnProgressStatus }) {
   if (status === "done") {
     return (
       <span className="turn-progress-step-marker is-done" aria-hidden="true">
-        <IconCheck size={11} />
+        <IconCheck size={12} />
       </span>
     );
   }
   if (status === "error") {
     return (
       <span className="turn-progress-step-marker is-error" aria-hidden="true">
-        <IconCircleAlert size={11} />
+        <IconCircleAlert size={12} />
       </span>
     );
   }

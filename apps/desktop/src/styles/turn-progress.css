@@ -1,20 +1,22 @@
-/* The running turn's surface (ADR 0260), worn as a pill since ADR 0261: one
- * floating button centered at the top of the thread area, so the card never
- * covers the messages it reports. The layer spans the content column only to
- * center its children; it takes no clicks itself. */
+/* The running turn's surface (ADR 0260), worn since ADR 0263 as one small
+ * floating glyph button at the top of the thread area with a self-dismissing
+ * overview popping beneath it. The card is a layer over the whole thread area
+ * that centers its two children and takes no clicks of its own; the button's
+ * chrome is the thread's shared floating button (.thread-float-btn), so it is
+ * the jump control's twin. */
 .turn-progress-card {
   position: absolute;
-  top: 12px;
-  left: 50%;
-  translate: -50% 0;
+  inset: 0;
   z-index: 5;
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: min(calc(100% - 64px), var(--chat-content-max-width));
+  /* The layer is the thread area itself, which is what lets the popup below
+   * bound its own height against the room it has — and it starts below the
+   * conversation topbar band, which is absolutely positioned over the pane and
+   * paints above this layer, so its first 46px are not ours to draw in. */
+  padding: calc(var(--ds-toolbar-height) + 12px) 32px 16px;
   pointer-events: none;
-  animation: turn-progress-in var(--motion-duration-normal) var(--motion-ease-out)
-    both;
 }
 
 /* `display: flex` above would otherwise win over the UA's `[hidden]` rule and
@@ -23,109 +25,51 @@
   display: none;
 }
 
+/* A glyph button carries no text, so its open state is the only thing it has to
+ * show: the overview is up, and the same click closes it. */
+.turn-progress-head[aria-expanded="true"] {
+  color: var(--ds-text-primary);
+}
+
 @keyframes turn-progress-in {
   from {
     opacity: 0;
-    translate: -50% -6px;
+    translate: 0 -6px;
   }
   to {
     opacity: 1;
-    translate: -50% 0;
+    translate: 0 0;
   }
 }
 
-/* The pill: phase, elapsed time, the active step, and the caret that pops the
- * overview. Same lift as the jump pill it shares the layer with. */
-.turn-progress-head {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  min-width: 0;
-  max-width: 100%;
-  padding: 5px 10px;
-  border: 1px solid var(--ds-border-subtle);
-  border-radius: 999px;
-  background: var(--ds-raised);
-  color: var(--ds-text-secondary);
-  font-size: var(--text-xs-plus);
-  box-shadow:
-    var(--ds-raised-shadow),
-    0 3px 7.5px rgba(0, 0, 0, 0.039),
-    0 0 20px rgba(0, 0, 0, 0.051);
-  pointer-events: auto;
-  cursor: pointer;
+.turn-progress-card > .turn-progress-head {
+  animation: turn-progress-in var(--motion-duration-normal) var(--motion-ease-out)
+    both;
 }
 
-.turn-progress-status {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--ds-text-primary);
-  font-weight: var(--font-weight-semibold);
-  white-space: nowrap;
-}
-
-.turn-progress-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: var(--radius-round);
-  background: var(--ds-success);
-  box-shadow: 0 0 0 2px color-mix(in oklab, var(--ds-success) 22%, transparent);
-}
-
-.turn-progress-metrics {
-  color: var(--ds-text-muted);
-  font-size: var(--text-xs);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.turn-progress-action {
-  min-width: 0;
-  flex: 1;
-  overflow: hidden;
-  color: var(--ds-text-muted);
-  font-size: var(--text-xs);
-  text-align: left;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.turn-progress-caret {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  color: var(--ds-text-muted);
-}
-
-.turn-progress-caret svg {
-  transition: rotate var(--motion-duration-fast) var(--motion-ease-out);
-}
-
-.turn-progress-head[aria-expanded="true"] .turn-progress-caret svg {
-  rotate: 90deg;
-}
-
-/* The overview pops beneath the pill and dismisses itself; it never pushes
- * the composer or lies flat over it. Larger type and looser lines than the
- * dense transcript rows — this is a reading glance, not a second transcript. */
+/* The overview pops beneath the button and dismisses itself; it never pushes the
+ * composer or lies flat over it. Larger type and looser lines than the dense
+ * transcript rows — this is a reading glance, not a second transcript — and a
+ * height bound that keeps the newest messages clear of it. */
 .turn-progress-popup {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 50%;
-  translate: -50% 0;
   width: min(420px, 100%);
-  max-height: min(46vh, 360px);
+  margin-top: 6px;
+  /* `100%` is the card's content box: the thread area minus the topbar band and
+   * its own padding. The button and the gap above the popup take 38px of that
+   * box, so the popup stops 40px above the content box's bottom edge — one
+   * message row plus the reading gap, which the `max()` floor protects even on
+   * a pane too short to honor the arithmetic. It scrolls inside itself beyond
+   * that, so a long list can never cover the newest messages or reach the
+   * composer. */
+  max-height: min(46vh, 360px, max(140px, calc(100% - 78px)));
   overflow-y: auto;
-  padding: 10px 14px;
+  padding: 12px 16px;
   border: 1px solid var(--ds-border-subtle);
   border-radius: var(--radius-xs);
   background: var(--ds-raised);
   color: var(--ds-text-secondary);
-  font-size: var(--text-md);
-  line-height: 1.7;
+  font-size: var(--text-base-plus);
+  line-height: var(--leading-prose);
   box-shadow:
     var(--ds-raised-shadow),
     0 3px 7.5px rgba(0, 0, 0, 0.039),
@@ -138,36 +82,63 @@
 @keyframes turn-progress-popup-in {
   from {
     opacity: 0;
-    translate: -50% -4px;
+    translate: 0 -4px;
   }
   to {
     opacity: 1;
-    translate: -50% 0;
+    translate: 0 0;
   }
+}
+
+/* The overview's head: the phase the turn is in, its clock, and the step it is
+ * on. The card's hidden live region speaks the same phase, so this line is drawn
+ * to be read, not announced. */
+.turn-progress-headline {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+}
+
+.turn-progress-status {
+  color: var(--ds-text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.turn-progress-metrics {
+  color: var(--ds-text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.turn-progress-active {
+  margin: 4px 0 0;
+  color: var(--ds-text-muted);
 }
 
 .turn-progress-steps {
   display: flex;
   flex-direction: column;
-  gap: 7px;
-  margin: 0;
+  gap: 10px;
+  margin: 10px 0 0;
   padding: 0 2px;
   list-style: none;
-  color: var(--ds-text-muted);
+  color: var(--ds-text-secondary);
 }
 
 .turn-progress-steps li {
   display: grid;
-  grid-template-columns: 16px minmax(0, 1fr);
-  align-items: center;
-  gap: 8px;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: start;
+  gap: 9px;
   min-width: 0;
 }
 
+/* A step title wraps rather than truncating: the overview is read at glance
+ * size, and a clipped half-label is worse than a second line. */
 .turn-progress-step-label {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
 /* One marker per step, the same shape in all four states so the eye reads a
@@ -176,8 +147,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
+  /* Centers the marker on the first line of its label. */
+  margin-top: 3px;
   border-radius: var(--radius-round);
   border: 1.5px solid var(--ds-border-subtle);
 }
@@ -199,18 +172,18 @@
 }
 
 .turn-progress-earlier {
-  padding-left: 24px;
+  padding-left: 27px;
   color: var(--ds-text-faint);
 }
 
 .turn-progress-foot {
   display: flex;
   align-items: center;
-  margin-top: 9px;
-  padding-top: 7px;
+  margin-top: 12px;
+  padding-top: 8px;
   border-top: 1px solid var(--ds-border-subtle);
   color: var(--ds-text-muted);
-  font-size: var(--text-sm-plus);
+  font-size: var(--text-base);
   font-variant-numeric: tabular-nums;
 }
 
@@ -220,7 +193,8 @@
   white-space: nowrap;
 }
 
-/* The per-step state word: read by a screen reader, never drawn. */
+/* The per-step state word and the turn's phase: read by a screen reader, never
+ * drawn — the phase is drawn inside the overview instead. */
 .turn-progress-sr {
   position: absolute;
   width: 1px;
@@ -231,13 +205,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .turn-progress-card,
+  .turn-progress-card > .turn-progress-head,
   .turn-progress-popup {
     animation: none;
-  }
-
-  .turn-progress-caret svg {
-    transition: none;
   }
 
   .turn-progress-step-marker.is-active {

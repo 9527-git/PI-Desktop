@@ -589,9 +589,9 @@ may be retained while exactly one workspace supplies the visible shell context.
   the bottom
 - Sending a new prompt, retrying, or regenerating always re-pins follow mode and jumps to the bottom before the turn continues, even if the user had scrolled up
 - "Scroll to bottom" floating button appears as soon as manual upward scrolling
-  releases follow mode. While a turn is running, the progress card described in
-  §2.4 stands in that layer instead of the button, so the released interval
-  never carries two floating controls.
+  releases follow mode, and keeps its own gate while a turn is running; it
+  stands on the reading column's right edge (ADR 0263), so it never shares an
+  axis with the progress button described in §2.4.
 - Click "Scroll to bottom" button: resumes auto-scroll and snaps to bottom
 - Stream completion: if user was auto-scrolling, keep at bottom; if manual, stay at position
 - An asynchronously completed diagram height update follows the same rule:
@@ -615,22 +615,29 @@ may be retained while exactly one workspace supplies the visible shell context.
   actually produced. Either way the card reports elapsed time, per-step state, and a
   `done / total` count — never a percentage, an estimate, or a predicted end,
   and never the turn's per-file change figures, which the review surfaces own.
-  It holds the phase label ADR 0175 already owns, and is worn as a pill
-  floating at the top center of the thread area (ADR 0261): clicking it pops
-  the turn's last eight steps beneath the pill with older ones folded into one
-  line, and the popup dismisses itself five seconds after opening. It carries
-  no stop control and no jump-to-latest — the transcript's own pill keeps
-  that — and never appears for a background session, a hidden pane, a settling
-  veil, or an actionable interruption. Every
-  value is derived in the renderer from the turn the transcript already holds; no
-  protocol, store slice, or persisted field exists for it.
+  It holds the phase label ADR 0175 already owns — spoken from a visually
+  hidden live line and drawn inside the overview head — and since ADR 0263 is
+  worn as a 32×32 round glyph button carrying three dots: no text, no caret,
+  the jump control's twin through the shared `.thread-float-btn` chrome,
+  floating at the top center of the thread area. Clicking it pops the turn's
+  last eight steps beneath it with older ones folded into one line, headed by
+  the phase, the elapsed clock, and the step in flight, and set in a larger
+  type size with looser lines than the transcript rows; the overview is bounded
+  so a long list scrolls inside itself and never reaches the newest messages or
+  the composer, and it dismisses itself five seconds after opening. It carries
+  no stop control and no jump-to-latest of its own — the transcript's own
+  control keeps that gate and stands on the reading column's right edge — and
+  never appears for a background session, a hidden pane, a settling veil, or an
+  actionable interruption. Every value is derived in the renderer from the turn
+  the transcript already holds; no protocol, store slice, or persisted field
+  exists for it.
 - A permission card remains visible only when the agent is blocked on an
   explicit approval. It is an actionable interruption, not a progress status
   card, and it takes precedence over the progress card.
 - Background sessions continue without adding progress chrome to the visible
-  session or moving focus. The progress card is the only progress card, and
-  it has entry animations (pill and popup), a caret rotation, and an
-  active-step marker, so reduced motion disables them all.
+  session or moving focus. The progress surface is the only progress surface,
+  and it has entry animations (button and popup) and an active-step marker, so
+  reduced motion disables them all.
 
 ### 2.5 Turn outcome closure
 
@@ -1318,7 +1325,7 @@ Project drag/drop follows these patterns:
   growing under a multi-line draft: the scroller's viewport shrinks with the
   composer and the newest turn stays above it instead of sliding underneath (D287).
 - User send / retry / regenerate: re-pins, hides the jump control, and positions the latest content in the layout phase so the new turn is visible without a top-of-history flash; subsequent persisted and streamed rows continue to follow the bottom
-- Scroll-to-bottom button: position fixed at bottom-right of transcript area, offset 12px
+- Scroll-to-bottom button: within the thread area, 12px above its bottom edge, on the reading column's right edge in the main thread; the delegation card's follow control and the work panel's keep their centered placement (ADR 0263)
 - Button appears as soon as upward scrolling releases follow mode
 - Click button: scrolls to bottom, resumes auto-scroll
 - Button disappears when at bottom
