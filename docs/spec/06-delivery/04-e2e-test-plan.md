@@ -3081,7 +3081,7 @@ and identify the platform validation still needed.
   conversation in the same directory and hover its row; wait for the card. 3)
   Move the pointer to a different session row without leaving the sidebar; wait.
   4) Hover a Temporary/scratch session row. 5) Resize the sidebar narrower
-  than 320px; hover again. 6) Right-click a session row while the card is
+  than 280px; hover again. 6) Right-click a session row while the card is
   visible and open its context menu. 7) Scroll the sidebar body while the card
   is up. 8) Hover a session row, move the pointer off the row without touching
   any other row, and wait within 3s; move back onto the card before it
@@ -3096,7 +3096,7 @@ and identify the platform validation still needed.
   `Updated` timestamp formatted by the active locale. Refreshing the branch
   does not activate a project or change the selected conversation. The session
   row has no native `title` tooltip; the hover card is the only full-title
-  surface. The card never widens past 320px, never causes the underlying row
+  surface. The card never widens past 280px, never causes the underlying row
   to horizontally scroll, and disappears immediately on resize, scroll, or
   context-menu open. Pointer leave and focus blur only start a 3s dwell: the
   card stays put within that window and moving back onto it cancels the

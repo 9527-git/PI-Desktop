@@ -1391,8 +1391,11 @@ Project drag/drop follows these patterns:
   changing the selected conversation. If the read fails, the last cached
   branch is used.
 - The card is rendered through a portal at `document.body`, never widens
-  beyond 320px, never causes horizontal scroll on the underlying row, and
-  stays non-interactive so the row keeps receiving pointer events.
+  beyond 280px, never causes horizontal scroll on the underlying row, and
+  stays non-interactive so the row keeps receiving pointer events. It is a
+  compact summary layer: the 280px width cap, `10px 12px` padding, and an 8px
+  internal rhythm keep it near the expanded sidebar's own 275px column rather
+  than reading as a wider second panel.
 - The session row does not set a native `title` attribute. The hover card is
   the only full-title surface, so the browser tooltip never stacks on the
   card.

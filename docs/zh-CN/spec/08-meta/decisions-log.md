@@ -4887,3 +4887,12 @@ ADR 0261 的带文字胶囊被报告为“不见了”，而这正是事实：�
   `adr/0260-declared-task-progress-card.md`、`04-ux/09-interaction-patterns.md`
   §2.4、`04-ux/08-component-spec.md`，以及 `06-delivery/04-e2e-test-plan.md` 中的
   E2E-PROGRESS-declared-task-list-card。
+
+## 2026-09-20 — 收窄侧边栏会话悬浮卡片（D459）
+
+- 侧边栏会话悬浮卡片改为更小的摘要层：宽度上限从 `320px` 降到 `280px`，内边距从
+  `12px 14px` 收紧到 `10px 12px`，纵向间距从 `10px` 收到 `8px`。卡片现在读起来与
+  展开侧边栏自身的宽度（默认 `275px`）相当，而不再是比它摘要的那一列更宽的第二块面板。
+- 内容、字号层级、portal 挂载、下/上/侧向定位、3 秒停留与会话 id 复制按钮均不变。
+  仅渲染层样式：无 IPC、schema、权限或持久化状态变化。
+- 参见 `04-ux/09-interaction-patterns.md` §9.1b 与 E2E-047b。

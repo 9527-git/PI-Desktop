@@ -685,10 +685,10 @@
 .sidebar-session-hover-card {
   position: fixed;
   z-index: 71;
-  width: min(320px, calc(100vw - 16px));
+  width: min(280px, calc(100vw - 16px));
   max-height: calc(100vh - 16px);
   overflow: auto;
-  padding: 12px 14px;
+  padding: 10px 12px;
   border: 1px solid var(--ds-border-default);
   border-radius: var(--radius-md);
   background: var(--ds-bg-elevated-opaque, var(--ds-bg-primary));
@@ -700,7 +700,7 @@
   pointer-events: auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   animation: sidebar-hover-card-in var(--motion-duration-fast)
     var(--motion-ease-out) both;
 }
