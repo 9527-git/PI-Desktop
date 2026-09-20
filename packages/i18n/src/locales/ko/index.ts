@@ -395,6 +395,7 @@ export const ko = {
     usageUnknownTool: "알 수 없는 도구",
     usageCompaction: "{{times}}회 압축됨 · 요약",
     usageCompactionBefore: "이번 압축 전 사용량",
+    usageCompactionAfter: "이번 압축 후",
     usageCompactAction: "컨텍스트 압축",
     usageCompactBusy: "압축 중…",
     usageCompactHint: "압축은 체크포인트 요약을 만들고 최근 메시지를 유지합니다",

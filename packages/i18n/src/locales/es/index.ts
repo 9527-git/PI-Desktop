@@ -386,6 +386,7 @@ export const es = {
     "usageUnknownTool": "Herramienta desconocida",
     "usageCompaction": "Compactado {{times}}× · resumen",
     "usageCompactionBefore": "Antes de esta compactación",
+    "usageCompactionAfter": "Después de esta compactación",
     "usageCompactAction": "Compactar contexto",
     "usageCompactBusy": "Compactando…",
     "usageCompactHint":

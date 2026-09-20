@@ -395,6 +395,7 @@ export const tr = {
     usageUnknownTool: "Bilinmeyen araç",
     usageCompaction: "{{times}}× sıkıştırıldı · özet",
     usageCompactionBefore: "Bu sıkıştırmadan önce",
+    usageCompactionAfter: "Bu sıkıştırmadan sonra",
     usageCompactAction: "Bağlamı sıkıştır",
     usageCompactBusy: "Sıkıştırılıyor…",
     usageCompactHint:

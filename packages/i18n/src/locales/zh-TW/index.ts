@@ -388,6 +388,7 @@ export const zhTW = {
     usageUnknownTool: "未知工具",
     usageCompaction: "已壓縮 {{times}} 次 · 摘要",
     usageCompactionBefore: "本次壓縮前佔用",
+    usageCompactionAfter: "本次壓縮後佔用",
     usageCompactAction: "壓縮上下文",
     usageCompactBusy: "壓縮中…",
     usageCompactHint: "壓縮會產生檢查點摘要，保留最近訊息",

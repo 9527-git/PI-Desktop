@@ -388,6 +388,7 @@ export const zhCN = {
     usageUnknownTool: "未知工具",
     usageCompaction: "已压缩 {{times}} 次 · 摘要",
     usageCompactionBefore: "本次压缩前占用",
+    usageCompactionAfter: "本次压缩后占用",
     usageCompactAction: "压缩上下文",
     usageCompactBusy: "压缩中…",
     usageCompactHint: "压缩会生成检查点摘要，保留最近消息",

@@ -1633,7 +1633,16 @@ Single message render — either user (plaintext) or assistant (markdown streami
   installed context checkpoint,
   the panel adds one muted summary line for the compaction count and newest
   summary's estimated token cost; the transcript still shows one row per
-  compaction (D203). The closing action row is the one exception to the
+  compaction (D203). That group also carries the newest mark's pre-compaction
+  occupancy (`Before this compaction`, `tokensBefore`) and its post-compaction
+  estimate (`After this compaction`, `tokensAfter`, class
+  `.context-inspector-compaction-after`), each rendered only when the mark
+  carries it; a mark rebuilt from storage never carries the after figure. The
+  ring, its percentage, and the heading stop reporting the pre-compaction
+  request as soon as the newest checkpoint carries `tokensAfter` and no
+  usage-bearing message follows its `throughMessageId` (D454): the estimate
+  leads from that compaction until the next request reports usage, which takes
+  the figure back. The closing action row is the one exception to the
   no-inner-rules rule (D297): one hairline separates it from the rows above.
   The row puts a muted hint and the `Compact context` button below that
   hairline: the button starts a manual compaction through the existing

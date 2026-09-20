@@ -115,6 +115,13 @@ export type ContextCompactionMark = ContextCompactionStatus & {
    * build older than the reader (version skew during dev).
    */
   tokensBefore?: number;
+  /**
+   * Context occupancy the checkpoint leaves behind, as the runtime's own
+   * post-compaction estimate. Live `compaction_end` events only: the durable
+   * record does not store it, so a mark rebuilt from storage omits it and the
+   * reader falls back to the newest reported request.
+   */
+  tokensAfter?: number;
 };
 
 export type ContextCompactionReason = "manual" | "threshold" | "overflow";

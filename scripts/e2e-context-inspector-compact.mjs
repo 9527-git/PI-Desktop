@@ -14,7 +14,10 @@
  *     the label and hint;
  *   - blocked: a running session disables the button without the busy state;
  *   - the checkpoint line renders the pre-compaction occupancy only when the
- *     mark carries it; a legacy mark degrades to the single line.
+ *     mark carries it; a legacy mark degrades to the single line;
+ *   - the live mark's post-compaction estimate (`After this compaction`) is
+ *     added alongside it, and the trigger ring drops to that figure at once
+ *     instead of staying on the pre-compaction request (D454).
  *
  * Prereqs: `pnpm build:js` and `pnpm --filter @pi-desktop/desktop build`, plus
  * a host-core binary (target/debug, target/release, or PI_DESKTOP_HOST_BIN).
@@ -122,6 +125,7 @@ const READ_ROW = `(() => {
   const row = document.querySelector(".context-inspector-actions");
   const button = document.querySelector(".context-inspector-compact-action");
   const before = document.querySelector(".context-inspector-compaction-before");
+  const after = document.querySelector(".context-inspector-compaction-after");
   return {
     popoverOpen: !!document.querySelector(".context-inspector-popover"),
     row: !!row,
@@ -131,7 +135,9 @@ const READ_ROW = `(() => {
     ariaBusy: button?.getAttribute("aria-busy") ?? null,
     spinner: !!button?.querySelector(".tool-spinner"),
     before: before ? before.textContent.trim() : null,
+    after: after ? after.textContent.trim() : null,
     compactionRows: document.querySelectorAll(".context-inspector-compaction").length,
+    ringPercent: document.querySelector(".context-inspector-ring-value")?.textContent?.trim() ?? null,
   };
 })()`;
 
@@ -273,6 +279,11 @@ async function main() {
       JSON.stringify(idle),
     );
     check(
+      idle.after === null,
+      "a mark without the live estimate omits the post-compaction line",
+      JSON.stringify(idle),
+    );
+    check(
       /context-inspector-popover/.test(
         (await evaluate(`document.activeElement?.className ?? ""`)) ?? "",
       ),
@@ -333,7 +344,25 @@ async function main() {
       JSON.stringify(blocked),
     );
 
-    // 5. A legacy mark degrades to the single checkpoint line.
+    // 5. The live mark's post-compaction estimate leads the ring at once, so a
+    //    manual compaction drops the figure without waiting for another turn.
+    await seed({ mark: "compacted", phase: "idle", tokensAfter: 12_000 });
+    const compacted = await evaluate(READ_ROW);
+    check(
+      compacted.compactionRows === 3 && /~12k/.test(compacted.after ?? ""),
+      "a live mark carrying the estimate adds the post-compaction occupancy line",
+      JSON.stringify(compacted),
+    );
+    check(
+      compacted.ringPercent !== null &&
+        idle.ringPercent !== null &&
+        Number.parseInt(compacted.ringPercent, 10) <
+          Number.parseInt(idle.ringPercent, 10),
+      "the ring reports the compacted context instead of the pre-compaction request",
+      JSON.stringify({ before: idle.ringPercent, after: compacted.ringPercent }),
+    );
+
+    // 6. A legacy mark degrades to the single checkpoint line.
     await seed({ mark: "legacy", phase: "idle" });
     const legacy = await evaluate(READ_ROW);
     check(
@@ -342,7 +371,7 @@ async function main() {
       JSON.stringify(legacy),
     );
 
-    // 6. No checkpoint at all: the action row still stands alone.
+    // 7. No checkpoint at all: the action row still stands alone.
     await seed({ mark: "none", phase: "idle" });
     const none = await evaluate(READ_ROW);
     check(
