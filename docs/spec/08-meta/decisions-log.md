@@ -6109,7 +6109,6 @@ labels to short words so nothing overflows.
   `04-ux/08-component-spec.md` sections 2.2, 3.3, and 3.4, and
   E2E-SIDEBAR-status-dot-pending-union in `06-delivery/04-e2e-test-plan.md`.
 
-<<<<<<< HEAD
 ## 2026-09-19 — The agent declares its task list, and one card carries it for the whole turn (D452)
 
 > **Amends ADR 0175's blanket no-progress-card clause. What stays rejected is a
@@ -6207,7 +6206,7 @@ working around it:
   `04-ux/09-interaction-patterns.md` §2.3/§2.4,
   `04-ux/08-component-spec.md` §4.3/§4.4, and E2E-094 plus
   `E2E-PROGRESS-declared-task-list-card` in `06-delivery/04-e2e-test-plan.md`.
-=======
+
 ## 2026-09-19 — In-app quit and close-behavior confirmation replaces native message boxes (D452)
 
 > **Supersedes `dialog.showMessageBox` on the exit path.** The D363 explicit-quit contract, the D216 tray, and the Windows/Linux close-behavior (`ask` / `tray` / `quit`) stay.
@@ -6220,4 +6219,3 @@ The renderer now draws both confirmations so they stay anchored to the window in
 - i18n adds six keys under `tray.*` across all eight locales: `confirmQuitIntro`, `confirmQuitRunning`, `confirmQuitDrafts`, `askTrayDesc`, `askQuitDesc`, `askSettingsHint`.
 - Regression coverage: a source-contract test in `apps/desktop/test/quit-dialog-inapp.test.mjs` asserts that both dialogs route through the runtime, that the runtime has a bounded timeout, and that the IPC channels are whitelisted. The existing E2E-204 scenario ("explicit quit confirms before shutdown") stays unchanged because the observable contract is identical.
 - Renderer, styles, locales, docs, and tests only; no host-core, RPC, schema, permission, or persisted-state change.
->>>>>>> feat/quit-dialog-inapp
