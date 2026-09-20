@@ -1621,11 +1621,13 @@ and identify the platform validation still needed.
   unclipped (`nav.session<State>Short`), and no row renders a second line of
   transcript text: no `.thread-item-preview`, `.thread-item-status-label`, or
   `.thread-item-status-chip` renders. Per D455 a marked row leads with its pill
-  instead of reserving a lane: the pill is a 20px-tall static tag inside the row
-  button whose left edge sits 4px inside the row's own left edge, its short word
-  hugs it and its width is capped at `--ds-sidebar-status-lane -
+  instead of reserving a lane: the pill is a single 18px-tall static tag inside
+  the row button whose left edge sits 4px inside the row's own left edge, its
+  short word hugs it and its width is capped at `--ds-sidebar-status-lane -
   --ds-sidebar-status-pill-gap`, and the title follows 6px after the pill's
-  right edge via `--ds-sidebar-status-pill-gap`. A quiet row starts its title at
+  right edge via `--ds-sidebar-status-pill-gap`. Exactly one
+  `.thread-item-status` renders per row: the capsule is never nested inside a
+  second one, which would paint it twice. A quiet row starts its title at
   that same 4px inset, so a marked row and a quiet row no longer share one title
   column (D449's rule); the pill belongs to the row's own button, so clicking it
   selects that session. The list's furniture — a time separator, a load-more

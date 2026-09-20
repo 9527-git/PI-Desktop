@@ -1014,8 +1014,8 @@ export function Sidebar({
         {status === "running" || status === "permission" ? (
           <span className="thread-item-status-dot" aria-hidden />
         ) : null}
-        {status === "completed" ? <IconCheck size={10} aria-hidden /> : null}
-        {status === "failed" ? <IconCircleAlert size={11} aria-hidden /> : null}
+        {status === "completed" ? <IconCheck size={9} aria-hidden /> : null}
+        {status === "failed" ? <IconCircleAlert size={10} aria-hidden /> : null}
         <span className="thread-item-status-word">{sessionStatusShortLabel(status)}</span>
       </span>
     );
@@ -1573,14 +1573,7 @@ export function Sidebar({
           aria-current={active ? "page" : undefined}
           aria-describedby={sessionHoverCard?.session.id === session.id ? `session-hover-${session.id}` : undefined}
         >
-          {status ? (() => {
-            const label = sessionStatusLabel(status);
-            return (
-              <span className={`thread-item-status ${status} marked`} aria-label={label} title={label}>
-                {renderSessionStatus(status)}
-              </span>
-            );
-          })() : null}
+          {status ? renderSessionStatus(status) : null}
           {sessionPinned(session, meta) ? (
             <IconPin size={11} className="thread-item-pin" aria-hidden />
           ) : null}

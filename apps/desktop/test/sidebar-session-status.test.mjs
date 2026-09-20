@@ -147,18 +147,27 @@ test("renders word-bearing sidebar status pills at the row's own edge", () => {
   assert.match(sidebar, /thread-item-status-dot/);
   assert.match(sidebar, /thread-item-status-word/);
   // The marked-row layout (D455) keeps the pill at the head of its own row and
-  // ahead of the title, so the marker reads as the row's own lead-in. Both the
-  // row button and the pill carry the mark.
+  // ahead of the title, so the marker reads as the row's own lead-in. The row
+  // button carries the mark; the pill itself is rendered once and never wrapped
+  // in another `.thread-item-status`, which would draw a second capsule inside
+  // the first — two concentric rings for an outlined state, a double-tinted
+  // fill for a translucent one.
   assert.ok(
     sidebar.includes('className={`thread-item-main ${status ? "marked" : ""}`}'),
     "the row button is marked while a state is set",
   );
+  assert.equal(
+    sidebar.match(/thread-item-status \$\{status\}/g)?.length,
+    1,
+    "exactly one element carries the pill class, so it is never nested in itself",
+  );
+  assert.doesNotMatch(sidebar, /thread-item-status \$\{status\} marked/);
   assert.ok(
-    sidebar.includes("thread-item-status ${status} marked"),
-    "the pill marks itself for the static lane",
+    sidebar.includes("{status ? renderSessionStatus(status) : null}"),
+    "the row renders the pill directly instead of wrapping it",
   );
   assert.ok(
-    sidebar.indexOf("thread-item-status ${status} marked") <
+    sidebar.indexOf("{status ? renderSessionStatus(status) : null}") <
       sidebar.indexOf('<span className="thread-item-title">'),
     "the pill renders before the title",
   );
@@ -239,9 +248,9 @@ test("renders word-bearing sidebar status pills at the row's own edge", () => {
     pillRule,
     /max-width: calc\(var\(--ds-sidebar-status-lane\) - var\(--ds-sidebar-status-pill-gap\)\)/,
   );
-  assert.match(pillRule, /height: 20px/);
-  assert.match(pillRule, /padding: 0 8px/);
-  assert.match(pillRule, /font-size: var\(--text-2xs\)/);
+  assert.match(pillRule, /height: 18px/);
+  assert.match(pillRule, /padding: 0 6px/);
+  assert.match(pillRule, /font-size: var\(--text-3xs\)/);
   const wordRule = styles.match(/^\.thread-item-status-word \{[^}]*\}/m)?.[0] ?? "";
   assert.match(wordRule, /text-overflow: ellipsis/);
   const markedPillRule =

@@ -221,7 +221,9 @@ available.)
 The top bar carries no per-session status indicator. Run and needs-input state
 lives on the sidebar session row status pill — a labelled capsule flush at the
 row's own left edge, leading the row so its title starts right after it rather
-than on a shared column (D444, D445, D455, §3).
+than on a shared column (D444, D445, D455, §3). The capsule is drawn exactly
+once and reads as a compact tag: 18px tall, 6px of side padding, a 5px dot, and
+its short word at `--text-3xs` (`10.5px`).
 The conversation top bar renders for the chat route only;
 Pull requests, Scheduled, Plugins, and Settings keep the frameless drag band. It
 owns the task title and window actions only. Project scope remains in the title

@@ -253,7 +253,12 @@ D453's flush title). The pill lives inside the row's own button, so it stays
 part of the click target that selects the session, and its clearance to the
 title is the `--ds-sidebar-status-pill-gap` (`6px`) the pill carries rather
 than a lane it is taken out of. `--ds-sidebar-status-lane` (`80px`) survives
-only as the pill's maximum width. Every status pill names its state with a short
+only as the pill's maximum width. The pill is a compact tag rather than a chip
+beside the row: 18px tall, 6px of side padding, a 5px dot, and its short word
+at `--text-3xs` (`10.5px`). It is drawn exactly once — the row button carries
+the `marked` class and the pill is its direct child, never wrapped inside a
+second `.thread-item-status` (which would paint the capsule twice). Every
+status pill names its state with a short
 locale word beside the state's own token colour, so the row says what is
 happening instead of asking the reader to decode a shape; each status consumes
 an existing semantic token rather than introducing a decorative palette:

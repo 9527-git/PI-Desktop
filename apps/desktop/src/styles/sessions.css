@@ -168,14 +168,14 @@
 .thread-item-status {
   display: inline-flex;
   max-width: calc(var(--ds-sidebar-status-lane) - var(--ds-sidebar-status-pill-gap));
-  height: 20px;
+  height: 18px;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   border: 1px solid transparent;
   border-radius: var(--radius-full);
-  padding: 0 8px;
+  padding: 0 6px;
   color: var(--ds-text-secondary);
-  font-size: var(--text-2xs);
+  font-size: var(--text-3xs);
   font-weight: var(--font-weight-medium);
   line-height: var(--leading-none);
 }
@@ -199,8 +199,8 @@
 /* The dot carries the two attention states' motion; the fill and the word
    survive `prefers-reduced-motion`. */
 .thread-item-status-dot {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   flex: 0 0 auto;
   border-radius: var(--radius-full);
   background: currentColor;
