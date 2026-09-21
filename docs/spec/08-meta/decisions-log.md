@@ -6601,3 +6601,36 @@ throwing.
 - See `04-ux/01-ui-ia.md` §3.2, `04-ux/07-ui-design-system.md` §13/§15,
   `04-ux/08-component-spec.md` §3.3/§3.5/§6.6, `adr/global-sidebar-pins.md`, and
   US-UI-15 / US-UI-33 / US-UI-69 in `06-delivery/04-e2e-test-plan.md`.
+## 2026-09-21 — The context percentage keeps a decimal below ten percent (D466)
+
+The composer context inspector reported whole percents. That resolution is
+wrong for the million-token windows the catalog now publishes: one percent
+spans ten thousand tokens, so a request holding 14,000 tokens of 1,000,000 read
+`1%` — 1.4 % rounded down, a figure the occupancy had not reached — and
+anything under 5,000 tokens read `0%` while the context was demonstrably not
+empty. The surface became least readable exactly where a user asks it a
+question.
+
+`formatContextPercent(ratio)` in `apps/desktop/src/lib/context-usage.ts` now
+owns the display form. At ten percent and above it rounds to a whole number, as
+before; below ten percent it keeps one decimal; under half a percent it returns
+the range label `<1` instead of naming a figure the occupancy has not reached.
+
+- `ContextUsage.usedPercent` / `remainingPercent` stay integers and the ring
+  arc keeps filling by `remainingRatio` / `usedRatio`. Capacity thresholds
+  (remaining ≤ 25 % warning, ≤ 10 % critical), the token counts, and every other
+  inspector figure are unchanged; only the label moves.
+- The label is shared by the trigger ring, the popover heading, the used/window
+  row, the trigger tooltip, and the `aria-label`, so an announcement carries the
+  same precision the panel shows.
+- The used/window row still reports the used percentage in both display modes;
+  `settings.contextUsageDisplay` still selects only the leading figure.
+- Regression coverage: `context-usage.test.mjs` — "the inspector label keeps a
+  decimal where a whole percent is too coarse", "the inspector label rounds to
+  whole percents from ten up", and "the inspector label never names a figure the
+  occupancy has not reached".
+- `scripts/e2e-context-inspector-compact.mjs` reads the ring label with
+  `Number.parseFloat` and stands the `<1` range in at its own midpoint, instead
+  of truncating the label with `parseInt`.
+- See `04-ux/08-component-spec.md` §8.3/§8.5 and
+  E2E-CHAT-context-percent-precision in `06-delivery/04-e2e-test-plan.md`.

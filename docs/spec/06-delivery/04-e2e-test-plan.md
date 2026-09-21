@@ -7514,6 +7514,8 @@ and identify the platform validation still needed.
 | Quality (transcript glow language) | E2E-CHAT-transcript-glow-language |
 | C — Conversation & stream (cross-session rendering) | E2E-CHAT-other-sessions-render-without-switching |
 | Quality (cross-session rendering) | E2E-CHAT-other-sessions-render-without-switching |
+| C — Conversation & stream (context percent precision) | E2E-CHAT-context-percent-precision |
+| Quality (context percent precision) | E2E-CHAT-context-percent-precision |
 
 | Milestone | Scenarios |
 |---|---|
@@ -12573,3 +12575,32 @@ plugin-form fixtures in an isolated temporary directory at runtime.
   "turns a manual compaction with nothing new into a no-op";
   `context-compaction.test.mjs` — "a manual compaction with nothing new reports
   a no-op instead of failing"); rendered transcript/toast journey Draft.
+
+#### E2E-CHAT-context-percent-precision: The context percentage keeps a decimal where a whole percent is too coarse
+
+- **Preconditions**: A chat session with a usage-bearing assistant turn is
+  active, and its model binding resolves to a 1,000,000-token context window (a
+  published 1m-class model). `settings.contextUsageDisplay` may be either mode.
+- **Steps**: 1) Send prompts until the newest request reports roughly 14,000
+  tokens of occupancy, then read the ring label on the composer trigger, the
+  popover heading, the used/window row, the trigger tooltip, and the
+  `aria-label`. 2) Bring the occupancy under 5,000 tokens and read the same
+  surfaces. 3) Raise the occupancy past ten percent of the window and read them
+  again. 4) Switch the display preference to the other mode and repeat step 1.
+  5) Repeat step 1 against a 128,000-token window.
+- **Expected**: Every one of those surfaces reads `1.4%` at 14,000 of 1,000,000
+  tokens — not the `1%` a whole-percent round-down produced — and reads `<1%`
+  while the occupancy stays under half a percent, so no surface names a figure
+  the context has not reached. The used/window row keeps reporting the used
+  figure in both display modes, and the display preference still selects only
+  the leading figure. From ten percent up the label is a whole number again
+  (`11%`, `25%`). The ring arc, the capacity colors (remaining ≤ 25 % warning,
+  ≤ 10 % critical), and every token count are unchanged, and a 128,000-token
+  window keeps its previous whole-percent labels.
+- **Specs linked**: `04-ux/08-component-spec.md` §8.3/§8.5, D466
+- **Acceptance**: C — Conversation & stream; Quality
+- **Status**: Partially automated — the label bands are covered by
+  `apps/desktop/test/context-usage.test.mjs` ("the inspector label keeps a
+  decimal where a whole percent is too coarse" and its companions), and
+  `pnpm test:e2e:inspector-compact` reads the ring label with
+  `Number.parseFloat`, standing the `<1` range in at its midpoint.

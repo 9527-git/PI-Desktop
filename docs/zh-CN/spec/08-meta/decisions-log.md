@@ -5029,3 +5029,30 @@ PI-Desktop 把检查点锚在 `throughMessageId` 之后，而它在压缩时就�
 - 参见 `04-ux/01-ui-ia.md` §3.2、`04-ux/07-ui-design-system.md` §13/§15、
   `04-ux/08-component-spec.md` §3.3/§3.5/§6.6、`adr/global-sidebar-pins.md`，以及
   `06-delivery/04-e2e-test-plan.md` 中的 US-UI-15 / US-UI-33 / US-UI-69。
+## 2026-09-21 — 上下文百分比在 10% 以下保留一位小数（D466）
+
+输入区的上下文检查器此前只报整百分点。对目录现在发布的百万 token 窗口来说，
+这个精度是错的：一个整百分点就是一万 token，所以 1,000,000 窗口中占用
+14,000 token 的请求被报成 `1%`——1.4% 向下取整，一个占用尚未到达的数字——
+而 5,000 token 以下一律报成 `0%`，尽管上下文显然不是空的。偏偏在用户向它提问
+的位置上，这个界面最不可读。
+
+`apps/desktop/src/lib/context-usage.ts` 的 `formatContextPercent(ratio)` 现在
+负责显示形式：10% 及以上照旧取整，10% 以下保留一位小数，半个百分点以下返回
+区间标签 `<1`，不再报出占用尚未到达的数字。
+
+- `ContextUsage.usedPercent` / `remainingPercent` 仍是整数，圆环弧仍按
+  `remainingRatio` / `usedRatio` 填充。容量阈值（剩余 ≤ 25 % 警告、≤ 10 %
+  临界）、令牌计数与其他检查器数值都不变；只有标签变了。
+- 该标签由触发器圆环、弹层标题、已用/窗口行、触发器 tooltip 与 `aria-label`
+  共用，因此朗读出来的精度与面板显示一致。
+- 已用/窗口行在两种显示模式下都继续报已用百分比；`settings.contextUsageDisplay`
+  仍然只决定引导数值。
+- 回归覆盖：`context-usage.test.mjs` 的 “the inspector label keeps a decimal
+  where a whole percent is too coarse”、“the inspector label rounds to whole
+  percents from ten up” 与 “the inspector label never names a figure the
+  occupancy has not reached”。
+- `scripts/e2e-context-inspector-compact.mjs` 改用 `Number.parseFloat` 读取
+  圆环标签，并把 `<1` 区间按其自身中点代入，不再用 `parseInt` 截断标签。
+- 参见 `04-ux/08-component-spec.md` §8.3/§8.5 与
+  `06-delivery/04-e2e-test-plan.md` 中的 E2E-CHAT-context-percent-precision。

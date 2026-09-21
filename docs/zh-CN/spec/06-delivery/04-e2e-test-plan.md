@@ -7480,3 +7480,12 @@ runner 会在运行时的隔离临时目录中生成六个插件形态 fixture�
 - **链接规格**：`03-runtime/01-ipc-protocol.md`、`03-runtime/02-agent-runtime.md`、`04-ux/08-component-spec.md`、`04-ux/09-interaction-patterns.md`、ADR context-inspector-compact-action、D464
 - **验收**：C —— 对话与流式；品质
 - **状态**：部分自动化（`runtime.test.ts` 的 “turns a manual compaction with nothing new into a no-op”；`context-compaction.test.mjs` 的 “a manual compaction with nothing new reports a no-op instead of failing”）；渲染转录/提示旅程为草稿。
+
+### E2E-CHAT-context-percent-precision：上下文百分比在整百分点过于粗糙时保留一位小数
+
+- **前提条件**：一个带用量的助手回合处于活动状态的聊天会话，其模型绑定解析为 1,000,000 token 的上下文窗口（已发布的 1m 级模型）。`settings.contextUsageDisplay` 为任一模式。
+- **步骤**：1) 持续发送提示，直到最新一次请求的占用约为 14,000 token，然后读取输入框触发器的圆环标签、弹层标题、已用/窗口行、触发器 tooltip 与 `aria-label`。2) 把占用降到 5,000 token 以下，读取同样这几处。3) 把占用提高到窗口的 10% 以上，再次读取。4) 把显示偏好切到另一种模式并重复第 1 步。5) 在 128,000 token 窗口上重复第 1 步。
+- **预期**：上述每一处在 1,000,000 token 窗口中占用 14,000 token 时都读作 `1.4%`，而不是整百分点向下取整得到的 `1%`；占用不到半个百分点时读作 `<1%`，因此没有任何一处会报出上下文尚未到达的数字。已用/窗口行在两种显示模式下都继续报已用数值，显示偏好仍只决定引导数值。10% 及以上标签恢复为整数（`11%`、`25%`）。圆环弧、容量颜色（剩余 ≤ 25 % 警告、≤ 10 % 临界）与所有令牌计数不变，128,000 token 窗口保持此前的整百分点标签。
+- **链接规格**：`04-ux/08-component-spec.md` §8.3/§8.5；D466
+- **验收**：C —— 对话与流式；品质
+- **状态**：部分自动化——标签分级由 `apps/desktop/test/context-usage.test.mjs` 覆盖（“the inspector label keeps a decimal where a whole percent is too coarse” 及其同组用例），`pnpm test:e2e:inspector-compact` 用 `Number.parseFloat` 读取圆环标签，并把 `<1` 区间按其自身中点代入。
