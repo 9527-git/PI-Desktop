@@ -13,7 +13,9 @@
   overflow: hidden;
   border-radius: var(--radius-sm);
   padding: 0 2px 0 0;
-  min-height: 28px; /* WorkBuddy-style compact scoped-session row pitch. */
+  /* D465: the row keeps a roomier pitch and the group body adds the gap between
+     two rows, so consecutive sessions no longer touch. */
+  min-height: var(--ds-sidebar-session-row-height);
   color: var(--ds-text-secondary);
   transition: background var(--motion-duration-fast) var(--motion-ease-out), color var(--motion-duration-fast) var(--motion-ease-out);
 }
@@ -29,7 +31,10 @@
      instead of on a fixed column, so the row reads as one group again and a
      mostly empty column no longer pushes every title to the right. The pill
      stays inside this button, so it remains part of the click target. */
-  padding: 5px 6px 5px 4px;
+  /* D465: these 6px insets are the row's half of --ds-sidebar-session-row-height
+     (12px + the title's own line box), so the labelled pill stays centred on the
+     taller row at every font scale. */
+  padding: 6px 6px 6px 4px;
   text-align: left;
   color: inherit;
 }
@@ -82,7 +87,7 @@
      nudges the whole list up a few pixels before it settles back. */
   flex: 1 1 0;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px; /* D465: a group keeps more air around it than its own rows do. */
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior-y: contain;
@@ -276,7 +281,7 @@
 .sidebar-session-group-body {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: var(--ds-sidebar-session-row-gap);
   overflow: hidden;
   max-height: 2000px;
   opacity: 1;
@@ -332,7 +337,8 @@
 }
 
 .sidebar-session-group-body.standalone {
-  max-height: 140px; /* Five compact session rows before internal scrolling. */
+  /* D465: five roomier rows before the body scrolls internally. */
+  max-height: calc(5 * var(--ds-sidebar-session-row-height) + 4 * var(--ds-sidebar-session-row-gap));
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
@@ -358,9 +364,9 @@
   min-width: 0;
   flex: 0 0 auto;
 }
-
 .sidebar-session-group-body.pinned {
-  max-height: min(224px, 30vh);
+  /* D465: eight rows of the session pitch, still capped by 30% of the viewport. */
+  max-height: min(calc(8 * var(--ds-sidebar-session-row-height) + 7 * var(--ds-sidebar-session-row-gap)), 30vh);
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior-y: contain;

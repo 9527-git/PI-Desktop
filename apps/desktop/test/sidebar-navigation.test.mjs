@@ -131,11 +131,45 @@ test("sidebar shows a bounded standalone session list before retained projects",
     sidebarSource.indexOf('data-sidebar-session-section="temporary"') <
       sidebarSource.indexOf('data-action="new-project"'),
   );
+  // D465: the bounded standalone list is still five rows; the pitch pair it
+  // multiplies is owned by tokens.css.
   assert.match(
     globalStyles,
-    /\.sidebar-session-group-body\.standalone\s*\{[\s\S]*?max-height:\s*140px;[\s\S]*?overflow-x:\s*hidden;[\s\S]*?overflow-y:\s*auto;/,
+    /\.sidebar-session-group-body\.standalone\s*\{[\s\S]*?max-height:\s*calc\(5 \* var\(--ds-sidebar-session-row-height\) \+ 4 \* var\(--ds-sidebar-session-row-gap\)\);[\s\S]*?overflow-x:\s*hidden;[\s\S]*?overflow-y:\s*auto;/,
   );
   assert.doesNotMatch(sidebarSource, /data-sidebar-project-group="temporary"/);
+});
+
+test("sidebar session rows keep a roomier D465 pitch with a gap between rows", () => {
+  // The row's own height is its two 6px insets plus the title's line box, so the
+  // pitch tracks --font-scale instead of pinning a pixel count; 30px at scale 1.
+  assert.match(
+    globalStyles,
+    /--ds-sidebar-session-row-height: calc\(12px \+ var\(--leading-row\)\)/,
+  );
+  assert.match(globalStyles, /--ds-sidebar-session-row-gap: 2px/);
+  const rowRule = globalStyles.match(/^\.thread-item \{[^}]*\}/m)?.[0] ?? "";
+  assert.match(rowRule, /min-height: var\(--ds-sidebar-session-row-height\)/);
+  const mainRule = globalStyles.match(/^\.thread-item-main \{[^}]*\}/m)?.[0] ?? "";
+  assert.match(mainRule, /padding: 6px 6px 6px 4px/);
+  const bodyRule = globalStyles.match(/^\.sidebar-session-group-body \{[^}]*\}/m)?.[0] ?? "";
+  assert.match(bodyRule, /gap: var\(--ds-sidebar-session-row-gap\)/);
+  // The group block itself stays further apart than the rows inside it.
+  const groupsRule = globalStyles.match(/^\.sidebar-session-groups \{[^}]*\}/m)?.[0] ?? "";
+  assert.match(groupsRule, /gap: 4px/);
+});
+
+// The bounded standalone list has its own assertion above; the pinned section
+// had none, which is how its old 224px literal (eight rows of the 28px pitch)
+// survived the pitch change in specs and an ADR.
+test("the pinned session list is bounded by whole rows of the D465 pitch", () => {
+  // Eight rows, still capped by 30vh. Above a ~747px-tall window the row-derived
+  // cap binds, so eight rows fit whole; below it the viewport term wins and may
+  // cut the last visible row — that viewport cap is unchanged from before D465.
+  assert.match(
+    globalStyles,
+    /\.sidebar-session-group-body\.pinned \{[^}]*?max-height: min\(calc\(8 \* var\(--ds-sidebar-session-row-height\) \+ 7 \* var\(--ds-sidebar-session-row-gap\)\), 30vh\)/s,
+  );
 });
 
 test("sidebar project and session lists stay coordinated with the global type scale", () => {

@@ -378,7 +378,9 @@ tier; weight, indentation, and disclosure icons preserve their hierarchy:
 
 Do not render primary sidebar list content below `--text-md`. Keep row heights
 (≈28–32px) so density stays WorkBuddy/Codex-like while primary actions remain
-visually distinct from list content.
+visually distinct from list content. A sidebar session row's own pitch is the
+D465 token pair — `--ds-sidebar-session-row-height` (30px) plus
+`--ds-sidebar-session-row-gap` (2px) between two consecutive rows, a 32px pitch.
 
 ### 3.4 States
 
@@ -521,7 +523,7 @@ visually distinct from list content.
   Projects, independent of date buckets, project collapse, retained tabs, and
   each project's ten-row history limit. Each pin shows its project display
   name (full path on hover), or Temporary space for a path-less conversation.
-  The section is omitted when empty and scrolls within `min(224px, 30vh)` when
+  The section is omitted when empty and scrolls within `min(254px, 30vh)` when
   needed. Its rows reuse normal selection, status, hover, and overflow actions.
 - Pinning moves the existing row into that section; unpinning returns it to
   normal project or temporary history, subject to existing folding and closed
@@ -1264,7 +1266,7 @@ SESSIONS                                      [msg+][↕]
   local view controls rather than host queries.
 - Temporary means **not bound to a project**, not ephemeral storage; these
   sessions survive restart.
-- The standalone Sessions body shows at most five compact 28px rows and
+- The standalone Sessions body shows at most five 30px session rows and
   scrolls internally when more rows exist. The Projects list uses the remaining
   sidebar height and scrolls independently; neither region scrolls the footer
   or primary navigation. Both list scrollbars use the same global 6px,

@@ -1238,7 +1238,7 @@ Full component contract and usage rules: [08-component-spec.md §17](08-componen
 | **Message gap 10px** | Between chat message rows — denser WorkBuddy-like transcript |
 | **Section gap 16px (space-4)** | Between distinct UI sections (sidebar sections, settings groups) |
 | **Panel gap 0px** | Panels touch edge-to-edge with border-subtle separator — no gutters |
-| **Compact list rows 28px height** | Sidebar session items, settings list rows |
+| **Compact list rows 30px height + 2px gap** | Sidebar session rows (D465; the height is the row's 6px insets plus its title's line box, so it follows the type scale); settings list rows keep their own density |
 | **Button rows 32px height** | Standard buttons |
 | **Never exceed 24px vertical gap** | Even for "breathing room" — this is a workstation |
 | **Max content width 820px** | Chat messages, tool disclosure rows inside the 860px band (D429) — prevent over-wide eye-span |
@@ -1288,7 +1288,8 @@ Full component contract and usage rules: [08-component-spec.md §17](08-componen
 13. Stream updates do not retrigger destination/shell enter motion or a
     backdrop-filter repaint behind the composer
 14. Expanded sidebar session titles, project/group titles, and empty-state copy
-    use the 13px compact token without changing the 28–32px row pitch
+    use the 13px compact token; a session row's pitch is the D465 token pair —
+    `--ds-sidebar-session-row-height` (30px) plus `--ds-sidebar-session-row-gap` (2px)
 15. Sidebar session rows show a labelled status pill flush at the row's own
     left edge with the title starting right after it; other sessions'
     transcripts and the subagent dock render without switching (§16)

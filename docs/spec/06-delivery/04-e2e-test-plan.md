@@ -7675,8 +7675,9 @@ This test plan spec is accepted when:
   hard-coded white (`gray-0`) text on light surfaces.
 
 ### US-UI-15 Codex density + elevation
-- Sidebar rows use a compact ~28–32px pitch with the 12–14px hierarchy from
-  US-UI-69 and 8px horizontal padding (Codex `radius-token-row` 10px).
+- Sidebar rows use a compact ~30–32px pitch with the 12–14px hierarchy from
+  US-UI-69 and 8px horizontal padding (Codex `radius-token-row` 10px); a session
+  row itself is 30px with a 2px gap to the next (D465).
 - Floating composer uses Codex elevation-prominent: 0.5px stroke + soft 3px/20px shadow (not heavy 10–30px drop).
 - Empty hero title is 28px / 34px line-height, weight 400.
 - Window restores ≥1000×700 (target 1200×800) if Stage Manager collapses it.
@@ -7834,7 +7835,7 @@ This test plan spec is accepted when:
   path-less sessions.
 - Project and Temporary headers expose compact scope-specific `+` controls;
   project/session overflow menus expose pin/archive actions; nav row pitch
-  remains ~32px and session row pitch ~28–31px.
+  remains ~32px and session row pitch is ~32px (a 30px row plus its 2px gap, D465).
 
 ### US-UI-34 Home has no developer starter cards (D206)
 - On empty chat home (light + dark), no developer starter grid, card, or
@@ -8396,9 +8397,9 @@ This test plan spec is accepted when:
   the body chrome size (`--text-base` / 14px).
 - Expect session/thread titles, project/group titles, and empty-state copy at
   `--text-md` / 13px, with uppercase section labels (`SESSIONS` / `PROJECTS`)
-  at `--text-sm` / 12px — never below `--text-md` for primary list content.
-- Confirm row pitch remains compact (≈28–32px), titles still truncate cleanly,
-  and collapsed icon-rail controls stay legible without reflowing the shell.
+- Confirm row pitch remains compact (≈30–32px; a session row is 30px plus its
+  2px gap, D465), titles still truncate cleanly, and collapsed icon-rail controls
+  stay legible without reflowing the shell.
 
 ### US-UI-70 Disable text correction on editable fields (D145)
 - Open empty home, a docked transcript, Settings search, Plugins market search,

@@ -178,7 +178,8 @@ destination, chat as the home surface, tools and permissions inline.
   toolbar places sorting before new-session creation. Both headings keep quiet
   glyph actions and also accept a right-click create menu on the heading or empty
   list chrome so section creation stays discoverable
-  without extra chrome. Its list shows at most five compact rows (140px) before
+  without extra chrome. Its list shows at most five compact rows (158px at the
+  default scale — five 30px rows plus their 2px gaps, D465) before
   scrolling internally, so standalone work stays visible without displacing
   project navigation. The following `Projects` heading exposes the
   folder-picker action; retained project groups use the remaining height and

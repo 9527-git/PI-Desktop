@@ -143,6 +143,12 @@
   --ds-sidebar-status-lane: 80px;
   /* D455: the pill's clearance from the title it leads. */
   --ds-sidebar-status-pill-gap: 6px;
+  /* D465: sidebar session row pitch — each row's own minimum height (its 6px top
+     and bottom insets plus the title's line box, so the pitch follows
+     --font-scale; 30px at the default scale) and the gap between two consecutive
+     rows. Scoped lists size their scrollers in whole rows from this pair. */
+  --ds-sidebar-session-row-height: calc(12px + var(--leading-row));
+  --ds-sidebar-session-row-gap: 2px;
   /* Settings rail border-box width, including its 1px right border. The
    * settings drag band starts after the rail so the rail keeps a single
    * surface tone from the window top edge down. */

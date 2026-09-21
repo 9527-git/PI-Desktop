@@ -139,7 +139,7 @@ Gold source: local Codex electron captures; latest row wins where rows conflict.
 | D048 | Sidebar recents label | *(superseded by D088)* **Recents section uses live Codex gold label EN `Recents` / zh-CN `最近` (not asar-only `Tasks`/`任务`)** | Visual gold + live coding shell section heading between plugins and thread list |
 | D049 | Home suggestion cards | *(superseded by D131)* **Empty home shows 4 ambient cards under hero (auto-fit row) and prefills starter prompts on click** | D131 removes the card row and prompt-prefill entry points from the empty home |
 | D050 | Empty composer plate height | *(superseded by D055, then D061)* Home empty composer min-height ~112px (compact); model chip shows model id (effort stays in menu) | Match Codex empty plate density; model chip chrome closer to electron model picker trigger |
-| D051 | Sidebar nav density | *(session-list IA superseded by D088; row density retained)* **Nav rows ~32px pitch, recents rows ~28–31px, section label `最近`/`Recents`** | Close light-home sidebar residual vs cx-home-clean |
+| D051 | Sidebar nav density | *(session-list IA superseded by D088; recents row density superseded by D465)* **Nav rows ~32px pitch, recents rows ~28–31px, section label `最近`/`Recents`** | Close light-home sidebar residual vs cx-home-clean |
 | D052 | Home vertical + night box polish | *(workspace-chip surface superseded by D095; remaining guidance retained)* **Upper pb ~62px (hero first-ink ~y305); light chips `#f3f3f3`; light composer elevation stronger; dark home composer solid `#212121`; toolbar controls 28px** | Close residual heat at hero y≈300 and composer band; night plate must not flatten into `#181818` |
 | D053 | Stage Manager CG detection | **CG bounds helper matches any window layer by pid; missing-CG needs streak≥3 before shelf recovery; avoid permanent alwaysOnTop** | alwaysOnTop floating layer broke layer-0 helpers and caused restore thrash |
 | D054 | Empty draft row + infinity cue | *(∞ cue superseded by D094; leading brand cue superseded by D160)* **Composer auto-resize must never collapse empty textarea height (<28px); keep a visible brand cue left of draft; solid disabled send (`#bdbdbd` light); denser placeholder ink; night plate solid `#212121`** | Empty `height:0` auto-resize hid placeholder and read as broken night/light box; gold draft row needs visible mark + ink density |
@@ -6568,3 +6568,36 @@ throwing.
   `04-ux/08-component-spec.md` §8.3/§8.5,
   `04-ux/09-interaction-patterns.md` §3A, and
   E2E-CHAT-compact-nothing-new-is-a-no-op in `06-delivery/04-e2e-test-plan.md`.
+
+## 2026-09-21 — Sidebar session rows take a roomier pitch (D465)
+
+- Two consecutive sessions no longer touch: the row's own height grows from a
+  `28px` minimum to its two 6px insets plus the title's line box, and every
+  session group body inserts a `2px` gap between its rows, so the pitch is `32px`
+  at the default scale and a hover or active fill reads as one row's own instead
+  of bleeding into its neighbour.
+- The pitch is a token pair in `styles/tokens.css` —
+  `--ds-sidebar-session-row-height` (`calc(12px + var(--leading-row))`: 30px at
+  the default font scale, taller under a raised `--font-scale`, so the row always
+  holds its own text) and `--ds-sidebar-session-row-gap` (`2px`). The labelled
+  status pill stays centred because the vertical insets are symmetric, and the
+  leading 4px text inset, the trailing 6px inset, and every pill, title, drag,
+  hover-card, and overflow-menu behaviour are unchanged.
+- The standalone Sessions body still bounds exactly five rows and the pinned
+  section eight, both now derived from the token pair instead of the old `140px`
+  and `224px` literals. The standalone bound carries no viewport term, so it
+  always lands on a row boundary; the pinned section keeps its unchanged `30vh`
+  cap, which binds in windows shorter than ~747px and can cut the last visible
+  row there, exactly as it could before this decision. The gap between two
+  project groups rises from `2px` to `4px`, so a block keeps more air around it
+  than the rows inside it do.
+- Renderer styles plus one automated expectation: no IPC, host, schema,
+  permission, or persisted-state change.
+- Regression coverage: `sidebar-navigation.test.mjs` — "sidebar session rows keep
+  a roomier D465 pitch with a gap between rows" and "the pinned session list is
+  bounded by whole rows of the D465 pitch" — `sidebar-session-status.test.mjs`
+  for the row's own insets, and the `rowHeight` probe in
+  `scripts/e2e-sidebar-status-dot.mjs`.
+- See `04-ux/01-ui-ia.md` §3.2, `04-ux/07-ui-design-system.md` §13/§15,
+  `04-ux/08-component-spec.md` §3.3/§3.5/§6.6, `adr/global-sidebar-pins.md`, and
+  US-UI-15 / US-UI-33 / US-UI-69 in `06-delivery/04-e2e-test-plan.md`.

@@ -558,7 +558,7 @@ async function main() {
         (row) =>
           row.pillCount === 1 &&
           row.pillHeight === 18 &&
-          row.rowHeight === 28 &&
+          row.rowHeight === 30 &&
           Math.abs(row.statusCenterOffset) <= 2,
       ),
       "every pill is drawn once, at its own height, on the row's vertical centre",

@@ -142,7 +142,7 @@
 | D048 | 侧边栏最近标签 | *（由 D088 取代）* **近期部分使用实时 Codex 黄金标签 EN `Recents` / zh-CN `最近`（并非仅限 asar 的 `Tasks`/`任务`）** | 视觉黄金 + 插件和线程列表之间的实时编码 shell 部分标题 |
 | D049 | 家庭建议卡 | *（被 D131 取代）* **空的主页在英雄下方显示 4 张环境卡（自动调整行），并在点击时预填充启动提示** | D131 从空置中删除卡行和提示预填充入口点 |
 | D050 | 空作曲器板高度 | *（被 D055 取代，然后是 D061）* Home 空输入框 min-height ~112px（紧凑）；模型芯片显示模型 ID（操作保留在菜单中） | 匹配 Codex 空板密度；模型芯片镀铬更接近电子模型选择器触发器 |
-| D051 | 侧边栏导航密度 | *（会话列表 IA 被 D088 取代；保留行密度）* **导航行 ~32 像素间距，最近行 ~28–31 像素，部分标签 `Recents`/`最近`** | 关闭 light-home 侧边栏残留 vs cx-home-clean |
+| D051 | 侧边栏导航密度 | *（会话列表 IA 被 D088 取代；最近行密度被 D465 取代）* **导航行 ~32 像素间距，最近行 ~28–31 像素，部分标签 `Recents`/`最近`** | 关闭 light-home 侧边栏残留 vs cx-home-clean |
 | D052 | 家用立式+夜箱抛光 | *（工作区芯片表面被 D095 取代；保留剩余指导）* **上部 pb ~62px（英雄第一墨水 ~y305）；光芯片`#f3f3f3`；灯光输入框海拔更强；黑暗家庭输入框固体 `#212121`；工具栏控件 28px** | 关闭英雄y≈300和输入框乐队的余热；夜板不得压平至 `#181818` |
 | D053 | 舞台监督CG检测 | **CG边界助手通过pid匹配任何窗口层；上架恢复前，missing-CG需要streak≥3；避免永久的alwaysOnTop** | AlwaysOnTop 浮动层破坏了第 0 层帮助器并导致恢复抖动 |
 | D054 | 空草稿行+无限提示 | *（∞ 提示被 D094 取代；领先品牌提示被 D160 取代）* **Composer 自动调整大小绝不能折叠空文本区域高度 (<28px)；在草稿左侧保留明显的品牌提示；常亮禁用发送（`#bdbdbd` 灯亮）；更密集的占位符墨水；实心夜板 `#212121`** | 清空 `height:0` 自动调整大小隐藏占位符并读取为损坏的 night/light 框；金色草稿行需要可见标记+油墨密度 |
@@ -5005,3 +5005,27 @@ PI-Desktop 把检查点锚在 `throughMessageId` 之后，而它在压缩时就�
   `04-ux/09-interaction-patterns.md` §3A 与
   `06-delivery/04-e2e-test-plan.md` 中的
   E2E-CHAT-compact-nothing-new-is-a-no-op。
+
+## 2026-09-21 — 侧边栏会话行改用更宽松的行距（D465）
+
+- 相邻两个会话不再彼此贴住：行自身的高度从 `28px` 最小值改为它的上下 6 像素内边距
+  加上标题行框，并且每个会话组主体在行之间插入 `2px` 间隙，因此默认比例下行距为
+  `32px`，悬停或选中填充读作单独一行的填充，而不会渗进相邻行。
+- 行距是 `styles/tokens.css` 中的令牌对——`--ds-sidebar-session-row-height`
+  （`calc(12px + var(--leading-row))`：默认字号比例下为 30px，`--font-scale` 调高时
+  随之变高，因此行始终容得下自己的文字）与 `--ds-sidebar-session-row-gap`（`2px`）。
+  垂直内边距左右对称，所以带文字的状态胶囊仍然居中；行首 4 像素文字内缩、行尾 6 像素
+  内缩，以及胶囊、标题、拖拽、悬停卡片与溢出菜单的行为都没有改变。
+- 独立会话主体仍然恰好容纳五行，钉住区容纳八行，两者都改为由令牌对推导，取代原先的
+  `140px` 与 `224px` 字面量。独立区上限没有视口项，因此始终落在整行边界上；钉住区保留
+  未改动的 `30vh` 上限，窗口高度低于约 747px 时该项生效，可能切掉最后一行的下半部分，
+  这与本决定之前的行为一致。两个项目组之间的间隙从 `2px` 增至 `4px`，因此区块周围的
+  留白多于其内部行之间。
+- 仅涉及渲染层样式与一处自动化期望：不改动 IPC、宿主、schema、权限或持久化状态。
+- 回归覆盖：`sidebar-navigation.test.mjs` 的 "sidebar session rows keep a roomier D465
+  pitch with a gap between rows" 与 "the pinned session list is bounded by whole rows of
+  the D465 pitch"、`sidebar-session-status.test.mjs` 的行内缩断言，以及
+  `scripts/e2e-sidebar-status-dot.mjs` 的 `rowHeight` 探针。
+- 参见 `04-ux/01-ui-ia.md` §3.2、`04-ux/07-ui-design-system.md` §13/§15、
+  `04-ux/08-component-spec.md` §3.3/§3.5/§6.6、`adr/global-sidebar-pins.md`，以及
+  `06-delivery/04-e2e-test-plan.md` 中的 US-UI-15 / US-UI-33 / US-UI-69。

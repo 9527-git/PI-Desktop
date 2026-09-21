@@ -203,7 +203,9 @@ test("renders word-bearing sidebar status pills at the row's own edge", () => {
   assert.doesNotMatch(styles, /thread-item-status-chip|thread-item-status-label/);
   assert.doesNotMatch(styles, /\.thread-item-preview \{/);
   const mainRule = styles.match(/^\.thread-item-main \{[^}]*\}/m)?.[0] ?? "";
-  assert.match(mainRule, /padding: 5px 6px 5px 4px/);
+  // D465 raised the row's vertical inset with the pitch; the leading 4px text
+  // inset and the 6px trailing inset are unchanged.
+  assert.match(mainRule, /padding: 6px 6px 6px 4px/);
   assert.doesNotMatch(mainRule, /--ds-sidebar-status-lane/);
   const markedMainRule =
     styles.match(/^\.marked\.thread-item-main \{[^}]*\}/m)?.[0] ?? "";

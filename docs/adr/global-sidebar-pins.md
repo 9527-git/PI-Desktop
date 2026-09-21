@@ -27,7 +27,9 @@ or closed, which defeats their role as quick access to frequently used sessions.
 - Reuse ordinary row selection and actions. Unpinning returns a session to its
   normal history location and visibility rules. Restore focus to its relocated
   overflow control, with the Sessions sort control as a fallback when hidden.
-- Omit an empty section and bound its scroll area to `min(224px, 30vh)`.
+- Omit an empty section and bound its scroll area to `min(254px, 30vh)` — eight
+  rows of the sidebar session pitch (D465; it was `min(224px, 30vh)`, eight rows
+  of the old 28px pitch).
 
 ## Consequences
 
