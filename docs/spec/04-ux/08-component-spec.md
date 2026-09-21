@@ -1642,18 +1642,27 @@ Single message render — either user (plaintext) or assistant (markdown streami
   estimate (`After this compaction`, `tokensAfter`, class
   `.context-inspector-compaction-after`), each rendered only when the mark
   carries it; a mark rebuilt from storage never carries the after figure. The
-  ring, its percentage, and the heading stop reporting the pre-compaction
-  request as soon as the newest checkpoint carries `tokensAfter` and no
-  usage-bearing message follows its `throughMessageId` (D454): the estimate
-  leads from that compaction until the next request reports usage, which takes
-  the figure back. The closing action row is the one exception to the
+  after figure estimates the whole request the compacted conversation
+  produces — the conversation plus the system prompt and the active tool
+  schemas — so it is measured on the same basis as the pre-compaction request
+  it replaces and cannot read as an empty window (D463). The ring, its
+  percentage, and the heading stop reporting the pre-compaction request as soon
+  as the newest checkpoint carries `tokensAfter` and no usage-bearing message
+  follows its `throughMessageId` (D454): the estimate leads from that
+  compaction until the next request reports usage, which takes the figure back.
+  The closing action row is the one exception to the
   no-inner-rules rule (D297): one hairline separates it from the rows above.
   The row puts a muted hint and the `Compact context` button below that
   hairline: the button starts a manual compaction through the existing
   `compactContext()` store action, and stays disabled while a live turn or a
   native session owns the composer. While the runtime reports
   `activity.phase === "compacting"` the button shows a spinner with the busy
-  label and the hint switches to the checkpoint-summary copy.
+  label and the hint switches to the checkpoint-summary copy. A manual request
+  that finds nothing new to compact — the transcript still ends in the newest
+  checkpoint — settles as a no-op: the busy state clears, the hint returns to
+  its idle copy, one informational toast says nothing new has been added since
+  the last checkpoint, and no checkpoint line, transcript row, or error appears
+  (D464).
 - Gap: 12px vertical padding between consecutive message rows (denser than
   consumer chat, closer to WorkBuddy task transcript); assistant turns add a
   little extra bottom air so a completed answer separates from the next prompt
