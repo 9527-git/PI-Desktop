@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.3",
+    "date": "2026-09-21",
+    "highlights": [
+      "Kenar çubuğu oturumları artık daha ferah 32px satırlarda duruyor: üzerine gelme ya da seçim dolgusu kendi satırında kalıyor ve her proje bloğu çevresinde daha fazla boşluk oluyor.",
+      "Bağlam yüzdesi yüzde onun altında bir ondalık basamak koruyor ve yüzde yarımın altında \"<1%\" gösteriyor: bir milyon tokenlık pencere 14.000 tokenı düz %1'e yuvarlamıyor.",
+    ],
+  },
+  {
     "version": "0.16.2",
     "date": "2026-09-21",
     "highlights": [

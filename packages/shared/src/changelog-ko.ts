@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.3",
+    "date": "2026-09-21",
+    "highlights": [
+      "사이드바 세션 행 사이에 32px 간격이 생겨, 마우스를 올리거나 선택한 배경이 자기 행 안에 머물고 프로젝트 블록 주변에도 여백이 생깁니다.",
+      "컨텍스트 비율은 10% 미만에서 소수점 한 자리를 유지하고 0.5% 미만에서는 \"<1%\"로 표시되어, 100만 토큰 창에서 14,000 토큰이 1%로 반올림되지 않습니다.",
+    ],
+  },
+  {
     "version": "0.16.2",
     "date": "2026-09-21",
     "highlights": [

@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.3",
+    "date": "2026-09-21",
+    "highlights": [
+      "Sitzungen in der Seitenleiste stehen jetzt in großzügigeren 32px-Zeilen: Die Hover- oder Aktiv-Fläche bleibt in ihrer eigenen Zeile, und jeder Projektblock bekommt mehr Luft.",
+      "Der Kontext-Prozentsatz behält unter zehn Prozent eine Nachkommastelle und zeigt unter einem halben Prozent \"<1%\": Ein Fenster mit einer Million Token rundet 14.000 Token nicht mehr auf glatte 1% ab.",
+    ],
+  },
+  {
     "version": "0.16.2",
     "date": "2026-09-21",
     "highlights": [

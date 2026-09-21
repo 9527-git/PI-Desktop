@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.3",
+    "date": "2026-09-21",
+    "highlights": [
+      "Las sesiones de la barra lateral ahora ocupan filas más amplias de 32px: el fondo al pasar el cursor o al seleccionar se queda en su propia fila y cada bloque de proyecto respira más.",
+      "El porcentaje de contexto conserva un decimal por debajo del diez por ciento y muestra \"<1%\" por debajo del medio punto: una ventana de un millón de tokens ya no redondea 14.000 tokens a un 1% plano.",
+    ],
+  },
+  {
     "version": "0.16.2",
     "date": "2026-09-21",
     "highlights": [

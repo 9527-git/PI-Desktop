@@ -29,6 +29,14 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.16.3",
+    date: "2026-09-21",
+    highlights: [
+      "Sidebar sessions now sit in roomier 32px rows, so the hover or active fill stays inside its own row and each project block keeps more air around it.",
+      "The context percentage keeps a decimal below ten percent and reads \"<1%\" under half a percent: a million-token window no longer rounds 14,000 tokens down to a flat 1%.",
+    ],
+  },
+  {
     version: "0.16.2",
     date: "2026-09-21",
     highlights: [
@@ -986,6 +994,14 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.16.3",
+    date: "2026-09-21",
+    highlights: [
+      "侧边栏会话行之间留出更宽松的 32px 行距，悬停或选中的底色只留在自己那一行，项目分组周围也留出更多留白。",
+      "上下文百分比在 10% 以下保留一位小数、半个百分点以下显示「<1%」：百万 token 窗口不再把 14,000 token 抹成 1%。",
+    ],
+  },
+  {
     version: "0.16.2",
     date: "2026-09-21",
     highlights: [
@@ -1941,6 +1957,14 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.16.3",
+    date: "2026-09-21",
+    highlights: [
+      "側邊欄工作階段列之間留出更寬鬆的 32px 列距，滑過或選取的底色只留在自己那一列，專案分組周圍也留出更多留白。",
+      "上下文百分比在 10% 以下保留一位小數、半個百分點以下顯示「<1%」：百萬 token 視窗不再把 14,000 token 抹成 1%。",
+    ],
+  },
   {
     version: "0.16.2",
     date: "2026-09-21",

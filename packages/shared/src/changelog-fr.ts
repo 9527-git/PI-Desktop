@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.3",
+    "date": "2026-09-21",
+    "highlights": [
+      "Les sessions de la barre latérale occupent désormais des lignes plus aérées de 32px : le fond au survol ou à la sélection reste dans sa propre ligne et chaque bloc de projet respire davantage.",
+      "Le pourcentage de contexte garde une décimale sous dix pour cent et affiche \"<1%\" sous un demi pour cent : une fenêtre d'un million de jetons n'arrondit plus 14 000 jetons à 1 %.",
+    ],
+  },
+  {
     "version": "0.16.2",
     "date": "2026-09-21",
     "highlights": [
