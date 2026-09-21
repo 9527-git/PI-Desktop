@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/** Real React/Chromium regression for the progress pill (ADR 0261): the overview pops on click, dismisses itself, and a hidden pane resets it. */
+/** Real React/Chromium regressions for the progress card: the glyph button and its self-dismissing overview (ADR 0261/0263), and the entry-less running turn that still opens the card (ADR 0264). */
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { createRequire } from "node:module";
@@ -18,8 +18,11 @@ const { electronBinary } = resolveElectronBinary(root);
 const temp = await mkdtemp(join(tmpdir(), "pi-turn-progress-pill-"));
 try {
   await build({
-    entryPoints: [join(root, "scripts/e2e/turn-progress-pill.tsx")],
-    outfile: join(temp, "renderer.js"),
+    entryPoints: [
+      join(root, "scripts/e2e/turn-progress-pill.tsx"),
+      join(root, "scripts/e2e/turn-progress-open-turn.tsx"),
+    ],
+    outdir: temp,
     bundle: true,
     platform: "browser",
     format: "iife",
@@ -29,7 +32,7 @@ try {
     loader: { ".css": "empty" },
     alias: {
       "@pi-desktop/i18n": join(root, "packages/i18n/src/index.ts"),
-      // The fixture lives outside the desktop package; use its React instance.
+      // The fixtures live outside the desktop package; use its React instance.
       react: join(root, "apps/desktop/node_modules/react"),
       "react-dom": join(root, "apps/desktop/node_modules/react-dom"),
     },
@@ -37,7 +40,7 @@ try {
   });
   await writeFile(
     join(temp, "index.html"),
-    '<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src \'self\'; style-src \'self\' \'unsafe-inline\'"><title>Turn progress pill regression</title><script src="renderer.js"></script>',
+    '<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src \'self\'; style-src \'self\' \'unsafe-inline\'"><title>Turn progress card regressions</title><script src="turn-progress-pill.js"></script><script src="turn-progress-open-turn.js"></script>',
   );
   await writeFile(
     join(temp, "main.cjs"),
@@ -50,7 +53,9 @@ app.whenReady().then(async () => {
   window.webContents.on("console-message", (event) => console.error(event.message));
   try {
     await window.loadFile(path.join(__dirname, "index.html"));
-    const result = await window.webContents.executeJavaScript("globalThis.turnProgressPillProbe()");
+    const pill = await window.webContents.executeJavaScript("globalThis.turnProgressPillProbe()");
+    const openTurn = await window.webContents.executeJavaScript("globalThis.turnProgressOpenTurnProbe()");
+    const result = { ok: pill?.ok === true && openTurn?.ok === true, pill, openTurn };
     console.log("TURN_PROGRESS_PILL_PROBE " + JSON.stringify(result));
     app.quit();
   } catch (error) {

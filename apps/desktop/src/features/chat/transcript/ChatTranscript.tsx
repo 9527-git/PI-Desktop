@@ -18,6 +18,7 @@ import {
 import { TranscriptHistory, TranscriptTail } from "./AssistantTurn";
 import { TranscriptReadOnlyContext, useActiveSessionTitle } from "./context";
 import { TurnProgressCard } from "./TurnProgressCard";
+import { turnProgressGate } from "./turn-progress-gate";
 import { SelectionQuoteButton } from "../../../components/SelectionQuoteButton";
 import { ResponseAnnotationOverlay } from "../../../components/ResponseAnnotationOverlay";
 import { useTranscriptScroll } from "./hooks/useTranscriptScroll";
@@ -166,25 +167,23 @@ export const ChatTranscript = memo(function ChatTranscript({
     !activeToolGroup &&
     !assistantIsAnswering &&
     !hasSpecializedActivity;
-  // The card speaks for the running turn from its first step until the turn
-  // ends, and stands down for an actionable interruption: a permission,
-  // question, or approval card is a decision, and §2.4 of the interaction
-  // patterns keeps it out of the progress surfaces.
-  const progressTurnEntry =
-    transcriptRunning &&
-    !pendingPermission &&
-    !askPending &&
-    !approvalPending &&
-    tailEntry?.kind === "assistant-turn"
-      ? tailEntry
-      : null;
-  // Persistent, not off-tail-only (ADR 0260): a task list is worth reading
-  // while the transcript is in view too. Since ADR 0261 the card is a pill at
-  // the top of the thread area, so the jump pill below keeps owning
-  // return-to-latest on its own. A hidden retained pane has no viewport to
-  // read from, so it never puts the card on screen.
-  const progressCardOnScreen =
-    progressTurnEntry !== null && paneVisible && !veilCovering;
+  // The card speaks for the running turn from its first moment until the turn
+  // ends (ADR 0264): a turn with no rows yet still has its phase and clock, so
+  // the gate is the turn itself, not the shape of the transcript's tail. It
+  // stands down for an actionable interruption: a permission, question, or
+  // approval card is a decision, and §2.4 of the interaction patterns keeps it
+  // out of the progress surfaces. Persistent, not off-tail-only (ADR 0260): a
+  // task list is worth reading while the transcript is in view too. Since ADR
+  // 0261 the card is a pill at the top of the thread area, so the jump pill
+  // below keeps owning return-to-latest on its own. A hidden retained pane has
+  // no viewport to read from, so it never puts the card on screen.
+  const progressCard = turnProgressGate({
+    running: transcriptRunning,
+    interrupted: Boolean(pendingPermission || askPending || approvalPending),
+    tailEntry,
+    paneVisible,
+    veilCovering,
+  });
 
   return (
     <TranscriptSearchContext.Provider value={searchTarget}>
@@ -312,11 +311,11 @@ export const ChatTranscript = memo(function ChatTranscript({
       {navigationLoading ? (
         <div className="transcript-navigation-loading" role="status">{t("chat.loadingSession")}</div>
       ) : null}
-      {progressTurnEntry ? (
+      {progressCard.open ? (
         <TurnProgressCard
-          entry={progressTurnEntry}
+          entry={progressCard.entry}
           activity={specializedActivity}
-          hidden={!progressCardOnScreen}
+          hidden={!progressCard.onScreen}
         />
       ) : null}
       {(showJump || readingWindow) && !veilCovering ? (

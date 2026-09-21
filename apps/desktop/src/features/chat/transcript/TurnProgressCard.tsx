@@ -7,7 +7,7 @@ import { turnProgress } from "../../../lib/turn-progress";
 import { IconMore } from "../../../components/icons";
 import { TooltipButton } from "../../../components/ui";
 import { runActivityLabel, type Translate } from "./ActivityGroup";
-import { TurnProgressSteps } from "./TurnProgressSteps";
+import { TurnProgressOverview } from "./TurnProgressOverview";
 
 /** The overview is a glance, not a panel: it dismisses itself (ADR 0261). */
 export const TURN_PROGRESS_POPUP_AUTO_HIDE_MS = 5000;
@@ -22,6 +22,10 @@ export const TURN_PROGRESS_POPUP_AUTO_HIDE_MS = 5000;
  * long list scrolls inside it instead of growing down over the newest messages.
  * It is a reading surface, not a control: cancellation stays in the Composer,
  * and jump-to-latest stays with the transcript's own button.
+ *
+ * Since ADR 0264 the card stands on the running turn itself: with no entry and
+ * a live activity it still opens, because the phase and the clock are what a
+ * turn with no rows yet has to say; with neither, it stands down.
  */
 export function TurnProgressCard({
   entry,
@@ -66,16 +70,18 @@ export function TurnProgressCard({
   }, [open, hidden, held]);
 
   const progress = turnProgress(entry, now);
-  // A turn with neither a declared list nor a single row has nothing for the
-  // card to say; the transcript's own working indicator covers that moment.
-  const isEmpty = !progress || (progress.steps === 0 && !activity);
+  // ADR 0264: the running turn owns the card. With no activity and no rows it
+  // has nothing to say — the transcript's own working indicator covers that
+  // moment — while a live activity alone still opens it.
+  const steps = progress?.steps ?? 0;
+  const isEmpty = steps === 0 && !activity;
+  const startedAt = progress?.startedAt ?? activity?.since ?? now;
   const elapsed = formatToolDuration(
-    Math.max(0, Math.floor((now - (progress?.startedAt ?? now)) / 1000)),
+    Math.max(0, Math.floor((now - startedAt) / 1000)),
   );
   const status = activity
     ? runActivityLabel(activity, t as Translate, now)
     : t("chat.running");
-  const steps = progress?.steps ?? 0;
   const phase = activity?.phase ?? "running";
 
   // The spoken phase follows the phase, never the clock: `retrying` embeds a
@@ -114,35 +120,14 @@ export function TurnProgressCard({
         {spoken}
       </span>
       {open ? (
-        <div className="turn-progress-popup" id={popupId}>
-          {/* The drawn copy of the spoken line: the live region above already
-           * carries the phase, and the clock is not announced. */}
-          <p className="turn-progress-headline" aria-hidden="true">
-            <span className="turn-progress-status">{status}</span>
-            <span className="turn-progress-metrics">{elapsed}</span>
-          </p>
-          {progress?.activeLabel ? (
-            <p className="turn-progress-active">{progress.activeLabel}</p>
-          ) : null}
-          {steps > 0 ? (
-            <>
-              <TurnProgressSteps
-                steps={progress?.visible ?? []}
-                earlierSteps={progress?.earlierSteps ?? 0}
-                t={t as Translate}
-              />
-              <div className="turn-progress-foot">
-                <span className="turn-progress-count">
-                  {t("chat.turnProgressSteps", {
-                    done: progress?.completed ?? 0,
-                    total: steps,
-                    defaultValue: "Step {{done}} / {{total}}",
-                  })}
-                </span>
-              </div>
-            </>
-          ) : null}
-        </div>
+        <TurnProgressOverview
+          id={popupId}
+          status={status}
+          elapsed={elapsed}
+          activeLabel={progress?.activeLabel ?? ""}
+          progress={progress}
+          t={t as Translate}
+        />
       ) : null}
     </section>
   );

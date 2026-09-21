@@ -4910,3 +4910,38 @@ ADR 0261 的带文字胶囊被报告为“不见了”，而这正是事实：�
   3 秒停留与会话 id 复制按钮同样不变。
 - 回归覆盖：`session-hover-card-width.test.mjs`。
 - 参见 `04-ux/09-interaction-patterns.md` §9.1b 与 E2E-047b。
+
+## 2026-09-20 — 进度卡跟随运行中的回合，而非消息尾部（D461）
+
+- 门槛从消息尾部移开：只要回合在运行、且没有权限 / 提问 / 审批卡顶替它，卡片就挂载，
+  其 `hidden` 只取决于面板可见性与静置遮罩。只有尾部确实是本回合的 `assistant-turn`
+  条目时才把它交给卡片——用户行、压缩分隔行或无条目尾部都不得把上一个回合的步骤借给
+  它。
+- 尾部要求正是 ADR 0263 修好绘制后按钮仍被报告"不见了"的原因：
+  `buildTranscriptEntries` 在锚定消息之后会追加 `{ kind: "compaction" }` 分隔行，刚起
+  步的回合尾部则是用户自己的行，于是 `progressTurnEntry` 为 null，`TurnProgressCard`
+  根本不会挂载。
+- 唯一应当静默的是空卡片（`steps === 0 && !activity`）；无条目回合的计时改从
+  `activity.since` 起算，不再每次渲染归零。ADR 0263 早已写明"回合既无活动又无步骤
+  时不显示按钮"，实现现在与这句话同样严格。
+- 规则落在 `turn-progress-gate.ts` 纯函数里（不读 store）；弹层标记由
+  `TurnProgressOverview.tsx` 承载，卡片本体仍留在文件长度预算内。
+- 回归覆盖：`turn-progress-gate.test.mjs`、`turn-progress-surface.test.mjs` 与
+  Chromium 夹具 `turn-progress-open-turn.tsx`（`pnpm test:e2e:turn-progress`）。
+- 参见 `04-ux/08-component-spec.md` §4 与 E2E-PROGRESS-open-turn-phase-and-clock。
+
+## 2026-09-20 — 进度卡站到输入框上方（D462）
+
+- 卡片层改为底部对齐：`.turn-progress-card` 保留 `inset: 0`，加上
+  `justify-content: flex-end` 与 `padding: 16px 32px 12px`，于是 32×32 的三点按钮
+  居中立在输入框上沿之上 12px 的余白里——这段余白正是消息区结束的位置（ADR 0258）。
+- 概览改为向上弹出：弹层在 DOM 里仍排在按钮之后（按钮保持触发器的 Tab 停靠位），
+  用 `order: -1` 提到按钮上方并改用 `margin-bottom: 6px`；两个入场动画同样翻转为
+  自下而上（`translate: 0 6px` / `0 4px` → `0`）。
+- ADR 0263 当初把按钮摆在顶栏下方，是为了把它从顶栏底下捞出来；反馈是它离它所报告
+  的对象太远。跳转控件、共用的 `.thread-float-btn` 悬浮外观、五秒自动消隐、直播行与
+  卡片的 `z-index` 都不变。
+- 回归覆盖：`turn-progress-styles.test.mjs` 钉住位置、排序与翻转后的动画；Chromium
+  夹具仍只测行为。
+- 参见 `04-ux/08-component-spec.md` §4、`04-ux/09-interaction-patterns.md` §2.4 与
+  E2E-PROGRESS-open-turn-phase-and-clock。
