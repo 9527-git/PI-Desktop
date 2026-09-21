@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.4",
+    "date": "2026-09-21",
+    "highlights": [
+      "Esta versión incluye la aplicación 0.16.3 sin cambios. El único cambio es mantenimiento del repositorio: el proyecto ahora ignora el directorio de trabajo `.mimosa` de ZCode.",
+    ],
+  },
+  {
     "version": "0.16.3",
     "date": "2026-09-21",
     "highlights": [

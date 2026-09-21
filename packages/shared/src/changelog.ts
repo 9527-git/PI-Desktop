@@ -29,6 +29,13 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.16.4",
+    date: "2026-09-21",
+    highlights: [
+      "This release carries the 0.16.3 app unchanged. The only change is repository housekeeping: the project now ignores ZCode's `.mimosa` work directory.",
+    ],
+  },
+  {
     version: "0.16.3",
     date: "2026-09-21",
     highlights: [
@@ -994,6 +1001,13 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.16.4",
+    date: "2026-09-21",
+    highlights: [
+      "本版本与 0.16.3 功能完全一致——唯一的改动是仓库维护：项目现在忽略 ZCode 的 `.mimosa` 工作目录。",
+    ],
+  },
+  {
     version: "0.16.3",
     date: "2026-09-21",
     highlights: [
@@ -1957,6 +1971,13 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.16.4",
+    date: "2026-09-21",
+    highlights: [
+      "本版本與 0.16.3 功能完全一致——唯一的變更是倉庫維護：專案現在忽略 ZCode 的 `.mimosa` 工作目錄。",
+    ],
+  },
   {
     version: "0.16.3",
     date: "2026-09-21",

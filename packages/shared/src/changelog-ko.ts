@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.4",
+    "date": "2026-09-21",
+    "highlights": [
+      "이 버전은 0.16.3 앱을 변경 없이 그대로 담고 있습니다. 유일한 변경은 저장소 유지보수로, 프로젝트가 이제 ZCode의 `.mimosa` 작업 디렉터리를 무시합니다.",
+    ],
+  },
+  {
     "version": "0.16.3",
     "date": "2026-09-21",
     "highlights": [

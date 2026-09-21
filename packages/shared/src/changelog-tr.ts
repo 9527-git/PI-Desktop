@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.4",
+    "date": "2026-09-21",
+    "highlights": [
+      "Bu sürüm 0.16.3 uygulamasını değişmeden içerir. Tek değişiklik depo bakımı: proje artık ZCode'un `.mimosa` çalışma dizinini yok sayıyor.",
+    ],
+  },
+  {
     "version": "0.16.3",
     "date": "2026-09-21",
     "highlights": [

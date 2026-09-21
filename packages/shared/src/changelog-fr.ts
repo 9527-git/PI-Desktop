@@ -2,6 +2,13 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.4",
+    "date": "2026-09-21",
+    "highlights": [
+      "Cette version reprend l'application 0.16.3 inchangée. Le seul changement est de la maintenance du dépôt : le projet ignore désormais le répertoire de travail `.mimosa` de ZCode.",
+    ],
+  },
+  {
     "version": "0.16.3",
     "date": "2026-09-21",
     "highlights": [
