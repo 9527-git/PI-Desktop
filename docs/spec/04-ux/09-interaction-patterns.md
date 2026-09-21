@@ -608,19 +608,22 @@ may be retained while exactly one workspace supplies the visible shell context.
   retry, context compaction, silent-turn recovery, the gap before the next
   request, or a delegated-work wait.
 - One card exception is admitted (ADR 0260): a progress card for the turn in
-  flight, on screen from that turn's first step until it ends. Its step list is
-  the agent's own declaration through the `UpdateTasks` tool, which is the only
-  source that knows how many steps were intended, so the card can carry a real
-  `done / total` count; with no declaration it degrades to the tool rows the turn
-  actually produced. Either way the card reports elapsed time, per-step state, and a
+  flight, on screen from that turn's first activity until it ends — even before
+  the turn has produced a row, and whatever the transcript's tail holds, so a
+  compaction divider or the user's own row never hides it (ADR 0264). Its step
+  list is the agent's own declaration through the `UpdateTasks` tool, which is
+  the only source that knows how many steps were intended, so the card can
+  carry a real `done / total` count; with no declaration it degrades to the tool
+  rows the turn actually produced, and with neither it draws the phase and the
+  clock alone. Either way the card reports elapsed time, per-step state, and a
   `done / total` count — never a percentage, an estimate, or a predicted end,
   and never the turn's per-file change figures, which the review surfaces own.
   It holds the phase label ADR 0175 already owns — spoken from a visually
   hidden live line and drawn inside the overview head — and since ADR 0263 is
   worn as a 32×32 round glyph button carrying three dots: no text, no caret,
   the jump control's twin through the shared `.thread-float-btn` chrome,
-  floating at the top center of the thread area. Clicking it pops the turn's
-  last eight steps beneath it with older ones folded into one line, headed by
+  floating centered above the docked composer. Clicking it pops the turn's
+  last eight steps above it with older ones folded into one line, headed by
   the phase, the elapsed clock, and the step in flight, and set in a larger
   type size with looser lines than the transcript rows; the overview is bounded
   so a long list scrolls inside itself and never reaches the newest messages or

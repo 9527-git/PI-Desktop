@@ -6449,3 +6449,48 @@ bar, and the jump control off the pane's center axis.
   session-id copy button.
 - Regression coverage: `session-hover-card-width.test.mjs`.
 - See `04-ux/09-interaction-patterns.md` §9.1b and E2E-047b.
+
+## 2026-09-20 — The progress card stands on the running turn, not on its tail (D461)
+
+- The gate moves off the transcript's tail: while a turn is running — with no
+  permission, question, or approval card standing in for it — the card is
+  mounted, and its `hidden` follows pane visibility and the settle veil alone.
+  The tail entry is handed over only when it is the turn's own `assistant-turn`,
+  so a user row, a compaction divider, or an entry-less tail cannot lend the
+  card the previous turn's steps.
+- The tail-entry requirement is why the button was still reported missing after
+  ADR 0263's paint fix: `buildTranscriptEntries` appends `{ kind: "compaction" }`
+  after the message a mark anchors to, and a just-started turn leaves the user's
+  own row at the tail, so `progressTurnEntry` was null and `TurnProgressCard`
+  was never mounted.
+- The empty card is the only silent one (`steps === 0 && !activity`), and an
+  entry-less turn times from `activity.since` instead of resetting on every
+  render. ADR 0263 had already said a turn with no activity and no rows shows no
+  button; the implementation is now exactly that strict.
+- The rule lives in `turn-progress-gate.ts` as a pure function (no store reads);
+  `TurnProgressOverview.tsx` owns the popup markup, keeping the card inside the
+  file-length budget.
+- Regression coverage: `turn-progress-gate.test.mjs`,
+  `turn-progress-surface.test.mjs`, and the Chromium fixture
+  `turn-progress-open-turn.tsx` (`pnpm test:e2e:turn-progress`).
+- See `04-ux/08-component-spec.md` §4 and E2E-PROGRESS-open-turn-phase-and-clock.
+
+## 2026-09-20 — The progress card stands above the composer (D462)
+
+- The card's layer is bottom-aligned: `.turn-progress-card` keeps `inset: 0`
+  and adds `justify-content: flex-end` with `padding: 16px 32px 12px`, so the
+  32×32 glyph button stands 12px above the composer's top edge, centered on the
+  reading column — the gutter the thread area already ends at (ADR 0258).
+- The overview pops upward: the popup keeps its DOM place after the button (the
+  button stays the trigger's tab stop) and takes `order: -1` with
+  `margin-bottom: 6px`. Both entry animations are mirrored to come from below
+  (`translate: 0 6px` / `0 4px` → `0`).
+- ADR 0263 had placed the button below the topbar band to get it out from under
+  that band; the report was that it then sits too far from the thing it reports
+  on. The jump control, the shared `.thread-float-btn` chrome, the five-second
+  dismissal, the live region, and the layer's `z-index` are unchanged.
+- Regression coverage: `turn-progress-styles.test.mjs` pins the placement, the
+  order, and the inverted animations; the Chromium fixtures stay behavioral.
+- See `04-ux/08-component-spec.md` §4,
+  `04-ux/09-interaction-patterns.md` §2.4, and
+  E2E-PROGRESS-open-turn-phase-and-clock.

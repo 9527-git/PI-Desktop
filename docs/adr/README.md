@@ -286,4 +286,6 @@ Each ADR includes:
 | 0261 | [Wear the turn's progress card as a pill with a self-dismissing overview](0261-turn-progress-pill.md) | Accepted (amends ADR 0260 presentation; D456) |
 | 0262 | [Restore resizable sidebar width with collapse-below-threshold](0262-resizable-sidebar-collapse-threshold.md) | Accepted (D457; amends ADR 0141 / ADR 0238) |
 | 0263 | [Wear the turn's progress card as a glyph button, and stand the jump control on the right](0263-turn-progress-glyph-button.md) | Accepted (amends ADR 0261 presentation; D458) |
+| 0264 | [Keep the progress card on the running turn, not on its tail](0264-turn-progress-open-turn.md) | Accepted (amends ADR 0263's gate; D461) |
+| 0265 | [Stand the progress card above the composer](0265-turn-progress-above-composer.md) | Accepted (amends ADR 0263's placement; D462) |
 | context-inspector-compact-action | [Compact the context from the usage inspector card](context-inspector-compact-action.md) | Accepted (amends ADR 0103 / ADR 0106; D434) |

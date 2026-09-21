@@ -15,6 +15,7 @@
 @import "./chrome.css";
 @import "./chat-shell.css";
 @import "./turn-progress.css";
+@import "./turn-progress-overview.css";
 @import "./composer.css";
 @import "./sidebar-threads.css";
 @import "./messages.css";
