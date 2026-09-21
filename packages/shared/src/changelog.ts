@@ -29,6 +29,14 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.16.2",
+    date: "2026-09-21",
+    highlights: [
+      "After a compaction the context ring reports the new occupancy on the same basis as before it: the request's own system prompt and tool schemas are counted, so a compacted thread no longer reads as 0%.",
+      "Compacting a thread that has gained nothing since its last checkpoint is now a quiet no-op that says so, instead of failing with 'no new context is available to compact'.",
+    ],
+  },
+  {
     version: "0.16.1",
     date: "2026-09-21",
     highlights: [
@@ -978,6 +986,14 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.16.2",
+    date: "2026-09-21",
+    highlights: [
+      "压缩之后，上下文环按与压缩前相同的口径报告新的占用：本次请求自身的系统提示与工具 schema 一并计入，因此压缩过的会话不会再读成 0%。",
+      "对自上一个检查点以来没有任何新增内容的会话执行压缩，现在是一次明确告知的空操作，而不是报「没有可压缩的新上下文」。",
+    ],
+  },
+  {
     version: "0.16.1",
     date: "2026-09-21",
     highlights: [
@@ -1925,6 +1941,14 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.16.2",
+    date: "2026-09-21",
+    highlights: [
+      "壓縮之後，上下文環按與壓縮前相同的口徑報告新的佔用：本次請求自身的系統提示與工具 schema 一併計入，因此壓縮過的對話不會再讀成 0%。",
+      "對自上一個檢查點以來沒有任何新增內容的對話執行壓縮，現在是一次明確告知的空操作，而不是回報「沒有可壓縮的新上下文」。",
+    ],
+  },
   {
     version: "0.16.1",
     date: "2026-09-21",

@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.2",
+    "date": "2026-09-21",
+    "highlights": [
+      "Sıkıştırmadan sonra bağlam halkası yeni doluluğu öncesiyle aynı temelde bildiriyor: isteğin kendi sistem istemi ve araç şemaları hesaba katılıyor, böylece sıkıştırılmış bir sohbet artık %0 görünmüyor.",
+      "Son denetim noktasından bu yana hiç büyümemiş bir sohbeti sıkıştırmak artık sessiz bir işlemsizlik ve bunu söylüyor; “sıkıştırılacak yeni bağlam yok” hatasıyla sonlanmıyor.",
+    ],
+  },
+  {
     "version": "0.16.1",
     "date": "2026-09-21",
     "highlights": [

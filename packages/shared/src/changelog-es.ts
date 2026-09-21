@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.2",
+    "date": "2026-09-21",
+    "highlights": [
+      "Después de una compactación, el anillo de contexto informa la nueva ocupación con la misma base que antes: la instrucción de sistema y los esquemas de herramientas de la petición cuentan, así que una conversación compactada ya no marca 0 %.",
+      "Compactar una conversación que no ha crecido nada desde su último punto de control ahora es una operación sin efecto que lo dice, en lugar de fallar con «no hay contexto nuevo que compactar».",
+    ],
+  },
+  {
     "version": "0.16.1",
     "date": "2026-09-21",
     "highlights": [

@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.2",
+    "date": "2026-09-21",
+    "highlights": [
+      "Après une compaction, l'anneau de contexte annonce la nouvelle occupation sur la même base qu'avant : l'invite système et les schémas d'outils de la requête sont comptés, si bien qu'une conversation compactée n'affiche plus 0 %.",
+      "Compacter une conversation qui n'a rien gagné depuis son dernier point de contrôle est désormais une opération sans effet qui le dit, au lieu d'échouer avec « aucun nouveau contexte à compacter ».",
+    ],
+  },
+  {
     "version": "0.16.1",
     "date": "2026-09-21",
     "highlights": [

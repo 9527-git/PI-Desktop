@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.2",
+    "date": "2026-09-21",
+    "highlights": [
+      "Nach einer Komprimierung meldet der Kontextring die neue Auslastung auf derselben Grundlage wie davor: Systemanweisung und Werkzeug-Schemas der Anfrage zählen mit, sodass ein komprimierter Verlauf nicht mehr als 0% erscheint.",
+      "Einen Verlauf zu komprimieren, der seit seinem letzten Prüfpunkt nichts hinzugewonnen hat, ist jetzt ein ruhiger Leerlauf, der das mitteilt, statt mit „kein neuer Kontext zum Komprimieren“ abzubrechen.",
+    ],
+  },
+  {
     "version": "0.16.1",
     "date": "2026-09-21",
     "highlights": [

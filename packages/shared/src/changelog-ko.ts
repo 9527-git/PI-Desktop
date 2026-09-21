@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.2",
+    "date": "2026-09-21",
+    "highlights": [
+      "압축 후 컨텍스트 링은 압축 전과 같은 기준으로 새 사용량을 보고합니다. 요청 자체의 시스템 프롬프트와 도구 스키마가 함께 계산되므로, 압축된 대화가 더 이상 0%로 표시되지 않습니다.",
+      "마지막 체크포인트 이후 새로 늘어난 내용이 없는 대화를 압축하면 이제 아무것도 하지 않고 그 사실만 알려 줍니다. '압축할 새 컨텍스트가 없음' 오류로 실패하지 않습니다.",
+    ],
+  },
+  {
     "version": "0.16.1",
     "date": "2026-09-21",
     "highlights": [
