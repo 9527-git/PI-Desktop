@@ -50,4 +50,5 @@ coverage/
 .claude/
 .workbuddy
 .superpowers/
+.mimosa/
 electron.vite.config.*.mjs
