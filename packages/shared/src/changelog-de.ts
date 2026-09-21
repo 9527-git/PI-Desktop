@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.1",
+    "date": "2026-09-21",
+    "highlights": [
+      "Die Fortschritts-Schaltfläche des laufenden Durchgangs erscheint jetzt mit dem Start des Durchgangs und bleibt bis zu seinem Ende: eine eigene Nachricht als letzte Zeile oder ein Komprimierungs-Trenner versteckt sie nicht mehr.",
+      "Sie sitzt jetzt dort, wo man sie sucht — mittig direkt über dem Eingabefeld — und ihre Schrittübersicht öffnet sich von dort nach oben, nie zwischen dir und der neuesten Nachricht.",
+      "Ein Durchgang ohne erklärte Aufgaben und ohne Werkzeugzeilen zeigt in der Übersicht jetzt Phase und verstrichene Zeit, statt gar nichts anzuzeigen.",
+    ],
+  },
+  {
     "version": "0.16.0",
     "date": "2026-09-20",
     "highlights": [

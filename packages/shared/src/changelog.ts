@@ -29,6 +29,15 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.16.1",
+    date: "2026-09-21",
+    highlights: [
+      "The running turn's progress button now appears as soon as a turn starts and stays until it ends: a turn whose last row is your own message, or a compaction divider, no longer hides it.",
+      "It moved to where it is looked for — centered just above the message box — and its step overview now opens upward from there, never between you and the newest message.",
+      "A turn that has declared no tasks and has no tool rows yet reports its phase and elapsed clock in the overview instead of showing nothing.",
+    ],
+  },
+  {
     version: "0.16.0",
     date: "2026-09-20",
     highlights: [
@@ -969,6 +978,15 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.16.1",
+    date: "2026-09-21",
+    highlights: [
+      "运行中回合的进度按钮现在从回合一开始就在：即使最后一行是你自己的消息或压缩分隔行，它也不会再消失。",
+      "它移到了你会去找的位置——消息输入框正上方居中——步骤概览也从那里向上展开，绝不挡在你和最新消息之间。",
+      "还没申报任务、也还没有工具行的回合，概览会报告它的阶段与已用时长，而不是什么都不显示。",
+    ],
+  },
+  {
     version: "0.16.0",
     date: "2026-09-20",
     highlights: [
@@ -1907,6 +1925,15 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.16.1",
+    date: "2026-09-21",
+    highlights: [
+      "執行中回合的進度按鈕現在從回合一開始就在：即使最後一列是你自己的訊息或壓縮分隔列，它也不會再消失。",
+      "它移到了你會去找的位置——訊息輸入框正上方置中——步驟概覽也從那裡向上展開，絕不擋在你與最新訊息之間。",
+      "還沒申報任務、也還沒有工具列的回合，概覽會報告它的階段與已用時間，而不是什麼都不顯示。",
+    ],
+  },
   {
     version: "0.16.0",
     date: "2026-09-20",

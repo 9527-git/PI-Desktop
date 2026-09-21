@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.1",
+    "date": "2026-09-21",
+    "highlights": [
+      "Le bouton de progression du tour en cours apparaît désormais dès le début du tour et reste jusqu'à sa fin : un tour dont la dernière ligne est votre propre message, ou un séparateur de compaction, ne le masque plus.",
+      "Il s'est déplacé là où on le cherche — centré juste au-dessus de la zone de saisie — et son aperçu des étapes s'ouvre vers le haut depuis cet endroit, jamais entre vous et le message le plus récent.",
+      "Un tour qui n'a encore déclaré aucune tâche et n'a aucune ligne d'outil affiche désormais sa phase et le temps écoulé dans l'aperçu, au lieu de ne rien montrer.",
+    ],
+  },
+  {
     "version": "0.16.0",
     "date": "2026-09-20",
     "highlights": [

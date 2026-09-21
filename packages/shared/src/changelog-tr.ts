@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.1",
+    "date": "2026-09-21",
+    "highlights": [
+      "Çalışan turun ilerleme düğmesi artık tur başlar başlamaz görünüyor ve tur bitene kadar kalıyor: son satırı kendi mesajınız olan ya da sıkıştırma ayracı olan bir tur onu artık gizlemiyor.",
+      "Aradığınız yere taşındı — mesaj kutusunun hemen üstünde ortada — ve adım özeti oradan yukarı doğru açılıyor; asla sizinle en yeni mesaj arasına girmiyor.",
+      "Henüz görev bildirmemiş ve araç satırı olmayan bir tur, hiçbir şey göstermek yerine özette aşamasını ve geçen süreyi bildiriyor.",
+    ],
+  },
+  {
     "version": "0.16.0",
     "date": "2026-09-20",
     "highlights": [

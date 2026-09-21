@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.1",
+    "date": "2026-09-21",
+    "highlights": [
+      "El botón de progreso del turno en curso ahora aparece en cuanto empieza el turno y permanece hasta que termina: un turno cuya última fila es tu propio mensaje, o un separador de compactación, ya no lo oculta.",
+      "Se ha movido a donde se busca: centrado justo encima del cuadro de mensaje, y su resumen de pasos se abre hacia arriba desde ahí, nunca entre tú y el mensaje más reciente.",
+      "Un turno que aún no ha declarado tareas ni tiene filas de herramientas ahora muestra su fase y el tiempo transcurrido en el resumen, en lugar de no mostrar nada.",
+    ],
+  },
+  {
     "version": "0.16.0",
     "date": "2026-09-20",
     "highlights": [
