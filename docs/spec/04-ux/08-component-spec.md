@@ -1606,6 +1606,11 @@ Single message render — either user (plaintext) or assistant (markdown streami
   `aria-label`) follows `settings.contextUsageDisplay` — `"remaining"`
   (default) or `"used"` — so the ring fills by `remainingRatio` or
   `usedRatio` accordingly. Low capacity changes the semantic color based
+  A percentage keeps one decimal below ten percent and reads as `<1%` under
+  half a percent, because a whole percent on a million-token window spans ten
+  thousand tokens and the first few thousand spent would otherwise report
+  `0%`; the ring, the panel heading, and the used/window row share that one
+  label (D466).
   on remaining capacity (remaining ≤ 25 % warning, ≤ 10 % critical)
   regardless of display mode, without making color the only signal.
   Clicking the trigger (or activating it from the keyboard) toggles a

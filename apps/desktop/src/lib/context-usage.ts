@@ -209,6 +209,23 @@ export function contextUsageView(
       };
 }
 
+/**
+ * Display form of one inspector percentage. A whole percent is too coarse for
+ * a million-token window: one percent spans ten thousand tokens, so a turn
+ * that has spent four thousand tokens would read as "0%". Below ten percent
+ * the label keeps one decimal, and anything under half a percent reads as a
+ * range instead of naming a figure the occupancy has not reached. Returns the
+ * numeric label alone; the callers own the "%".
+ */
+export function formatContextPercent(ratio: number): string {
+  const percent = Number.isFinite(ratio)
+    ? Math.min(1, Math.max(0, ratio)) * 100
+    : 0;
+  if (percent >= 10) return String(Math.round(percent));
+  if (percent >= 0.5) return String(Number(percent.toFixed(1)));
+  return "<1";
+}
+
 function serializedLength(value: unknown): number {
   if (typeof value === "string") return value.length;
   try {

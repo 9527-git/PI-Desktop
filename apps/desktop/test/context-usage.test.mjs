@@ -10,6 +10,7 @@ import {
   contextUsageView,
   estimateResponseOutputTokens,
   estimateToolTokenUsage,
+  formatContextPercent,
   resolveContextUsageDisplay,
   resolveContextWindow,
   toolTokenUsage,
@@ -341,4 +342,27 @@ test("the ring maths take a measured occupancy directly", () => {
   assert.equal(context.usedPercent, 25);
   assert.equal(context.remainingPercent, 75);
   assert.equal(context.remainingTokens, 96_000);
+});
+
+test("the inspector label keeps a decimal where a whole percent is too coarse", () => {
+  // 14k of a 1.0M window; a whole percent there spans ten thousand tokens.
+  assert.equal(formatContextPercent(14_000 / 1_000_000), "1.4");
+  assert.equal(formatContextPercent(4_900 / 1_000_000), "<1");
+  assert.equal(formatContextPercent(5_000 / 1_000_000), "0.5");
+  assert.equal(formatContextPercent(12_000 / 128_000), "9.4");
+});
+
+test("the inspector label rounds to whole percents from ten up", () => {
+  assert.equal(formatContextPercent(32_000 / 128_000), "25");
+  // 9.99% rounds into the whole-percent band instead of reading "10.0".
+  assert.equal(formatContextPercent(0.0999), "10");
+  assert.equal(formatContextPercent(0.95), "95");
+});
+
+test("the inspector label never names a figure the occupancy has not reached", () => {
+  assert.equal(formatContextPercent(0), "<1");
+  assert.equal(formatContextPercent(1), "100");
+  assert.equal(formatContextPercent(1.5), "100");
+  assert.equal(formatContextPercent(-0.2), "<1");
+  assert.equal(formatContextPercent(Number.NaN), "<1");
 });
