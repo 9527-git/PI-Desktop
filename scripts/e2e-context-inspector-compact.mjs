@@ -365,8 +365,17 @@ async function main() {
       const match = String(entry.ringLabel ?? "").match(/(\d+(?:\.\d+)?)k\b/);
       return match ? Number(match[1]) * 1000 : null;
     };
+    // The ring keeps one decimal below ten percent and reads "<1" under half a
+    // percent, so the derived occupancy reads the label exactly instead of
+    // truncating it; the range form stands in at its own midpoint.
+    const remainingPercent = (entry) => {
+      const label = String(entry.ringPercent ?? "").replace("%", "").trim();
+      if (label.startsWith("<")) return 0.5;
+      const parsed = Number.parseFloat(label);
+      return Number.isFinite(parsed) ? parsed : null;
+    };
     const occupiedTokens = (entry) => {
-      const percent = Number.parseInt(entry.ringPercent ?? "", 10);
+      const percent = remainingPercent(entry);
       const remaining = announcedTokens(entry);
       if (!Number.isFinite(percent) || percent <= 0 || percent >= 100 || remaining === null) {
         return null;

@@ -19,6 +19,7 @@ import {
   calculateTokenRate,
   contextOccupancyTokens,
   contextUsageView,
+  formatContextPercent,
   resolveContextUsageDisplay,
 } from "../lib/context-usage";
 import {
@@ -102,6 +103,10 @@ export function ContextUsageInspector({
     resolveContextUsageDisplay(state.settings?.contextUsageDisplay),
   );
   const display = contextUsageView(context, usageDisplay);
+  // A million-token window makes a whole percent unreadable — one percent is
+  // ten thousand tokens — so both labels keep one decimal below ten percent.
+  const displayPercent = formatContextPercent(display.ratio);
+  const windowPercent = formatContextPercent(context.usedRatio);
   // Occupancy, turn total, and provider cache/input/output are the last
   // model request. Summing every tool-loop call inflates cache read past
   // the window (OpenCode last-message accounting).
@@ -126,10 +131,10 @@ export function ContextUsageInspector({
         ? "warning"
         : "comfortable";
   // One accessible sentence serves both display modes: the localized `state`
-  // phrase carries "remaining"/"used", so the key stays literal for the
-  // tooltip contract while `percent`/`count` stay numeric.
+  // phrase carries "remaining"/"used" while `percent` is the very label the
+  // panel shows, so the announcement keeps the same precision.
   const ariaArguments = {
-    percent: display.percent,
+    percent: displayPercent,
     count: formatTokenCount(display.tokens),
     state:
       display.display === "used"
@@ -316,7 +321,7 @@ export function ContextUsageInspector({
               })}
         </strong>
         <strong className="context-inspector-heading-percent">
-          {display.percent}%
+          {displayPercent}%
         </strong>
       </div>
       <div className="context-inspector-window">
@@ -328,7 +333,7 @@ export function ContextUsageInspector({
           })}
         </strong>
         <span className="context-inspector-window-percent">
-          {context.usedPercent}%
+          {windowPercent}%
         </span>
       </div>
       <div className="context-inspector-kpis">
@@ -483,7 +488,7 @@ export function ContextUsageInspector({
           />
         </svg>
         <span className="context-inspector-ring-value">
-          {display.percent}%
+          {displayPercent}%
         </span>
       </TooltipButton>
       {popover && typeof document !== "undefined"
