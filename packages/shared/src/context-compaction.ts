@@ -33,9 +33,11 @@ export function checkpointSummarized(details: unknown): boolean {
 
 /**
  * Describe one checkpoint for its transcript row and the context inspector.
- * `tokensAfter` is the runtime's estimate of the compacted context and only
- * exists on the live event that installed the checkpoint; the durable record
- * does not carry it, so a mark rebuilt from storage leaves it out.
+ * `tokensAfter` is the runtime's estimate of the request the compacted context
+ * produces — the conversation plus the system prompt and tool schemas the
+ * conversation-only estimate leaves out — and only exists on the live event that
+ * installed the checkpoint; the durable record does not carry it, so a mark
+ * rebuilt from storage leaves it out.
  */
 export function contextCompactionMark(
   record: ContextCompactionRecord,

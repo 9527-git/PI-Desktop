@@ -2125,6 +2125,7 @@ sklm: {
   },
   "contextCompaction": {
     "completed": "Contexte de la conversation compacté",
+    "nothingToCompact": "Rien de nouveau n'a été ajouté depuis le dernier point de contrôle",
     "retrying": "Contexte compacté ; nouvelle tentative de demande de modèle",
     "recovered": "Le résumé du contexte a échoué ; le contexte récent a été conservé et la tâche se poursuit",
     "failed": "Échec du compactage du contexte",

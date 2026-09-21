@@ -51,6 +51,7 @@ import {
   type TrustedExtensionUiRequest,
   type TrustedExtensionUiResponse,
 } from "@pi-desktop/shared";
+import { contextPrefixTokens } from "./context-prefix.js";
 import {
   TrustedExtensionRunner,
   type TrustedExtensionBridge,
@@ -955,6 +956,12 @@ type CheckpointBuildFailure = {
    * durable boundary to anchor any checkpoint to.
    */
   recoverable: boolean;
+  /**
+   * True when there was nothing to compact rather than a failed compaction: the
+   * transcript still ends in the checkpoint that covers it. pi reports this as
+   * an empty preparation instead of an error.
+   */
+  noNewContext?: true;
 };
 
 type CheckpointBuild = CheckpointBuildSuccess | CheckpointBuildFailure;
@@ -4991,6 +4998,22 @@ Delegation rules:
     };
   }
 
+  /**
+   * Estimated tokens the request carries outside its message list: the system
+   * prompt and the active tool schemas. `contextBudget` measures the
+   * conversation alone, which is the right basis for the safety boundary, but a
+   * figure the user compares against a reported request has to include the
+   * prefix: provider usage covers it, and the compacted context has no usage
+   * left to report, so a post-compaction occupancy without it read as an empty
+   * window (D463).
+   */
+  private requestPrefixTokens(): number {
+    return contextPrefixTokens(
+      this.agent.state.systemPrompt,
+      this.activeTools(),
+    );
+  }
+
   private automaticCompactionNeeded(
     additionalMessages: AgentMessage[] = [],
   ): boolean {
@@ -5509,9 +5532,13 @@ Delegation rules:
       ...(fallback ? { fallback } : {}),
       // Compaction rewrites the model context without adding a usage-bearing
       // message, so the composer ring would keep reporting the context this
-      // checkpoint replaced until the next request answers. The compacted
-      // budget is what that next request will send.
-      mark: contextCompactionMark(checkpoint, compactedBudget.tokens),
+      // checkpoint replaced until the next request answers. What that request
+      // will send is the conversation the checkpoint produced plus the request
+      // prefix the conversation-only estimate omits (D463).
+      mark: contextCompactionMark(
+        checkpoint,
+        compactedBudget.tokens + this.requestPrefixTokens(),
+      ),
     });
     return "persisted";
   }
@@ -5667,6 +5694,9 @@ Delegation rules:
           ? "No new context is available to compact"
           : preparation.error.message,
         recoverable: true,
+        // Set only when pi's preparation came back empty: distinct from an
+        // error, because nothing failed (see `performCompaction`).
+        ...(preparation.ok ? { noNewContext: true as const } : {}),
       };
     }
 
@@ -5837,6 +5867,22 @@ Delegation rules:
       this.compactionAbort = undefined;
     }
     if (!build.ok) {
+      // A transcript that already ends in a checkpoint has nothing left to
+      // summarize, and pi reports exactly that as an empty preparation. An
+      // automatic compaction still has the retained-tail recovery below to fall
+      // back on, but a manual request has none: reporting it as a failure told
+      // the user their click broke when the context was simply already
+      // compacted. The no-op is the honest outcome.
+      if (build.noNewContext && reason === "manual") {
+        this.emit({
+          type: "compaction_end",
+          reason,
+          ok: true,
+          skipped: true,
+          willRetry,
+        });
+        return true;
+      }
       if (!build.recoverable) {
         this.emitCompactionFailure(reason, build.tokensBefore, build.message);
         return false;

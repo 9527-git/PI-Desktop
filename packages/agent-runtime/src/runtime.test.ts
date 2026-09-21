@@ -4793,7 +4793,22 @@ describe("DesktopAgentRuntime per-turn context protection", () => {
   it("keeps manual compaction failures terminal instead of silently dropping context", async () => {
     const host = { call: vi.fn().mockResolvedValue(undefined) };
     const onEvent = vi.fn();
-    const runtime = createRuntime({ host, onEvent });
+    const runtime = createRuntime({
+      host,
+      onEvent,
+      // The transcript has to hold a message for the summary request to be
+      // reached at all: an empty one is the "nothing to compact" state, which
+      // reports a no-op rather than this failure.
+      history: [
+        {
+          id: "recent-user",
+          role: "user",
+          content: "recent context",
+          createdAt: "2026-08-01T00:00:01Z",
+          status: "complete",
+        },
+      ],
+    });
     vi.spyOn(runtime as any, "generateCompaction").mockResolvedValue({
       ok: false,
       error: {
@@ -5141,6 +5156,78 @@ describe("DesktopAgentRuntime inline context compaction", () => {
           // ring leads with until the next request reports usage (D454).
           tokensAfter: expect.any(Number),
         },
+      }),
+    );
+    await runtime.dispose();
+  });
+
+  it("turns a manual compaction with nothing new into a no-op", async () => {
+    const host = { call: vi.fn().mockResolvedValue(undefined) };
+    const onEvent = vi.fn();
+    const runtime = createRuntime({ host, onEvent, history });
+    budgetSpy(runtime);
+    vi.spyOn(runtime as any, "generateCompaction").mockResolvedValue(
+      summaryResult(),
+    );
+    const appends = () =>
+      host.call.mock.calls.filter(
+        ([method]) => method === "session.appendCompaction",
+      );
+
+    await runtime.compactManually();
+    expect(appends()).toHaveLength(1);
+    const installed = onEvent.mock.calls.map(([envelope]) => (envelope as any).event);
+    expect(installed).toContainEqual(
+      expect.objectContaining({
+        type: "compaction_end",
+        ok: true,
+        mark: expect.any(Object),
+      }),
+    );
+
+    // The checkpoint is now the transcript's last entry, which is exactly what
+    // pi reports as an empty preparation. A second manual compaction must
+    // resolve as a no-op: no second checkpoint, no failure, no throw.
+    onEvent.mockClear();
+    await expect(runtime.compactManually()).resolves.toBeUndefined();
+
+    expect(appends()).toHaveLength(1);
+    const events = onEvent.mock.calls.map(([envelope]) => (envelope as any).event);
+    expect(events).toContainEqual({
+      type: "compaction_end",
+      reason: "manual",
+      ok: true,
+      skipped: true,
+      willRetry: false,
+    });
+    expect(
+      events.some(
+        (event) => event.type === "compaction_end" && event.ok === false,
+      ),
+    ).toBe(false);
+    await runtime.dispose();
+  });
+
+  it("turns a manual compaction of an empty transcript into a no-op", async () => {
+    const host = { call: vi.fn().mockResolvedValue(undefined) };
+    const onEvent = vi.fn();
+    const runtime = createRuntime({ host, onEvent });
+    const generateCompaction = vi.spyOn(runtime as any, "generateCompaction");
+
+    // A brand-new session has nothing to summarize either: pi answers with an
+    // empty preparation, and clicking Compact must not report a failure.
+    await expect(runtime.compactManually()).resolves.toBeUndefined();
+
+    expect(generateCompaction).not.toHaveBeenCalled();
+    expect(host.call).not.toHaveBeenCalled();
+    expect(
+      onEvent.mock.calls.map(([envelope]) => (envelope as any).event),
+    ).toContainEqual(
+      expect.objectContaining({
+        type: "compaction_end",
+        reason: "manual",
+        ok: true,
+        skipped: true,
       }),
     );
     await runtime.dispose();

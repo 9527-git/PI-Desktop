@@ -469,7 +469,14 @@ export function createEventsSlice({
           break;
         case "compaction_end":
           if (event.reason === "manual") set({ isRunning: false });
-          if (event.ok) {
+          if (event.ok && event.skipped) {
+            // Nothing new to compact: the transcript already ends in the
+            // checkpoint that covers it, so there is no row to add and no
+            // failure to report.
+            get().showToast(i18n.t("contextCompaction.nothingToCompact"), {
+              variant: "info",
+            });
+          } else if (event.ok) {
             get().showToast(i18n.t("contextCompaction.longThreadWarning"), {
               variant: "warning",
             });

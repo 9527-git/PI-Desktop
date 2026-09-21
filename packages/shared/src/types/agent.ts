@@ -246,6 +246,11 @@ export type AgentEvent =
       type: "compaction_end";
       reason: ContextCompactionReason;
       ok: boolean;
+      /**
+       * True when the request found nothing new to compact and installed no
+       * checkpoint: the run is a no-op, not a failure.
+       */
+      skipped?: boolean;
       tokensBefore?: number;
       firstKeptMessageId?: string;
       willRetry: boolean;

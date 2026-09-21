@@ -2162,6 +2162,7 @@ importConfirm: "İçe aktarılan uzantılar ajan sürecinde, ajanın kendi araç
   },
   contextCompaction: {
     completed: "Sohbet bağlamı sıkıştırıldı",
+    nothingToCompact: "Son kontrol noktasından bu yana yeni içerik yok",
     retrying: "Bağlam sıkıştırıldı; model isteği yeniden deneniyor",
     recovered:
       "Bağlam özeti başarısız; son bağlam tutuldu ve görev sürüyor",
