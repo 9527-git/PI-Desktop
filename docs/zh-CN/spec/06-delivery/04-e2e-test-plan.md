@@ -5002,6 +5002,8 @@ IPC 请求无法关闭。
 | 品质（手动压缩队列） | E2E-QUEUE-prompt-during-manual-compaction-is-queued-and-delivered |
 | C — 对话与流式（检查器压缩操作） | E2E-CHAT-compact-from-context-inspector |
 | 品质（检查器压缩操作） | E2E-CHAT-compact-from-context-inspector |
+| C — 对话与流式（压缩空操作） | E2E-CHAT-compact-nothing-new-is-a-no-op |
+| 品质（压缩空操作） | E2E-CHAT-compact-nothing-new-is-a-no-op |
 | C — 对话与流式（转录发光语言） | E2E-CHAT-transcript-glow-language |
 | 品质（转录发光语言） | E2E-CHAT-transcript-glow-language |
 | C — 对话与流式（跨会话渲染） | E2E-CHAT-other-sessions-render-without-switching |
@@ -7464,8 +7466,17 @@ runner 会在运行时的隔离临时目录中生成六个插件形态 fixture�
 ### E2E-CHAT-compact-from-context-inspector：从上下文用量卡片启动压缩
 
 - **前提条件**：一个带历史记录的聊天会话处于活动且空闲状态；最新检查点记录可能带有、也可能不带有压缩前的占用。
-- **步骤**：1) 打开上下文用量弹窗。2) 检查卡片底部操作行。3) 点击“压缩上下文”。4) 在运行时报告压缩阶段时观察按钮与弹窗。5) 分别在回合进行中、检查点记录不含占用、以及完全没有检查点三种情况下重复。
-- **预期**：空闲卡片显示提示文案与可点击按钮。点击会以当前会话调用 `agent.compact`，弹窗保持打开。`activity.phase === "compacting"` 期间按钮禁用、带 `aria-busy="true"`，并显示加载图标与忙碌文案。回合进行中时按钮禁用且保持空闲文案。仅当最新标记含 `tokensBefore` 时检查点行显示压缩前占用，否则退化为仅摘要行；没有检查点时操作行仍然渲染。
-- **链接规格**：`04-ux/08-component-spec.md`、`04-ux/09-interaction-patterns.md`、`03-runtime/01-ipc-protocol.md`、ADR context-inspector-compact-action
+- **步骤**：1) 打开上下文用量弹窗。2) 检查卡片底部操作行。3) 点击“压缩上下文”。4) 在运行时报告压缩阶段时观察按钮与弹窗。5) 记录点击前的圆环百分比，压缩落地后再次观察圆环，然后发送一条提示并再观察一次。6) 分别在回合进行中、检查点记录不含占用、以及完全没有检查点三种情况下重复。
+- **预期**：空闲卡片显示提示文案与可点击按钮。点击会以当前会话调用 `agent.compact`，弹窗保持打开。`activity.phase === "compacting"` 期间按钮禁用、带 `aria-busy="true"`，并显示加载图标与忙碌文案。回合进行中时按钮禁用且保持空闲文案。检查点行仅在最新标记携带 `tokensBefore` 时显示压缩前占用，仅在最新直播标记携带 `tokensAfter` 时显示压缩后估算（“本次压缩后占用”）；从存储读回的检查点不含该估算值；否则各退化为仅摘要行，没有检查点时操作行仍然渲染。手动压缩成功后，触发器的圆环与百分比报告压缩后的上下文——直播标记携带的估算值——而不是点击前显示的压缩前请求，因此无需再发提示数字即会变化；该估算与它所替换的请求同口径：压缩后的对话加上 system prompt 与当前工具 schema（D463），所以不会塌成空窗口。下一次模型请求上报用量后，圆环重新报告该请求的用量。
+- **链接规格**：`04-ux/08-component-spec.md`、`04-ux/09-interaction-patterns.md`、`03-runtime/01-ipc-protocol.md`、ADR context-inspector-compact-action、D463
 - **验收**：C —— 对话与流式；品质
 - **状态**：自动化（CDP）—— `pnpm test:e2e:inspector-compact`
+
+### E2E-CHAT-compact-nothing-new-is-a-no-op：检查点之后没有新内容时手动压缩是空操作
+
+- **前提条件**：一个带历史记录的聊天会话处于活动且空闲状态，并且已经带有一个其边界覆盖转录最后一条条目的检查点——这正是从上下文用量卡片成功压缩一次后留下的状态。
+- **步骤**：1) 打开上下文用量弹窗并点击“压缩上下文”。2) 在请求落地期间与之后，观察提示、转录、检查点行、圆环与运行时事件。3) 空闲时再用键盘执行一次 `/compact`。4) 发送一条会新增内容的提示，然后再次压缩。5) 与自动 threshold/overflow 压缩对比。
+- **预期**：请求只发出 `compaction_end { reason: "manual", ok: true, skipped: true, willRetry: false }`。不安装检查点，不发生 `session.appendCompaction` 写入，不新增分隔行或检查点行，也不出现错误提示或助手错误；会话保持空闲，下一条提示正常开始。检查器弹出一条信息提示，其文案为本地化的 `contextCompaction.nothingToCompact`，而不是通常的压缩警告；忙碌状态结束，圆环保持原有数字。新增内容之后，下一次手动压缩会正常安装检查点并保持原行为。自动 threshold/overflow 压缩永不走这条路径：它们重建保留尾部并沿用既有摘要，而不是报告空的 preparation。
+- **链接规格**：`03-runtime/01-ipc-protocol.md`、`03-runtime/02-agent-runtime.md`、`04-ux/08-component-spec.md`、`04-ux/09-interaction-patterns.md`、ADR context-inspector-compact-action、D464
+- **验收**：C —— 对话与流式；品质
+- **状态**：部分自动化（`runtime.test.ts` 的 “turns a manual compaction with nothing new into a no-op”；`context-compaction.test.mjs` 的 “a manual compaction with nothing new reports a no-op instead of failing”）；渲染转录/提示旅程为草稿。

@@ -444,6 +444,10 @@ tests; persisted `contextCompaction` settings are ignored so a session cannot
 be left with the guard off and no way to restore it. Manual `/compact` remains
 available while the session is idle. Checkpoint generation is abortable and
 counts as running state until durable persistence completes.
+A manual request whose transcript still ends in the newest checkpoint has
+nothing left to summarize: pi returns an empty preparation, and the request
+settles as a no-op — `compaction_end` reports `ok: true` with `skipped: true`
+and installs nothing (D464) — instead of reporting a failure.
 
 ## 5b. Operating mode and planning state
 

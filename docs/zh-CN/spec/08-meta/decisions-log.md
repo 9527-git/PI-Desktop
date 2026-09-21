@@ -4945,3 +4945,63 @@ ADR 0261 的带文字胶囊被报告为“不见了”，而这正是事实：�
   夹具仍只测行为。
 - 参见 `04-ux/08-component-spec.md` §4、`04-ux/09-interaction-patterns.md` §2.4 与
   E2E-PROGRESS-open-turn-phase-and-clock。
+
+## 2026-09-21 — 压缩后占用补上请求前缀（D463）
+
+检查点之后输入框圆环给出的数字，是对下一次请求的估算，但它此前只由对话本身
+算出。`estimateContextTokens` 只在会话里还存在带 usage 的 assistant 消息时才采用
+提供商上报值，而检查点会把边界之前的内容替换成一条 summary 消息——它不是
+assistant 消息。于是压缩后的上下文退化为对消息列表做字符估算，而它要对比的
+压缩前数字来自一次真实请求，那次请求还携带着 system prompt 与工具 schema。
+两个数字不同口径，圆环会把一次健康的压缩读成空窗口，甚至显示成 0%。
+
+`persistCheckpoint` 现在上报
+`mark.tokensAfter = compactedBudget.tokens + requestPrefixTokens()`。前缀估算来自
+新模块 `context-prefix.ts`：`estimateTextTokens` 就是运行时既有的“四字符一
+token”启发式，`contextPrefixTokens(systemPrompt, tools)` 再加上 system prompt
+与序列化后的工具 schema（`JSON.stringify` 会丢掉 executor，而它并不属于请求
+载荷）。输入缺失时贡献为零而不是抛错，因此尚未组装好提示词的运行时也能给出
+预算数字。
+
+- 安全边界未变：`mustFitSafeBudget` 仍然只衡量对话，因为这个数字才是防护需要
+  与保留尾部、摘要一起比较的对象。改变的只是对外发布的这个数字的口径。
+- `tokensAfter` 仍只随 live 的 `compaction_end` 下发。host-core 依旧只持久化
+  `tokens_before`，因此重开会话后该行依旧消失；标记仍是渲染器对该次压缩的
+  全部视图（D454）。
+- 圆环继续优先采用该估算值，直到下一次带用量的请求把数字收回去，与 D454 的
+  描述一致；现在这个估算值会移动到同口径的可比数值，而不再塌成空窗口。
+- 回归覆盖：`context-prefix.test.ts`、`runtime.test.ts` 的压缩用例，以及
+  `context-compaction.test.mjs` 对标记的断言。
+- 参见 `03-runtime/01-ipc-protocol.md`、`04-ux/08-component-spec.md` §8.3/§8.5、
+  `04-ux/09-interaction-patterns.md` §3A 与
+  `06-delivery/04-e2e-test-plan.md` 中的 E2E-CHAT-compact-from-context-inspector。
+
+## 2026-09-21 — 没有新内容的手动压缩是空操作（D464）
+
+pi-agent-core 0.85.1 的 `prepareCompaction` 在两种情况下返回空的 preparation
+而不是错误：条目列表为空，或最后一条 entry 本身就是 compaction 检查点。
+PI-Desktop 把检查点锚在 `throughMessageId` 之后，而它在压缩时就是转录的叶子
+条目，因此手动压缩成功后紧接着再压一次必然命中该分支。运行时此前把它当成构建
+失败并上报 `CONTEXT_COMPACTION_FAILED`，等于告诉用户这次点击坏了，而上下文其实
+已经压缩过了。
+
+`CheckpointBuildFailure` 现在在 pi 返回空 preparation 时携带
+`noNewContext?: true`，`performCompaction` 命中它的手动请求按空操作处理：发出
+`compaction_end { reason: "manual", ok: true, skipped: true, willRetry: false }`
+并返回成功，不写检查点、不报错、不抛异常。
+
+- `compaction_end` 新增可选字段 `skipped?: boolean`。它是可选的新增字段，
+  `PROTOCOL_VERSION` 保持 11。
+- 渲染器对 `ok && skipped` 只弹一条信息提示 `contextCompaction.nothingToCompact`
+  （已随全部 8 个语言发布），而不是长线程警告；该警告仍然只留给真正安装了
+  检查点的运行。不出现分隔行、检查点行或错误。
+- 自动 threshold/overflow 压缩行为不变：它继续使用保留尾部恢复、重建更小的
+  尾部，而不是报告空的 preparation，因此 `skipped` 目前只出现在手动路径。
+- 回归覆盖：`runtime.test.ts` 的 “turns a manual compaction with nothing new
+  into a no-op”，以及 `context-compaction.test.mjs` 的 “a manual compaction
+  with nothing new reports a no-op instead of failing”（含提示计数与标记断言）。
+- 参见 `03-runtime/01-ipc-protocol.md`、`03-runtime/02-agent-runtime.md`、
+  `04-ux/08-component-spec.md` §8.3/§8.5、
+  `04-ux/09-interaction-patterns.md` §3A 与
+  `06-delivery/04-e2e-test-plan.md` 中的
+  E2E-CHAT-compact-nothing-new-is-a-no-op。

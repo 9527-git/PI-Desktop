@@ -7508,6 +7508,8 @@ and identify the platform validation still needed.
 | Quality (manual compaction queue) | E2E-QUEUE-prompt-during-manual-compaction-is-queued-and-delivered |
 | C — Conversation & stream (inspector compact action) | E2E-CHAT-compact-from-context-inspector |
 | Quality (inspector compact action) | E2E-CHAT-compact-from-context-inspector |
+| C — Conversation & stream (compaction no-op) | E2E-CHAT-compact-nothing-new-is-a-no-op |
+| Quality (compaction no-op) | E2E-CHAT-compact-nothing-new-is-a-no-op |
 | C — Conversation & stream (transcript glow language) | E2E-CHAT-transcript-glow-language |
 | Quality (transcript glow language) | E2E-CHAT-transcript-glow-language |
 | C — Conversation & stream (cross-session rendering) | E2E-CHAT-other-sessions-render-without-switching |
@@ -12526,8 +12528,11 @@ plugin-form fixtures in an isolated temporary directory at runtime.
   manual compaction succeeds, the trigger's ring and percentage report the
   compacted context — the estimate carried by the live mark — instead of the
   pre-compaction request they showed before the click, so the figure drops
-  without any further prompt. After the next model request reports usage, the
-  ring reports that request's usage again.
+  without any further prompt. That estimate is measured on the same basis as
+  the request it replaces: the compacted conversation plus the system prompt
+  and the active tool schemas (D463), so the ring moves to a comparable figure
+  rather than collapsing to an empty window. After the next model request
+  reports usage, the ring reports that request's usage again.
 - **Specs linked**: `04-ux/08-component-spec.md`, `04-ux/09-interaction-patterns.md`,
   `03-runtime/01-ipc-protocol.md`, ADR context-inspector-compact-action
 - **Acceptance**: C — Conversation & stream; Quality
@@ -12535,3 +12540,35 @@ plugin-form fixtures in an isolated temporary directory at runtime.
   seeds the live mark with `tokensBefore` and, in its own step, with
   `tokensAfter`, so it asserts both the post-compaction occupancy line and the
   ring dropping to the estimate before any further prompt.
+
+#### E2E-CHAT-compact-nothing-new-is-a-no-op: A manual compaction with nothing new is a no-op
+
+- **Preconditions**: A chat session with history is active and idle, and it
+  already carries a checkpoint whose boundary covers the transcript's last
+  entry — the state a successful manual compaction from the context usage card
+  leaves behind.
+- **Steps**: 1) Open the context usage popover and click `Compact context`.
+  2) Observe the toast, the transcript, the checkpoint lines, the ring, and the
+  runtime events while the request settles. 3) Repeat once from the keyboard
+  with `/compact` while idle. 4) Send one prompt that adds content, then compact
+  again. 5) Compare with an automatic threshold or overflow compaction.
+- **Expected**: The request emits
+  `compaction_end { reason: "manual", ok: true, skipped: true, willRetry: false }`
+  and nothing else. No checkpoint is installed, no `session.appendCompaction`
+  append happens, no divider row or checkpoint line is added, and no error toast
+  or assistant error appears; the session stays idle and the next prompt starts
+  normally. The inspector shows one informational toast with the localized
+  `contextCompaction.nothingToCompact` copy instead of the usual compaction
+  warning, the busy state clears, and the ring keeps the figure it had. Once
+  new content exists, the next manual compaction installs a checkpoint and
+  behaves exactly as before. Automatic threshold and overflow compaction never
+  take this path: they rebuild a retained tail and carry the existing summary
+  forward instead of reporting an empty preparation.
+- **Specs linked**: `03-runtime/01-ipc-protocol.md`, `03-runtime/02-agent-runtime.md`,
+  `04-ux/08-component-spec.md`, `04-ux/09-interaction-patterns.md`,
+  ADR context-inspector-compact-action, D464
+- **Acceptance**: C — Conversation & stream; Quality
+- **Status**: Partially automated (`runtime.test.ts` —
+  "turns a manual compaction with nothing new into a no-op";
+  `context-compaction.test.mjs` — "a manual compaction with nothing new reports
+  a no-op instead of failing"); rendered transcript/toast journey Draft.

@@ -2164,6 +2164,7 @@ importConfirm: "Imported extensions run inside the agent process with the same a
   },
   contextCompaction: {
     completed: "Conversation context compacted",
+    nothingToCompact: "Nothing new has been added since the last checkpoint",
     retrying: "Context compacted; retrying the model request",
     recovered:
       "Context summary failed; recent context was retained and the task is continuing",

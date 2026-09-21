@@ -647,13 +647,17 @@ type AgentEvent =
  | { type: "compaction_end";
      reason: "manual" | "threshold" | "overflow";
      ok: boolean; tokensBefore?: number; firstKeptMessageId?: string;
+     /** True when the request found nothing new to compact and installed no
+          checkpoint: a no-op, not a failure. */
+     skipped?: boolean;
      willRetry: boolean; fallback?: "retained_tail";
      mark?: { id: string; throughMessageId: string;
               generation: number; summaryTokens: number;
               summarized: boolean;
               /** Context occupancy the checkpoint replaced. */
               tokensBefore?: number;
-              /** Live-only estimate of the compacted occupancy. */
+              /** Live-only estimate of the request the compacted context
+                   produces, system prompt and tool schemas included. */
               tokensAfter?: number };
      error?: { code: string; message: string } }
  | { type: "error"; error: AppError }
@@ -717,18 +721,29 @@ durable record's `tokensBefore`. It is additive and optional: a mark from an
 older runtime omits it and the inspector hides the "before this compaction"
 line.
 
-`mark.tokensAfter` is the occupancy the checkpoint leaves behind, as the
-runtime's own estimate of the compacted context it will send on the next
-request. It is the symmetric counterpart of `tokensBefore` (D454), and
-carrier-only: the durable compaction record does not store it, so a mark
-rebuilt from `SessionDetail.compactions` omits it and the consumer keeps its
-pre-change behavior. The composer ring shows this estimate instead of the
-newest reported request only while the newest mark carries it and no message
-after that mark's `throughMessageId` reports usage; the first later
-usage-bearing message is a newer observation and takes the figure back. A mark
-with no `tokensAfter`, or one whose `throughMessageId` is not among the loaded
-messages, also leaves the ring on the newest reported request: without that
-anchor the compaction cannot be ordered against the messages on hand.
+`mark.tokensAfter` is the estimated occupancy of the request the compacted
+context produces: the compacted conversation plus the system prompt and the
+active tool schemas (D463). The prefix belongs in the figure because the number
+it replaces came from a real provider request that carried it, while a
+compacted context has no usage-bearing assistant message left to report one.
+It is the symmetric counterpart of `tokensBefore` (D454), and carrier-only: the
+durable compaction record does not store it, so a mark rebuilt from
+`SessionDetail.compactions` omits it and the consumer keeps its pre-change
+behavior. The composer ring shows this estimate instead of the newest reported
+request only while the newest mark carries it and no message after that mark's
+`throughMessageId` reports usage; the first later usage-bearing message is a
+newer observation and takes the figure back. A mark with no `tokensAfter`, or
+one whose `throughMessageId` is not among the loaded messages, also leaves the
+ring on the newest reported request: without that anchor the compaction cannot
+be ordered against the messages on hand.
+
+`compaction_end.skipped` marks a request that found nothing new to compact: the
+transcript still ends in the checkpoint that covers it, so pi returns an empty
+preparation instead of a compaction. The event reports `ok: true`, installs no
+checkpoint, carries no `mark`, and is not a failure; the renderer shows one
+informational toast instead of the usual compaction warning. Only the manual
+path sets it, because threshold and overflow compaction recover with a retained
+tail instead. The field is additive and optional in protocol v11 (D464).
 
 Automatic summary failures may still produce a successful lifecycle event with
 `fallback: "retained_tail"`; this means a durable, aggressively bounded tail

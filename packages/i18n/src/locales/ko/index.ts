@@ -2161,6 +2161,7 @@ importConfirm: "가져온 확장은 에이전트 프로세스 안에서 에이�
   },
   contextCompaction: {
     completed: "대화 컨텍스트가 압축됨",
+    nothingToCompact: "마지막 체크포인트 이후 추가된 내용이 없음",
     retrying: "컨텍스트가 압축되어 모델 요청을 다시 시도합니다",
     recovered:
       "컨텍스트 요약에 실패했지만 최근 컨텍스트를 유지하고 작업을 계속합니다",

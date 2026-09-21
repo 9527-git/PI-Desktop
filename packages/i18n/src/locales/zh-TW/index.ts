@@ -2133,6 +2133,7 @@ sklm: {
   },
   contextCompaction: {
     completed: "對話上下文已壓縮",
+    nothingToCompact: "上下文已是最新檢查點，沒有可壓縮的新內容",
     retrying: "上下文已壓縮，正在重試模型請求",
     recovered: "上下文摘要失敗，已保留近期上下文並繼續任務",
     failed: "上下文壓縮失敗",

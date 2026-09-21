@@ -2125,6 +2125,7 @@ sklm: {
   },
   "contextCompaction": {
     "completed": "Konversationskontext kompaktiert",
+    "nothingToCompact": "Seit dem letzten Prüfpunkt wurden keine neuen Inhalte hinzugefügt",
     "retrying": "Kontext komprimiert; Wiederholen der Modellanforderung",
     "recovered": "Kontextzusammenfassung fehlgeschlagen; Der aktuelle Kontext wurde beibehalten und die Aufgabe wird fortgesetzt.",
     "failed": "Kontextkomprimierung fehlgeschlagen.",

@@ -560,12 +560,17 @@ type AgentEvent =
  | { type: "compaction_end";
      reason: "manual" | "threshold" | "overflow";
      ok: boolean; tokensBefore?: number; firstKeptMessageId?: string;
+     /** 请求已无新内容可压缩且未安装检查点时为 true：这是一次空操作，不是失败。 */
+     skipped?: boolean;
      willRetry: boolean; fallback?: "retained_tail";
      mark?: { id: string; throughMessageId: string;
               generation: number; summaryTokens: number;
               summarized: boolean;
               /** 该检查点替换掉的上下文占用。 */
-              tokensBefore?: number };
+              tokensBefore?: number;
+              /** 仅存在于直播事件的估算值：该请求在压缩后对话之上还要携带的
+                  估算量（含 system prompt 与工具 schema）。 */
+              tokensAfter?: number };
      error?: { code: string; message: string } }
  | { type: "error"; error: AppError }
  | { type: "status"; status: AgentStatus };
@@ -601,6 +606,10 @@ type AgentEvent =
 `SessionDetail.compactions` 会话打开或分叉。
 
 `mark.tokensBefore` 为该检查点替换掉的上下文占用，直接取自持久化记录的 `tokensBefore`。该字段为可选的新增字段：旧运行时产生的标记不含它，此时检查器隐藏“本次压缩前占用”一行。
+
+`mark.tokensAfter` 为该检查点产出的那次请求的估算占用：压缩后的对话，加上 system prompt 与当前工具 schema（D463）。前缀必须计入，因为它所替换的数字来自一次真实携带前缀的提供商请求，而压缩后的上下文已不再剩下任何带 usage 的 assistant 消息来上报该数字。它与 `tokensBefore` 对称（D454），且只随 live 事件下发：持久化压缩记录不存储它，因此从 `SessionDetail.compactions` 重建的标记会省略该字段，消费方保持变更前的行为。仅当最新标记携带它、且该标记 `throughMessageId` 之后没有任何上报用量的消息时，输入框圆环才用这个估算值代替最新一次已上报请求；之后第一条带用量的消息是更新的观测，会把数字收回去。标记不含 `tokensAfter`，或其 `throughMessageId` 不在已加载消息之中时，圆环同样保留最新一次已上报请求：缺少这个锚点就无法把该压缩与手上的消息排序。
+
+`compaction_end.skipped` 表示这次请求没有新内容可压缩：转录仍然以覆盖它的那个检查点结尾，因此 pi 返回的是空的 preparation，而不是一次压缩。事件报告 `ok: true`，不安装检查点，不携带 `mark`，也不属于失败；渲染器只弹一条信息提示，而不是通常的压缩警告。只有手动路径会设置它，因为 threshold/overflow 压缩会改为用保留尾部恢复。该字段是协议 v11 中可选的新增字段（D464）。
 
 自动摘要失败仍可能产生成功的生命周期事件
 `fallback: "retained_tail"`；这意味着有一个耐用的、有边界的尾巴

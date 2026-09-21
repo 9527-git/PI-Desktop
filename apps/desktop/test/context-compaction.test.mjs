@@ -211,6 +211,7 @@ test("compaction lifecycle keeps the renderer busy until its actual terminal eve
     /case "compaction_end":[\s\S]*event\.reason === "manual"\) set\(\{ isRunning: false \}\)/,
   );
   assert.match(store, /contextCompaction\.recovered/);
+  assert.match(types, /skipped\?: boolean;/);
 });
 
 test("every compaction announces itself once, on top of the specific toasts", () => {
@@ -218,11 +219,16 @@ test("every compaction announces itself once, on top of the specific toasts", ()
     events.match(/case "compaction_end":[\s\S]*?\n        case "agent_end":/)?.[0] ??
     "";
   assert.ok(compactionEnd.length > 0, "compaction_end handler not found");
-  // Codex warns after every compaction; ours is unconditional and lands before
-  // the three that describe something more specific.
+  // Codex warns after every compaction; ours lands before the three that
+  // describe something more specific. A no-op announces itself instead: there
+  // is no compaction to warn about.
   assert.match(
     compactionEnd,
-    /if \(event\.ok\) \{[\s\S]*?get\(\)\.showToast\(i18n\.t\("contextCompaction\.longThreadWarning"\), \{\s*variant: "warning",\s*\}\);/,
+    /if \(event\.ok && event\.skipped\) \{[\s\S]*?contextCompaction\.nothingToCompact/,
+  );
+  assert.match(
+    compactionEnd,
+    /else if \(event\.ok\) \{[\s\S]*?get\(\)\.showToast\(i18n\.t\("contextCompaction\.longThreadWarning"\), \{\s*variant: "warning",\s*\}\);/,
   );
   assert.match(
     compactionEnd,
@@ -238,10 +244,25 @@ test("every compaction announces itself once, on top of the specific toasts", ()
   );
   assert.equal(
     compactionEnd.match(/showToast/g)?.length,
-    5,
+    6,
     "unexpected number of compaction toasts",
   );
   assert.match(enLocale, /longThreadWarning:/);
+  assert.match(enLocale, /nothingToCompact: "Nothing new/);
+});
+
+test("a manual compaction with nothing new reports a no-op instead of failing", () => {
+  // pi answers "the transcript already ends in a checkpoint" with an empty
+  // preparation, which is a statement about state and not an error. The manual
+  // path has no retained-tail fallback, so it used to surface that as a failed
+  // compaction even though nothing was wrong and nothing was left to summarize.
+  assert.match(runtime, /noNewContext\?: true;/);
+  assert.match(runtime, /noNewContext: true as const/);
+  assert.match(runtime, /if \(build\.noNewContext && reason === "manual"\) \{/);
+  assert.match(runtime, /ok: true,\s*skipped: true,/);
+  assert.match(types, /skipped\?: boolean;/);
+  assert.match(store, /if \(event\.ok && event\.skipped\) \{/);
+  assert.match(store, /contextCompaction\.nothingToCompact/);
 });
 
 test("a failed compaction checkpoint still restores a non-empty context", () => {
@@ -282,10 +303,15 @@ test("the transcript shows one row per compaction, the inspector the newest", ()
   // The generation counter and the family both ride inside the opaque details
   // value, so the host persists them without a record schema change.
   assert.match(runtime, /checkpointDetailsWithGeneration/);
+  // The compacted occupancy the ring leads with has to include the system
+  // prompt and tool schemas: the compacted context has no provider usage left
+  // to report, and the conversation-only estimate would read as an emptied
+  // window next to the pre-compaction request (D463).
   assert.match(
     runtime,
-    /mark: contextCompactionMark\(checkpoint, compactedBudget\.tokens\)/,
+    /mark: contextCompactionMark\(\s*checkpoint,\s*compactedBudget\.tokens \+ this\.requestPrefixTokens\(\),\s*\)/,
   );
+  assert.match(runtime, /private requestPrefixTokens\(\): number \{/);
   // Both the durable records and the live event feed the same per-session list.
   assert.match(store, /sessionCompactions: Record<string, ContextCompactionMark\[\]>/);
   assert.match(store, /rememberSessionCompactions\(id, detail\.session\)/);

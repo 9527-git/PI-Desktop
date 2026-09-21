@@ -766,6 +766,11 @@ may be retained while exactly one workspace supplies the visible shell context.
   and starting a fresh session is a decision only the user can make. The three
   more specific toasts stay on top of it — a successful manual `/compact`
   result, a warning before an overflow retry, and the fallback warning below.
+- A manual compaction that finds nothing new to compact — the transcript still
+  ends in the newest checkpoint — is a no-op: one informational toast says
+  nothing new has been added since the last checkpoint, no divider row or
+  checkpoint line is added, and no error is reported; the long-thread warning
+  stays reserved for a request that installed a checkpoint (D464).
 - If automatic summary generation fails but a retained-tail checkpoint is
   persisted, `compaction_end.fallback = "retained_tail"` shows one warning
   toast and the active run continues with reduced historical context.
@@ -783,16 +788,23 @@ may be retained while exactly one workspace supplies the visible shell context.
   newest checkpoint record carries them, the context occupancy the checkpoint
   replaced ("Before this compaction") and the occupancy it leaves behind
   ("After this compaction") sit below the compact model/tool usage summaries
-  without adding explanatory copy. The card stays open across a compaction
-  started from it: the busy label, the updated checkpoint lines, and the before
-  figure are the in-place feedback.
+  without adding explanatory copy. The after figure estimates the whole request
+  the compacted conversation produces — the conversation plus the system prompt
+  and the active tool schemas — so it is measured on the same basis as the
+  pre-compaction request it replaces (D463). The card stays open across a
+  compaction started from it: the busy label, the updated checkpoint lines, and
+  the before figure are the in-place feedback; a no-op request clears the busy
+  state and leaves the checkpoint lines untouched (D464).
 - The composer ring reflects a checkpoint as soon as it lands (D454). While the
   newest live mark carries its post-compaction estimate and no usage-bearing
   message follows it, the ring and its percentage report that estimate instead
   of the pre-compaction request, so a manual compaction updates the figure
-  without waiting for another turn. The next request that reports usage takes
-  the figure back. A mark rebuilt from storage carries no estimate, so opening
-  or forking a session never changes what the ring reports.
+  without waiting for another turn. The estimate covers the same request the
+  pre-compaction figure did — compacted conversation plus system prompt and tool
+  schemas — so the ring cannot drop to an empty window after the click (D463).
+  The next request that reports usage takes the figure back. A mark rebuilt from
+  storage carries no estimate, so opening or forking a session never changes
+  what the ring reports.
 
 ## 4. Long content collapse / expand
 
@@ -943,6 +955,7 @@ Running turns and pending approvals continue to gate the controls.
 | Manual menu update check failure | Error | 8s | Direct feedback for an explicit command |
 | Context checkpoint completed | Info (Warning before overflow retry) | 4s/8s | Confirms a background context transition without altering transcript rows |
 | Manual context checkpoint failure | Error | 8s | Direct feedback for explicit `/compact`; automatic terminal failures stay inline |
+| Manual compaction with nothing new | Info | 4s | No-op feedback for an explicit `/compact` that found no new context |
 
 ### 6.2 Inline errors (use for)
 

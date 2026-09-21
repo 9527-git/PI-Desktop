@@ -6494,3 +6494,77 @@ bar, and the jump control off the pane's center axis.
 - See `04-ux/08-component-spec.md` §4,
   `04-ux/09-interaction-patterns.md` §2.4, and
   E2E-PROGRESS-open-turn-phase-and-clock.
+
+## 2026-09-21 — The post-compaction occupancy carries the request prefix (D463)
+
+The figure the composer ring publishes after a checkpoint is an estimate of the
+next request, but it was built from the conversation alone.
+`estimateContextTokens` answers with provider usage only while a usage-bearing
+assistant message survives, and a checkpoint replaces everything before its
+boundary with a summary message that is not an assistant message. The compacted
+context therefore fell back to the character heuristic over the message list,
+while the pre-compaction figure it is compared against came from a real request
+that also carried the system prompt and the tool schemas. The ring could read a
+healthy compaction as an empty window — including a 0% reading — because the
+two numbers were not on one basis.
+
+`persistCheckpoint` now reports
+`mark.tokensAfter = compactedBudget.tokens + requestPrefixTokens()`. The prefix
+estimate is a new module, `context-prefix.ts`: `estimateTextTokens` is the
+runtime's existing four-characters-per-token heuristic, and
+`contextPrefixTokens(systemPrompt, tools)` adds the system prompt plus the
+serialized tool schemas (`JSON.stringify` drops the executors, which are not
+part of the payload). Absent inputs contribute nothing rather than throwing, so
+a runtime that has not composed its prompt yet can still report a budget.
+
+- The safety boundary is untouched: `mustFitSafeBudget` still measures the
+  conversation alone, because that is the number the guard has to compare
+  against the retained tail and the summary. Only the figure published for the
+  user changed basis.
+- `tokensAfter` stays live-`compaction_end`-only. Host-core still persists
+  `tokens_before` alone, so reopening a session still drops the "after" row; the
+  mark remains the renderer's whole view of that compaction (D454).
+- The ring leads with the estimate until the next usage-bearing request takes
+  the figure back, exactly as D454 described; the estimate now moves to a
+  comparable value instead of collapsing to an empty window.
+- Regression coverage: `context-prefix.test.ts`, the `runtime.test.ts`
+  compaction cases, and the `context-compaction.test.mjs` mark assertions.
+- See `03-runtime/01-ipc-protocol.md`, `04-ux/08-component-spec.md` §8.3/§8.5,
+  `04-ux/09-interaction-patterns.md` §3A, and
+  E2E-CHAT-compact-from-context-inspector in `06-delivery/04-e2e-test-plan.md`.
+
+## 2026-09-21 — A manual compaction with nothing new is a no-op (D464)
+
+pi-agent-core 0.85.1's `prepareCompaction` reports an empty preparation, not an
+error, when the entry list is empty or its last entry is already a compaction
+checkpoint. PI-Desktop anchors the checkpoint after `throughMessageId`, which is
+the transcript's leaf at compaction time, so a second manual `/compact` right
+after a successful one always lands in that branch. The runtime treated the
+empty preparation as a build failure and reported `CONTEXT_COMPACTION_FAILED`,
+telling the user their click had broken when the context was simply already
+compacted.
+
+`CheckpointBuildFailure` now carries `noNewContext?: true` when pi's preparation
+comes back empty, and `performCompaction` resolves a manual request that hits it
+as a no-op: it emits
+`compaction_end { reason: "manual", ok: true, skipped: true, willRetry: false }`
+and returns success without writing a checkpoint, reporting an error, or
+throwing.
+
+- `compaction_end` gains an optional `skipped?: boolean`. It is additive and
+  optional; `PROTOCOL_VERSION` stays 11.
+- The renderer answers `ok && skipped` with one informational toast,
+  `contextCompaction.nothingToCompact`, shipped in all eight locales, instead of
+  the long-thread warning; that warning stays reserved for a run that actually
+  installed a checkpoint. No divider row, checkpoint line, or error appears.
+- Automatic threshold/overflow compaction is unchanged. It keeps its
+  retained-tail recovery and rebuilds a smaller tail instead of reporting an
+  empty preparation, so `skipped` currently appears only on the manual path.
+- Regression coverage: `runtime.test.ts` — "turns a manual compaction with
+  nothing new into a no-op" — and `context-compaction.test.mjs` — "a manual
+  compaction with nothing new reports a no-op instead of failing" — including
+  its toast-count and mark assertions.
+- See `03-runtime/01-ipc-protocol.md`, `03-runtime/02-agent-runtime.md`,
+  `04-ux/08-component-spec.md` §8.3/§8.5,
+  `04-ux/09-interaction-patterns.md` §3A, and
+  E2E-CHAT-compact-nothing-new-is-a-no-op in `06-delivery/04-e2e-test-plan.md`.
