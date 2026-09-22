@@ -27,6 +27,15 @@ const root = join(__dirname, "..");
 const hostBinaryName = `pi-desktop-host-core${process.platform === "win32" ? ".exe" : ""}`;
 const hostBinCandidates = [];
 const configuredHostBin = process.env.PI_DESKTOP_HOST_BIN?.trim();
+// Windows: host-core resolves the global registry through `dirs::home_dir()`,
+// which ignores the HOME/USERPROFILE overrides this harness relies on, so the
+// run would write real user documents into the operator's home. Environment
+// limitation, not a product failure (spec 04-e2e-test-plan, environment-limited).
+if (process.platform === "win32") {
+  console.error("SKIP on win32: dirs::home_dir() ignores HOME overrides, so the throwaway-home isolation does not hold; run this suite on macOS/Linux.");
+  process.exit(0);
+}
+
 if (configuredHostBin) {
   const configured = resolve(configuredHostBin);
   hostBinCandidates.push(configured);
