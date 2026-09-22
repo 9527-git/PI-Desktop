@@ -156,10 +156,16 @@ function redactString(value: string, options: RedactionOptions): string {
     if (!root.path || root.path === "/") continue;
     const escapedPath = root.path.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     safe = safe.replace(
-      new RegExp(`${escapedPath}(?=$|[/\\\\])`, "g"),
+      new RegExp(`${escapedPath}(?=$|[\\\\])`, "g"),
       root.label,
     );
   }
+  // Redacted path prefixes keep one separator convention so Windows logs read
+  // like `<data-dir>/workspace/file` instead of mixing a backslash in after
+  // the label.
+  safe = safe
+    .replace(new RegExp("(<(?:home|data-dir|log-dir)>)" + "\\\\", "g"), "$1/")
+    .replace(new RegExp("\\\\", "g"), "/");
   safe = safe.replace(ABSOLUTE_PATH_RE, "$1<local-path>");
   return truncateText(safe, options.maxStringChars ?? MAX_MESSAGE_CHARS);
 }
