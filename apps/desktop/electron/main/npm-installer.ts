@@ -156,32 +156,42 @@ export function defaultDependencyRunner(
     const isolatedGlobalConfig = join(tmpdir(), `.pi-desktop-npm-global-${randomUUID()}.npmrc`);
     const isolatedGit = join(tmpdir(), `.pi-desktop-npm-git-${randomUUID()}`);
     const isolatedCache = join(cwd, ".npm-cache");
-    const child = spawn(command, args, {
-      cwd,
-      shell: process.platform === "win32",
-      detached: process.platform !== "win32",
-      windowsHide: true,
-      stdio: ["ignore", "ignore", "pipe"],
-      env: {
-        PATH: process.env.PATH ?? "",
-        HOME: process.env.HOME ?? process.env.USERPROFILE ?? "",
-        TMPDIR: process.env.TMPDIR ?? process.env.TEMP ?? "",
-        LANG: process.env.LANG ?? "en_US.UTF-8",
-        npm_config_userconfig: isolatedUserConfig,
-        npm_config_globalconfig: isolatedGlobalConfig,
-        npm_config_registry: PUBLIC_NPM_REGISTRY,
-        npm_config_proxy: "",
-        npm_config_https_proxy: "",
-        npm_config_noproxy: "*",
-        npm_config_git: isolatedGit,
-        npm_config_cache: isolatedCache,
-        npm_config_ignore_scripts: "true",
-        npm_config_audit: "false",
-        npm_config_fund: "false",
-        npm_config_update_notifier: "false",
-        ...envOverrides,
+    // Shell mode concatenates the command line unquoted, so an absolute path
+    // containing spaces (for example `C:\Program Files\nodejs\node.exe`) is
+    // split by cmd at the first space. Quote any part that cmd cannot parse
+    // as one token; every arg stays a literal otherwise.
+    const shellSafe = (part: string): string =>
+      /[\s"]/.test(part) ? `"${part.replace(/"/g, '""')}"` : part;
+    const shellMode = process.platform === "win32";
+    const child = spawn(
+      shellMode ? shellSafe(command) : command,
+      shellMode ? args.map(shellSafe) : args,
+      {
+        cwd,
+        shell: shellMode,
+        windowsHide: true,
+        stdio: ["ignore", "ignore", "pipe"],
+        env: {
+          PATH: process.env.PATH ?? "",
+          HOME: process.env.HOME ?? process.env.USERPROFILE ?? "",
+          TMPDIR: process.env.TMPDIR ?? process.env.TEMP ?? "",
+          LANG: process.env.LANG ?? "en_US.UTF-8",
+          npm_config_userconfig: isolatedUserConfig,
+          npm_config_globalconfig: isolatedGlobalConfig,
+          npm_config_registry: PUBLIC_NPM_REGISTRY,
+          npm_config_proxy: "",
+          npm_config_https_proxy: "",
+          npm_config_noproxy: "*",
+          npm_config_git: isolatedGit,
+          npm_config_cache: isolatedCache,
+          npm_config_ignore_scripts: "true",
+          npm_config_audit: "false",
+          npm_config_fund: "false",
+          npm_config_update_notifier: "false",
+          ...envOverrides,
+        },
       },
-    });
+    );
     let stderr = "";
     child.stderr?.on("data", (chunk: Buffer) => {
       stderr += chunk.toString("utf8");
