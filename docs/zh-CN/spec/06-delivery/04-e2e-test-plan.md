@@ -5008,6 +5008,8 @@ IPC 请求无法关闭。
 | 品质（转录发光语言） | E2E-CHAT-transcript-glow-language |
 | C — 对话与流式（跨会话渲染） | E2E-CHAT-other-sessions-render-without-switching |
 | 品质（跨会话渲染） | E2E-CHAT-other-sessions-render-without-switching |
+| C — 对话与流式（上下文百分比精度） | E2E-CHAT-context-percent-precision |
+| 品质（上下文百分比精度） | E2E-CHAT-context-percent-precision |
 
 | 里程碑 | 应用场景 |
 |---|---|
