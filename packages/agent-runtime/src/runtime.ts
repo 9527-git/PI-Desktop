@@ -15,6 +15,7 @@ import {
   type AgentContext,
   type AgentEvent,
   type AgentLoopTurnUpdate,
+  type AgentTurnDecision,
   type AgentMessage,
   type AgentTool,
   type AgentToolResult,
@@ -31,13 +32,15 @@ import {
 } from "@earendil-works/pi-agent-core";
 import {
   isContextOverflow,
+  type ImageContent,
+  type JsonObject,
   Type,
   type Api,
   type AssistantMessage,
-  type ImageContent,
-  type Model,
   type Models,
   type SimpleStreamOptions,
+  type Model,
+  type SystemMessage,
   type ToolResultMessage,
   type Usage,
   type UserMessage,
@@ -112,7 +115,9 @@ import { classifyAgentError } from "./agent-errors.js";
 import {
   assistantContent,
   isRecord,
+  isStringList,
   nowIso,
+  stringListOrNull,
   timestampMs,
   toJsonValue,
   usageFromPi,
@@ -1299,14 +1304,6 @@ function toolResultFromUi(
   const rawRecord: Record<string, unknown> | undefined = isRecord(raw)
     ? raw
     : undefined;
-  const rawAddedToolNames = rawRecord?.addedToolNames;
-  const addedToolNames =
-    Array.isArray(rawAddedToolNames)
-      ? rawAddedToolNames.filter(
-          (name: unknown): name is string =>
-            typeof name === "string" && name.length > 0,
-        )
-      : [];
   if (blocks.length === 0) {
     blocks.push({
       type: "text",
@@ -1315,15 +1312,31 @@ function toolResultFromUi(
         : MISSING_TOOL_RESULT_PLACEHOLDER,
     });
   }
+  // 0.87 dropped `addedToolNames` from ToolResultMessage. Fold the legacy
+  // row-level flag into `details` so deferred-tool restore keeps seeing it
+  // while the message itself stays on the strict toolResult shape.
+  const legacyAddedToolNames = stringListOrNull(rawRecord?.addedToolNames);
+  const persistedDetails: unknown =
+    isRecord(raw) && raw.details !== undefined && raw.details !== null
+      ? raw.details
+      : undefined;
+  const mergedDetails =
+    legacyAddedToolNames.length > 0 &&
+    !isStringList(
+      isRecord(persistedDetails) ? persistedDetails.activated : undefined,
+    )
+      ? {
+          ...(isRecord(persistedDetails) ? persistedDetails : {}),
+          addedToolNames: legacyAddedToolNames,
+        }
+      : persistedDetails;
+  const details = toJsonValue(mergedDetails);
   return {
     role: "toolResult",
     toolCallId: m.toolCallId ?? "",
     toolName: m.toolName ?? "",
     content: blocks,
-    ...(isRecord(raw) && raw.details !== undefined
-      ? { details: raw.details }
-      : {}),
-    ...(addedToolNames.length > 0 ? { addedToolNames } : {}),
+    ...(details !== undefined ? { details } : {}),
     isError:
       interrupted ||
       m.toolStatus === "error" ||
@@ -1333,6 +1346,32 @@ function toolResultFromUi(
   };
 }
 
+/** Activations recorded by a ToolSearch result: pi 0.87 keeps them in
+ * `details.activated`, while pre-0.87 transcripts also carried the top-level
+ * `addedToolNames` flag (and `details.addedToolNames` after the 0.87 fold). */
+function toolSearchActivatedNames(message: ToolResultMessage): string[] {
+  const details = isRecord(message.details) ? message.details : undefined;
+  return [
+    ...new Set([
+      ...stringListOrNull(details?.activated),
+      ...stringListOrNull(details?.addedToolNames),
+      ...stringListOrNull(
+        (message as { addedToolNames?: unknown }).addedToolNames,
+      ),
+    ]),
+  ];
+}
+
+/** Persisted tool-call arguments as pi 0.87's strict `JsonObject`. Values are
+ * serialized JSON, so the clone is always safe; non-record payloads wrap in a
+ * value holder like before. */
+function argsAsJsonObject(value: unknown): JsonObject {
+  if (isRecord(value)) {
+    const json = toJsonValue(value);
+    if (isRecord(json)) return json;
+  }
+  return { value: toJsonValue(value) ?? null };
+}
 function estimateToolTokenUsage(
   model: Model<Api>,
   toolCallId: string,
@@ -1349,7 +1388,7 @@ function estimateToolTokenUsage(
         type: "toolCall" as const,
         id: toolCallId,
         name: toolName,
-        arguments: isRecord(args) ? args : { value: args },
+        arguments: argsAsJsonObject(args),
       },
     ],
     api: model.api,
@@ -1745,15 +1784,15 @@ Delegation rules:
       toolExecution: "parallel",
       steeringMode: "all",
       // A queued renderer prompt asks the current run to finish normally at
-      // the next turn boundary. pi-agent-core evaluates this after the
-      // assistant response and completed tool batch, before another provider
-      // request, so no second concurrent durable turn is created.
-      shouldStopAfterTurn: async () => {
-        if (!this.gracefulStopRequested) return false;
-        this.gracefulStopRequested = false;
-        return true;
-      },
+      // the next turn boundary. pi 0.87 replaced `shouldStopAfterTurn` with the
+      // `finishTurn` hook, which runs after a completed turn and its tool
+      // batch, before `turn_end`, so the same guarantee holds.
+      finishTurn: () => this.finishTurnWithGracefulStop(),
     });
+    // Force the composed prompt onto the leading system message: a persisted
+    // transcript seeds its own leading system message, which would win over
+    // `initialState.systemPrompt` in pi 0.87.
+    this.setSystemPrompt(this.composeSystemPrompt());
 
     // pi awaits every listener, so a throw here would reject the run in
     // progress and, with nothing awaiting that rejection, could take the whole
@@ -1792,13 +1831,34 @@ Delegation rules:
     this.activeDeferredToolNames.clear();
     this.rebuildToolCatalog();
     this.restoreDeferredToolsFromContext();
-    this.agent.state.systemPrompt = this.composeSystemPrompt();
+    this.setSystemPrompt(this.composeSystemPrompt());
     this.agent.state.tools = this.activeTools();
     this.setPlanningState(planningState, details);
   }
 
   getMode(): Mode {
     return this.mode;
+  }
+
+  /** Write the composed base prompt onto the transcript's leading system
+   * message. pi 0.87 derives `state.systemPrompt` read-only from the message
+   * list, so prompt changes are message edits, not state assignment. Later
+   * additive writes below insert their own trailing system message, which the
+   * scratch-free replay folds into the request prompt. */
+  private setSystemPrompt(prompt: string): void {
+    const messages = [...this.agent.state.messages];
+    const first = messages[0];
+    if (first?.role === "system") {
+      messages[0] = { ...first, content: prompt } as SystemMessage;
+    } else {
+      const systemMessage: SystemMessage = {
+        role: "system",
+        content: prompt,
+        timestamp: Date.now(),
+      };
+      messages.unshift(systemMessage);
+    }
+    this.agent.state.messages = messages;
   }
 
   private composeSystemPrompt(): string {
@@ -2302,9 +2362,7 @@ Delegation rules:
           type: "toolCall",
           id: m.toolCallId,
           name: m.toolName,
-          arguments: isRecord(m.toolArgs)
-            ? (m.toolArgs as Record<string, unknown>)
-            : {},
+          arguments: argsAsJsonObject(m.toolArgs),
         });
         toolCarrier.stopReason = "toolUse";
         append(m.id, toolResultFromUi(m, timestamp));
@@ -3165,7 +3223,6 @@ Delegation rules:
         return {
           content: [{ type: "text", text }],
           details: { query, matches, activated },
-          ...(activated.length > 0 ? { addedToolNames: activated } : {}),
         };
       },
     };
@@ -4287,9 +4344,11 @@ Delegation rules:
     for (const message of messages) {
       if (message.role !== "toolResult" || message.isError) continue;
       if (isMissingToolResultPlaceholder(message.content)) continue;
+      // ToolSearch results record their activations in `details.activated`;
+      // pre-0.87 transcripts also carried a top-level `addedToolNames` flag.
       const names =
         message.toolName === TOOL_SEARCH_NAME
-          ? (message.addedToolNames ?? [])
+          ? toolSearchActivatedNames(message)
           : [message.toolName];
       for (const name of names) {
         if (this.deferredToolNames.has(name)) {
@@ -4573,7 +4632,7 @@ Delegation rules:
 
   private applyProjectInstructions(resolved: ProjectInstructions | undefined): void {
     this.projectInstructions = resolved;
-    this.agent.state.systemPrompt = this.composeSystemPrompt();
+    this.setSystemPrompt(this.composeSystemPrompt());
   }
 
   /**
@@ -4821,7 +4880,7 @@ Delegation rules:
 
     const promptBefore = this.agent.state.systemPrompt;
     const promptWithNudge = `${promptBefore}\n\n${SILENT_TURN_NUDGE}`;
-    this.agent.state.systemPrompt = promptWithNudge;
+    this.setSystemPrompt(promptWithNudge);
     this.silentTurnRerunInProgress = true;
     this.requestStartedAt = Date.now();
     this.setAgentActivity({ phase: "recovering", since: Date.now() });
@@ -4831,7 +4890,7 @@ Delegation rules:
       await this.waitForIdleAndSteering();
     } finally {
       if (this.agent.state.systemPrompt === promptWithNudge) {
-        this.agent.state.systemPrompt = promptBefore;
+        this.setSystemPrompt(promptBefore);
       }
       this.silentTurnRerunInProgress = false;
       this.suppressSilentTurnRunEnd = false;
@@ -4928,7 +4987,7 @@ Delegation rules:
 
     const promptBefore = this.agent.state.systemPrompt;
     const promptWithNudge = `${promptBefore}\n\n${PROGRESS_TURN_NUDGE}`;
-    this.agent.state.systemPrompt = promptWithNudge;
+    this.setSystemPrompt(promptWithNudge);
     this.progressTurnRerunInProgress = true;
     this.requestStartedAt = Date.now();
     this.setAgentActivity({ phase: "recovering", since: Date.now() });
@@ -4939,7 +4998,7 @@ Delegation rules:
       await this.waitForIdleAndSteering();
     } finally {
       if (this.agent.state.systemPrompt === promptWithNudge) {
-        this.agent.state.systemPrompt = promptBefore;
+        this.setSystemPrompt(promptBefore);
       }
       this.progressTurnRerunInProgress = false;
       this.suppressProgressTurnRunEnd = false;
@@ -5139,8 +5198,9 @@ Delegation rules:
     const tools = this.activeTools();
     this.agent.state.messages = messages;
     this.agent.state.tools = tools;
+    // pi 0.87 AgentContext carries no `systemPrompt`; the prompt replays from
+    // the leading system message, which `messages` already holds.
     return {
-      systemPrompt: this.agent.state.systemPrompt,
       messages,
       tools,
     };
@@ -5229,9 +5289,19 @@ Delegation rules:
     const remaining = Math.max(0, budget.hardLimit - budget.tokens);
     const reminder = this.claimContextBudgetReminder(remaining, budget);
     if (!reminder) return context;
+    // A trailing system message folds into the request prompt at replay time
+    // and stays out of the persisted transcript, matching the per-turn-only
+    // scope the old `context.systemPrompt` append had.
     return {
       ...context,
-      systemPrompt: `${context.systemPrompt}\n\n${reminder}`,
+      messages: [
+        ...context.messages,
+        {
+          role: "system" as const,
+          content: reminder,
+          timestamp: Date.now(),
+        },
+      ],
     };
   }
 
@@ -6732,8 +6802,7 @@ Delegation rules:
       },
       (acc, next) => ({ ...(acc ?? {}), ...next }),
     );
-    this.agent.state.systemPrompt =
-      typeof result?.systemPrompt === "string" ? result.systemPrompt : base;
+    this.setSystemPrompt(typeof result?.systemPrompt === "string" ? result.systemPrompt : base);
   }
 
   /**
@@ -6864,7 +6933,6 @@ Delegation rules:
     this.compactionAbort?.abort();
   }
 
-  /** Ask pi-agent-core to stop after the current assistant/tool turn. */
   requestGracefulStop(): { requested: boolean } {
     if (this.disposed || !this.agent.state.isStreaming) {
       return { requested: false };
@@ -6872,6 +6940,13 @@ Delegation rules:
     this.acceptingSteering = false;
     this.gracefulStopRequested = true;
     return { requested: true };
+  }
+
+  /** pi 0.87 `finishTurn`: end the run once a graceful stop was requested. */
+  private finishTurnWithGracefulStop(): AgentTurnDecision | undefined {
+    if (!this.gracefulStopRequested) return undefined;
+    this.gracefulStopRequested = false;
+    return { action: "end" };
   }
 
   getStatus(): AgentStatus {

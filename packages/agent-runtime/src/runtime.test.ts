@@ -258,8 +258,8 @@ describe("DesktopAgentRuntime configuration matching", () => {
     agent.state.isStreaming = true;
 
     expect(runtime.requestGracefulStop()).toEqual({ requested: true });
-    expect(await agent.shouldStopAfterTurn({})).toBe(true);
-    expect(await agent.shouldStopAfterTurn({})).toBe(false);
+    expect((runtime as any).finishTurnWithGracefulStop()).toEqual({ action: "end" });
+    expect((runtime as any).finishTurnWithGracefulStop()).toBeUndefined();
 
     agent.state.isStreaming = false;
     expect(runtime.requestGracefulStop()).toEqual({ requested: false });
@@ -1691,7 +1691,7 @@ describe("DesktopAgentRuntime deferred tool catalog", () => {
     );
 
     const result = await search.execute("search-1", { query: "BrowserPreview" });
-    expect(result.addedToolNames).toEqual(["BrowserPreview"]);
+    expect(result.details.activated).toEqual(["BrowserPreview"]);
     expect(agent.state.tools.some((tool: any) => tool.name === "BrowserPreview")).toBe(
       false,
     );
@@ -1707,7 +1707,7 @@ describe("DesktopAgentRuntime deferred tool catalog", () => {
           toolName: "ToolSearch",
           content: result.content,
           details: result.details,
-          addedToolNames: result.addedToolNames,
+          addedToolNames: result.details.activated,
           isError: false,
           timestamp: Date.now(),
         },
@@ -2093,13 +2093,15 @@ describe("DesktopAgentRuntime plan transitions", () => {
       attempts += 1;
       if (attempts === 1) {
         agent.state.messages = [
+          { role: "system", content: "base", timestamp: 0 },
           { role: "user", content: "execute the approved plan", timestamp: 1 },
           silentMessage,
         ];
       } else {
         // The silent assistant is popped before the re-run, and the nudge is
         // on the prompt that re-run actually sends.
-        expect(agent.state.messages).toHaveLength(1);
+        expect(agent.state.messages).toHaveLength(2);
+        expect(agent.state.messages.at(-2)?.role).toBe("system");
         expect(agent.state.systemPrompt).toContain("<no_output_recovery>");
       }
       await handleAgentEvent({ type: "agent_start" });
@@ -2184,13 +2186,15 @@ describe("DesktopAgentRuntime plan transitions", () => {
       attempts += 1;
       if (attempts === 1) {
         agent.state.messages = [
+          { role: "system", content: "base", timestamp: 0 },
           { role: "user", content: "execute the approved plan", timestamp: 1 },
           progressMessage,
         ];
       } else {
         // The progress assistant is visible in the reused bubble but must be
         // removed before continue() rebuilds the model context.
-        expect(agent.state.messages).toHaveLength(1);
+        expect(agent.state.messages).toHaveLength(2);
+        expect(agent.state.messages.at(-2)?.role).toBe("system");
         expect(agent.state.messages.at(-1)?.role).toBe("user");
         expect(agent.state.systemPrompt).toContain("<progress_only_recovery>");
       }
@@ -2276,10 +2280,12 @@ describe("DesktopAgentRuntime plan transitions", () => {
       attempts += 1;
       if (attempts === 1) {
         agent.state.messages = [
-          { role: "user", content: "execute the approved plan", timestamp: 1 },
+        { role: "system", content: "base", timestamp: 0 },
+        { role: "user", content: "execute the approved plan", timestamp: 1 },
         ];
       } else {
-        expect(agent.state.messages).toHaveLength(1);
+        expect(agent.state.messages).toHaveLength(2);
+        expect(agent.state.messages.at(-2)?.role).toBe("system");
         expect(agent.state.messages.at(-1)?.role).toBe("user");
         expect(agent.state.systemPrompt).toContain(
           attempts === 2 ? "<progress_only_recovery>" : "<no_output_recovery>",
@@ -2353,6 +2359,7 @@ describe("DesktopAgentRuntime plan transitions", () => {
     agent.waitForIdle = vi.fn(async () => undefined);
     agent.continue = vi.fn(async () => {
       agent.state.messages = [
+        { role: "system", content: "base", timestamp: 0 },
         { role: "user", content: "execute the approved plan", timestamp: 1 },
         finalMessage,
       ];
@@ -2707,13 +2714,14 @@ describe("DesktopAgentRuntime tool history restore (D120)", () => {
     const messages = (runtime as any).agent.state.messages;
 
     expect(messages.map((m: any) => m.role)).toEqual([
+      "system",
       "user",
       "assistant",
       "toolResult",
       "assistant",
     ]);
-    expect(messages[1].stopReason).toBe("toolUse");
-    expect(messages[1].content).toEqual([
+    expect(messages[2].stopReason).toBe("toolUse");
+    expect(messages[2].content).toEqual([
       { type: "text", text: "Let me find the render code." },
       {
         type: "toolCall",
@@ -2722,7 +2730,7 @@ describe("DesktopAgentRuntime tool history restore (D120)", () => {
         arguments: { pattern: "renderFormContent" },
       },
     ]);
-    expect(messages[2]).toMatchObject({
+    expect(messages[3]).toMatchObject({
       role: "toolResult",
       toolCallId: "call-1",
       toolName: "Grep",
@@ -2730,7 +2738,7 @@ describe("DesktopAgentRuntime tool history restore (D120)", () => {
       details: { count: 1 },
       isError: false,
     });
-    expect(messages[3].stopReason).toBe("stop");
+    expect(messages[4].stopReason).toBe("stop");
 
     await runtime.dispose();
   });
@@ -2759,11 +2767,13 @@ describe("DesktopAgentRuntime tool history restore (D120)", () => {
     const messages = (runtime as any).agent.state.messages;
 
     expect(messages.map((m: any) => m.role)).toEqual([
+      "system",
       "assistant",
       "toolResult",
       "toolResult",
     ]);
-    expect(messages[0].content.map((b: any) => b.id)).toEqual([
+    const carrier = messages[1];
+    expect(carrier.content.map((b: any) => b.id)).toEqual([
       "call-a",
       "call-b",
     ]);
@@ -2787,11 +2797,12 @@ describe("DesktopAgentRuntime tool history restore (D120)", () => {
     const messages = (runtime as any).agent.state.messages;
 
     expect(messages.map((m: any) => m.role)).toEqual([
+      "system",
       "user",
       "assistant",
       "toolResult",
     ]);
-    expect(messages[1].content).toEqual([
+    expect(messages[2].content).toEqual([
       {
         type: "toolCall",
         id: "call-1",
@@ -2799,7 +2810,7 @@ describe("DesktopAgentRuntime tool history restore (D120)", () => {
         arguments: { pattern: "renderFormContent" },
       },
     ]);
-    expect(messages[1].stopReason).toBe("toolUse");
+    expect(messages[2].stopReason).toBe("toolUse");
 
     await runtime.dispose();
   });
@@ -2822,7 +2833,7 @@ describe("DesktopAgentRuntime tool history restore (D120)", () => {
     });
     const messages = (runtime as any).agent.state.messages;
 
-    expect(messages[1]).toMatchObject({
+    expect(messages[2]).toMatchObject({
       role: "toolResult",
       isError: true,
       content: [
@@ -2858,9 +2869,9 @@ describe("DesktopAgentRuntime tool history restore (D120)", () => {
     });
     const messages = (runtime as any).agent.state.messages;
 
-    expect(messages[1]).toMatchObject({
+    expect(messages[2]).toMatchObject({
       role: "toolResult",
-      addedToolNames: ["BrowserPreview"],
+      details: { activated: ["BrowserPreview"] },
     });
 
     await runtime.dispose();
@@ -2881,9 +2892,9 @@ describe("DesktopAgentRuntime tool history restore (D120)", () => {
     });
     const messages = (runtime as any).agent.state.messages;
 
-    expect(messages.map((m: any) => m.role)).toEqual(["assistant"]);
-    expect(messages[0].content).toEqual([{ type: "text", text: "answer" }]);
-    expect(messages[0].stopReason).toBe("stop");
+    expect(messages.map((m: any) => m.role)).toEqual(["system", "assistant"]);
+    expect(messages[1].content).toEqual([{ type: "text", text: "answer" }]);
+    expect(messages[1].stopReason).toBe("stop");
 
     await runtime.dispose();
   });
@@ -3026,7 +3037,7 @@ describe("DesktopAgentRuntime assistant thinking events", () => {
       timestamp: 2,
     };
     agent.prompt = vi.fn(async () => {
-      agent.state.messages = [user, failed];
+      agent.state.messages = [{ role: "system", content: "base", timestamp: 0 }, user, failed];
       (runtime as any).pendingOverflow = true;
       (runtime as any).suppressOverflowRunEnd = true;
     });
@@ -3034,7 +3045,10 @@ describe("DesktopAgentRuntime assistant thinking events", () => {
     agent.continue = vi.fn(async () => undefined);
     (runtime as any).automaticCompactionNeeded = vi.fn(() => false);
     (runtime as any).runCompaction = vi.fn(async () => {
-      expect(agent.state.messages).toEqual([user]);
+      expect(agent.state.messages.map((m: any) => m.role)).toEqual([
+        "system",
+        "user",
+      ]);
       return true;
     });
 
@@ -3144,6 +3158,7 @@ describe("DesktopAgentRuntime assistant thinking events", () => {
 
     agent.prompt = vi.fn(async () => {
       agent.state.messages = [
+        { role: "system", content: "base", timestamp: 0 },
         { role: "user", content: "hello", timestamp: 1 },
         failedMessage,
       ];
@@ -3154,7 +3169,8 @@ describe("DesktopAgentRuntime assistant thinking events", () => {
     });
     agent.waitForIdle = vi.fn(async () => undefined);
     agent.continue = vi.fn(async () => {
-      expect(agent.state.messages).toHaveLength(1);
+      expect(agent.state.messages).toHaveLength(2);
+        expect(agent.state.messages.at(-2)?.role).toBe("system");
       await handleAgentEvent({ type: "agent_start" });
       await handleAgentEvent({ type: "turn_start" });
       await handleAgentEvent({
@@ -3278,6 +3294,7 @@ describe("DesktopAgentRuntime assistant thinking events", () => {
 
     agent.prompt = vi.fn(async () => {
       agent.state.messages = [
+        { role: "system", content: "base", timestamp: 0 },
         { role: "user", content: "hello", timestamp: 1 },
         rateLimitedMessage,
       ];
@@ -3288,7 +3305,8 @@ describe("DesktopAgentRuntime assistant thinking events", () => {
     });
     agent.waitForIdle = vi.fn(async () => undefined);
     agent.continue = vi.fn(async () => {
-      expect(agent.state.messages).toHaveLength(1);
+      expect(agent.state.messages).toHaveLength(2);
+        expect(agent.state.messages.at(-2)?.role).toBe("system");
       await handleAgentEvent({ type: "agent_start" });
       await handleAgentEvent({ type: "turn_start" });
       await handleAgentEvent({
@@ -3354,6 +3372,7 @@ describe("DesktopAgentRuntime assistant thinking events", () => {
 
     agent.prompt = vi.fn(async () => {
       agent.state.messages = [
+        { role: "system", content: "base", timestamp: 0 },
         { role: "user", content: "hello", timestamp: 1 },
         gatewayMessage(2),
       ];
@@ -3368,6 +3387,7 @@ describe("DesktopAgentRuntime assistant thinking events", () => {
       continues += 1;
       const failed = gatewayMessage(2 + continues);
       agent.state.messages = [
+        { role: "system", content: "base", timestamp: 0 },
         { role: "user", content: "hello", timestamp: 1 },
         failed,
       ];
@@ -3432,6 +3452,7 @@ describe("DesktopAgentRuntime assistant thinking events", () => {
 
     agent.prompt = vi.fn(async () => {
       agent.state.messages = [
+        { role: "system", content: "base", timestamp: 0 },
         { role: "user", content: "hello", timestamp: 1 },
         rateLimitedMessage,
       ];
@@ -3525,7 +3546,8 @@ describe("DesktopAgentRuntime assistant thinking events", () => {
       promptDuringRerun = agent.state.systemPrompt;
       // The silent assistant must be gone: agentLoopContinue rejects a
       // transcript that ends with one.
-      expect(agent.state.messages).toHaveLength(1);
+      expect(agent.state.messages).toHaveLength(2);
+        expect(agent.state.messages.at(-2)?.role).toBe("system");
       await handleAgentEvent({ type: "agent_start" });
       await handleAgentEvent({ type: "turn_start" });
       await handleAgentEvent({
@@ -3689,7 +3711,7 @@ describe("DesktopAgentRuntime assistant thinking events", () => {
       ],
     });
 
-    expect((runtime as any).agent.state.messages).toEqual([]);
+    expect((runtime as any).agent.state.messages.map((m: any) => m.role)).toEqual(["system"]);
     await runtime.dispose();
   });
 
@@ -3779,10 +3801,11 @@ describe("DesktopAgentRuntime compaction restore", () => {
 
     const agentMessages = (runtime as any).agent.state.messages;
     expect(agentMessages.map((message: any) => message.role)).toEqual([
+      "system",
       "compactionSummary",
       "user",
     ]);
-    expect(agentMessages[0].summary).toBe("Older work was summarized.");
+    expect(agentMessages[1].summary).toBe("Older work was summarized.");
     expect((runtime as any).fullEntries).toHaveLength(2);
     await runtime.dispose();
   });
@@ -3927,6 +3950,19 @@ describe("DesktopAgentRuntime compaction restore", () => {
 });
 
 describe("DesktopAgentRuntime per-turn context protection", () => {
+
+/** pi 0.87: a turn's system text (base + any trailing reminder system message). */
+const systemPromptText = (context: any): string =>
+  context.messages
+    .filter((message: any) => message.role === "system")
+    .map((message: any) =>
+      typeof message.content === "string"
+        ? message.content
+        : (message.content ?? [])
+            .map((block: any) => block.text ?? "")
+            .join(""),
+    )
+    .join("\n");
   const toolResult = {
     role: "toolResult" as const,
     toolCallId: "tool-call-1",
@@ -4026,9 +4062,9 @@ describe("DesktopAgentRuntime per-turn context protection", () => {
 
     // 19k left of a 224k limit is inside the first reminder tier, so the model
     // is told once. The claim then holds for the rest of this window.
-    expect(below.context.systemPrompt).toContain("<context_budget>");
-    expect(below.context.systemPrompt).toContain("new_context");
-    expect(stillBelow.context.systemPrompt).not.toContain("<context_budget>");
+    expect(systemPromptText(below.context)).toContain("<context_budget>");
+    expect(systemPromptText(below.context)).toContain("new_context");
+    expect(systemPromptText(stillBelow.context)).not.toContain("<context_budget>");
     // The reminder rides on the turn's context only; nothing is persisted.
     expect((runtime as any).agent.state.systemPrompt).not.toContain(
       "<context_budget>",
@@ -4048,7 +4084,7 @@ describe("DesktopAgentRuntime per-turn context protection", () => {
       });
     const hard = await prepareNextTurn(nextTurn);
 
-    expect(hard.context.systemPrompt).not.toContain("<context_budget>");
+    expect(systemPromptText(hard.context)).not.toContain("<context_budget>");
     expect(runCompaction).toHaveBeenCalledOnce();
     expect(runCompaction).toHaveBeenCalledWith(
       "threshold",
@@ -4214,15 +4250,15 @@ describe("DesktopAgentRuntime per-turn context protection", () => {
     const first = await (runtime as any).prepareNextTurn(nextTurn);
     const second = await (runtime as any).prepareNextTurn(nextTurn);
 
-    expect(first.context.systemPrompt).toContain(
+    expect(systemPromptText(first.context)).toContain(
       "the next request compacts this conversation",
     );
-    expect(second.context.systemPrompt).not.toContain("<context_budget>");
+    expect(systemPromptText(second.context)).not.toContain("<context_budget>");
     // Installing a checkpoint opens a new window, so both tiers come back.
     (runtime as any).contextReminderClaimed = false;
     (runtime as any).contextFallbackReminderClaimed = false;
     const afterCheckpoint = await (runtime as any).prepareNextTurn(nextTurn);
-    expect(afterCheckpoint.context.systemPrompt).toContain("<context_budget>");
+    expect(systemPromptText(afterCheckpoint.context)).toContain("<context_budget>");
 
     await runtime.dispose();
   });

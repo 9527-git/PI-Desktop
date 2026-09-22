@@ -256,6 +256,12 @@ export function guardNativePiSessionManager(
     "appendCustomEntry",
     "appendSessionInfo",
     "appendCustomMessageEntry",
+    // pi 0.87: usage entries and overflow/length recovery context edits are
+    // appended mid-run; without the guard their bytes drop out of the lease
+    // snapshot and the next assertUnchanged fails closed (D-087-retry-lease).
+    "appendUsage",
+    "appendContextEdit",
+    "appendLabelChange",
     "appendLabelChange",
     "branchWithSummary",
   ] as const;
