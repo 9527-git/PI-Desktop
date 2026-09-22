@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.5",
+    "date": "2026-09-22",
+    "highlights": [
+      "pi ajan çekirdeği 0.87.0 sürümüne güncellendi: DeepSeek tarzı aktarımlar, kalıcı turlar arasında akıl yürütme içeriği korunurken çalışmaya devam ediyor ve sunucu ya da bir ara sunucu bağlantıyı hiç kapatmadığında OpenAI Responses akışları artık takılmıyor.",
+      "Node, boşluk içeren bir yol altındayken (örneğin C:\Program Files\nodejs) Windows'ta eklenti bağımlılık kurulumları yeniden çalışıyor: kurulum komutu cmd tarafından bölünmek yerine düzgün şekilde tırnak içine alınıyor.",
+      "Günlüklerde sansürlenen yollar her platformda aynı biçimde okunuyor: <data-dir> sonrasındaki bir Windows yolu artık sansürlü biçime ters eğik çizgi karıştırmıyor.",
+    ],
+  },
+
+  {
     "version": "0.16.4",
     "date": "2026-09-21",
     "highlights": [

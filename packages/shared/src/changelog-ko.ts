@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.5",
+    "date": "2026-09-22",
+    "highlights": [
+      "pi 에이전트 커널이 0.87.0으로 업데이트되었습니다. DeepSeek 방식 릴레이가 턴 간 추론 내용을 유지할 때에도 계속 동작하고, 서버나 프록시가 연결을 닫지 않아도 OpenAI Responses 스트림이 더 이상 멈추지 않습니다.",
+      "Node가 공백이 있는 경로(예: C:\Program Files\nodejs)에 있을 때 Windows에서 플러그인 의존성 설치가 다시 동작합니다. 설치 명령이 cmd에 의해 잘리지 않고 올바르게 따옴표로 묶입니다.",
+      "로그에서 가려진 경로가 모든 플랫폼에서 동일하게 표시됩니다. <data-dir> 뒤의 Windows 경로에 더 이상 백슬래시가 섞이지 않습니다.",
+    ],
+  },
+
+  {
     "version": "0.16.4",
     "date": "2026-09-21",
     "highlights": [

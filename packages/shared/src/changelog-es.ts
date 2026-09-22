@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.5",
+    "date": "2026-09-22",
+    "highlights": [
+      "El núcleo del agente de pi se actualiza a 0.87.0: los relés tipo DeepSeek siguen funcionando al conservar el razonamiento entre turnos persistidos, y los flujos de OpenAI Responses ya no se quedan colgados cuando el servidor o un proxy nunca cierra la conexión.",
+      "Las instalaciones de dependencias de plugins vuelven a funcionar en Windows cuando Node está en una ruta con espacios (por ejemplo C:\Program Files\nodejs): el comando de instalación se entrecomilla en lugar de ser partido por cmd.",
+      "Las rutas redactadas de los registros se leen igual en todas las plataformas: una ruta de Windows tras <data-dir> ya no mezcla contrabarras en la forma redactada.",
+    ],
+  },
+
+  {
     "version": "0.16.4",
     "date": "2026-09-21",
     "highlights": [

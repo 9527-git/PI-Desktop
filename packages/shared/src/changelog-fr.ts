@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.5",
+    "date": "2026-09-22",
+    "highlights": [
+      "Le noyau de l'agent pi passe à 0.87.0 : les relais de type DeepSeek continuent de fonctionner lorsque le raisonnement est conservé d'un tour à l'autre, et les flux OpenAI Responses ne se bloquent plus quand le serveur ou un proxy ne ferme jamais la connexion.",
+      "L'installation des dépendances de plugins refonctionne sous Windows quand Node se trouve dans un chemin contenant des espaces (par exemple C:\Program Files\nodejs) : la commande d'installation est désormais citée au lieu d'être coupée par cmd.",
+      "Les chemins masqués des journaux se lisent de la même façon sur toutes les plateformes : un chemin Windows derrière <data-dir> ne mélange plus d'antislashs dans la forme masquée.",
+    ],
+  },
+
+  {
     "version": "0.16.4",
     "date": "2026-09-21",
     "highlights": [

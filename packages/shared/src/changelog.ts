@@ -29,6 +29,16 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.16.5",
+    date: "2026-09-22",
+    highlights: [
+      "The pi agent kernel is updated to 0.87.0: DeepSeek-style relays keep working across persisted reasoning turns, and OpenAI Responses streams no longer hang when the server or a proxy never closes the connection.",
+      "Plugin dependency installs work again on Windows when Node lives under a path with spaces (for example C:\Program Files\nodejs): the install command is quoted instead of being split by cmd.",
+      "Redacted log paths read the same on every platform: a Windows path behind <data-dir> no longer mixes backslashes into the redacted form.",
+    ],
+  },
+
+  {
     version: "0.16.4",
     date: "2026-09-21",
     highlights: [
@@ -1001,6 +1011,16 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.16.5",
+    date: "2026-09-22",
+    highlights: [
+      "PI 内核更新至 0.87.0:DeepSeek 式中转在跨回合保留推理内容时保持可用，OpenAI Responses 流在服务器或代理不关闭连接时不再挂起。",
+      "修复 Windows 上插件依赖安装：当 Node 位于带空格的路径（例如 C:\Program Files\nodejs）时，安装命令现在会被正确加引号，而不是被 cmd 拆断。",
+      "日志脱敏路径在所有平台显示一致：<data-dir> 之后的 Windows 路径不再混入反斜杠。",
+    ],
+  },
+
+  {
     version: "0.16.4",
     date: "2026-09-21",
     highlights: [
@@ -1971,6 +1991,16 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.16.5",
+    date: "2026-09-22",
+    highlights: [
+      "PI 核心更新至 0.87.0:DeepSeek 式中轉在跨回合保留推理內容時保持可用，OpenAI Responses 串流在伺服器或代理不關閉連線時不再掛起。",
+      "修復 Windows 上的外掛依賴安裝：當 Node 位於含空格的路徑（例如 C:\Program Files\nodejs）時，安裝命令現在會被正確加引號，而不是被 cmd 拆斷。",
+      "日誌脫敏路徑在所有平台顯示一致：<data-dir> 之後的 Windows 路徑不再混入反斜線。",
+    ],
+  },
+
   {
     version: "0.16.4",
     date: "2026-09-21",

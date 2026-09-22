@@ -2,6 +2,16 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.5",
+    "date": "2026-09-22",
+    "highlights": [
+      "Die pi-Agent-Kernbibliothek wird auf 0.87.0 aktualisiert: DeepSeek-artige Relais funktionieren weiter, wenn über persistierte Turns hinweg Reasoning-Inhalte erhalten bleiben, und OpenAI-Responses-Streams hängen nicht mehr, wenn der Server oder ein Proxy die Verbindung nie schließt.",
+      "Plugin-Abhängigkeitsinstallationen funktionieren unter Windows wieder, wenn Node unter einem Pfad mit Leerzeichen liegt (z. B. C:\Program Files\nodejs): Der Installationsbefehl wird korrekt in Anführungszeichen gesetzt, statt von cmd getrennt zu werden.",
+      "Geschwärzte Pfade in Protokollen sehen auf jeder Plattform gleich aus: Hinter <data-dir> mischt ein Windows-Pfad keine Backslashes mehr in die geschwärzte Form.",
+    ],
+  },
+
+  {
     "version": "0.16.4",
     "date": "2026-09-21",
     "highlights": [
