@@ -14,7 +14,11 @@ const stapleScript = new URL(
   import.meta.url,
 );
 
-test("macOS release finalization staples the generated DMG", async (t) => {
+// The three scenarios shell out to macOS packaging scripts (xcrun); on any
+// other platform they are environment-limited, not failing (spec 04-e2e-test-plan).
+const onMacOS = process.platform === "darwin";
+
+test("macOS release finalization staples the generated DMG", { skip: !onMacOS }, async (t) => {
   const root = await mkdtemp(join(tmpdir(), "pi-desktop-macos-staple-"));
   t.after(() => rm(root, { recursive: true, force: true }));
 
@@ -43,7 +47,7 @@ test("macOS release finalization staples the generated DMG", async (t) => {
   );
 });
 
-test("macOS release verification requires a notarized Developer ID app and DMG", async (t) => {
+test("macOS release verification requires a notarized Developer ID app and DMG", { skip: !onMacOS }, async (t) => {
   const root = await mkdtemp(join(tmpdir(), "pi-desktop-macos-release-"));
   t.after(() => rm(root, { recursive: true, force: true }));
 
@@ -89,7 +93,7 @@ test("macOS release verification requires a notarized Developer ID app and DMG",
   );
 });
 
-test("macOS release verification rejects a Developer ID app without notarization", async (t) => {
+test("macOS release verification rejects a Developer ID app without notarization", { skip: !onMacOS }, async (t) => {
   const root = await mkdtemp(join(tmpdir(), "pi-desktop-macos-unnotarized-"));
   t.after(() => rm(root, { recursive: true, force: true }));
 

@@ -3,13 +3,14 @@ import {
   readMainModule,
 } from "./helpers/source-contracts.mjs";
 import assert from "node:assert/strict";
+import test from "node:test";
 import { readFile } from "node:fs/promises";
 
 const mainSource = await readMainSource();
 const closeBehaviorSource = await readMainModule("bootstrap/close-behavior.ts");
 const quitDialogSource = await readMainModule("bootstrap/quit-dialog.ts");
 const protocolSource = await readFile(
-  new URL("../packages/shared/src/protocol.ts", import.meta.url),
+  new URL("../../../packages/shared/src/protocol.ts", import.meta.url),
   "utf8",
 );
 
@@ -44,7 +45,7 @@ test("the quit dialog runtime has a bounded timeout that resolves to null (fallb
   // D452: a hung or gone renderer must never hold shutdown hostage.
   assert.match(quitDialogSource, /QUIT_DIALOG_TIMEOUT_MS = 5_000/);
   const requestMatch = quitDialogSource.match(
-    /setTimeout\(\s*\(\) => settle\(requestId, null\),\s*QUIT_DIALOG_TIMEOUT_MS\s*\)/,
+    /setTimeout\(\s*\(\) => settle\(requestId, null\),\s*QUIT_DIALOG_TIMEOUT_MS,?\s*\)/,
   );
   assert.ok(requestMatch, "timeout settles with null sentinel");
 });

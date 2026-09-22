@@ -450,6 +450,7 @@ test("the real pi-ai catalog offers every vendor account we ship", async () => {
       "anthropic",
       "github-copilot",
       "kimi-coding",
+      "meta",
       "openai-codex",
       "openrouter",
       "radius",
