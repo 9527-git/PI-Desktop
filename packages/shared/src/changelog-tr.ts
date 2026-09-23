@@ -2,6 +2,40 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.7",
+    "date": "2026-09-23",
+    "highlights": [
+      "Ayarlar → Bilgi bölümündeki PI çekirdeği satırında Sürümü gör artık PI-Desktop sürüm sayfası yerine pi çekirdeğinin kendi sürüm sayfasını açar.",
+    ],
+  },
+
+  {
+    "version": "0.16.6",
+    "date": "2026-09-23",
+    "highlights": [
+      "Proje oluşturmak artık önce bir ad yazmayı gerektirmiyor: bir klasör eklediğinizde proje adı o klasörün adıyla doldurulur ve kendi yazdığınız ad her zaman geçerlidir.",
+      "Ayarlar → Bilgi bölümüne bir PI çekirdeği satırı eklendi: uygulamayla gelen pi ajan çekirdeği sürümünü gösterir ve istendiğinde yayımlanmış en yeni sürümü denetler; denetim yalnızca sonucu bildirir.",
+    ],
+  },
+
+  {
+    "version": "0.16.5",
+    "date": "2026-09-22",
+    "highlights": [
+      "pi ajan çekirdeği 0.87.0 sürümüne güncellendi: DeepSeek tarzı aktarımlar, kalıcı turlar arasında akıl yürütme içeriği korunurken çalışmaya devam ediyor ve sunucu ya da bir ara sunucu bağlantıyı hiç kapatmadığında OpenAI Responses akışları artık takılmıyor.",
+      "Node, boşluk içeren bir yol altındayken (örneğin C:\Program Files\nodejs) Windows'ta eklenti bağımlılık kurulumları yeniden çalışıyor: kurulum komutu cmd tarafından bölünmek yerine düzgün şekilde tırnak içine alınıyor.",
+      "Günlüklerde sansürlenen yollar her platformda aynı biçimde okunuyor: <data-dir> sonrasındaki bir Windows yolu artık sansürlü biçime ters eğik çizgi karıştırmıyor.",
+    ],
+  },
+
+  {
+    "version": "0.16.4",
+    "date": "2026-09-21",
+    "highlights": [
+      "Bu sürüm 0.16.3 uygulamasını değişmeden içerir. Tek değişiklik depo bakımı: proje artık ZCode'un `.mimosa` çalışma dizinini yok sayıyor.",
+    ],
+  },
+  {
     "version": "0.16.3",
     "date": "2026-09-21",
     "highlights": [

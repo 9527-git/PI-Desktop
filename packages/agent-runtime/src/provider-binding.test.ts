@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import type { ModelAuth } from "@earendil-works/pi-ai";
 import { convertMessages } from "@earendil-works/pi-ai/api/openai-completions";
+import { normalizeContext } from "@earendil-works/pi-ai";
 import { modelConfigWithBinding } from "./model-capabilities.js";
 import type { ModelConfig } from "./thinking-level.js";
 import {
@@ -130,7 +131,7 @@ describe("buildProviderModel OpenAI-compatible role compatibility", () => {
     expect(model.compat).toMatchObject({ supportsDeveloperRole: false });
     const messages = convertMessages(
       model,
-      { systemPrompt: "Follow the workspace rules.", messages: [] },
+      normalizeContext({ systemPrompt: "Follow the workspace rules.", messages: [] }),
       { supportsDeveloperRole: model.compat.supportsDeveloperRole } as any,
     );
 
@@ -152,7 +153,7 @@ describe("buildProviderModel OpenAI-compatible role compatibility", () => {
     expect(model.compat).toMatchObject({ supportsDeveloperRole: true });
     const messages = convertMessages(
       model,
-      { systemPrompt: "Use the provider's developer role.", messages: [] },
+      normalizeContext({ systemPrompt: "Use the provider's developer role.", messages: [] }),
       { supportsDeveloperRole: model.compat.supportsDeveloperRole } as any,
     );
 
@@ -208,7 +209,7 @@ describe("buildProviderModel OpenAI-compatible role compatibility", () => {
 
     const messages = convertMessages(
       model,
-      {
+      normalizeContext({
         systemPrompt: "Follow the workspace rules.",
         messages: [
           { role: "user", content: "hello", timestamp: Date.now() },
@@ -230,7 +231,7 @@ describe("buildProviderModel OpenAI-compatible role compatibility", () => {
             timestamp: Date.now(),
           },
         ],
-      },
+      }),
       {
         supportsDeveloperRole: false,
         requiresReasoningContentOnAssistantMessages: true,
@@ -311,7 +312,7 @@ describe("buildProviderModel OpenAI-compatible role compatibility", () => {
 
     const messages = convertMessages(
       model,
-      {
+      normalizeContext({
         systemPrompt: "Read the image.",
         messages: [
           {
@@ -323,7 +324,7 @@ describe("buildProviderModel OpenAI-compatible role compatibility", () => {
             timestamp: Date.now(),
           },
         ],
-      },
+      }),
       { supportsDeveloperRole: false } as any,
     );
 

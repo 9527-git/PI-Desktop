@@ -24,6 +24,7 @@ const shared = {
   FileRefChip: () => null,
   LinkifiedText: ({ text }) => text,
   MessageAttachmentImage: () => null,
+  MessageMeta: () => null,
 };
 
 function loadComponent(name, extras = {}) {

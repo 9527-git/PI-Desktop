@@ -29,6 +29,40 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.16.7",
+    date: "2026-09-23",
+    highlights: [
+      "View release in the Settings → Info PI kernel row now opens the pi kernel's own release page instead of the PI-Desktop releases page.",
+    ],
+  },
+
+  {
+    version: "0.16.6",
+    date: "2026-09-23",
+    highlights: [
+      "Creating a project no longer asks for a name first: adding a folder fills the project name with that folder's name, and a name you type yourself always wins.",
+      "Settings → Info gains a PI kernel row that shows the bundled pi agent kernel version and checks the newest published one on demand; the check only reports what it finds.",
+    ],
+  },
+
+  {
+    version: "0.16.5",
+    date: "2026-09-22",
+    highlights: [
+      "The pi agent kernel is updated to 0.87.0: DeepSeek-style relays keep working across persisted reasoning turns, and OpenAI Responses streams no longer hang when the server or a proxy never closes the connection.",
+      "Plugin dependency installs work again on Windows when Node lives under a path with spaces (for example C:\Program Files\nodejs): the install command is quoted instead of being split by cmd.",
+      "Redacted log paths read the same on every platform: a Windows path behind <data-dir> no longer mixes backslashes into the redacted form.",
+    ],
+  },
+
+  {
+    version: "0.16.4",
+    date: "2026-09-21",
+    highlights: [
+      "This release carries the 0.16.3 app unchanged. The only change is repository housekeeping: the project now ignores ZCode's `.mimosa` work directory.",
+    ],
+  },
+  {
     version: "0.16.3",
     date: "2026-09-21",
     highlights: [
@@ -994,6 +1028,40 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.16.7",
+    date: "2026-09-23",
+    highlights: [
+      "「查看发布页」现在打开 pi 内核自己的发布页，而不是 PI-Desktop 的发布页。",
+    ],
+  },
+
+  {
+    version: "0.16.6",
+    date: "2026-09-23",
+    highlights: [
+      "新建项目不再强制先填名称:添加文件夹后会用该文件夹名自动预填项目名,你自己输入的名称始终优先。",
+      "设置 → 信息新增 PI 内核一行:显示随应用打包的 pi agent 内核版本,并可按需检查上游最新版本;该检查只报告结果,不下载也不安装。",
+    ],
+  },
+
+  {
+    version: "0.16.5",
+    date: "2026-09-22",
+    highlights: [
+      "PI 内核更新至 0.87.0:DeepSeek 式中转在跨回合保留推理内容时保持可用，OpenAI Responses 流在服务器或代理不关闭连接时不再挂起。",
+      "修复 Windows 上插件依赖安装：当 Node 位于带空格的路径（例如 C:\Program Files\nodejs）时，安装命令现在会被正确加引号，而不是被 cmd 拆断。",
+      "日志脱敏路径在所有平台显示一致：<data-dir> 之后的 Windows 路径不再混入反斜杠。",
+    ],
+  },
+
+  {
+    version: "0.16.4",
+    date: "2026-09-21",
+    highlights: [
+      "本版本与 0.16.3 功能完全一致——唯一的改动是仓库维护：项目现在忽略 ZCode 的 `.mimosa` 工作目录。",
+    ],
+  },
+  {
     version: "0.16.3",
     date: "2026-09-21",
     highlights: [
@@ -1957,6 +2025,40 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.16.7",
+    date: "2026-09-23",
+    highlights: [
+      "「查看發行頁」現在開啟 pi 核心自己的發行頁，而不是 PI-Desktop 的發行頁。",
+    ],
+  },
+
+  {
+    version: "0.16.6",
+    date: "2026-09-23",
+    highlights: [
+      "新建專案不再強制先填名稱:加入資料夾後會以該資料夾名稱自動預填專案名稱,你自己輸入的名稱一律優先。",
+      "設定 → 資訊新增 PI 核心一列:顯示隨應用程式打包的 pi agent 核心版本,並可視需要檢查上游最新版本;該檢查只回報結果,不下載也不安裝。",
+    ],
+  },
+
+  {
+    version: "0.16.5",
+    date: "2026-09-22",
+    highlights: [
+      "PI 核心更新至 0.87.0:DeepSeek 式中轉在跨回合保留推理內容時保持可用，OpenAI Responses 串流在伺服器或代理不關閉連線時不再掛起。",
+      "修復 Windows 上的外掛依賴安裝：當 Node 位於含空格的路徑（例如 C:\Program Files\nodejs）時，安裝命令現在會被正確加引號，而不是被 cmd 拆斷。",
+      "日誌脫敏路徑在所有平台顯示一致：<data-dir> 之後的 Windows 路徑不再混入反斜線。",
+    ],
+  },
+
+  {
+    version: "0.16.4",
+    date: "2026-09-21",
+    highlights: [
+      "本版本與 0.16.3 功能完全一致——唯一的變更是倉庫維護：專案現在忽略 ZCode 的 `.mimosa` 工作目錄。",
+    ],
+  },
   {
     version: "0.16.3",
     date: "2026-09-21",

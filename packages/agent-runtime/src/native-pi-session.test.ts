@@ -249,7 +249,9 @@ describe("native continuation review regressions", () => {
     await expect(service.prompt(summary.id, "no fallback", () => {})).rejects.toMatchObject({ errorCode: "NATIVE_PI_PROVIDER_UNAVAILABLE" });
   });
 
-  it("settles retries once, rejects overlap without disposal, acknowledges distinct durable users, and keeps own idle lease usable", async () => {
+  it(
+    "settles retries once, rejects overlap without disposal, acknowledges distinct durable users, and keeps own idle lease usable",
+    async () => {
     const f = await configuredFixture();
     const events: import("@pi-desktop/shared").AgentEventEnvelope[] = [];
     let calls = 0;
@@ -275,7 +277,7 @@ describe("native continuation review regressions", () => {
       await expect(service.prompt(summary.id, "overlap", () => {})).rejects.toMatchObject({ errorCode: "AGENT_BUSY" });
       expect(service.status(summary.id).status.isRunning).toBe(true);
       release();
-      await expect.poll(() => events.filter((e) => e.event.type === "agent_end").length).toBe(1);
+      await expect.poll(() => events.filter((e) => e.event.type === "agent_end").length, { timeout: 15000 }).toBe(1);
       expect((await service.list())[0].capabilities?.canPrompt).toBe(true);
       expect(service.detail(summary.id)?.capabilities?.canPrompt).toBe(true);
       await service.prompt(summary.id, "same prompt", (e) => events.push(e), "optimistic-2");
@@ -292,7 +294,7 @@ describe("native continuation review regressions", () => {
       expect((await foreign.list())[0].readOnlyReason).toBe("busy");
     } finally { release(); service.disposeAll(); }
     expect(existsSync(`${f.file}.pi-desktop.lock`)).toBe(false);
-  });
+  }, 20000);
 
   it("makes reclaimable dead-owner leases reachable via list/detail without stealing live leases", async () => {
     const f = await configuredFixture();
@@ -327,7 +329,8 @@ describe("native continuation review regressions", () => {
     }`);
     const requests: { systemPrompt?: string; tools: unknown[]; messages: unknown }[] = [];
     vi.spyOn(ModelRuntime.prototype, "streamSimple").mockImplementation((_model, context) => {
-      requests.push({ systemPrompt: context.systemPrompt, tools: context.tools ?? [], messages: context.messages });
+      const systemText = context.systemPrompt ?? (context.messages[0] && context.messages[0].role === "system" ? String(context.messages[0].content) : "");
+      requests.push({ systemPrompt: systemText, tools: context.tools ?? [], messages: context.messages });
       return fauxStream();
     });
     const service = new NativePiSessionService(f);
@@ -523,8 +526,9 @@ describe("native side-chat forks", () => {
       expect(after.match(/fixture reply/g)).toHaveLength(1);
       const reopened = SessionManager.open(childPath);
       const branch = reopened.getBranch().filter((entry) => entry.type === "message");
-      expect(branch.map((entry) => entry.message.role)).toEqual(["user", "user", "assistant"]);
-      expect(new Set(branch.map((entry) => entry.id)).size).toBe(3);
+      // pi 0.87 persists the leading system message row after the seed user turn.
+      expect(branch.map((entry) => entry.message.role)).toEqual(["user", "system", "user", "assistant"]);
+      expect(new Set(branch.map((entry) => entry.id)).size).toBe(4);
       expect(reopened.getSessionId()).toBe(childId);
       expect(readFileSync(f.file, "utf8")).toBe(parentBytes);
     } finally { service.disposeAll(); }

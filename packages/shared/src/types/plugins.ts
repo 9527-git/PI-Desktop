@@ -2,7 +2,12 @@
 import type { ActivationScope } from "../activation.js";
 import type { TrustedExtensionDiagnostic } from "../trusted-extensions.js";
 
-export type PluginMarketSource = "official" | "mirror" | "custom";
+/**
+ * Which catalog the extension marketplace reads. `pidev` selects the official
+ * pi package catalog on pi.dev, whose entries are npm packages installed by the
+ * desktop app's npm pipeline rather than downloaded by the host.
+ */
+export type PluginMarketSource = "official" | "mirror" | "pidev" | "custom";
 
 export type PluginUpdateInfo = {
   version: string;

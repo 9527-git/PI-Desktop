@@ -1,8 +1,15 @@
-import { IPC, ErrorCodes, trustedExtensionCommandId, trustedExtensionCommandName } from "@pi-desktop/shared";
+import {
+  IPC,
+  ErrorCodes,
+  trustedExtensionCommandId,
+  trustedExtensionCommandName,
+  piPackageFromPluginId,
+} from "@pi-desktop/shared";
 import { builtinPaletteItems } from "../builtin-commands";
 import type { AgentExtensionBridge } from "../agent-extensions";
 import type { HostProcess } from "../host-process";
 import type { PluginRuntime } from "../plugin-runtime";
+import { applyPiPackageUpdates, installPiPackage, piPackageUpdates } from "../pi-package-install";
 import type { IpcRegistrar } from "./types";
 
 export type MarketIpcDependencies = {
@@ -13,6 +20,9 @@ export type MarketIpcDependencies = {
   optionalWorkspaceRoot: () => Promise<string | null>;
   pluginActiveInProject: (pluginId: string, projectPath: string | null | undefined) => boolean;
   sendToRenderer: (channel: string, payload?: unknown) => void;
+  /** Where staged npm trees and generated plugin directories live. */
+  dataDir: string;
+  log: (message: string, data?: Record<string, unknown>) => void;
 };
 
 /** Register marketplace and command palette channels. */
@@ -24,6 +34,8 @@ export function registerMarketIpc({
   optionalWorkspaceRoot,
   pluginActiveInProject,
   sendToRenderer,
+  dataDir,
+  log,
 }: MarketIpcDependencies): void {
   let host: HostProcess | null = null;
   const handle = (channel: string, fn: (...args: any[]) => Promise<any>) => {
@@ -32,6 +44,26 @@ export function registerMarketIpc({
       return fn(...args);
     });
   };
+
+  /** Dependencies for the official-package (npm) install pipeline. */
+  const piPackageDeps = () => {
+    if (!host) throw new Error("host unavailable");
+    const client = host;
+    return {
+      call: <T>(method: string, params?: unknown) => client.call<T>(method, params),
+      loadFromPath: (path: string, permissions: string[], options?: { development?: boolean }) =>
+        plugins.loadFromPath(path, permissions, options),
+      dataDir,
+      log,
+    };
+  };
+
+  const drainToasts = () => {
+    for (const toast of plugins.drainToasts()) {
+      sendToRenderer(IPC.event.toast, { message: toast });
+    }
+  };
+
   handle(IPC.invoke.marketRefresh, async (payload?: { force?: boolean }) => {
     if (!host) throw new Error("host unavailable");
     return host.call("market.refresh", { force: payload?.force ?? true });
@@ -50,25 +82,53 @@ export function registerMarketIpc({
     return host.call("market.getDetail", { id });
   });
 
-  handle(IPC.invoke.marketInstall, async (payload: {
-    id: string;
-    version?: string;
-    enable?: boolean;
-    autoUpdate?: boolean;
-    grantedPermissions?: string[];
-  }) => {
-    if (!host) throw new Error("host unavailable");
-    const installed = await host.call<{ result: any }>("market.install", payload);
-    const plugin = installed.result?.plugin;
-    if (plugin?.enabled && plugin?.path) {
-      await plugins.loadFromPath(plugin.path, plugin.permissions ?? []);
-    }
-    for (const toast of plugins.drainToasts()) {
-      sendToRenderer(IPC.event.toast, { message: toast });
-    }
-    sendToRenderer(IPC.event.pluginChanged,{ reason: "market.install", pluginId: payload.id });
-    return installed;
-  });
+  handle(
+    IPC.invoke.marketInstall,
+    async (payload: {
+      id: string;
+      version?: string;
+      enable?: boolean;
+      autoUpdate?: boolean;
+      grantedPermissions?: string[];
+      publisherId?: string;
+      trust?: string;
+    }) => {
+      if (!host) throw new Error("host unavailable");
+      // An official pi package is installed by this app's npm pipeline; every
+      // other market id names a package the host downloads itself. The id
+      // decides, because the id is what the market listed and what the install
+      // records.
+      const packageName = piPackageFromPluginId(payload?.id ?? "");
+      if (packageName) {
+        const installed = await installPiPackage(piPackageDeps(), {
+          pluginId: payload.id,
+          packageName,
+          version: payload.version,
+          grantedPermissions: payload.grantedPermissions ?? [],
+          autoUpdate: payload.autoUpdate ?? false,
+          publisherId: payload.publisherId,
+          trust: payload.trust,
+        });
+        drainToasts();
+        sendToRenderer(IPC.event.pluginChanged, {
+          reason: "market.install",
+          pluginId: payload.id,
+        });
+        return { result: installed };
+      }
+      const installed = await host.call<{ result: any }>("market.install", payload);
+      const plugin = installed.result?.plugin;
+      if (plugin?.enabled && plugin?.path) {
+        await plugins.loadFromPath(plugin.path, plugin.permissions ?? []);
+      }
+      drainToasts();
+      sendToRenderer(IPC.event.pluginChanged, {
+        reason: "market.install",
+        pluginId: payload.id,
+      });
+      return installed;
+    },
+  );
 
   handle(
     IPC.invoke.marketCheckUpdates,
@@ -82,8 +142,12 @@ export function registerMarketIpc({
 
   handle(IPC.invoke.marketApplyUpdates, async (payload?: { onlyAuto?: boolean }) => {
     if (!host) throw new Error("host unavailable");
+    const onlyAuto = payload?.onlyAuto ?? true;
+    // The host applies the catalog installs and resolves the pending official
+    // package versions; the npm pipeline applies those, because only it can
+    // materialize a package.
     const applied = await host.call<{ results: any[]; plugins: any[] }>("market.applyUpdates", {
-      onlyAuto: payload?.onlyAuto ?? true,
+      onlyAuto,
     });
     for (const item of applied.results ?? []) {
       const plugin = item?.plugin;
@@ -91,7 +155,19 @@ export function registerMarketIpc({
         await plugins.loadFromPath(plugin.path, plugin.permissions ?? []);
       }
     }
-    sendToRenderer(IPC.event.pluginChanged,{ reason: "market.applyUpdates" });
+    const pending = piPackageUpdates(applied.plugins ?? [], onlyAuto);
+    if (pending.length > 0) {
+      const { results, failures } = await applyPiPackageUpdates(piPackageDeps(), pending);
+      for (const failure of failures) {
+        // A package that could not be applied is reported rather than silently
+        // dropped; the others still land.
+        sendToRenderer(IPC.event.toast, { message: failure.error });
+      }
+      sendToRenderer(IPC.event.pluginChanged, { reason: "market.applyUpdates" });
+      drainToasts();
+      return { ...applied, results: [...(applied.results ?? []), ...results] };
+    }
+    sendToRenderer(IPC.event.pluginChanged, { reason: "market.applyUpdates" });
     return applied;
   });
 
@@ -148,10 +224,7 @@ export function registerMarketIpc({
       });
     }
     await cmd.run();
-    for (const toast of plugins.drainToasts()) {
-      sendToRenderer(IPC.event.toast, { message: toast });
-    }
+    drainToasts();
     return { ok: true, commandId };
   });
-
 }

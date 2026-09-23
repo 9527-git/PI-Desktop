@@ -7,6 +7,7 @@ export type AppVersionInfo = {
   protocolVersion: number;
   hostProtocolVersion?: number;
   hostVersion?: string;
+  kernelVersion?: string;
   platform: string;
   arch: string;
 };
@@ -70,6 +71,13 @@ export type UpdateState = {
   /** True when the transition came from a user-initiated check. */
   manual?: boolean;
   releasesUrl: string;
+};
+
+/** Result of a manual PI kernel update check against the public npm registry (D467). */
+export type KernelUpdateResult = {
+  currentVersion: string;
+  latestVersion: string;
+  updateAvailable: boolean;
 };
 
 export type OnboardingState = {

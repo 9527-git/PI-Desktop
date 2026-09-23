@@ -192,7 +192,11 @@ test("marketplace blocks install for a version with no published package", () =>
   // `installable` is the single answer every install affordance reads, so it
   // has to cover every reason the host would refuse the download: no package
   // yet, a host too old for the version, or a package URL off the allowlist.
-  assert.match(hostSrc, /installable: latest_version\s*\n\s*\.map\(\|version\| \{/);
+  // A catalog source answers it from the version it offers; the official pi
+  // package source answers it from the package's own `pi` declarations, which
+  // is why the gate is selected per provider rather than written once.
+  assert.match(hostSrc, /installable: match self\.market_provider\(\) \{/);
+  assert.match(hostSrc, /MarketProvider::Catalog => latest_version\s*\n\s*\.map\(\|version\| \{/);
   assert.match(hostSrc, /has_package_metadata\(version\)\s*\n\s*&& host_supports_version\(version\)/);
   assert.match(hostSrc, /package_host_allowed\(&version\.url, &catalog_url\)\.is_ok\(\)/);
   for (const catalog of Object.values(catalogs)) {

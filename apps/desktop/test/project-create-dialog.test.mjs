@@ -29,7 +29,13 @@ test("create project dialog supports named multi-folder setup", () => {
   assert.match(dialog, /project-create-dialog-content/);
   assert.match(dialog, /project-create-dialog-section/);
   assert.match(dialog, /project-create-dialog-field-label/);
-  assert.match(dialog, /disabled=\{!name\.trim\(\) \|\| folders\.length === 0 \|\| busy\}/);
+  // The name field is optional: the dialog derives a default from the folder,
+  // and a typed name stops that follow.
+  assert.match(dialog, /defaultProjectName\(\{/);
+  assert.match(dialog, /resolveProjectName\(name, defaultName\)/);
+  assert.match(dialog, /setName\(defaultName\)/);
+  assert.match(dialog, /nameTouchedRef\.current = true/);
+  assert.match(dialog, /disabled=\{!projectName \|\| folders\.length === 0 \|\| busy\}/);
   assert.match(dialog, /querySelectorAll<HTMLElement>\(/);
 });
 

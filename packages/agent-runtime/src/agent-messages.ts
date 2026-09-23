@@ -31,6 +31,18 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+export function isStringList(value: unknown): value is string[] {
+  return (
+    Array.isArray(value) && value.every((item) => typeof item === "string")
+  );
+}
+
+/** Whitelist-filter an unknown value into a string array. */
+export function stringListOrNull(value: unknown): string[] {
+  return isStringList(value)
+    ? value.filter((name) => name.length > 0)
+    : [];
+}
 /** JSON-clone an opaque value so it satisfies pi 0.85 `JsonValue`. */
 export function toJsonValue(value: unknown): JsonValue | undefined {
   if (value === undefined) return undefined;

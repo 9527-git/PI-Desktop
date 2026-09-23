@@ -6634,3 +6634,83 @@ the range label `<1` instead of naming a figure the occupancy has not reached.
   of truncating the label with `parseInt`.
 - See `04-ux/08-component-spec.md` §8.3/§8.5 and
   E2E-CHAT-context-percent-precision in `06-delivery/04-e2e-test-plan.md`.
+
+## 2026-09-20 — The Create project name defaults to the primary folder (D600)
+
+- The Create project dialog required a typed name before Create became
+  available, so a local folder pick could not be confirmed without inventing a
+  title.
+- The name field is now optional. It seeds from the first selected folder and
+  stops following the source as soon as the user types their own name. Create
+  is gated by the source alone (one folder), and a field left empty falls back
+  to the same derived name.
+- Derived names are cut to `MAX_PROJECT_NAME_CHARS` (80) so the persisted
+  sidebar preference and the name field accept them unchanged. Folder-name
+  parsing moves to `apps/desktop/src/lib/project-name.ts` and is shared with the
+  dialog's folder rows.
+- Backports upstream commit 910844706 and keeps its number (upstream D600).
+  This line has no git project source, so the folder pick is the only seeded
+  source here. Renderer only: no protocol, storage, host, permission, or
+  migration change, and no new default. See `04-ux/08-component-spec.md`,
+  ADR 0233, and E2E-012a.
+
+## 2026-09-23 — Settings → Info shows the PI kernel version and checks it upstream (D467)
+
+> **The View release target is corrected by D468 the same day.**
+The Info page listed the app, host, and protocol versions but nothing about the
+pi agent kernel the sidecar actually runs, so a user or a bug report could not
+name the kernel in use — and the pinned `@earendil-works/pi-agent-core` version
+(0.87.0) already trailed the newest published one (0.87.1).
+
+`@pi-desktop/agent-runtime` now exports `PI_KERNEL_VERSION`, resolved from that
+pinned dependency's `package.json` at build time, so the figure can never drift
+from the bundled kernel, plus `parseKernelVersion` / `isNewerKernelVersion` for
+release comparison. `app/getVersion` carries the version as an additive
+`kernelVersion` field, and a new `pi-desktop/kernel/checkUpdate` invoke channel
+answers a manual check: Main reads
+`https://registry.npmjs.org/@earendil-works%2Fpi-agent-core/latest` through the
+existing public-HTTPS client (the same policy and proxy path as the skill
+market), refuses an unexpected payload, and answers
+`{ currentVersion, latestVersion, updateAvailable }`.
+
+Settings → Info gains a **PI kernel** row under the application row: it shows
+the bundled version and one **Check for updates** action with up-to-date,
+newer-available, and localized-error states. The kernel ships inside PI-Desktop
+releases, so a newer upstream kernel says so and offers View release instead of
+downloading anything; the check is manual-only, is not gated by
+`autoUpdateCheck`, and adds no persisted setting. New `kernel.*` strings ship
+in all eight locales, and Settings search indexes the row.
+
+- Additive IPC only: one invoke channel and one optional `AppVersionInfo`
+  field; no Host RPC, storage schema, permission, or `PROTOCOL_VERSION` change.
+- Regression coverage: `kernel-update.test.mjs` (channel, registry source,
+  row, locales) and `kernel-version.test.ts` (pinned-version equality and the
+  comparison).
+- See `04-ux/06-settings-ia.md` §Info and
+  E2E-UPDATES-kernel-version-and-check in `06-delivery/04-e2e-test-plan.md`.
+
+## 2026-09-23 — The PI kernel row opens the kernel's own release page (D468)
+
+D467 gave the Info kernel row a View release action but routed it through the
+app updater's `pi-desktop/updates/openReleases`, so the action opened the
+PI-Desktop releases page while the row was naming an upstream kernel version —
+the page and the claim disagreed.
+
+`@pi-desktop/agent-runtime` now also exports `PI_KERNEL_RELEASES_URL`, derived
+at build time from the pinned `@earendil-works/pi-agent-core` `repository`
+field through the new `kernelRepositoryUrl` normalizer (which refuses anything
+that is not a plain `https://host/owner/repo`), so the destination follows the
+kernel pin exactly as `PI_KERNEL_VERSION` does. A new
+`pi-desktop/kernel/openReleases` invoke channel opens that URL through the
+existing `safeOpenExternal` gate, and the kernel row's View release action uses
+it. The app's own Updates row keeps `pi-desktop/updates/openReleases`.
+
+- Additive IPC only: one invoke channel; no `PROTOCOL_VERSION`, Host RPC,
+  storage schema, permission, or persisted-setting change.
+- The destination is never renderer-supplied; Main owns the URL
+  (D313 / ADR 0157).
+- Regression coverage: `kernel-update.test.mjs` (channel, Main handler, row
+  action, and that the row never calls `updatesOpenReleases`) and
+  `kernel-version.test.ts` (repository normalization and the derived URL).
+- See `04-ux/06-settings-ia.md` §Info and
+  E2E-UPDATES-kernel-version-and-check in `06-delivery/04-e2e-test-plan.md`.

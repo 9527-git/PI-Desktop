@@ -132,6 +132,15 @@ export const zhCN = {
     dismiss: "忽略",
     devDisabled: "开发版本不支持自动更新。",
   },
+  kernel: {
+    title: "PI 内核",
+    desc: "随应用打包的智能体内核；内核更新随 PI-Desktop 版本发布。",
+    check: "检查更新",
+    checking: "正在检查更新…",
+    upToDate: "已是最新（{{version}}）。",
+    available: "上游已有 {{version}}，将随 PI-Desktop 更新提供。",
+    error: "检查更新失败：{{message}}",
+  },
   nav: {
     pinnedSessions: "置顶",
     home: "首页",
@@ -948,10 +957,13 @@ sklm: {
     marketProvider: "插件市场来源",
     marketProviderOfficial: "GitHub（官方）",
     marketProviderMirror: "镜像（cnb.cool）",
+    marketProviderPidev: "pi.dev 官方插件（npm）",
     marketProviderCustom: "自定义地址",
     marketCustomUrl: "目录地址",
     marketCustomUrlDesc:
       "catalog.json 的完整地址。目录内的安装包相对路径会基于该地址解析。",
+    marketPidevDesc:
+      "pi.dev 插件目录中的官方插件。安装包来自 npm，更新跟随你已安装的版本。",
     marketCustomUrlPlaceholder: "https://example.com/catalog.json",
     search: "搜索设置",
     searchPlaceholder: "搜索设置…",
@@ -1738,6 +1750,8 @@ sklm: {
     updatedOn: "更新于 {{date}}",
     packagePending: "尚未发布安装包",
     packagePendingHint: "发布者登记了 v{{version}}，但还没有上传安装包，暂时无法安装。",
+    installOnlyInDetail: "打开插件详情后安装",
+    installBlockedPackage: "该包尚未声明 PI-Desktop 可加载的内容",
     withdrawn: "已撤回",
     withdrawnHint: "v{{version}} 已被撤回，无法继续安装。",
     withdrawnReason: "原因：{{reason}}",

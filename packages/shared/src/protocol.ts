@@ -2,7 +2,7 @@ export const PROTOCOL_VERSION = 11 as const;
 export const SCHEMA_VERSION = 16 as const;
 export const APP_ID = "com.pi-desktop.app";
 export const APP_NAME = "PI-Desktop";
-export const APP_VERSION = "0.16.3";
+export const APP_VERSION = "0.16.7";
 
 export const APP_MENU_COMMANDS = [
   "newTask",
@@ -63,6 +63,10 @@ export const IPC = {
     updatesDownload: "pi-desktop/updates/download",
     updatesInstall: "pi-desktop/updates/install",
     updatesOpenReleases: "pi-desktop/updates/openReleases",
+    /** Manual PI kernel update check against the public npm registry (D467). */
+    kernelCheckUpdate: "pi-desktop/kernel/checkUpdate",
+    /** The upstream kernel's own release page, resolved by Main (D468). */
+    kernelOpenReleases: "pi-desktop/kernel/openReleases",
     notificationList: "pi-desktop/notification/list",
     notificationMarkRead: "pi-desktop/notification/markRead",
     notificationMarkAllRead: "pi-desktop/notification/markAllRead",

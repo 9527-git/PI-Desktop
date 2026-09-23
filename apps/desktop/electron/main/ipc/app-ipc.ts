@@ -12,7 +12,12 @@ import {
   buildBugReportUrl,
   type QuitDialogResponse,
 } from "@pi-desktop/shared";
-import { globalInstructionPath } from "@pi-desktop/agent-runtime";
+import {
+  PI_KERNEL_RELEASES_URL,
+  PI_KERNEL_VERSION,
+  globalInstructionPath,
+} from "@pi-desktop/agent-runtime";
+import { checkKernelUpdate } from "../kernel-update";
 import type { HostProcess } from "../host-process";
 import type { AppUpdaterController } from "../updater";
 import type { IpcRegistrar } from "./types";
@@ -27,7 +32,7 @@ export type AppIpcDependencies = {
   quitDialog: { respond: (response: QuitDialogResponse) => void };
 };
 
-/** Register app, instruction, launcher and update channels. */
+/** Register app, instruction, launcher, kernel and update channels. */
 export function registerAppIpc({
   registrar,
   getHost,
@@ -91,6 +96,7 @@ export function registerAppIpc({
       protocolVersion: PROTOCOL_VERSION,
       hostProtocolVersion: hostVersion?.protocolVersion,
       hostVersion: hostVersion?.version,
+      kernelVersion: PI_KERNEL_VERSION,
       platform: process.platform,
       arch: process.arch,
     };
@@ -229,6 +235,14 @@ export function registerAppIpc({
   });
   handle(IPC.invoke.updatesOpenReleases, async () => {
     await updater.openReleases();
+    return { ok: true };
+  });
+  handle(IPC.invoke.kernelCheckUpdate, async () => checkKernelUpdate());
+  handle(IPC.invoke.kernelOpenReleases, async () => {
+    if (!PI_KERNEL_RELEASES_URL) {
+      throw new Error("kernel repository unavailable");
+    }
+    await safeOpenExternal(PI_KERNEL_RELEASES_URL);
     return { ok: true };
   });
 }

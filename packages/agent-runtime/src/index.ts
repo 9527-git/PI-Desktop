@@ -13,6 +13,7 @@ export * from "./provider-headers.js";
 export * from "./project-instructions.js";
 export * from "./project-instructions-prompt.js";
 export * from "./project-memory-prompt.js";
+export * from "./kernel-version.js";
 export * from "./subagent.js";
 export * from "./subagent-definitions.js";
 export * from "./session-title-summarize.js";

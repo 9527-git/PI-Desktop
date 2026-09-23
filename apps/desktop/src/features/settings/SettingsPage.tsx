@@ -52,6 +52,7 @@ import {
   ImportSection,
   UpdatesRow,
 } from "./agent-sections";
+import { KernelUpdateRow } from "./kernel-row";
 import { CloseBehaviorSection, DeveloperSection } from "./developer-sections";
 
 type SettingsTab = ReturnType<typeof useAppStore.getState>["settingsTab"];
@@ -418,6 +419,7 @@ export function SettingsPage() {
                     </div>
                   </div>
                 </SettingsRow>
+                <KernelUpdateRow kernelVersion={version?.kernelVersion} />
                 <SettingsRow title={t("settings.logs")} description={t("settings.logsDesc")}>
                   <Button variant="secondary" onClick={() => void api.openLogs()}>
                     {t("settings.openLogs")}

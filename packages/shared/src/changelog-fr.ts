@@ -2,6 +2,40 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.7",
+    "date": "2026-09-23",
+    "highlights": [
+      "La ligne du noyau PI dans Paramètres → Informations ouvre désormais, depuis Voir la version, la page des versions du noyau pi lui-même au lieu de celle de PI-Desktop.",
+    ],
+  },
+
+  {
+    "version": "0.16.6",
+    "date": "2026-09-23",
+    "highlights": [
+      "La création d'un projet ne demande plus de saisir un nom : l'ajout d'un dossier préremplit le nom du projet avec celui du dossier, et le nom que vous saisissez vous-même reste prioritaire.",
+      "Paramètres → Informations ajoute une ligne du noyau PI : elle affiche la version du noyau de l'agent pi embarquée et vérifie la dernière publiée à la demande ; la vérification se contente de rapporter le résultat.",
+    ],
+  },
+
+  {
+    "version": "0.16.5",
+    "date": "2026-09-22",
+    "highlights": [
+      "Le noyau de l'agent pi passe à 0.87.0 : les relais de type DeepSeek continuent de fonctionner lorsque le raisonnement est conservé d'un tour à l'autre, et les flux OpenAI Responses ne se bloquent plus quand le serveur ou un proxy ne ferme jamais la connexion.",
+      "L'installation des dépendances de plugins refonctionne sous Windows quand Node se trouve dans un chemin contenant des espaces (par exemple C:\Program Files\nodejs) : la commande d'installation est désormais citée au lieu d'être coupée par cmd.",
+      "Les chemins masqués des journaux se lisent de la même façon sur toutes les plateformes : un chemin Windows derrière <data-dir> ne mélange plus d'antislashs dans la forme masquée.",
+    ],
+  },
+
+  {
+    "version": "0.16.4",
+    "date": "2026-09-21",
+    "highlights": [
+      "Cette version reprend l'application 0.16.3 inchangée. Le seul changement est de la maintenance du dépôt : le projet ignore désormais le répertoire de travail `.mimosa` de ZCode.",
+    ],
+  },
+  {
     "version": "0.16.3",
     "date": "2026-09-21",
     "highlights": [

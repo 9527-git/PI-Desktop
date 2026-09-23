@@ -130,6 +130,15 @@ export const es = {
     "autoCheckDesc": "Busca nuevas versiones en GitHub Releases al iniciar y periódicamente; las comprobaciones manuales no se ven afectadas.",
     "devDisabled": "Las actualizaciones están deshabilitadas en las compilaciones de desarrollo."
   },
+  "kernel": {
+    "title": "Núcleo de PI",
+    "desc": "Núcleo del agente incluido con la aplicación. Las actualizaciones del núcleo llegan con las versiones de PI-Desktop.",
+    "check": "Buscar actualizaciones",
+    "checking": "Buscando actualizaciones...",
+    "upToDate": "Actualizado ({{version}}).",
+    "available": "La versión {{version}} está disponible y llegará con una actualización de PI-Desktop.",
+    "error": "No se pudieron buscar actualizaciones: {{message}}"
+  },
   "nav": {
     "pinnedSessions": "Fijadas",
     "home": "Inicio",
@@ -944,9 +953,11 @@ sklm: {
     "marketProvider": "Fuente de Marketplace",
     "marketProviderOfficial": "GitHub (oficial)",
     "marketProviderMirror": "Espejo (cnb.cool)",
+    "marketProviderPidev": "Paquetes oficiales de pi.dev (npm)",
     "marketProviderCustom": "URL personalizada",
     "marketCustomUrl": "URL del catálogo",
     "marketCustomUrlDesc": "URL completa de un catalog.json. Las rutas de los paquetes dentro de él se resuelven en esta dirección.",
+    "marketPidevDesc": "Plugins oficiales publicados en el catálogo de paquetes de pi.dev. Los paquetes se instalan desde npm y las actualizaciones siguen la versión instalada.",
     "marketCustomUrlPlaceholder": "https://example.com/catalog.json",
     "search": "Configuración de búsqueda",
     "searchPlaceholder": "Configuración de búsqueda…",
@@ -1731,6 +1742,8 @@ sklm: {
     "updatedOn": "Actualizado {{date}}",
     "packagePending": "Aún no publicado",
     "packagePendingHint": "El editor incluyó v{{version}} pero no ha subido su paquete, por lo que aún no se puede instalar.",
+    "installOnlyInDetail": "Abre este plugin para instalarlo",
+    "installBlockedPackage": "Este paquete aún no declara nada que PI-Desktop pueda cargar",
     "withdrawn": "Retirado",
     "withdrawnHint": "v{{version}} se retiró y ya no se puede instalar.",
     "withdrawnReason": "Motivo: {{reason}}",

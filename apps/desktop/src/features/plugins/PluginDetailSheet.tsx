@@ -107,21 +107,23 @@ export function PluginDetailSheet({
                     <span className="plugins-sheet-cta-meta">
                       {detailWithdrawn
                         ? t("plugins.withdrawnHint", { version: installTarget })
-                        : detailPackagePending
-                        ? t("plugins.packagePendingHint", { version: installTarget })
-                        : (
-                            <>
-                              {formatDate(activeVersion?.publishedAt, locale)}
-                              {activeVersion?.sizeBytes ? (
+                        : detail.installBlocked === "unsupported"
+                          ? t("plugins.installBlockedPackage")
+                          : detailPackagePending
+                            ? t("plugins.packagePendingHint", { version: installTarget })
+                            : (
                                 <>
-                                  <span className="plugins-dot" aria-hidden>
-                                    ·
-                                  </span>
-                                  {formatBytes(activeVersion.sizeBytes)}
+                                  {formatDate(activeVersion?.publishedAt, locale)}
+                                  {activeVersion?.sizeBytes ? (
+                                    <>
+                                      <span className="plugins-dot" aria-hidden>
+                                        ·
+                                      </span>
+                                      {formatBytes(activeVersion.sizeBytes)}
+                                    </>
+                                  ) : null}
                                 </>
-                              ) : null}
-                            </>
-                          )}
+                              )}
                     </span>
                   </div>
                   {detailUpToDate ? (
@@ -144,13 +146,15 @@ export function PluginDetailSheet({
                     >
                       {detailWithdrawn
                         ? t("plugins.withdrawn")
-                        : detailPackagePending
-                        ? t("plugins.packagePending")
-                        : busyId === detail.id
-                          ? t("plugins.installing")
-                          : installedDetail
-                            ? t("plugins.updateNow")
-                            : t("plugins.installVersion", { version: installTarget })}
+                        : detail.installBlocked === "unsupported"
+                          ? t("plugins.installBlockedPackage")
+                          : detailPackagePending
+                            ? t("plugins.packagePending")
+                            : busyId === detail.id
+                              ? t("plugins.installing")
+                              : installedDetail
+                                ? t("plugins.updateNow")
+                                : t("plugins.installVersion", { version: installTarget })}
                     </Button>
                   )}
                 </div>

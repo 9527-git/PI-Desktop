@@ -130,6 +130,15 @@ export const de = {
     "autoCheckDesc": "Beim Start und regelmäßig auf neue Versionen auf GitHub Releases prüfen; manuelle Prüfungen sind nicht betroffen.",
     "devDisabled": "Updates sind in Entwicklungs-Builds deaktiviert."
   },
+  "kernel": {
+    "title": "PI-Kernel",
+    "desc": "Mit der App gebündelter Agent-Kernel. Kernel-Updates erscheinen mit PI-Desktop-Versionen.",
+    "check": "Nach Updates suchen",
+    "checking": "Nach Updates suchen…",
+    "upToDate": "Aktuell ({{version}}).",
+    "available": "{{version}} ist verfügbar und erscheint mit einem PI-Desktop-Update.",
+    "error": "Konnte nicht nach Updates suchen: {{message}}"
+  },
   "nav": {
     "pinnedSessions": "Angeheftet",
     "home": "Startseite",
@@ -944,9 +953,11 @@ sklm: {
     "marketProvider": "Marktplatz-Quelle",
     "marketProviderOfficial": "GitHub (offiziell)",
     "marketProviderMirror": "Mirror (cnb.cool)",
+    "marketProviderPidev": "Offizielle pi.dev-Pakete (npm)",
     "marketProviderCustom": "Benutzerdefinierte URL",
     "marketCustomUrl": "Katalog-URL",
     "marketCustomUrlDesc": "Vollständige URL eines Katalogs.json. Die darin enthaltenen Paketpfade werden anhand dieser Adresse aufgelöst.",
+    "marketPidevDesc": "Offizielle Plugins aus dem pi.dev-Paketkatalog. Die Pakete werden von npm installiert, Updates folgen der installierten Version.",
     "marketCustomUrlPlaceholder": "https://example.com/catalog.json",
     "search": "Sucheinstellungen",
     "searchPlaceholder": "Sucheinstellungen…",
@@ -1731,6 +1742,8 @@ sklm: {
     "updatedOn": "Aktualisiert am {{date}}",
     "packagePending": "Noch nicht veröffentlicht",
     "packagePendingHint": "Der Herausgeber hat v{{version}} aufgeführt, sein Paket jedoch nicht hochgeladen und kann daher noch nicht installiert werden.",
+    "installOnlyInDetail": "Zum Installieren die Plugin-Details öffnen",
+    "installBlockedPackage": "Dieses Paket deklariert noch nichts, was PI-Desktop laden kann",
     "withdrawn": "Zurückgezogen",
     "withdrawnHint": "v{{version}} wurde zurückgezogen und kann nicht mehr installiert werden.",
     "withdrawnReason": "Grund: {{reason}}",

@@ -105,10 +105,12 @@ test("the hard boundary is enforced by the host, with a model-side escape hatch"
   assert.match(runtime, /function contextFallbackReminder\(/);
   assert.match(runtime, /contextReminderClaimed/);
   assert.match(runtime, /contextFallbackReminderClaimed/);
-  // The reminder is a per-turn append, so it never reaches the transcript.
+  // The reminder is a per-turn append (a trailing system message on the
+  // turn's context; pi 0.87 derives systemPrompt from the transcript), so it
+  // never reaches the persisted transcript.
   assert.match(
     runtime,
-    /systemPrompt: `\$\{context\.systemPrompt\}\\n\\n\$\{reminder\}`/,
+    /\.\.\.context\.messages,\s*\n\s*\{\s*\n\s*role: "system" as const,\s*\n\s*content: reminder,\s*\n\s*timestamp: Date\.now\(\),/,
   );
   assert.match(hostPermissions, /"new_context"/);
 });
