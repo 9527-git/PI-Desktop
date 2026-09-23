@@ -67,7 +67,7 @@ export type AppSettings = {
   /**
    * Extension marketplace provider. `mirror` targets the cnb.cool copy for
    * networks that cannot reach `raw.githubusercontent.com`; both serve the
-   * same catalog and packages.
+   * same catalog and packages. `pidev` reads the pi.dev npm package catalog.
    */
   pluginMarketSource?: PluginMarketSource;
   /** Catalog URL used when `pluginMarketSource` is `custom`. */

@@ -963,10 +963,13 @@ sklm: {
     marketProvider: "마켓플레이스 소스",
     marketProviderOfficial: "GitHub (공식)",
     marketProviderMirror: "미러 (cnb.cool)",
+    marketProviderPidev: "pi.dev 공식 패키지(npm)",
     marketProviderCustom: "사용자 지정 URL",
     marketCustomUrl: "카탈로그 URL",
     marketCustomUrlDesc:
       "catalog.json의 전체 URL입니다. 내부 패키지 경로는 이 주소를 기준으로 해석됩니다.",
+    marketPidevDesc:
+      "pi.dev 패키지 카탈로그에 게시된 공식 플러그인입니다. 패키지는 npm에서 설치되며 업데이트는 설치한 버전을 따릅니다.",
     marketCustomUrlPlaceholder: "https://example.com/catalog.json",
     search: "설정 검색",
     searchPlaceholder: "설정 검색…",
@@ -1759,6 +1762,8 @@ importConfirm: "가져온 확장은 에이전트 프로세스 안에서 에이�
     packagePending: "아직 게시되지 않음",
     packagePendingHint:
       "게시자가 v{{version}}을(를) 등록했지만 패키지를 업로드하지 않아 아직 설치할 수 없습니다.",
+    installOnlyInDetail: "설치하려면 이 플러그인을 여세요",
+    installBlockedPackage: "이 패키지는 아직 PI-Desktop이 불러올 수 있는 항목을 선언하지 않았습니다",
     withdrawn: "철회됨",
     withdrawnHint: "v{{version}}은(는) 철회되어 더 이상 설치할 수 없습니다.",
     withdrawnReason: "이유: {{reason}}",

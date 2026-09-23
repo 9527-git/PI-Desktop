@@ -121,6 +121,13 @@ export function MarketplacePanel({
                   // Older hosts do not report the field; absence means the
                   // catalog was trusted, so only an explicit false blocks.
                   const packagePending = item.installable === false;
+                  // A source that reads its entries per query can offer one
+                  // whose package has not been read yet. Installing from here
+                  // would ask for consent to a permission list nobody derived,
+                  // so the card points at the detail sheet, which reads the
+                  // package and shows what the install would actually ask for.
+                  const readFirst = packagePending && item.installBlocked === "not_read";
+                  const unsupported = packagePending && item.installBlocked === "unsupported";
                   return (
                     <article
                       key={item.id}
@@ -185,34 +192,53 @@ export function MarketplacePanel({
                             <IconCheck size={13} />
                             {t("plugins.installedLabel")}
                           </span>
+                        ) : readFirst ? (
+                          <span className="plugins-card-hint">{t("plugins.installOnlyInDetail")}</span>
                         ) : (
                           <Button
                             variant="primary"
                             size="sm"
                             disabled={busyId === item.id || packagePending}
                             title={
-                              packagePending
-                                ? t("plugins.packagePendingHint", {
-                                    version: item.latestVersion,
-                                  })
-                                : undefined
+                              unsupported
+                                ? t("plugins.installBlockedPackage")
+                                : packagePending
+                                  ? t("plugins.packagePendingHint", {
+                                      version: item.latestVersion,
+                                    })
+                                  : undefined
                             }
                             onClick={() =>
                               queueInstall({
                                 id: item.id,
                                 name: item.name,
-                                permissions: item.permissionSummary ?? [],
+                                // An update is granted against what the user
+                                // already holds plus what the new version adds;
+                                // a fresh install asks for what the listing
+                                // declared. A source whose listing carries no
+                                // permission list therefore still updates
+                                // through the permissions already granted.
+                                permissions: installed
+                                  ? [
+                                      ...new Set([
+                                        ...(installed.permissions ?? []),
+                                        ...(installed.updateAvailable?.permissionDiff ?? []),
+                                      ]),
+                                    ]
+                                  : (item.permissionSummary ?? []),
                                 version: item.latestVersion,
                               })
                             }
                           >
-                            {packagePending
-                              ? t("plugins.packagePending")
-                              : busyId === item.id
-                                ? t("plugins.installing")
-                                : upgradable
-                                  ? t("plugins.updateNow")
-                                  : t("plugins.install")}
+                            {unsupported
+                              ? t("plugins.installBlockedPackage")
+                              : packagePending
+                                ? t("plugins.packagePending")
+                                : busyId === item.id
+                                  ? t("plugins.installing")
+                                  : upgradable
+                                    ? t("plugins.updateNow")
+                                    : t("plugins.install")}
                           </Button>
                         )}
                       </div>

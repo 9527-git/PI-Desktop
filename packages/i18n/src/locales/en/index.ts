@@ -963,10 +963,13 @@ sklm: {
     marketProvider: "Marketplace source",
     marketProviderOfficial: "GitHub (official)",
     marketProviderMirror: "Mirror (cnb.cool)",
+    marketProviderPidev: "pi.dev official packages (npm)",
     marketProviderCustom: "Custom URL",
     marketCustomUrl: "Catalog URL",
     marketCustomUrlDesc:
       "Full URL of a catalog.json. Package paths inside it resolve against this address.",
+    marketPidevDesc:
+      "Official plugins published in the pi.dev package catalog. Packages are installed from npm and updates follow the version you installed.",
     marketCustomUrlPlaceholder: "https://example.com/catalog.json",
     search: "Search settings",
     searchPlaceholder: "Search settings…",
@@ -1760,6 +1763,8 @@ importConfirm: "Imported extensions run inside the agent process with the same a
     packagePending: "Not published yet",
     packagePendingHint:
       "The publisher listed v{{version}} but has not uploaded its package, so it cannot be installed yet.",
+    installOnlyInDetail: "Open this plugin to install it",
+    installBlockedPackage: "This package declares nothing PI-Desktop can load yet",
     withdrawn: "Withdrawn",
     withdrawnHint: "v{{version}} was withdrawn and can no longer be installed.",
     withdrawnReason: "Reason: {{reason}}",
