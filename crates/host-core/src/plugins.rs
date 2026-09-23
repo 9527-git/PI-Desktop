@@ -26,9 +26,14 @@ mod registry;
 mod validation;
 
 pub use manifest::PluginManifest;
-pub use marketplace::{
-    market_source_from_settings, MIRROR_MARKET_CATALOG_URL, OFFICIAL_MARKET_CATALOG_URL,
+pub(crate) use marketplace::{
+    is_pi_package_plugin, is_pi_packages_source, MIRROR_MARKET_CATALOG_URL,
+    OFFICIAL_MARKET_CATALOG_URL, PI_PACKAGES_PROVIDER_ID, PI_PACKAGES_SOURCE_URL,
 };
+pub use marketplace::{market_source_from_settings, MarketProvider};
+
+/// The official pi package catalog, served by npm; see the module docs.
+pub(crate) use marketplace::pi_packages;
 pub use model::{
     InstallOptions, InstallResult, MarketDownloadInfo, MarketPluginDetail, MarketPluginSummary,
     MarketProvenance, MarketReview, MarketVersion, PluginMarketplaceMeta, PluginSettingDefinition,
