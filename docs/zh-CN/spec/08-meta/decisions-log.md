@@ -5072,6 +5072,7 @@ PI-Desktop 把检查点锚在 `throughMessageId` 之后，而它在压缩时就�
 
 ## 2026-09-23 —— 信息页显示 PI 内核版本并可检测上游更新（D467）
 
+> **「查看发布页」的目标同日由 D468 修正。**
 信息页此前只列应用、host 与 protocol 版本，用户或问题反馈无法说清 sidecar
 实际运行的内核——而固定的 `@earendil-works/pi-agent-core` 版本（0.87.0）已经
 落后于 npm 上的最新发布版本（0.87.1）。`@pi-desktop/agent-runtime` 现在导出
@@ -5091,5 +5092,27 @@ PI-Desktop 把检查点锚在 `throughMessageId` 之后，而它在压缩时就�
   存储 schema、权限或 `PROTOCOL_VERSION`。
 - 回归覆盖：`kernel-update.test.mjs`（通道、registry 来源、行与语言文案）与
   `kernel-version.test.ts`（与固定版本一致、比较逻辑）。
+- 见 `04-ux/06-settings-ia.md` §信息 与
+  `06-delivery/04-e2e-test-plan.md` 中的 E2E-UPDATES-kernel-version-and-check。
+
+## 2026-09-23 —— PI 内核行打开内核自己的发布页（D468）
+
+D467 为信息页内核行加了「查看发布页」，但它走的是应用更新的
+`pi-desktop/updates/openReleases`，于是操作打开的是 PI-Desktop 发布页，而行里
+写的却是上游内核版本——页面与所述不一致。
+
+`@pi-desktop/agent-runtime` 现在同时导出 `PI_KERNEL_RELEASES_URL`：构建时从固定
+的 `@earendil-works/pi-agent-core` 的 `repository` 字段解析，并经新增的
+`kernelRepositoryUrl` 规范化（非 `https://host/owner/repo` 一律拒绝），因此目标
+地址与 `PI_KERNEL_VERSION` 一样随内核固定版本走。新增的
+`pi-desktop/kernel/openReleases` 调用通道经既有 `safeOpenExternal` 门打开该地址，
+内核行的「查看发布页」改用它；应用自己的软件更新行仍用
+`pi-desktop/updates/openReleases`。
+
+- 仅新增 IPC：一个调用通道；不改 `PROTOCOL_VERSION`、Host RPC、存储 schema、
+  权限或持久化设置。
+- 目标地址从不由渲染器提供；URL 归主进程所有（D313 / ADR 0157）。
+- 回归覆盖：`kernel-update.test.mjs`（通道、主进程处理器、行操作，以及该行绝不
+  调用 `updatesOpenReleases`）与 `kernel-version.test.ts`（仓库规范化与派生地址）。
 - 见 `04-ux/06-settings-ia.md` §信息 与
   `06-delivery/04-e2e-test-plan.md` 中的 E2E-UPDATES-kernel-version-and-check。

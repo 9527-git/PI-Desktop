@@ -14,7 +14,8 @@ type KernelCheckState =
 /**
  * Bundled PI kernel version plus one manual upstream check (D467). Kernel
  * updates ship inside PI-Desktop releases, so a newer upstream kernel points
- * at the release page instead of downloading anything here.
+ * at the kernel's own release page (D468) instead of downloading anything
+ * here.
  */
 export function KernelUpdateRow({ kernelVersion }: { kernelVersion?: string }) {
   const { t } = useTranslation();
@@ -71,9 +72,7 @@ export function KernelUpdateRow({ kernelVersion }: { kernelVersion?: string }) {
           {state.status === "available" ? (
             <Button
               variant="secondary"
-              onClick={() =>
-                void api.updatesOpenReleases().catch(() => undefined)
-              }
+              onClick={() => void api.kernelOpenReleases().catch(() => undefined)}
             >
               {t("updates.viewRelease")}
             </Button>

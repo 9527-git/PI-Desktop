@@ -43,17 +43,32 @@ const [
   ),
 ]);
 
-test("the kernel check channel is declared and registered by Main", () => {
+test("the kernel check and release channels are declared and registered by Main", () => {
   assert.match(
     protocolSource,
     /kernelCheckUpdate:\s*"pi-desktop\/kernel\/checkUpdate"/,
     "the invoke channel is declared in the shared IPC map",
+  );
+  assert.match(
+    protocolSource,
+    /kernelOpenReleases:\s*"pi-desktop\/kernel\/openReleases"/,
+    "the kernel release page has its own channel",
   );
   assert.match(mainSource, /import \{ checkKernelUpdate \} from "\.\.\/kernel-update"/);
   assert.match(
     appIpcSource,
     /handle\(IPC\.invoke\.kernelCheckUpdate, async \(\) => checkKernelUpdate\(\)\)/,
     "Main answers the kernel check on the declared channel",
+  );
+  assert.match(
+    appIpcSource,
+    /handle\(IPC\.invoke\.kernelOpenReleases,[\s\S]*?safeOpenExternal\(PI_KERNEL_RELEASES_URL\)/,
+    "Main opens the kernel's own release page through the URL gate",
+  );
+  assert.doesNotMatch(
+    appIpcSource,
+    /kernelOpenReleases[\s\S]{0,200}updater\.openReleases/,
+    "the kernel action must not open the PI-Desktop releases page",
   );
 });
 
@@ -68,7 +83,8 @@ test("app/getVersion carries the bundled kernel version", () => {
   );
   assert.match(
     appIpcSource,
-    /import \{ PI_KERNEL_VERSION, globalInstructionPath \} from "@pi-desktop\/agent-runtime"/,
+    /import \{[\s\S]*?PI_KERNEL_RELEASES_URL,[\s\S]*?PI_KERNEL_VERSION,[\s\S]*?\} from "@pi-desktop\/agent-runtime"/,
+    "Main reads the kernel identity from the runtime package",
   );
 });
 
@@ -82,6 +98,8 @@ test("the agent runtime owns the kernel version and its comparison", () => {
   assert.match(runtimeKernelSource, /export function parseKernelVersion/);
   assert.match(runtimeKernelSource, /export function isNewerKernelVersion/);
   assert.match(runtimeIndexSource, /export \* from "\.\/kernel-version\.js"/);
+  assert.match(runtimeKernelSource, /export function kernelRepositoryUrl/);
+  assert.match(runtimeKernelSource, /export const PI_KERNEL_RELEASES_URL: string \| null/);
 });
 
 test("the check reads the public npm registry and never swaps the kernel", () => {
@@ -124,9 +142,18 @@ test("the renderer exposes the check and the Info page shows the kernel row", ()
   assert.match(kernelRowSource, /kernel\.available/);
   assert.match(kernelRowSource, /kernel\.error/);
   assert.match(
+    apiSource,
+    /kernelOpenReleases: \(\) => invoke\(IPC\.invoke\.kernelOpenReleases\)/,
+  );
+  assert.match(
     kernelRowSource,
-    /api\.updatesOpenReleases\(\)/,
-    "a newer kernel points at the releases page",
+    /api\.kernelOpenReleases\(\)/,
+    "a newer kernel points at the kernel's own release page",
+  );
+  assert.doesNotMatch(
+    kernelRowSource,
+    /updatesOpenReleases/,
+    "the kernel row must never open the PI-Desktop releases page",
   );
   assert.match(
     kernelRowSource,

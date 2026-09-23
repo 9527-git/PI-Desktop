@@ -539,9 +539,11 @@ system while preserving their different data ownership:
   dependency, and offers one manual **Check for updates** action that reads
   the newest published version from the public npm registry. The kernel ships
   inside PI-Desktop releases, so a newer upstream kernel reports that it
-  arrives with an app update and offers View release; the check downloads
-  nothing, is never gated by `autoUpdateCheck`, and adds no persisted
-  setting (D467)
+  arrives with an app update and offers View release, which opens the upstream
+  kernel's own release page (`pi-desktop/kernel/openReleases`, derived from the
+  pinned dependency's repository) instead of the PI-Desktop releases page; the
+  check downloads nothing, is never gated by `autoUpdateCheck`, and adds no
+  persisted setting (D467, D468)
 - **Developer** card:
   - developer mode is off unless the optional persisted
     `AppSettings.developerMode` value is `true`
@@ -655,7 +657,8 @@ system while preserving their different data ownership:
     expanded documents are refused and source badges follow `sourceId`
 28. Info shows the bundled PI kernel version and checks it on demand against
     the public npm registry, reporting up-to-date, newer-available (with a
-    link to the releases page), and error states without leaving the page
+    link to the upstream kernel's release page), and error states without
+    leaving the page
 
 ## 5. General chrome metrics
 
