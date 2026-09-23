@@ -386,6 +386,8 @@ export function registerIpcHandlers(dependencies: RegisterIpcDependencies) {
     optionalWorkspaceRoot,
     pluginActiveInProject,
     sendToRenderer,
+    dataDir,
+    log: (message, data) => logger.app("plugin", "info", message, data),
   });
 
 
