@@ -964,10 +964,13 @@ sklm: {
     marketProvider: "Mağaza kaynağı",
     marketProviderOfficial: "GitHub (resmi)",
     marketProviderMirror: "Ayna (cnb.cool)",
+    marketProviderPidev: "pi.dev resmî paketleri (npm)",
     marketProviderCustom: "Özel URL",
     marketCustomUrl: "Katalog URL’si",
     marketCustomUrlDesc:
       "Bir catalog.json dosyasının tam URL’si. İçindeki paket yolları bu adrese göre çözülür.",
+    marketPidevDesc:
+      "pi.dev paket kataloğunda yayımlanan resmî eklentiler. Paketler npm üzerinden kurulur ve güncellemeler kurulu sürümü izler.",
     marketCustomUrlPlaceholder: "https://example.com/catalog.json",
     search: "Ayarlarda ara",
     searchPlaceholder: "Ayarlarda ara…",
@@ -1760,6 +1763,8 @@ importConfirm: "İçe aktarılan uzantılar ajan sürecinde, ajanın kendi araç
     packagePending: "Henüz yayınlanmadı",
     packagePendingHint:
       "Yayıncı v{{version}} listelendi ama paketini yüklemedi, bu yüzden henüz kurulamaz.",
+    installOnlyInDetail: "Kurmak için bu eklentiyi açın",
+    installBlockedPackage: "Bu paket henüz PI-Desktop'ın yükleyebileceği bir şey bildirmiyor",
     withdrawn: "Geri çekildi",
     withdrawnHint: "v{{version}} geri çekildi ve artık kurulamaz.",
     withdrawnReason: "Neden: {{reason}}",

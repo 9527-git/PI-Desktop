@@ -3798,17 +3798,41 @@ async fn handle_request(
                 .get("grantedPermissions")
                 .cloned()
                 .and_then(|v| serde_json::from_value::<Vec<String>>(v).ok());
+            // A marketplace install the desktop app staged (an official pi
+            // package, whose dependencies only npm can materialize) registers
+            // through this same path, so it carries the provenance and the
+            // update policy the Plugins page reads. Every field is optional:
+            // absent, this stays the local-folder install it has always been,
+            // and only the app's own main process passes them.
+            let source = params
+                .get("source")
+                .and_then(|v| v.as_str())
+                .map(str::trim)
+                .filter(|value| !value.is_empty())
+                .unwrap_or("installed")
+                .to_string();
+            let auto_update = params
+                .get("autoUpdate")
+                .and_then(|v| v.as_bool())
+                .unwrap_or(false);
+            let marketplace = params
+                .get("marketplace")
+                .cloned()
+                .and_then(|v| {
+                    serde_json::from_value::<crate::plugins::PluginMarketplaceMeta>(v).ok()
+                })
+                .filter(|meta| !meta.provider_id.trim().is_empty());
             let mut st = state.lock().await;
             let result = st
                 .plugins
                 .install_from_path(
                     path,
                     crate::plugins::InstallOptions {
-                        source: "installed".into(),
+                        source,
                         enable,
-                        marketplace: None,
+                        marketplace,
                         expected_shasum: None,
-                        auto_update: false,
+                        auto_update,
                         granted_permissions: granted,
                     },
                 )
@@ -4131,6 +4155,25 @@ async fn handle_request(
                 .get("force")
                 .and_then(|v| v.as_bool())
                 .unwrap_or(true);
+            // The official pi package catalog has no document to cache: it is
+            // the npm registry, so refreshing it means asking for the browse
+            // listing and reporting that result.
+            let (provider, source_url) = {
+                let st = state.lock().await;
+                (st.plugins.market_provider(), st.plugins.market_source_url())
+            };
+            if provider == crate::plugins::MarketProvider::PiPackages {
+                let entries =
+                    crate::plugins::pi_packages::search_entries(None).map_err(plugin_err)?;
+                return Ok(json!({
+                    "providerId": crate::plugins::PI_PACKAGES_PROVIDER_ID,
+                    "name": "pi.dev official packages",
+                    "homepage": crate::plugins::PI_PACKAGES_SOURCE_URL,
+                    "updatedAt": chrono::Utc::now().to_rfc3339(),
+                    "pluginCount": entries.len(),
+                    "sourceUrl": source_url,
+                }));
+            }
             let st = state.lock().await;
             let meta = st.plugins.refresh_market(force).map_err(plugin_err)?;
             Ok(meta)
@@ -4138,14 +4181,37 @@ async fn handle_request(
         "market.search" => {
             let query = params.get("query").and_then(|v| v.as_str());
             let category = params.get("category").and_then(|v| v.as_str());
+            // Every catalog source serves search from its cached snapshot. The
+            // official pi package catalog instead reads the registry per query,
+            // and that fetch happens before the state lock: a search box that
+            // holds every other host RPC behind a network round trip would
+            // stall the app while the user types.
+            let (provider, source_url) = {
+                let st = state.lock().await;
+                (st.plugins.market_provider(), st.plugins.market_source_url())
+            };
+            if provider == crate::plugins::MarketProvider::PiPackages {
+                let entries =
+                    crate::plugins::pi_packages::search_entries(query).map_err(plugin_err)?;
+                let st = state.lock().await;
+                let plugins = st
+                    .plugins
+                    .market_summaries_from_entries(entries, query, category);
+                return Ok(json!({
+                    "plugins": plugins,
+                    "providerId": crate::plugins::PI_PACKAGES_PROVIDER_ID,
+                    "sourceUrl": source_url,
+                }));
+            }
             let st = state.lock().await;
             let plugins = st
                 .plugins
                 .market_search(query, category)
                 .map_err(|e| rpc_err(1000, e.to_string(), "INTERNAL"))?;
+            let provider_id = st.plugins.market_provider_id();
             Ok(json!({
                 "plugins": plugins,
-                "providerId": "official",
+                "providerId": provider_id,
                 "sourceUrl": st.plugins.market_source_url(),
             }))
         }
@@ -4154,6 +4220,17 @@ async fn handle_request(
                 .get("id")
                 .and_then(|v| v.as_str())
                 .ok_or_else(|| rpc_err(1002, "id required", "INVALID_PARAMS"))?;
+            // Same split as search: the registry read happens outside the lock.
+            let provider = {
+                let st = state.lock().await;
+                st.plugins.market_provider()
+            };
+            if provider == crate::plugins::MarketProvider::PiPackages {
+                let entry = crate::plugins::pi_packages::package_entry(id).map_err(plugin_err)?;
+                let st = state.lock().await;
+                let plugin = st.plugins.market_detail_from_entry(entry);
+                return Ok(json!({ "plugin": plugin }));
+            }
             let st = state.lock().await;
             let plugin = st.plugins.market_get(id).map_err(plugin_err)?;
             Ok(json!({ "plugin": plugin }))

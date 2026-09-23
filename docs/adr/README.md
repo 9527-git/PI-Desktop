@@ -288,4 +288,5 @@ Each ADR includes:
 | 0263 | [Wear the turn's progress card as a glyph button, and stand the jump control on the right](0263-turn-progress-glyph-button.md) | Accepted (amends ADR 0261 presentation; D458) |
 | 0264 | [Keep the progress card on the running turn, not on its tail](0264-turn-progress-open-turn.md) | Accepted (amends ADR 0263's gate; D461) |
 | 0265 | [Stand the progress card above the composer](0265-turn-progress-above-composer.md) | Accepted (amends ADR 0263's placement; D462) |
+| 0266 | [Add the official pi package catalog as a marketplace source backed by npm](0266-official-pi-package-market-source.md) | Accepted |
 | context-inspector-compact-action | [Compact the context from the usage inspector card](context-inspector-compact-action.md) | Accepted (amends ADR 0103 / ADR 0106; D434) |

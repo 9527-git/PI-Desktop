@@ -75,11 +75,23 @@ export function MarketplaceSourceSettings({
             }
           >
             <option value="official">{t("settings.marketProviderOfficial")}</option>
+            <option value="pidev">{t("settings.marketProviderPidev")}</option>
             <option value="mirror">{t("settings.marketProviderMirror")}</option>
             <option value="custom">{t("settings.marketProviderCustom")}</option>
           </Select>
         </div>
       </div>
+
+      {source === "pidev" ? (
+        <div className="plugins-market-settings-row">
+          <div className="plugins-market-settings-copy">
+            <div className="settings-row-title">{t("settings.marketProviderPidev")}</div>
+            <div className="settings-row-desc">
+              {t("settings.marketPidevDesc")}
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {source === "custom" ? (
         <div className="plugins-market-settings-row">

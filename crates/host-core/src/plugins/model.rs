@@ -107,6 +107,13 @@ pub struct PluginMarketplaceMeta {
     /// Source pin of the installed version (catalog v2).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub provenance: Option<MarketProvenance>,
+    /// npm package an official pi package was installed from.
+    ///
+    /// Recorded with the install so a later update resolves the same registry
+    /// package instead of guessing it back out of the plugin id, and so an
+    /// install that predates the npm provider cannot be mistaken for one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub npm_package: Option<String>,
 }
 
 /// Distribution-side withdrawal of the exact version a user has installed.
@@ -178,6 +185,23 @@ pub struct MarketPluginSummary {
     /// row stays visible for discovery but must not offer an install action.
     #[serde(default)]
     pub installable: bool,
+    /// Why the install action is unavailable, when this provider can explain
+    /// it: `not_read` while the package has not been read yet, `unsupported`
+    /// when what it declares is not something this release can load. Absent
+    /// means the provider has no separate reason and the version state decides
+    /// the wording, which is how catalog entries have always read.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub install_blocked: Option<String>,
+    /// Provider that offered this entry: `official`, `mirror`, or `custom` for
+    /// a catalog source, `pidev` for the official pi package catalog. The
+    /// client reads it to explain where an install comes from, because the two
+    /// kinds of source install through different machinery.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub provider_id: Option<String>,
+    /// npm package backing an official pi package entry. Absent for catalog
+    /// entries, whose packages are fetched by the host itself.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub npm_package: Option<String>,
     /// True when every catalog version of this plugin has been withdrawn.
     #[serde(default)]
     pub yanked: bool,
@@ -331,6 +355,12 @@ pub(crate) struct MarketCatalogEntry {
     #[serde(default)]
     pub(crate) safety_notes: Option<String>,
     pub(crate) versions: Vec<MarketVersion>,
+    /// pi manifest the provider read for the newest version, when it read one.
+    /// Only the official pi package provider fills this in; it never reaches a
+    /// catalog file, and it is what decides whether that provider can offer an
+    /// install at all.
+    #[serde(default, skip)]
+    pub(crate) npm_pi: Option<super::marketplace::pi_packages::NpmPiManifest>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]

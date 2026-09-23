@@ -1,7 +1,11 @@
 use super::*;
 
 pub mod catalog;
+pub mod pi_packages;
 pub(crate) use catalog::{built_in_catalog, bundled_package_bytes};
+pub(crate) use pi_packages::{
+    is_pi_packages_source, package_from_plugin_id, PI_PACKAGES_PROVIDER_ID, PI_PACKAGES_SOURCE_URL,
+};
 
 /// Official marketplace catalog, served from the dedicated GitHub repo.
 pub const OFFICIAL_MARKET_CATALOG_URL: &str =
@@ -16,6 +20,17 @@ pub const OFFICIAL_MARKET_CATALOG_URL: &str =
 pub const MIRROR_MARKET_CATALOG_URL: &str =
     "https://cnb.cool/aixk/pi-desktop-plugins/-/git/raw/main/catalog.json";
 
+/// Which kind of source the marketplace is reading.
+///
+/// A catalog source serves one JSON document that lists every plugin; the
+/// official pi package catalog has no such document, because it is the npm
+/// registry and is read per query.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MarketProvider {
+    Catalog,
+    PiPackages,
+}
+
 /// Resolve the catalog URL pinned by persisted app settings.
 ///
 /// `pluginMarketSource` selects the provider; `custom` reads the URL from
@@ -26,6 +41,7 @@ pub fn market_source_from_settings(settings: Option<&Value>) -> Option<String> {
     let settings = settings?;
     match settings.get("pluginMarketSource").and_then(Value::as_str) {
         Some("mirror") => Some(MIRROR_MARKET_CATALOG_URL.to_string()),
+        Some("pidev") => Some(PI_PACKAGES_SOURCE_URL.to_string()),
         Some("custom") => settings
             .get("pluginMarketCustomUrl")
             .and_then(Value::as_str)
@@ -50,6 +66,30 @@ impl PluginManager {
         self.market_source
             .clone()
             .unwrap_or_else(|| OFFICIAL_MARKET_CATALOG_URL.to_string())
+    }
+
+    /// Kind of source in effect.
+    ///
+    /// The official pi package catalog is addressed by its own URL and served
+    /// by npm rather than by a catalog document, so everything that reads the
+    /// marketplace asks this instead of assuming a catalog.
+    pub fn market_provider(&self) -> MarketProvider {
+        if is_pi_packages_source(&self.market_source_url()) {
+            MarketProvider::PiPackages
+        } else {
+            MarketProvider::Catalog
+        }
+    }
+
+    /// Provider id reported to the client and recorded on installed plugins.
+    pub fn market_provider_id(&self) -> String {
+        match self.market_provider() {
+            MarketProvider::PiPackages => PI_PACKAGES_PROVIDER_ID.to_string(),
+            // Catalog installs keep the id they have always recorded; the
+            // catalog's own `providerId` names its producer, not the app's
+            // provider slot.
+            MarketProvider::Catalog => "official".to_string(),
+        }
     }
 
     /// Re-pin the catalog source after the user switches providers.
@@ -288,10 +328,32 @@ impl PluginManager {
         query: Option<&str>,
         category: Option<&str>,
     ) -> Result<Vec<MarketPluginSummary>> {
+        // Official pi packages have no catalog document to read: the entries
+        // come from the registry for this query. Callers that must not hold the
+        // host state lock across the request fetch through `pi_packages` first
+        // and map the entries here; see `market.summariesFromEntries`.
+        if self.market_provider() == MarketProvider::PiPackages {
+            let entries = pi_packages::search_entries(query)?;
+            return Ok(self.market_summaries_from_entries(entries, query, category));
+        }
         let catalog = self.load_catalog()?;
+        Ok(self.market_summaries_from_entries(catalog.plugins, query, category))
+    }
+
+    /// Filter market entries the way the search box expects and project them
+    /// into summaries.
+    ///
+    /// Shared by every provider so a source that produces entries on the fly
+    /// matches the catalog providers exactly.
+    pub fn market_summaries_from_entries(
+        &self,
+        entries: Vec<MarketCatalogEntry>,
+        query: Option<&str>,
+        category: Option<&str>,
+    ) -> Vec<MarketPluginSummary> {
         let q = query.unwrap_or("").trim().to_lowercase();
         let mut out = Vec::new();
-        for entry in catalog.plugins {
+        for entry in entries {
             if let Some(cat) = category {
                 if !cat.is_empty() && !entry.categories.iter().any(|c| c.eq_ignore_ascii_case(cat))
                 {
@@ -311,16 +373,24 @@ impl PluginManager {
             out.push(self.to_market_summary(&entry));
         }
         out.sort_by_key(|plugin| plugin.name.to_lowercase());
-        Ok(out)
+        out
     }
 
     pub fn market_get(&self, plugin_id: &str) -> Result<MarketPluginDetail> {
+        if self.market_provider() == MarketProvider::PiPackages {
+            return Ok(self.market_detail_from_entry(pi_packages::package_entry(plugin_id)?));
+        }
         let catalog = self.load_catalog()?;
-        let mut entry = catalog
+        let entry = catalog
             .plugins
             .into_iter()
             .find(|p| p.id == plugin_id)
             .ok_or_else(|| anyhow!("PLUGIN_NOT_FOUND: {plugin_id}"))?;
+        Ok(self.market_detail_from_entry(entry))
+    }
+
+    /// Project one entry into the detail sheet's payload.
+    pub fn market_detail_from_entry(&self, mut entry: MarketCatalogEntry) -> MarketPluginDetail {
         entry
             .versions
             .sort_by(|a, b| compare_plugin_versions(&b.version, &a.version));
@@ -328,7 +398,7 @@ impl PluginManager {
         let permissions = latest_market_version(&entry.versions)
             .map(|v| v.permissions.clone())
             .unwrap_or_default();
-        Ok(MarketPluginDetail {
+        MarketPluginDetail {
             summary,
             readme_markdown: entry.readme_markdown,
             versions: entry.versions,
@@ -337,7 +407,7 @@ impl PluginManager {
             repository: entry.repository,
             permissions,
             safety_notes: entry.safety_notes,
-        })
+        }
     }
 
     pub fn market_download_info(
@@ -420,6 +490,21 @@ impl PluginManager {
     }
 
     pub fn check_updates(&mut self, refresh_remote: bool) -> Result<Vec<PluginUpdateInfo>> {
+        let mut updates = Vec::new();
+        if self.market_provider() == MarketProvider::Catalog {
+            updates.extend(self.check_catalog_updates(refresh_remote)?);
+        }
+        updates.extend(self.check_pi_package_updates(refresh_remote)?);
+        self.save()?;
+        Ok(updates)
+    }
+
+    /// Update pass for plugins installed from the catalog in effect.
+    ///
+    /// Runs only while a catalog source is selected: the official pi package
+    /// source has no catalog, and reading one there would fetch the catalog
+    /// page and quietly degrade to the bundled snapshot.
+    fn check_catalog_updates(&mut self, refresh_remote: bool) -> Result<Vec<PluginUpdateInfo>> {
         // An explicit update check must not reuse the short-lived marketplace
         // cache: a publisher may have released a plugin since the last search.
         // Silent checks use only the last valid catalog so opening Extensions
@@ -434,6 +519,12 @@ impl PluginManager {
         };
         let mut updates = Vec::new();
         for plugin in self.runtime.iter_mut() {
+            // An official pi package is updated from the registry it was
+            // installed from, not from the catalog in effect, so the catalog
+            // pass must leave its state alone. It is resolved below.
+            if is_pi_package_plugin(plugin) {
+                continue;
+            }
             let Some(entry) = catalog.plugins.iter().find(|p| p.id == plugin.id) else {
                 plugin.update_available = None;
                 plugin.yanked = None;
@@ -475,7 +566,56 @@ impl PluginManager {
             plugin.update_available = Some(info.clone());
             updates.push(info);
         }
-        self.save()?;
+        Ok(updates)
+    }
+
+    /// Update pass for plugins installed from the official pi package catalog.
+    ///
+    /// A silent check keeps the last known state instead of asking the
+    /// registry, and a failed lookup keeps it too: neither is evidence that a
+    /// released update went away.
+    fn check_pi_package_updates(&mut self, refresh_remote: bool) -> Result<Vec<PluginUpdateInfo>> {
+        if !refresh_remote {
+            return Ok(Vec::new());
+        }
+        let installed: Vec<(String, String)> = self
+            .runtime
+            .iter()
+            .filter_map(|plugin| {
+                let meta = plugin.marketplace.as_ref()?;
+                let package = meta.npm_package.as_deref()?;
+                (meta.provider_id == PI_PACKAGES_PROVIDER_ID)
+                    .then(|| (plugin.id.clone(), package.to_string()))
+            })
+            .collect();
+        let mut updates = Vec::new();
+        for (id, package) in installed {
+            // Fetched before the runtime entry is borrowed for mutation, and a
+            // package that cannot be read leaves the plugin as it was.
+            let Ok(entry) = pi_packages::package_entry_for(&package, &id) else {
+                continue;
+            };
+            let Some(plugin) = self.runtime.iter_mut().find(|plugin| plugin.id == id) else {
+                continue;
+            };
+            let Some(latest) = latest_market_version(&entry.versions) else {
+                plugin.update_available = None;
+                continue;
+            };
+            if compare_plugin_versions(&latest.version, &plugin.version) != Ordering::Greater {
+                plugin.update_available = None;
+                continue;
+            }
+            let info = PluginUpdateInfo {
+                version: latest.version.clone(),
+                changelog: None,
+                shasum: latest.shasum.clone(),
+                url: latest.url.clone(),
+                permission_diff: permission_diff(&plugin.permissions, &latest.permissions),
+            };
+            plugin.update_available = Some(info.clone());
+            updates.push(info);
+        }
         Ok(updates)
     }
 
@@ -514,17 +654,36 @@ impl PluginManager {
                 .as_ref()
                 .map(|p| compare_plugin_versions(&latest, &p.version) == Ordering::Greater)
                 .unwrap_or(false),
-            // An install the host would refuse must not be offered. That
-            // covers an announced-but-unpublished version, a version pinned to
-            // a newer app, and a package URL on a host the host will not fetch.
-            installable: latest_version
-                .map(|version| {
-                    has_package_metadata(version)
-                        && host_supports_version(version)
-                        && (is_local_package_url(&version.url)
-                            || package_host_allowed(&version.url, &catalog_url).is_ok())
-                })
-                .unwrap_or(false),
+            installable: match self.market_provider() {
+                // The app installs these through npm, which resolves and
+                // verifies the package itself, so there is no host-fetched
+                // checksum to gate on. What decides it is whether the package
+                // declares a contribution the app can convert into a plugin.
+                MarketProvider::PiPackages => pi_packages::entry_is_installable(entry),
+                // An install the host would refuse must not be offered. That
+                // covers an announced-but-unpublished version, a version pinned
+                // to a newer app, and a package URL on a host the host will not
+                // fetch.
+                MarketProvider::Catalog => latest_version
+                    .map(|version| {
+                        has_package_metadata(version)
+                            && host_supports_version(version)
+                            && (is_local_package_url(&version.url)
+                                || package_host_allowed(&version.url, &catalog_url).is_ok())
+                    })
+                    .unwrap_or(false),
+            },
+            // Only the official pi package source can name a reason a plugin
+            // exists but cannot be installed; a catalog entry keeps its own
+            // existing wording, which is derived from the version it offers.
+            install_blocked: match self.market_provider() {
+                MarketProvider::PiPackages => {
+                    pi_packages::install_blocked_reason(entry).map(str::to_string)
+                }
+                MarketProvider::Catalog => None,
+            },
+            provider_id: Some(self.market_provider_id()),
+            npm_package: package_from_plugin_id(&entry.id),
             // Every version withdrawn leaves nothing to offer, which is worth
             // showing as a withdrawal rather than as an empty version list.
             yanked: !entry.versions.is_empty() && latest_version.is_none(),
@@ -567,6 +726,16 @@ impl PluginManager {
         let url = self.market_source_url();
         url == OFFICIAL_MARKET_CATALOG_URL || url == MIRROR_MARKET_CATALOG_URL
     }
+}
+
+/// Whether an installed plugin came from the official pi package catalog.
+///
+/// Keyed on what the install recorded rather than on the plugin id, so a
+/// plugin installed from any other source is never updated from the registry.
+pub(crate) fn is_pi_package_plugin(plugin: &PluginSummary) -> bool {
+    plugin.marketplace.as_ref().is_some_and(|meta| {
+        meta.provider_id == PI_PACKAGES_PROVIDER_ID && meta.npm_package.is_some()
+    })
 }
 
 pub(crate) fn host_supports_version(version: &MarketVersion) -> bool {

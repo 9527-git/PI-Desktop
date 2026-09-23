@@ -1615,3 +1615,307 @@ fn verified_trust_is_honoured_only_from_the_official_source() {
         std::env::remove_var("PI_DESKTOP_PLUGIN_MARKET_URL");
     }
 }
+
+// --- official pi packages (the npm-backed catalog) -------------------------
+
+/// Point the pi package provider at a local registry fixture.
+///
+/// The registry base and the catalog override are process-wide, so this holds
+/// the same lock the market tests use and clears the catalog override for the
+/// duration: `market_source_url` prefers that override, so another test's value
+/// would otherwise decide which provider is in effect.
+fn with_pi_package_registry<T>(registry: &Path, f: impl FnOnce() -> T) -> T {
+    let _guard = lock_market_env();
+    unsafe {
+        std::env::remove_var("PI_DESKTOP_PLUGIN_MARKET_URL");
+        std::env::set_var(
+            "PI_DESKTOP_NPM_REGISTRY_URL",
+            format!("file://{}", registry.to_string_lossy()),
+        );
+    }
+    let out = f();
+    unsafe {
+        std::env::remove_var("PI_DESKTOP_NPM_REGISTRY_URL");
+    }
+    out
+}
+
+/// Point both sources at local files: the catalog at one that cannot be
+/// fetched, the pi package provider at a registry fixture.
+fn with_local_sources<T>(registry: &Path, f: impl FnOnce() -> T) -> T {
+    let _guard = lock_market_env();
+    unsafe {
+        std::env::set_var(
+            "PI_DESKTOP_PLUGIN_MARKET_URL",
+            "file:///nope/does-not-exist-catalog.json",
+        );
+        std::env::set_var(
+            "PI_DESKTOP_NPM_REGISTRY_URL",
+            format!("file://{}", registry.to_string_lossy()),
+        );
+    }
+    let out = f();
+    unsafe {
+        std::env::remove_var("PI_DESKTOP_PLUGIN_MARKET_URL");
+        std::env::remove_var("PI_DESKTOP_NPM_REGISTRY_URL");
+    }
+    out
+}
+
+/// Write the registry document npm serves for one pi package.
+fn write_pi_package_fixture(registry: &Path, name: &str, version: &str) {
+    let mut versions = serde_json::Map::new();
+    versions.insert(
+        version.to_string(),
+        json!({
+            "version": version,
+            "pi": { "extensions": ["./dist/index.ts"] },
+            "dist": {
+                "shasum": "a".repeat(40),
+                "tarball": format!("https://registry.npmjs.org/{name}/-/{version}.tgz"),
+                "unpackedSize": 1024,
+            },
+        }),
+    );
+    let mut time = serde_json::Map::new();
+    time.insert("created".to_string(), json!("2026-01-01T00:00:00.000Z"));
+    time.insert(version.to_string(), json!("2026-09-01T00:00:00.000Z"));
+    let document = json!({
+        "name": name,
+        "dist-tags": { "latest": version },
+        "license": "MIT",
+        "readme": "# Fixture\n",
+        "maintainers": [{ "username": "fixture-author" }],
+        "time": Value::Object(time),
+        "versions": Value::Object(versions),
+    });
+    let path = registry.join(name);
+    fs::create_dir_all(path.parent().unwrap()).unwrap();
+    fs::write(path, serde_json::to_string(&document).unwrap()).unwrap();
+}
+
+/// A staged plugin directory for one official pi package, as the desktop app's
+/// npm pipeline produces it before registering the install.
+fn staged_pi_package(root: &Path, id: &str, version: &str) -> PathBuf {
+    write_plugin(
+        root,
+        json!({
+            "schemaVersion": 1,
+            "id": id,
+            "name": "fixture-tool",
+            "version": version,
+            "main": "main.js",
+            "permissions": ["agent.extension"],
+        }),
+        &[("src/index.ts", "export function onLoad() {}")],
+    );
+    root.to_path_buf()
+}
+
+fn pi_package_marketplace() -> PluginMarketplaceMeta {
+    PluginMarketplaceMeta {
+        provider_id: "pidev".into(),
+        shasum: None,
+        publisher_id: Some("fixture-author".into()),
+        trust: Some("community".into()),
+        provenance: None,
+        npm_package: Some("fixture-tool".into()),
+    }
+}
+
+#[test]
+fn the_official_pi_package_source_is_selected_by_settings() {
+    assert_eq!(
+        market_source_from_settings(Some(&json!({ "pluginMarketSource": "pidev" }))),
+        Some(PI_PACKAGES_SOURCE_URL.to_string())
+    );
+    let dir = tempdir().unwrap();
+    // The provider in effect is read through `market_source_url`, which prefers
+    // the process-global catalog override, so this holds the marketplace env
+    // lock and clears it: another test's override would otherwise answer here.
+    with_pi_package_registry(&dir.path().join("npm"), || {
+        let mut mgr = offline_manager(dir.path());
+        assert_eq!(mgr.market_provider(), MarketProvider::Catalog);
+        mgr.set_market_source(Some(PI_PACKAGES_SOURCE_URL.to_string()));
+        assert_eq!(mgr.market_provider(), MarketProvider::PiPackages);
+        assert_eq!(mgr.market_provider_id(), "pidev");
+        // The address stays the user-facing source, not a catalog URL.
+        assert_eq!(mgr.market_source_url(), PI_PACKAGES_SOURCE_URL);
+    });
+}
+
+#[test]
+fn official_pi_package_details_come_from_the_registry() {
+    let dir = tempdir().unwrap();
+    let registry = dir.path().join("npm");
+    let name = "@fixture/pi-plan-mode";
+    write_pi_package_fixture(&registry, name, "0.2.0");
+    with_pi_package_registry(&registry, || {
+        let mut mgr = offline_manager(dir.path());
+        mgr.set_market_source(Some(PI_PACKAGES_SOURCE_URL.to_string()));
+        let id = pi_packages::plugin_id_for_package(name);
+        let detail = mgr.market_get(&id).unwrap();
+        assert_eq!(detail.summary.id, id);
+        assert_eq!(detail.summary.provider_id.as_deref(), Some("pidev"));
+        assert_eq!(detail.summary.npm_package.as_deref(), Some(name));
+        assert_eq!(detail.summary.author, "fixture-author");
+        assert!(detail.summary.installable);
+        assert_eq!(detail.permissions, vec!["agent.extension".to_string()]);
+        assert_eq!(detail.versions.len(), 1);
+        assert_eq!(detail.versions[0].version, "0.2.0");
+        assert_eq!(
+            detail.versions[0].permissions,
+            vec!["agent.extension".to_string()]
+        );
+        // The registry cannot vouch for a publisher.
+        assert_eq!(detail.summary.trust, "community");
+        assert!(!detail.summary.verified);
+        // An uninstalled package reports its own state.
+        assert!(!detail.summary.installed);
+        assert!(!detail.summary.update_available);
+
+        // A search hit maps into the same id space and stays installable until
+        // the sheet reads the package document.
+        let entries = vec![MarketCatalogEntry {
+            id: id.clone(),
+            name: name.to_string(),
+            description: "Fixture".into(),
+            author: "fixture-author".into(),
+            versions: vec![MarketVersion {
+                version: "0.2.0".into(),
+                ..Default::default()
+            }],
+            ..Default::default()
+        }];
+        let summaries = mgr.market_summaries_from_entries(entries, None, None);
+        assert_eq!(summaries.len(), 1);
+        assert_eq!(summaries[0].provider_id.as_deref(), Some("pidev"));
+        assert_eq!(summaries[0].npm_package.as_deref(), Some(name));
+        // A listing entry has not been read yet, so the install waits for the
+        // detail sheet instead of asking for consent to unknown permissions.
+        assert!(!summaries[0].installable);
+        assert_eq!(summaries[0].install_blocked.as_deref(), Some("not_read"));
+        // Once the package document is read, the entry is installable and the
+        // reason disappears.
+        let read = mgr.market_summaries_from_entries(
+            vec![pi_packages::package_entry_for(name, &id).unwrap()],
+            None,
+            None,
+        );
+        assert!(read[0].installable);
+        assert_eq!(read[0].install_blocked, None);
+    });
+}
+
+#[test]
+fn the_host_refuses_to_install_an_official_pi_package_itself() {
+    let dir = tempdir().unwrap();
+    let registry = dir.path().join("npm");
+    write_pi_package_fixture(&registry, "fixture-tool", "1.0.0");
+    with_pi_package_registry(&registry, || {
+        let mut mgr = offline_manager(dir.path());
+        mgr.set_market_source(Some(PI_PACKAGES_SOURCE_URL.to_string()));
+        let err = mgr
+            .install_from_market("pidev.pkg.fixture-tool", None, true, false, None)
+            .expect_err("the host cannot materialize an npm package");
+        assert!(
+            err.to_string().contains("PLUGIN_INSTALL_UNSUPPORTED"),
+            "{err}"
+        );
+    });
+}
+
+#[test]
+fn a_registered_pi_package_is_updated_from_the_registry() {
+    let dir = tempdir().unwrap();
+    let registry = dir.path().join("npm");
+    write_pi_package_fixture(&registry, "fixture-tool", "1.1.0");
+    let staged = staged_pi_package(
+        &dir.path().join("staged"),
+        "pidev.pkg.fixture-tool",
+        "1.0.0",
+    );
+    // The catalog source is in effect here; the install's recorded provider is
+    // what decides where its updates come from.
+    with_local_sources(&registry, || {
+        let mut mgr = offline_manager(dir.path());
+        let installed = mgr
+            .install_from_path(
+                staged.to_str().unwrap(),
+                InstallOptions {
+                    source: "marketplace".into(),
+                    enable: true,
+                    marketplace: Some(pi_package_marketplace()),
+                    expected_shasum: None,
+                    auto_update: true,
+                    granted_permissions: None,
+                },
+            )
+            .unwrap();
+        assert_eq!(installed.plugin.version, "1.0.0");
+        assert_eq!(
+            installed
+                .plugin
+                .marketplace
+                .as_ref()
+                .unwrap()
+                .npm_package
+                .as_deref(),
+            Some("fixture-tool")
+        );
+        assert!(is_pi_package_plugin(&installed.plugin));
+
+        let updates = mgr.check_updates(true).unwrap();
+        assert_eq!(updates.len(), 1, "{updates:?}");
+        assert_eq!(updates[0].version, "1.1.0");
+        let summary = mgr.get("pidev.pkg.fixture-tool").unwrap();
+        assert_eq!(
+            summary
+                .update_available
+                .as_ref()
+                .map(|u| u.version.as_str()),
+            Some("1.1.0")
+        );
+
+        // The host cannot apply it: npm materializes these packages, so the
+        // desktop app's installer owns the apply pass.
+        assert!(mgr.apply_updates(false).unwrap().is_empty());
+    });
+}
+
+#[test]
+fn a_pi_package_install_keeps_its_provenance_after_a_reload() {
+    let dir = tempdir().unwrap();
+    let staged = staged_pi_package(
+        &dir.path().join("staged"),
+        "pidev.pkg.fixture-tool",
+        "1.0.0",
+    );
+    let mut mgr = offline_manager(dir.path());
+    mgr.install_from_path(
+        staged.to_str().unwrap(),
+        InstallOptions {
+            source: "marketplace".into(),
+            enable: true,
+            marketplace: Some(pi_package_marketplace()),
+            ..Default::default()
+        },
+    )
+    .unwrap();
+
+    let reloaded = PluginManager::new(dir.path(), None);
+    let summary = reloaded.get("pidev.pkg.fixture-tool").unwrap();
+    let meta = summary.marketplace.unwrap();
+    assert_eq!(meta.provider_id, "pidev");
+    assert_eq!(meta.npm_package.as_deref(), Some("fixture-tool"));
+    assert_eq!(summary.source, "marketplace");
+    // A catalog entry with the same id is not what this install came from, so
+    // the catalog pass must not clear the update it knows about.
+    assert!(!is_pi_package_plugin(&PluginSummary {
+        marketplace: Some(PluginMarketplaceMeta {
+            npm_package: None,
+            ..pi_package_marketplace()
+        }),
+        ..summary
+    }));
+}

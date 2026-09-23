@@ -285,6 +285,21 @@ function slugFor(path: string): string {
 }
 
 /**
+ * Identity a generated plugin is written under.
+ *
+ * Absent fields keep the import defaults. A marketplace install passes the id
+ * the market listed the plugin under and the package's own name and version, so
+ * the installed plugin keeps the identity the user saw rather than the
+ * file-system slug the conversion happens to derive.
+ */
+export type GeneratedPluginIdentity = {
+  id?: string;
+  name?: string;
+  version?: string;
+  description?: string;
+};
+
+/**
  * Build a plugin directory from a pi extension file or directory (spec §3):
  * copies the source under `src/`, writes a manifest that declares the entry
  * files as `contributes.agentExtensions`, and a no-op `main.js`. A directory
@@ -295,6 +310,7 @@ function slugFor(path: string): string {
 export function generateImportedExtensionPlugin(
   source: string,
   importRoot: string,
+  identity: GeneratedPluginIdentity = {},
 ): { path: string; id: string; entries: string[] } {
   const resolved = existsSync(source) ? realpathSync(source) : resolve(source);
   const isDirectory = existsSync(resolved) && statSync(resolved).isDirectory();
@@ -339,7 +355,7 @@ export function generateImportedExtensionPlugin(
       throw error;
     }
   }
-  const id = `${PLUGIN_ID_PREFIX}${basename(dir)}`;
+  const id = identity.id ?? `${PLUGIN_ID_PREFIX}${basename(dir)}`;
   const srcDir = join(dir, "src");
   try {
     mkdirSync(srcDir);
@@ -368,9 +384,9 @@ export function generateImportedExtensionPlugin(
     const manifest = {
       schemaVersion: 1,
       id,
-      name: slug,
-      version: "0.0.0",
-      description: `Imported pi extension from ${resolved}`,
+      name: identity.name ?? slug,
+      version: identity.version ?? "0.0.0",
+      description: identity.description ?? `Imported pi extension from ${resolved}`,
       main: "main.js",
       permissions: [...(entries.length ? ["agent.extension"] : []), ...(skills.length ? ["agent.prompt.inject"] : [])],
       contributes: {

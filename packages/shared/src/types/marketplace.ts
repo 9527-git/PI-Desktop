@@ -26,6 +26,17 @@ export type MarketPluginSummary = {
   updateAvailable?: boolean;
   /** False when `latestVersion` has no published package to download yet. */
   installable?: boolean;
+  /**
+   * Why the install action is unavailable, when the source can explain it:
+   * `not_read` while the package has not been read yet (open the plugin to
+   * install it), `unsupported` when what the package declares is not something
+   * this release can load. Absent means the version state decides the wording.
+   */
+  installBlocked?: "not_read" | "unsupported";
+  /** Source that offered this entry: `official`, `mirror`, `custom`, `pidev`. */
+  providerId?: string;
+  /** npm package behind a `pidev` entry; absent for catalog entries. */
+  npmPackage?: string;
   /** True when every catalog version of this plugin has been withdrawn. */
   yanked?: boolean;
 };

@@ -49,6 +49,7 @@ at a local catalog without touching persisted settings:
 | 1 | `PI_DESKTOP_PLUGIN_MARKET_URL` | any URL |
 | 2 | `pluginMarketSource: "mirror"` | `https://cnb.cool/aixk/pi-desktop-plugins/-/git/raw/main/catalog.json` |
 | 2 | `pluginMarketSource: "custom"` | `pluginMarketCustomUrl` |
+| 2 | `pluginMarketSource: "pidev"` | `https://pi.dev/packages` |
 | 3 | `pluginMarketSource: "official"` (default) | the default catalog URL above |
 
 The mirror exists for networks that cannot reach `raw.githubusercontent.com`.
@@ -63,6 +64,62 @@ switching back recovers that catalog without a round trip. `settings.set` only
 re-pins the source in memory; fetching there would hold the host RPC state lock
 behind a marketplace timeout, so the renderer triggers `market.refresh` after
 the switch.
+
+### Official pi package source (npm)
+
+`pidev` selects the official pi package catalog published at
+`https://pi.dev/packages`. That page is server-rendered HTML with no
+machine-readable index, and every official pi package is an npm package whose
+`package.json` declares what the pi CLI loads from it (`pi.extensions`,
+`pi.skills`, `pi.prompts`). This source therefore reads the npm registry
+instead: `https://registry.npmjs.org/-/v1/search?text=…+keywords:pi-package`
+for listings and `https://registry.npmjs.org/<name>` for detail. The host
+reports providerId `pidev` and source URL `https://pi.dev/packages` for it, and
+`market.refresh` means "re-read the browse listing" here rather than caching a
+catalog document. `PI_DESKTOP_NPM_REGISTRY_URL` overrides the registry base the
+way `PI_DESKTOP_PLUGIN_MARKET_URL` overrides the catalog URL.
+
+Listing and detail:
+
+- Search is one page per query: 100 hits carrying the `pi-package` keyword.
+  Browsing therefore shows the registry's own ordering, and the search box is
+  the way to narrow it.
+- A hit carries the package's latest version, description, publisher, monthly
+  downloads, and homepage/repository links. It carries neither the package
+  contents nor a checksum.
+- Detail reads the package document: versions newest first and capped at 30 (a
+  version without a tarball is left out), readme, homepage/repository, unpacked
+  size, published date, publisher, and the permission list below.
+
+Plugin id encoding:
+
+- An npm package maps to a plugin id inside the published contract
+  `^[a-z0-9]+(\.[a-z0-9_-]+)+$`: `foo` becomes `pidev.pkg.foo`, and
+  `@scope/name` becomes `pidev.scope.<scope>.<name>`.
+- A name is accepted only when it is URL- and id-safe: the lowercase registry
+  alphabet with `-`, `_`, `.`, and an optional `@scope/`. Names npm allows but
+  the id contract cannot represent (a leading `-`, `_`, or `.`, `~`, a dotted
+  scope) are not offered by this source.
+
+Permissions and trust:
+
+- Permissions shown before install are derived from the same declarations the
+  conversion reads: `pi.extensions` → `agent.extension`, `pi.skills` →
+  `agent.prompt.inject`. A package that declares neither is listed but not
+  installable, and the detail sheet says why.
+- Trust is `community` for every entry and never `verified`: the registry says
+  who published a package but cannot vouch for it.
+
+Installable states:
+
+- A listing entry is not installable until its package document has been read,
+  so the install action lives in the plugin detail sheet, which shows the real
+  permission list before the user accepts. Cards say "Open this plugin to
+  install it".
+- A read package that declares nothing this release can load reports
+  `installBlocked: "unsupported"` with the reason; an unread listing reports
+  `"not_read"`.
+- A failed registry read surfaces as an error on the market surface.
 
 ### Client-visible catalog policy
 
@@ -115,6 +172,8 @@ Supports multiple providers:
 - `official`
 - `custom` (enterprise private source)
 - `local-mock` (development)
+- `pidev` (the official pi package catalog; reads the npm registry instead of a
+  catalog document)
 
 ## 4. Data model
 
@@ -217,6 +276,9 @@ type MarketPluginSummary = {
  permissionSummary: string[]
  verified?: boolean
  installable?: boolean
+ installBlocked?: "not_read" | "unsupported"
+ providerId?: string
+ npmPackage?: string
 }
 ```
 
@@ -253,6 +315,15 @@ but is not installable until the publisher completes its package metadata.
 Marketplace rows and the detail sheet disable their install action and label
 the version as not yet published rather than starting a download the host will
 refuse; a batch update skips such a version instead of failing the whole run.
+
+`installBlocked` explains an install action the source itself disables:
+`not_read` while an official pi package has not been read yet, `unsupported`
+when what the package declares is not something this release can load.
+`providerId` names the source that offered the entry (`pidev` for the official
+pi package catalog, `official` for a catalog source), and `npmPackage` names the
+npm package behind a `pidev` entry; a catalog entry carries no npm package. The
+provider and the npm package are recorded on the installed plugin, which is what
+decides its update path (§6).
 
 ### Catalog release gate
 
@@ -352,6 +423,34 @@ A catalog entry whose plugin declares `contributes.skills` must also declare
 permission review will not mention them. `pi-plugin check` warns on that
 combination.
 
+### Official pi package install path (main process)
+
+The host itself never downloads an npm package: it has no gzip/tar unpacker,
+and its marketplace downloads are held to the distribution-host allowlist
+above. A `pidev` install is performed by the desktop app's main process and only
+registered through the host:
+
+1. npm materializes the package. A staging `package.json` pins the exact
+   version, lifecycle scripts stay disabled, and the registry is pinned to
+   `registry.npmjs.org` through the loopback proxy the imported-extension
+   pipeline already uses (ADR 0244). npm owns resolution, integrity, and the
+   dependency policy.
+2. The installed package directory is converted into a plugin directory by the
+   same conversion as "import a pi extension": declared sources are copied under
+   `src/`, the manifest declares `contributes.agentExtensions` and/or
+   `contributes.skills`, `main.js` is a no-op, and sensitive files and symlinks
+   are rejected.
+3. The result is registered through the host's existing
+   `plugins.installFromPath` RPC as a normal installed plugin: source
+   `marketplace`, `marketplace.providerId = "pidev"`, the npm package recorded
+   as `marketplace.npmPackage`, and the trust tier recorded at install time.
+4. Its dependencies are installed into the installed plugin directory
+   afterwards, because the host's copy leaves `node_modules` behind.
+
+`market.install` refuses a `pidev` id with `PLUGIN_INSTALL_UNSUPPORTED` and names
+the reason, so a mistaken caller fails with a reason instead of a checksum
+error. The npm pipeline is main-process only.
+
 ## 6. Update path
 
 1. `checkUpdates` when Extensions opens or on a schedule
@@ -367,6 +466,22 @@ Strategy:
   valid cache when offline.
 - Optional auto-update remains per-plugin and never silently accepts a new
   permission.
+
+### Official pi package updates
+
+Installed pi packages take part in the normal update flow. `market.checkUpdates`
+resolves their newer versions from the npm registry, they appear in the Plugins
+page's update group and in `market.applyUpdates`, and applying one re-runs the
+npm pipeline for that package.
+
+- A silent check reuses the last known state and never fetches; an explicit
+  check reads the registry.
+- A failed lookup leaves the plugin's known state untouched: it is not evidence
+  that an update went away.
+- The catalog pass runs while a catalog source is selected and leaves `pidev`
+  installs alone. A plugin installed from the catalog is never updated from npm,
+  and one installed from npm is never updated from the catalog: the recorded
+  provider and npm package decide this.
 
 ## 7. Marketplace UI information architecture
 
@@ -440,6 +555,10 @@ attribute to the configured official source, and never promotes a level because
 the catalog says so. A v1 catalog's boolean `verified` maps to `verified` /
 `community` unchanged, because a v1 catalog is only writable by marketplace
 maintainers.
+
+The official pi package source reports `community` for every entry and never
+`verified`: the npm registry says who published a package but cannot vouch for
+it, and `verified` is only honoured from the official or mirror catalog.
 
 ## 9. Private sources (enterprise-facing)
 
@@ -574,6 +693,10 @@ Installing from either tab routes through the permission dialog, which groups
 requests into High / Medium / Low risk sections and tags entries that are new
 relative to the installed version, so an upgrade cannot silently widen access
 (D169).
+
+An official pi package is only installable from this sheet: the card says so
+until the package document has been read, and the permission list shown here is
+the one the conversion will declare.
 
 Contribution docs live in the official warehouse:
 

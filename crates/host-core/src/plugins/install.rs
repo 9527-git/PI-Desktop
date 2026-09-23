@@ -164,6 +164,17 @@ impl PluginManager {
         auto_update: bool,
         granted_permissions: Option<Vec<String>>,
     ) -> Result<InstallResult> {
+        // The host cannot materialize an npm package: the desktop app installs
+        // those through npm, which owns the registry pin, the dependency policy
+        // and the disabled lifecycle scripts, and registers the result as a
+        // normal installed plugin. An install that reached here would download
+        // a tarball this host has no unpacker for, so it is refused with the
+        // reason instead of failing later on a checksum.
+        if self.market_provider() == MarketProvider::PiPackages {
+            bail!(
+                "PLUGIN_INSTALL_UNSUPPORTED: official pi packages are installed by the desktop app"
+            );
+        }
         let info = self.market_download_info(plugin_id, version)?;
         let package_path = self.download_market_package(&info)?;
         let marketplace = PluginMarketplaceMeta {
@@ -179,6 +190,10 @@ impl PluginManager {
             ),
             trust: info.trust.clone(),
             provenance: info.provenance.clone(),
+            // A catalog package arrives as a piplug file the host downloads,
+            // so there is no npm package behind it. Official pi packages, the
+            // only installs that record one, are refused above.
+            npm_package: None,
         };
         let result = self.install_from_path(
             &package_path.to_string_lossy(),
@@ -201,6 +216,14 @@ impl PluginManager {
             .runtime
             .iter()
             .filter_map(|p| {
+                // Official pi packages are applied by the desktop app's npm
+                // installer, which owns the package materialization the host
+                // cannot perform; its own apply pass picks them up. Letting
+                // them through here would abort the whole batch on the refusal
+                // `install_from_market` raises for this provider.
+                if is_pi_package_plugin(p) {
+                    return None;
+                }
                 let update = p.update_available.clone()?;
                 // An announced-but-unpublished version stays visible as an
                 // update, yet installing it can only fail. Skipping it here
