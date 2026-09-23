@@ -1882,8 +1882,10 @@ and identify the platform validation still needed.
 - **Steps**:
   1. Invoke Add project from Settings → Project archive or the sidebar Projects
      heading and inspect the empty dialog.
-  2. Enter a project name and add two folders with the folder picker. Confirm
-     both rows render and the first row is marked Primary.
+  2. Add two folders with the folder picker without typing a name. Confirm the
+     name field seeds with the first folder's name, both rows render, and the
+     first row is marked Primary. Then type a name, add another folder, and
+     confirm the typed name is kept.
   3. Remove one row, check the count, and add it again.
   4. Inspect the empty and populated states in light and dark themes, including
      a narrow window and reduced-motion settings.
@@ -1897,8 +1899,9 @@ and identify the platform validation still needed.
 - **Expected**: The dialog traps focus, closes on Escape or outside click while
   idle, and keeps the name and selected folders visible without horizontal
   overflow. The native picker allows multiple directories in one selection.
-  Removing a folder updates the count and never removes another row. Create is
-  disabled until both a name and one folder are present. On creation one
+  Removing a folder updates the count and never removes another row. Create
+  needs one folder and no typed name; an empty name field falls back to the
+  first folder's name. On creation one
   logical project group receives the entered display name; its primary folder
   becomes the active workspace and every selected folder is retained as a group
   root. The Project archive shows one group row, and its sessions, shared

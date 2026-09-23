@@ -3,6 +3,11 @@ import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { MAX_PROJECT_NAME_CHARS } from "../lib/sidebar-preferences";
 import { api } from "../lib/api";
+import {
+  defaultProjectName,
+  folderNameFromPath,
+  resolveProjectName,
+} from "../lib/project-name";
 import { useAppStore } from "../stores/app-store";
 import { Button, TooltipButton } from "./ui";
 import {
@@ -16,10 +21,6 @@ import {
 
 function pathParts(path: string) {
   return path.split(/[\\/]/).filter(Boolean);
-}
-
-function folderName(path: string) {
-  return pathParts(path).at(-1) ?? path;
 }
 
 function folderParent(path: string) {
@@ -44,12 +45,18 @@ export function ProjectCreateDialog() {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const busyRef = useRef(false);
+  // The first selected folder seeds the project name until the user types their
+  // own name.
+  const nameTouchedRef = useRef(false);
+  const defaultName = defaultProjectName({ source: "local", folders });
+  const projectName = resolveProjectName(name, defaultName);
 
   useEffect(() => {
     if (!open) return;
     setName("");
     setFolders([]);
     busyRef.current = false;
+    nameTouchedRef.current = false;
     setBusy(false);
     const previousOverflow = document.body.style.overflow;
     const previouslyFocused = document.activeElement as HTMLElement | null;
@@ -86,6 +93,13 @@ export function ProjectCreateDialog() {
     };
   }, [close, open]);
 
+  // The first folder fills the field until the user types their own name; an
+  // emptied field still falls back to it on submit.
+  useEffect(() => {
+    if (nameTouchedRef.current) return;
+    setName(defaultName);
+  }, [defaultName]);
+
   if (!open) return null;
 
   const addFolders = async () => {
@@ -107,13 +121,13 @@ export function ProjectCreateDialog() {
   };
 
   const submit = async () => {
-    const trimmedName = name.trim();
-    if (!trimmedName || folders.length === 0 || busyRef.current) return;
+    const projectName = resolveProjectName(name, defaultName);
+    if (!projectName || folders.length === 0 || busyRef.current) return;
     busyRef.current = true;
     setBusy(true);
     try {
       await createProject({
-        name: trimmedName,
+        name: projectName,
         folders,
         primaryPath: folders[0],
       });
@@ -191,7 +205,10 @@ export function ProjectCreateDialog() {
                 className="field-input project-create-dialog-name-field"
                 value={name}
                 maxLength={MAX_PROJECT_NAME_CHARS}
-                onChange={(event) => setName(event.target.value)}
+                onChange={(event) => {
+                  nameTouchedRef.current = true;
+                  setName(event.target.value);
+                }}
                 aria-label={t("project.createNameLabel")}
                 disabled={busy}
                 spellCheck={false}
@@ -229,7 +246,7 @@ export function ProjectCreateDialog() {
                         <IconFolder size={17} />
                       </span>
                       <span className="project-create-folder-copy" title={path}>
-                        <span className="project-create-folder-name">{folderName(path)}</span>
+                        <span className="project-create-folder-name">{folderNameFromPath(path)}</span>
                         <span className="project-create-folder-path">{folderParent(path)}</span>
                       </span>
                       {index === 0 ? (
@@ -242,7 +259,7 @@ export function ProjectCreateDialog() {
                         type="button"
                         className="project-create-folder-remove"
                         tooltip={t("project.createRemoveFolder")}
-                        ariaLabel={`${t("project.createRemoveFolder")}: ${folderName(path)}`}
+                        ariaLabel={`${t("project.createRemoveFolder")}: ${folderNameFromPath(path)}`}
                         disabled={busy}
                         onClick={() => setFolders((current) => current.filter((item) => item !== path))}
                       >
@@ -279,7 +296,7 @@ export function ProjectCreateDialog() {
             <Button
               type="submit"
               variant="primary"
-              disabled={!name.trim() || folders.length === 0 || busy}
+              disabled={!projectName || folders.length === 0 || busy}
             >
               {busy ? t("project.createSaving") : t("project.createAction")}
             </Button>

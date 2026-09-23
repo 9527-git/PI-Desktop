@@ -6634,3 +6634,22 @@ the range label `<1` instead of naming a figure the occupancy has not reached.
   of truncating the label with `parseInt`.
 - See `04-ux/08-component-spec.md` §8.3/§8.5 and
   E2E-CHAT-context-percent-precision in `06-delivery/04-e2e-test-plan.md`.
+
+## 2026-09-20 — The Create project name defaults to the primary folder (D600)
+
+- The Create project dialog required a typed name before Create became
+  available, so a local folder pick could not be confirmed without inventing a
+  title.
+- The name field is now optional. It seeds from the first selected folder and
+  stops following the source as soon as the user types their own name. Create
+  is gated by the source alone (one folder), and a field left empty falls back
+  to the same derived name.
+- Derived names are cut to `MAX_PROJECT_NAME_CHARS` (80) so the persisted
+  sidebar preference and the name field accept them unchanged. Folder-name
+  parsing moves to `apps/desktop/src/lib/project-name.ts` and is shared with the
+  dialog's folder rows.
+- Backports upstream commit 910844706 and keeps its number (upstream D600).
+  This line has no git project source, so the folder pick is the only seeded
+  source here. Renderer only: no protocol, storage, host, permission, or
+  migration change, and no new default. See `04-ux/08-component-spec.md`,
+  ADR 0233, and E2E-012a.

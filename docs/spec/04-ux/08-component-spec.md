@@ -470,9 +470,12 @@ D465 token pair — `--ds-sidebar-session-row-height` (30px) plus
   without deleting tabs; the work-panel header keeps its tab strip and fixed `+`
   menu, while each tab owns resource closing
 - Click the `Projects` heading folder-plus action: open the Create project
-  dialog. The dialog accepts a project name and one or more local folders,
-  lists every selected folder with a remove action, and marks the first folder
-  as Primary. Creation makes one logical project group: the primary folder is
+  dialog. The dialog accepts an optional project name and one or more local
+  folders, lists every selected folder with a remove action, and marks the
+  first folder as Primary. The name field seeds from the first selected folder
+  until the user types their own name, and Create falls back to that derived
+  name, so an empty name field never blocks creation. Creation makes one
+  logical project group: the primary folder is
   activated and names the group, while every other selected folder is retained
   as a group root and is shown in Project archive details, not as an open
   project tab. Group chats, instructions, and memory use the same group
