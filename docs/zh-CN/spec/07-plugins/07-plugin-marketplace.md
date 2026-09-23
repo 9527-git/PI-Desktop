@@ -48,6 +48,7 @@
 | 1 | `PI_DESKTOP_PLUGIN_MARKET_URL` | 任意 URL |
 | 2 | `pluginMarketSource: "mirror"` | `https://cnb.cool/aixk/pi-desktop-plugins/-/git/raw/main/catalog.json` |
 | 2 | `pluginMarketSource: "custom"` | `pluginMarketCustomUrl` |
+| 2 | `pluginMarketSource: "pidev"` | `https://pi.dev/packages` |
 | 3 | `pluginMarketSource: "official"`（默认） | 上面的默认目录 URL |
 
 镜像用于无法访问 `raw.githubusercontent.com` 的网络环境。镜像提供的目录与官方
@@ -58,6 +59,50 @@
 只被忽略而不删除——它的包 URL 指向用户刚切走的那个提供商——所以切回去时无需
 重新请求即可恢复该目录。`settings.set` 只在内存中重新指定来源；在那里发起抓取
 会让 host RPC 状态锁卡在市场超时上，因此切换后由渲染进程触发 `market.refresh`。
+
+### 官方 pi 包来源（npm）
+
+`pidev` 选择的是发布在 `https://pi.dev/packages` 的官方 pi 包目录。该页面是服务端渲染的
+HTML，没有机器可读的索引；而每个官方 pi 包都是一个 npm 包，其 `package.json` 用
+`pi.extensions`、`pi.skills`、`pi.prompts` 声明 pi CLI 从中加载什么。因此该来源改为读取
+npm registry：列表用 `https://registry.npmjs.org/-/v1/search?text=…+keywords:pi-package`，
+详情用 `https://registry.npmjs.org/<name>`。host 为该来源报告 providerId `pidev` 和来源
+URL `https://pi.dev/packages`；这里的 `market.refresh` 表示「重新读取浏览列表」，而不是
+缓存一份目录文档。`PI_DESKTOP_NPM_REGISTRY_URL` 覆盖 registry 基址，作用与
+`PI_DESKTOP_PLUGIN_MARKET_URL` 覆盖目录 URL 相同。
+
+列表与详情：
+
+- 搜索每次查询只取一页：100 条命中，带 `pi-package` 关键字。因此浏览展示的是 registry
+  自身的排序，收窄范围要靠搜索框。
+- 一条命中带有该包的最新版本、描述、发布者、月下载量以及 homepage/repository 链接，
+  但不带包内容和校验和。
+- 详情读取包文档：版本按新到旧排列并截断到 30 个（没有 tarball 的版本被剔除）、readme、
+  homepage/repository、解包后大小、发布时间、发布者，以及下面的权限列表。
+
+插件 ID 编码：
+
+- npm 包映射到已发布的插件 ID 契约 `^[a-z0-9]+(\.[a-z0-9_-]+)+$` 内的 ID：`foo` 变为
+  `pidev.pkg.foo`，`@scope/name` 变为 `pidev.scope.<scope>.<name>`。
+- 只有同时满足 URL 安全与 ID 安全的包名才会被接受：小写 registry 字母表加上 `-`、`_`、
+  `.`，以及可选的 `@scope/`。npm 允许但 ID 契约无法表示的包名（前导 `-`、`_`、`.`、
+  `~`、带点的 scope）不会由该来源提供。
+
+权限与信任：
+
+- 安装前展示的权限取自转换所读取的同一批声明：`pi.extensions` → `agent.extension`，
+  `pi.skills` → `agent.prompt.inject`。两者都不声明的包会被列出但不可安装，详情面板会
+  说明原因。
+- 所有条目的信任级别都是 `community`，绝不会是 `verified`：registry 只能说明是谁发布的，
+  不能为其背书。
+
+可安装状态：
+
+- 列表条目在包文档被读取之前不可安装，因此安装动作放在插件详情面板里，用户接受之前能
+  看到真实的权限列表。卡片上写「Open this plugin to install it」。
+- 已读取但未声明本版本能加载的任何内容的包报告 `installBlocked: "unsupported"` 并给出
+  原因；未读取的列表条目报告 `"not_read"`。
+- registry 读取失败会在市场界面显示为错误。
 
 ### 客户端可见的目录策略
 
@@ -104,6 +149,7 @@ interface MarketProvider {
 - `official`
 - `custom`（企业私有源）
 - `local-mock`（开发）
+- `pidev`（官方 pi 包目录；读取 npm registry，而不是目录文档）
 
 ## 4. 数据模型
 
@@ -193,6 +239,9 @@ type MarketPluginSummary = {
  permissionSummary: string[]
  verified?: boolean
  installable?: boolean
+ installBlocked?: "not_read" | "unsupported"
+ providerId?: string
+ npmPackage?: string
 }
 ```
 
@@ -218,6 +267,12 @@ type MarketPluginDetail = MarketPluginSummary & {
 `shasum`）。发布者可以先登记版本、稍后再上传安装包；这样的版本仍然可以被发现，
 但市场列表和详情面板会禁用安装按钮并标注「尚未发布安装包」，而不是发起一个
 host 必然拒绝的下载。批量更新会跳过这类版本，而不是让整批更新失败。
+
+`installBlocked` 解释的是来源自己禁用的安装动作：官方 pi 包尚未被读取时是 `not_read`，
+包声明的内容本版本无法加载时是 `unsupported`。`providerId` 标明提供该条目的来源
+（官方 pi 包目录为 `pidev`，目录来源为 `official`），`npmPackage` 给出 `pidev` 条目背后的
+npm 包；目录条目不带 npm 包。提供商与 npm 包会随已安装插件一起记录，并决定其更新路径
+（见第 6 节）。
 
 ### 目录发布闸门
 
@@ -303,6 +358,25 @@ URL 描述的是一个受发布者影响的 release，所以宿主还必须约�
 权限审查不会提及它们。 `pi-plugin check` 对此发出警告
 组合。
 
+### 官方 pi 包安装路径（主进程）
+
+host 自身从不下载 npm 包：它没有 gzip/tar 解包器，而且它的市场下载受上面的分发主机
+白名单约束。`pidev` 安装由桌面应用的主进程执行，host 只负责登记：
+
+1. npm 物化该包。暂存用的 `package.json` 固定精确版本，生命周期脚本保持禁用，registry
+   通过导入扩展管线已在使用的回环代理固定为 `registry.npmjs.org`（ADR 0244）。解析、
+   完整性校验和依赖策略都由 npm 负责。
+2. 安装后的包目录按「导入 pi 扩展」的同一套转换变成插件目录：声明的源码复制到 `src/`
+   下，manifest 声明 `contributes.agentExtensions` 和/或 `contributes.skills`，`main.js`
+   为空操作，敏感文件和符号链接被拒绝。
+3. 结果通过 host 既有的 `plugins.installFromPath` RPC 登记为普通已安装插件：source 为
+   `marketplace`、`marketplace.providerId = "pidev"`、npm 包记录在
+   `marketplace.npmPackage`，信任级别在安装时记录。
+4. 其依赖随后安装到已安装插件目录内，因为 host 的复制会丢掉 `node_modules`。
+
+`market.install` 对 `pidev` ID 以 `PLUGIN_INSTALL_UNSUPPORTED` 拒绝并给出原因，因此误调用的
+调用方拿到的是原因，而不是校验和错误。npm 管线只存在于主进程。
+
 ## 6. 更新路径
 
 1. 启动后或按计划执行 `checkUpdates`
@@ -313,6 +387,17 @@ URL 描述的是一个受发布者影响的 release，所以宿主还必须约�
 策略：
 - MVP 之后的第一个版本：手动更新
 - 稍后：可选自动更新（低风险插件或仅限官方插件）
+
+### 官方 pi 包更新
+
+已安装的 pi 包参与常规更新流程。`market.checkUpdates` 从 npm registry 解析它们的新版本，
+它们会出现在插件页的更新分组和 `market.applyUpdates` 中；应用其中一个会对该包重新执行
+npm 管线。
+
+- 静默检查复用已知状态，绝不发起请求；显式检查才读取 registry。
+- 查询失败不会改动插件已知的状态：这不构成「更新消失」的证据。
+- 目录通道只在选中目录来源时运行，并跳过 `pidev` 安装。从目录安装的插件绝不会改由 npm
+  更新，从 npm 安装的插件也绝不会改由目录更新：记录的提供商与 npm 包决定这一点。
 
 ## 7. Marketplace UI 信息架构
 
@@ -378,6 +463,9 @@ UI 必须使信任级别可见。
 已配置官方源的条目显示为 `unknown`，也绝不因为目录里这么写就提升级别。v1 目录的
 布尔 `verified` 仍按原义映射为 `verified` / `community`，因为 v1 目录只有市场
 维护者能写入。
+
+官方 pi 包来源对所有条目报告 `community`，绝不会报告 `verified`：npm registry 只能说明是
+谁发布的包，不能为其背书，而 `verified` 只从官方目录或镜像目录采纳。
 
 ## 9. 私人来源（面向企业）
 
@@ -503,6 +591,9 @@ PI_DESKTOP_PLUGIN_MARKET_URL=https://raw.githubusercontent.com/<owner>/<repo>/<r
 请求进入高/中/低风险部分并标记新条目
 相对于已安装的版本，因此升级不能默默地扩大访问范围
 （D169）。
+
+官方 pi 包只能从这个详情面板安装：包文档被读取之前卡片就是这么写的，而这里展示的权限
+列表正是转换将声明的权限。
 
 贡献文档位于官方仓库：
 
