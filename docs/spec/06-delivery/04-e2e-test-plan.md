@@ -1695,6 +1695,29 @@ and identify the platform validation still needed.
   (`autoUpdateCheck` setting, main-process mirror flag, updater gate, toggle
   row and i18n keys)
 
+#### E2E-UPDATES-kernel-version-and-check: Info shows the PI kernel version and checks it upstream
+
+- **Preconditions**: PI-Desktop is open; Settings → Info is reachable.
+- **Steps**: 1) Open Settings → Info and locate the PI kernel row under the
+  application row; note the version it shows. 2) Press Check for updates and
+  wait for the result. 3) When the npm registry advertises a newer kernel,
+  confirm the row reports it and offers View release; press View release and
+  confirm the GitHub releases page opens in the system browser. 4) Block
+  registry.npmjs.org (or disconnect the network) and press Check for updates
+  again.
+- **Expected**: The row shows the bundled kernel version resolved from the
+  pinned `@earendil-works/pi-agent-core` dependency, then reports one of
+  up-to-date (naming the version), newer-available (naming the upstream
+  version and that it ships with a PI-Desktop update, plus View release), or a
+  localized failure. Nothing is downloaded, installed, or persisted, and the
+  check is manual-only, so the Automatic update checks toggle never gates it.
+- **Specs linked**: `04-ux/06-settings-ia.md` §Info
+- **Acceptance**: Quality
+- **Milestone**: Post-M6 desktop shell maintenance
+- **Status**: Manual; source contract in `kernel-update.test.mjs`
+  (`pi-desktop/kernel/checkUpdate` channel, npm registry source, kernel row
+  and i18n keys, bundled version on `app/getVersion`)
+
 #### E2E-087a: Destination page headers clear the titlebar band on macOS
 
 - **Preconditions**: macOS build; at least one plugin installed.
@@ -7519,6 +7542,7 @@ and identify the platform validation still needed.
 | Quality (cross-session rendering) | E2E-CHAT-other-sessions-render-without-switching |
 | C — Conversation & stream (context percent precision) | E2E-CHAT-context-percent-precision |
 | Quality (context percent precision) | E2E-CHAT-context-percent-precision |
+| Quality (PI kernel version and check) | E2E-UPDATES-kernel-version-and-check |
 
 | Milestone | Scenarios |
 |---|---|

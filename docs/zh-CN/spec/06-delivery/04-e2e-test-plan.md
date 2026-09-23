@@ -5010,6 +5010,7 @@ IPC 请求无法关闭。
 | 品质（跨会话渲染） | E2E-CHAT-other-sessions-render-without-switching |
 | C — 对话与流式（上下文百分比精度） | E2E-CHAT-context-percent-precision |
 | 品质（上下文百分比精度） | E2E-CHAT-context-percent-precision |
+| 品质（PI 内核版本与检测） | E2E-UPDATES-kernel-version-and-check |
 
 | 里程碑 | 应用场景 |
 |---|---|

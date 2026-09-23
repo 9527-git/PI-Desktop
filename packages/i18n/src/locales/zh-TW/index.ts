@@ -132,6 +132,15 @@ export const zhTW = {
     dismiss: "忽略",
     devDisabled: "開發版本不支援自動更新。",
   },
+  kernel: {
+    title: "PI 核心",
+    desc: "隨應用打包的智慧體內核；核心更新隨 PI-Desktop 版本發布。",
+    check: "檢查更新",
+    checking: "正在檢查更新…",
+    upToDate: "已是最新（{{version}}）。",
+    available: "上游已有 {{version}}，將隨 PI-Desktop 更新提供。",
+    error: "檢查更新失敗：{{message}}",
+  },
   nav: {
     pinnedSessions: "釘選",
     home: "首頁",

@@ -139,6 +139,15 @@ export const tr = {
     autoCheckDesc: "Başlangıçta ve düzenli aralıklarla GitHub Releases üzerinde yeni sürümler denetlenir; manuel denetimler etkilenmez.",
     devDisabled: "Geliştirme derlemelerinde güncellemeler kapalıdır.",
   },
+  kernel: {
+    title: "PI çekirdeği",
+    desc: "Uygulamayla birlikte gelen ajan çekirdeği. Çekirdek güncellemeleri PI-Desktop sürümleriyle gelir.",
+    check: "Güncellemeleri denetle",
+    checking: "Güncellemeler denetleniyor…",
+    upToDate: "Güncel ({{version}}).",
+    available: "{{version}} kullanılabilir; bir PI-Desktop güncellemesiyle gelir.",
+    error: "Güncellemeler denetlenemedi: {{message}}",
+  },
   nav: {
     "pinnedSessions": "Sabitlenmiş",
     home: "Ana sayfa",

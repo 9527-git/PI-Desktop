@@ -229,6 +229,7 @@ export const SETTINGS_NAV: SettingsNavEntry[] = [
       "settings.logs",
       "settings.feedback",
       "updates.title",
+      "kernel.title",
       "settings.developer",
       "settings.developerMode",
       "settings.devTools",

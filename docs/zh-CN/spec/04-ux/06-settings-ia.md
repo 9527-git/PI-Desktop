@@ -239,6 +239,11 @@ Token 用量**不是设置目的地**（D335 / ADR 0173）。已完成回合历�
   `AppSettings.autoUpdateCheck` 值（缺省即开启）。关闭后 Main 跳过启动时与
   定期的 GitHub feed 检查；手动检查（软件更新行、侧栏版本徽章、应用菜单）
   不受影响（D437）
+- **PI 内核**行位于应用行下方：显示随应用打包的 pi 智能体内核版本（从固定的
+  `@earendil-works/pi-agent-core` 依赖解析），并提供一次「检查更新」手动操作，
+  读取 npm 公共仓库的最新发布版本。内核随 PI-Desktop 版本发布，因此发现更新时
+  只提示其将随应用更新提供并给出「查看发布页」；该检查不下载任何内容，不受
+  `autoUpdateCheck` 影响，也不新增持久化设置（D467）
 - **开发者**卡：
   - 开发者模式关闭，除非可选持续存在
     `AppSettings.developerMode` 值是 `true`
