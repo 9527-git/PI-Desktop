@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.7",
+    "date": "2026-09-23",
+    "highlights": [
+      "설정 → 정보의 PI 커널 행에서 릴리스 보기를 누르면 이제 PI-Desktop 릴리스 페이지가 아니라 pi 커널 자체의 릴리스 페이지가 열립니다.",
+    ],
+  },
+
+  {
     "version": "0.16.6",
     "date": "2026-09-23",
     "highlights": [

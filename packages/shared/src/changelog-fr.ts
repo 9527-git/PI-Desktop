@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.7",
+    "date": "2026-09-23",
+    "highlights": [
+      "La ligne du noyau PI dans Paramètres → Informations ouvre désormais, depuis Voir la version, la page des versions du noyau pi lui-même au lieu de celle de PI-Desktop.",
+    ],
+  },
+
+  {
     "version": "0.16.6",
     "date": "2026-09-23",
     "highlights": [

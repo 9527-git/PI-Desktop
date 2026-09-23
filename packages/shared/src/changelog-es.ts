@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.7",
+    "date": "2026-09-23",
+    "highlights": [
+      "La fila del kernel de PI en Ajustes → Información ahora abre, desde Ver versión, la página de versiones del propio kernel de pi en lugar de la de PI-Desktop.",
+    ],
+  },
+
+  {
     "version": "0.16.6",
     "date": "2026-09-23",
     "highlights": [

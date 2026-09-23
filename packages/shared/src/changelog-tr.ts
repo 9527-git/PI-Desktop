@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.7",
+    "date": "2026-09-23",
+    "highlights": [
+      "Ayarlar → Bilgi bölümündeki PI çekirdeği satırında Sürümü gör artık PI-Desktop sürüm sayfası yerine pi çekirdeğinin kendi sürüm sayfasını açar.",
+    ],
+  },
+
+  {
     "version": "0.16.6",
     "date": "2026-09-23",
     "highlights": [

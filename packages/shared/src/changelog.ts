@@ -29,6 +29,14 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.16.7",
+    date: "2026-09-23",
+    highlights: [
+      "View release in the Settings → Info PI kernel row now opens the pi kernel's own release page instead of the PI-Desktop releases page.",
+    ],
+  },
+
+  {
     version: "0.16.6",
     date: "2026-09-23",
     highlights: [
@@ -1020,6 +1028,14 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.16.7",
+    date: "2026-09-23",
+    highlights: [
+      "「查看发布页」现在打开 pi 内核自己的发布页，而不是 PI-Desktop 的发布页。",
+    ],
+  },
+
+  {
     version: "0.16.6",
     date: "2026-09-23",
     highlights: [
@@ -2009,6 +2025,14 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.16.7",
+    date: "2026-09-23",
+    highlights: [
+      "「查看發行頁」現在開啟 pi 核心自己的發行頁，而不是 PI-Desktop 的發行頁。",
+    ],
+  },
+
   {
     version: "0.16.6",
     date: "2026-09-23",

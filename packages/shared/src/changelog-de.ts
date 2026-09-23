@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.7",
+    "date": "2026-09-23",
+    "highlights": [
+      "Die Zeile für den PI-Kernel unter Einstellungen → Info öffnet über Release ansehen jetzt die Release-Seite des pi-Kernels statt der PI-Desktop-Release-Seite.",
+    ],
+  },
+
+  {
     "version": "0.16.6",
     "date": "2026-09-23",
     "highlights": [
