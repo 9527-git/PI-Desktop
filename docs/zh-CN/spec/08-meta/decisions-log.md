@@ -5069,3 +5069,27 @@ PI-Desktop 把检查点锚在 `throughMessageId` 之后，而它在压缩时就�
 - 移植上游提交 910844706 并沿用其编号（上游 D600）。本分支没有 Git 项目来源，
   因此这里只有文件夹来源。仅渲染器改动：不改协议、存储、宿主、权限或迁移，
   也不新增默认值。见 `04-ux/08-component-spec.md`、ADR 0233、E2E-012a。
+
+## 2026-09-23 —— 信息页显示 PI 内核版本并可检测上游更新（D467）
+
+信息页此前只列应用、host 与 protocol 版本，用户或问题反馈无法说清 sidecar
+实际运行的内核——而固定的 `@earendil-works/pi-agent-core` 版本（0.87.0）已经
+落后于 npm 上的最新发布版本（0.87.1）。`@pi-desktop/agent-runtime` 现在导出
+`PI_KERNEL_VERSION`：构建时从该固定依赖的 `package.json` 解析，展示值与打包
+内核不会漂移；同时导出 `parseKernelVersion` / `isNewerKernelVersion` 用于版本
+比较。`app/getVersion` 以可选的 `kernelVersion` 字段携带该版本，新增的
+`pi-desktop/kernel/checkUpdate` 调用通道负责手动检查：主进程经既有公网 HTTPS
+客户端（与技能市场同一策略与代理路径）读取
+`https://registry.npmjs.org/@earendil-works%2Fpi-agent-core/latest`，拒绝异常
+载荷，并返回 `{ currentVersion, latestVersion, updateAvailable }`。设置 → 信息
+页在应用行下方新增「PI 内核」行：显示打包版本与一次「检查更新」操作，具备
+已是最新、上游有新版本与本地化错误三种状态。内核随 PI-Desktop 版本发布，因此
+发现新版本时只提示并给出「查看发布页」，不会下载任何内容；该检查仅手动执行，
+不受 `autoUpdateCheck` 影响，也不新增持久化设置。`kernel.*` 文案随全部八种
+语言发布，设置搜索可索引该行。
+- 仅新增 IPC：一个调用通道与一个可选 `AppVersionInfo` 字段；不改 Host RPC、
+  存储 schema、权限或 `PROTOCOL_VERSION`。
+- 回归覆盖：`kernel-update.test.mjs`（通道、registry 来源、行与语言文案）与
+  `kernel-version.test.ts`（与固定版本一致、比较逻辑）。
+- 见 `04-ux/06-settings-ia.md` §信息 与
+  `06-delivery/04-e2e-test-plan.md` 中的 E2E-UPDATES-kernel-version-and-check。

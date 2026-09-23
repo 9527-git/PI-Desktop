@@ -130,6 +130,15 @@ export const de = {
     "autoCheckDesc": "Beim Start und regelmäßig auf neue Versionen auf GitHub Releases prüfen; manuelle Prüfungen sind nicht betroffen.",
     "devDisabled": "Updates sind in Entwicklungs-Builds deaktiviert."
   },
+  "kernel": {
+    "title": "PI-Kernel",
+    "desc": "Mit der App gebündelter Agent-Kernel. Kernel-Updates erscheinen mit PI-Desktop-Versionen.",
+    "check": "Nach Updates suchen",
+    "checking": "Nach Updates suchen…",
+    "upToDate": "Aktuell ({{version}}).",
+    "available": "{{version}} ist verfügbar und erscheint mit einem PI-Desktop-Update.",
+    "error": "Konnte nicht nach Updates suchen: {{message}}"
+  },
   "nav": {
     "pinnedSessions": "Angeheftet",
     "home": "Startseite",

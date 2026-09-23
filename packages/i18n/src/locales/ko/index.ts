@@ -139,6 +139,15 @@ export const ko = {
     autoCheckDesc: "시작 시 및 주기적으로 GitHub Releases에서 새 버전을 확인합니다; 수동 확인은 영향을 받지 않습니다.",
     devDisabled: "개발 빌드에서는 업데이트가 비활성화됩니다.",
   },
+  kernel: {
+    title: "PI 커널",
+    desc: "앱에 포함된 에이전트 커널입니다. 커널 업데이트는 PI-Desktop 릴리스와 함께 제공됩니다.",
+    check: "업데이트 확인",
+    checking: "업데이트 확인 중…",
+    upToDate: "최신 상태입니다({{version}}).",
+    available: "{{version}} 사용 가능; PI-Desktop 업데이트와 함께 제공됩니다.",
+    error: "업데이트를 확인할 수 없습니다: {{message}}",
+  },
   nav: {
     "pinnedSessions": "고정됨",
     home: "홈",

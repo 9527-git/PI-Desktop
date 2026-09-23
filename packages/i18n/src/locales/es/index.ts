@@ -130,6 +130,15 @@ export const es = {
     "autoCheckDesc": "Busca nuevas versiones en GitHub Releases al iniciar y periódicamente; las comprobaciones manuales no se ven afectadas.",
     "devDisabled": "Las actualizaciones están deshabilitadas en las compilaciones de desarrollo."
   },
+  "kernel": {
+    "title": "Núcleo de PI",
+    "desc": "Núcleo del agente incluido con la aplicación. Las actualizaciones del núcleo llegan con las versiones de PI-Desktop.",
+    "check": "Buscar actualizaciones",
+    "checking": "Buscando actualizaciones...",
+    "upToDate": "Actualizado ({{version}}).",
+    "available": "La versión {{version}} está disponible y llegará con una actualización de PI-Desktop.",
+    "error": "No se pudieron buscar actualizaciones: {{message}}"
+  },
   "nav": {
     "pinnedSessions": "Fijadas",
     "home": "Inicio",

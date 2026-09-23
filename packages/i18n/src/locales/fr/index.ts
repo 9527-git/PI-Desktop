@@ -130,6 +130,15 @@ export const fr = {
     "autoCheckDesc": "Recherche les nouvelles versions sur GitHub Releases au démarrage et régulièrement ; les vérifications manuelles ne sont pas affectées.",
     "devDisabled": "Les mises à jour sont désactivées dans les versions de développement."
   },
+  "kernel": {
+    "title": "Noyau PI",
+    "desc": "Noyau de l'agent fourni avec l'application. Les mises à jour du noyau arrivent avec les versions de PI-Desktop.",
+    "check": "Vérifier les mises à jour",
+    "checking": "Vérification des mises à jour…",
+    "upToDate": "À jour ({{version}}).",
+    "available": "La version {{version}} est disponible et arrivera avec une mise à jour de PI-Desktop.",
+    "error": "Impossible de vérifier les mises à jour : {{message}}"
+  },
   "nav": {
     "pinnedSessions": "Épinglées",
     "home": "Accueil",

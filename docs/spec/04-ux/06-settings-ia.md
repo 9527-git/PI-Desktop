@@ -534,6 +534,14 @@ system while preserving their different data ownership:
   enabled). While disabled, Main skips the startup and periodic GitHub feed
   checks; manual checks (Updates row, sidebar build chip, application menu)
   are never gated (D437)
+- **PI kernel** row under the application row: shows the bundled pi agent
+  kernel version, resolved from the pinned `@earendil-works/pi-agent-core`
+  dependency, and offers one manual **Check for updates** action that reads
+  the newest published version from the public npm registry. The kernel ships
+  inside PI-Desktop releases, so a newer upstream kernel reports that it
+  arrives with an app update and offers View release; the check downloads
+  nothing, is never gated by `autoUpdateCheck`, and adds no persisted
+  setting (D467)
 - **Developer** card:
   - developer mode is off unless the optional persisted
     `AppSettings.developerMode` value is `true`
@@ -645,6 +653,9 @@ system while preserving their different data ownership:
 27. The Skills page Market view browses public-HTTPS catalogs, previews
     the assembled document, and installs only through `skills.create`; oversized
     expanded documents are refused and source badges follow `sourceId`
+28. Info shows the bundled PI kernel version and checks it on demand against
+    the public npm registry, reporting up-to-date, newer-available (with a
+    link to the releases page), and error states without leaving the page
 
 ## 5. General chrome metrics
 

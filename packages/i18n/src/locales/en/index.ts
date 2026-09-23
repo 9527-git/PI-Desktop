@@ -138,6 +138,15 @@ export const en = {
     dismiss: "Dismiss",
     devDisabled: "Updates are disabled in development builds.",
   },
+  kernel: {
+    title: "PI kernel",
+    desc: "Agent kernel bundled with this app. Kernel updates ship with PI-Desktop releases.",
+    check: "Check for updates",
+    checking: "Checking for updates…",
+    upToDate: "Up to date ({{version}}).",
+    available: "{{version}} is available and ships with a PI-Desktop update.",
+    error: "Couldn't check for updates: {{message}}",
+  },
   nav: {
     "pinnedSessions": "Pinned",
     home: "Home",

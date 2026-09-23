@@ -6653,3 +6653,37 @@ the range label `<1` instead of naming a figure the occupancy has not reached.
   source here. Renderer only: no protocol, storage, host, permission, or
   migration change, and no new default. See `04-ux/08-component-spec.md`,
   ADR 0233, and E2E-012a.
+
+## 2026-09-23 — Settings → Info shows the PI kernel version and checks it upstream (D467)
+
+The Info page listed the app, host, and protocol versions but nothing about the
+pi agent kernel the sidecar actually runs, so a user or a bug report could not
+name the kernel in use — and the pinned `@earendil-works/pi-agent-core` version
+(0.87.0) already trailed the newest published one (0.87.1).
+
+`@pi-desktop/agent-runtime` now exports `PI_KERNEL_VERSION`, resolved from that
+pinned dependency's `package.json` at build time, so the figure can never drift
+from the bundled kernel, plus `parseKernelVersion` / `isNewerKernelVersion` for
+release comparison. `app/getVersion` carries the version as an additive
+`kernelVersion` field, and a new `pi-desktop/kernel/checkUpdate` invoke channel
+answers a manual check: Main reads
+`https://registry.npmjs.org/@earendil-works%2Fpi-agent-core/latest` through the
+existing public-HTTPS client (the same policy and proxy path as the skill
+market), refuses an unexpected payload, and answers
+`{ currentVersion, latestVersion, updateAvailable }`.
+
+Settings → Info gains a **PI kernel** row under the application row: it shows
+the bundled version and one **Check for updates** action with up-to-date,
+newer-available, and localized-error states. The kernel ships inside PI-Desktop
+releases, so a newer upstream kernel says so and offers View release instead of
+downloading anything; the check is manual-only, is not gated by
+`autoUpdateCheck`, and adds no persisted setting. New `kernel.*` strings ship
+in all eight locales, and Settings search indexes the row.
+
+- Additive IPC only: one invoke channel and one optional `AppVersionInfo`
+  field; no Host RPC, storage schema, permission, or `PROTOCOL_VERSION` change.
+- Regression coverage: `kernel-update.test.mjs` (channel, registry source,
+  row, locales) and `kernel-version.test.ts` (pinned-version equality and the
+  comparison).
+- See `04-ux/06-settings-ia.md` §Info and
+  E2E-UPDATES-kernel-version-and-check in `06-delivery/04-e2e-test-plan.md`.

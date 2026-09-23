@@ -132,6 +132,15 @@ export const zhCN = {
     dismiss: "忽略",
     devDisabled: "开发版本不支持自动更新。",
   },
+  kernel: {
+    title: "PI 内核",
+    desc: "随应用打包的智能体内核；内核更新随 PI-Desktop 版本发布。",
+    check: "检查更新",
+    checking: "正在检查更新…",
+    upToDate: "已是最新（{{version}}）。",
+    available: "上游已有 {{version}}，将随 PI-Desktop 更新提供。",
+    error: "检查更新失败：{{message}}",
+  },
   nav: {
     pinnedSessions: "置顶",
     home: "首页",
