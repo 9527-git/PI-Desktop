@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.6",
+    "date": "2026-09-23",
+    "highlights": [
+      "Der Dialog zum Erstellen eines Projekts verlangt keinen eingegebenen Namen mehr: Beim Hinzufügen eines Ordners wird der Projektname mit dem Ordnernamen vorbelegt, und eine eigene Eingabe hat immer Vorrang.",
+      "Einstellungen → Info erhält eine Zeile für den PI-Kernel: Sie zeigt die mitgelieferte Version des pi-Agent-Kernels und prüft auf Anfrage die neueste veröffentlichte Version; die Prüfung meldet nur das Ergebnis.",
+    ],
+  },
+
+  {
     "version": "0.16.5",
     "date": "2026-09-22",
     "highlights": [

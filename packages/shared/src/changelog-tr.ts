@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.6",
+    "date": "2026-09-23",
+    "highlights": [
+      "Proje oluşturmak artık önce bir ad yazmayı gerektirmiyor: bir klasör eklediğinizde proje adı o klasörün adıyla doldurulur ve kendi yazdığınız ad her zaman geçerlidir.",
+      "Ayarlar → Bilgi bölümüne bir PI çekirdeği satırı eklendi: uygulamayla gelen pi ajan çekirdeği sürümünü gösterir ve istendiğinde yayımlanmış en yeni sürümü denetler; denetim yalnızca sonucu bildirir.",
+    ],
+  },
+
+  {
     "version": "0.16.5",
     "date": "2026-09-22",
     "highlights": [

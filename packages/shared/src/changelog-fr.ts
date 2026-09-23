@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.6",
+    "date": "2026-09-23",
+    "highlights": [
+      "La création d'un projet ne demande plus de saisir un nom : l'ajout d'un dossier préremplit le nom du projet avec celui du dossier, et le nom que vous saisissez vous-même reste prioritaire.",
+      "Paramètres → Informations ajoute une ligne du noyau PI : elle affiche la version du noyau de l'agent pi embarquée et vérifie la dernière publiée à la demande ; la vérification se contente de rapporter le résultat.",
+    ],
+  },
+
+  {
     "version": "0.16.5",
     "date": "2026-09-22",
     "highlights": [

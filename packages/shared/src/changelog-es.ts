@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.6",
+    "date": "2026-09-23",
+    "highlights": [
+      "Crear un proyecto ya no exige escribir un nombre: al añadir una carpeta, el nombre del proyecto se rellena con el de esa carpeta, y el nombre que escribas tú siempre tiene prioridad.",
+      "Ajustes → Información añade una fila del kernel de PI: muestra la versión del kernel del agente pi incluida en la app y consulta la última publicada cuando lo pidas; la consulta solo informa del resultado.",
+    ],
+  },
+
+  {
     "version": "0.16.5",
     "date": "2026-09-22",
     "highlights": [

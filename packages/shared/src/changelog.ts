@@ -29,6 +29,15 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.16.6",
+    date: "2026-09-23",
+    highlights: [
+      "Creating a project no longer asks for a name first: adding a folder fills the project name with that folder's name, and a name you type yourself always wins.",
+      "Settings → Info gains a PI kernel row that shows the bundled pi agent kernel version and checks the newest published one on demand; the check only reports what it finds.",
+    ],
+  },
+
+  {
     version: "0.16.5",
     date: "2026-09-22",
     highlights: [
@@ -1011,6 +1020,15 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.16.6",
+    date: "2026-09-23",
+    highlights: [
+      "新建项目不再强制先填名称:添加文件夹后会用该文件夹名自动预填项目名,你自己输入的名称始终优先。",
+      "设置 → 信息新增 PI 内核一行:显示随应用打包的 pi agent 内核版本,并可按需检查上游最新版本;该检查只报告结果,不下载也不安装。",
+    ],
+  },
+
+  {
     version: "0.16.5",
     date: "2026-09-22",
     highlights: [
@@ -1991,6 +2009,15 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.16.6",
+    date: "2026-09-23",
+    highlights: [
+      "新建專案不再強制先填名稱:加入資料夾後會以該資料夾名稱自動預填專案名稱,你自己輸入的名稱一律優先。",
+      "設定 → 資訊新增 PI 核心一列:顯示隨應用程式打包的 pi agent 核心版本,並可視需要檢查上游最新版本;該檢查只回報結果,不下載也不安裝。",
+    ],
+  },
+
   {
     version: "0.16.5",
     date: "2026-09-22",

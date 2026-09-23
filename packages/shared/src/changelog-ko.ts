@@ -2,6 +2,15 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.6",
+    "date": "2026-09-23",
+    "highlights": [
+      "프로젝트를 만들 때 더 이상 이름을 먼저 입력하지 않아도 됩니다. 폴더를 추가하면 그 폴더 이름이 프로젝트 이름으로 자동으로 채워지고, 직접 입력한 이름이 항상 우선합니다.",
+      "설정 → 정보에 PI 커널 행이 추가되었습니다. 앱에 포함된 pi 에이전트 커널 버전을 보여주고, 요청할 때 최신 공개 버전을 확인합니다. 이 확인은 결과만 알려줄 뿐 내려받거나 설치하지 않습니다.",
+    ],
+  },
+
+  {
     "version": "0.16.5",
     "date": "2026-09-22",
     "highlights": [
