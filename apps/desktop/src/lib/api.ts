@@ -315,6 +315,7 @@ export const api = {
   updatesInstall: () => invoke(IPC.invoke.updatesInstall),
   updatesOpenReleases: () => invoke(IPC.invoke.updatesOpenReleases),
   kernelCheckUpdate: () => invoke<KernelUpdateResult>(IPC.invoke.kernelCheckUpdate),
+  kernelOpenReleases: () => invoke(IPC.invoke.kernelOpenReleases),
   openFeedback: () => invoke(IPC.invoke.appOpenFeedback),
   listNotifications: (input?: { unreadOnly?: boolean; limit?: number }) =>
     invoke<NotificationListResult>(IPC.invoke.notificationList, input ?? {}),

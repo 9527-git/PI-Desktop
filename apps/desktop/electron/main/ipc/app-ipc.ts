@@ -12,7 +12,11 @@ import {
   buildBugReportUrl,
   type QuitDialogResponse,
 } from "@pi-desktop/shared";
-import { PI_KERNEL_VERSION, globalInstructionPath } from "@pi-desktop/agent-runtime";
+import {
+  PI_KERNEL_RELEASES_URL,
+  PI_KERNEL_VERSION,
+  globalInstructionPath,
+} from "@pi-desktop/agent-runtime";
 import { checkKernelUpdate } from "../kernel-update";
 import type { HostProcess } from "../host-process";
 import type { AppUpdaterController } from "../updater";
@@ -234,4 +238,11 @@ export function registerAppIpc({
     return { ok: true };
   });
   handle(IPC.invoke.kernelCheckUpdate, async () => checkKernelUpdate());
+  handle(IPC.invoke.kernelOpenReleases, async () => {
+    if (!PI_KERNEL_RELEASES_URL) {
+      throw new Error("kernel repository unavailable");
+    }
+    await safeOpenExternal(PI_KERNEL_RELEASES_URL);
+    return { ok: true };
+  });
 }

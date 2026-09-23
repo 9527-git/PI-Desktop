@@ -1702,21 +1702,25 @@ and identify the platform validation still needed.
   application row; note the version it shows. 2) Press Check for updates and
   wait for the result. 3) When the npm registry advertises a newer kernel,
   confirm the row reports it and offers View release; press View release and
-  confirm the GitHub releases page opens in the system browser. 4) Block
-  registry.npmjs.org (or disconnect the network) and press Check for updates
-  again.
+  confirm the upstream pi kernel's release page
+  (`github.com/earendil-works/pi/releases`) opens in the system browser — not
+  the PI-Desktop releases page. 4) Block registry.npmjs.org (or disconnect the
+  network) and press Check for updates again.
 - **Expected**: The row shows the bundled kernel version resolved from the
   pinned `@earendil-works/pi-agent-core` dependency, then reports one of
   up-to-date (naming the version), newer-available (naming the upstream
   version and that it ships with a PI-Desktop update, plus View release), or a
-  localized failure. Nothing is downloaded, installed, or persisted, and the
-  check is manual-only, so the Automatic update checks toggle never gates it.
+  localized failure. View release opens the kernel's own release page, resolved
+  by Main from the pinned dependency's repository. Nothing is downloaded,
+  installed, or persisted, and the check is manual-only, so the Automatic
+  update checks toggle never gates it.
 - **Specs linked**: `04-ux/06-settings-ia.md` §Info
 - **Acceptance**: Quality
 - **Milestone**: Post-M6 desktop shell maintenance
 - **Status**: Manual; source contract in `kernel-update.test.mjs`
-  (`pi-desktop/kernel/checkUpdate` channel, npm registry source, kernel row
-  and i18n keys, bundled version on `app/getVersion`)
+  (`pi-desktop/kernel/checkUpdate` and `pi-desktop/kernel/openReleases`
+  channels, npm registry source, kernel row, its release action and i18n keys,
+  bundled version on `app/getVersion`)
 
 #### E2E-087a: Destination page headers clear the titlebar band on macOS
 

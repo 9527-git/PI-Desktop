@@ -1,8 +1,10 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
+  PI_KERNEL_RELEASES_URL,
   PI_KERNEL_VERSION,
   isNewerKernelVersion,
+  kernelRepositoryUrl,
   parseKernelVersion,
 } from "./kernel-version.js";
 
@@ -36,5 +38,34 @@ describe("kernel version", () => {
   it("treats an unparsable version as not newer", () => {
     expect(isNewerKernelVersion("next", "0.87.0")).toBe(false);
     expect(isNewerKernelVersion("0.87.1", "unreleased")).toBe(false);
+  });
+
+  it("normalizes a package repository field to a browsable URL", () => {
+    expect(
+      kernelRepositoryUrl({ url: "git+https://github.com/earendil-works/pi.git" }),
+    ).toBe("https://github.com/earendil-works/pi");
+    expect(kernelRepositoryUrl("https://gitlab.com/acme/kernel")).toBe(
+      "https://gitlab.com/acme/kernel",
+    );
+    expect(
+      kernelRepositoryUrl({ url: "git+ssh://git@github.com/acme/kernel.git" }),
+    ).toBeNull();
+    expect(kernelRepositoryUrl({ directory: "packages/agent" })).toBeNull();
+    expect(kernelRepositoryUrl(undefined)).toBeNull();
+  });
+
+  it("points the release action at the kernel's own repository", () => {
+    const installed = JSON.parse(
+      readFileSync(
+        new URL(
+          "../node_modules/@earendil-works/pi-agent-core/package.json",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+    ) as { repository?: unknown };
+    const repository = kernelRepositoryUrl(installed.repository);
+    expect(repository).toBe("https://github.com/earendil-works/pi");
+    expect(PI_KERNEL_RELEASES_URL).toBe(`${repository}/releases/latest`);
   });
 });

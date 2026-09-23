@@ -65,6 +65,8 @@ export const IPC = {
     updatesOpenReleases: "pi-desktop/updates/openReleases",
     /** Manual PI kernel update check against the public npm registry (D467). */
     kernelCheckUpdate: "pi-desktop/kernel/checkUpdate",
+    /** The upstream kernel's own release page, resolved by Main (D468). */
+    kernelOpenReleases: "pi-desktop/kernel/openReleases",
     notificationList: "pi-desktop/notification/list",
     notificationMarkRead: "pi-desktop/notification/markRead",
     notificationMarkAllRead: "pi-desktop/notification/markAllRead",

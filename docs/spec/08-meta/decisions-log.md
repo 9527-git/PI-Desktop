@@ -6656,6 +6656,7 @@ the range label `<1` instead of naming a figure the occupancy has not reached.
 
 ## 2026-09-23 — Settings → Info shows the PI kernel version and checks it upstream (D467)
 
+> **The View release target is corrected by D468 the same day.**
 The Info page listed the app, host, and protocol versions but nothing about the
 pi agent kernel the sidecar actually runs, so a user or a bug report could not
 name the kernel in use — and the pinned `@earendil-works/pi-agent-core` version
@@ -6685,5 +6686,31 @@ in all eight locales, and Settings search indexes the row.
 - Regression coverage: `kernel-update.test.mjs` (channel, registry source,
   row, locales) and `kernel-version.test.ts` (pinned-version equality and the
   comparison).
+- See `04-ux/06-settings-ia.md` §Info and
+  E2E-UPDATES-kernel-version-and-check in `06-delivery/04-e2e-test-plan.md`.
+
+## 2026-09-23 — The PI kernel row opens the kernel's own release page (D468)
+
+D467 gave the Info kernel row a View release action but routed it through the
+app updater's `pi-desktop/updates/openReleases`, so the action opened the
+PI-Desktop releases page while the row was naming an upstream kernel version —
+the page and the claim disagreed.
+
+`@pi-desktop/agent-runtime` now also exports `PI_KERNEL_RELEASES_URL`, derived
+at build time from the pinned `@earendil-works/pi-agent-core` `repository`
+field through the new `kernelRepositoryUrl` normalizer (which refuses anything
+that is not a plain `https://host/owner/repo`), so the destination follows the
+kernel pin exactly as `PI_KERNEL_VERSION` does. A new
+`pi-desktop/kernel/openReleases` invoke channel opens that URL through the
+existing `safeOpenExternal` gate, and the kernel row's View release action uses
+it. The app's own Updates row keeps `pi-desktop/updates/openReleases`.
+
+- Additive IPC only: one invoke channel; no `PROTOCOL_VERSION`, Host RPC,
+  storage schema, permission, or persisted-setting change.
+- The destination is never renderer-supplied; Main owns the URL
+  (D313 / ADR 0157).
+- Regression coverage: `kernel-update.test.mjs` (channel, Main handler, row
+  action, and that the row never calls `updatesOpenReleases`) and
+  `kernel-version.test.ts` (repository normalization and the derived URL).
 - See `04-ux/06-settings-ia.md` §Info and
   E2E-UPDATES-kernel-version-and-check in `06-delivery/04-e2e-test-plan.md`.
