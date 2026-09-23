@@ -4980,6 +4980,9 @@ IPC 请求无法关闭。
 | 品质（会话列表响应性） | E2E-SESSION-list-refresh-keeps-desktop-responsive |
 | 安全性（导入扩展依赖） | E2E-PLUGIN-import-extension-installs-dependencies、E2E-PLUGIN-import-extension-reports-missing-dependency |
 | 品质（导入扩展依赖） | E2E-PLUGIN-import-extension-installs-dependencies、E2E-PLUGIN-import-extension-reports-missing-dependency |
+| G——插件（pi.dev 包来源） | E2E-PLUGIN-pidev-market-source-reports-provider-and-url、E2E-PLUGIN-pidev-detail-reads-registry-package、E2E-PLUGIN-pidev-listing-entry-installs-only-after-detail-read、E2E-PLUGIN-pidev-prompts-only-package-is-not-installable、E2E-PLUGIN-pidev-host-refuses-package-install |
+| 安全性（pi.dev 包来源） | E2E-PLUGIN-pidev-host-refuses-package-install |
+| 品质（pi.dev 包来源） | E2E-PLUGIN-pidev-detail-reads-registry-package、E2E-PLUGIN-pidev-listing-entry-installs-only-after-detail-read、E2E-PLUGIN-pidev-prompts-only-package-is-not-installable |
 | C — 对话与流式（独立会话通信） | E2E-SESSION-independent-top-level-communication |
 | D — 插件安全（独立会话通信） | E2E-SESSION-independent-top-level-communication |
 | G — 插件（独立会话通信） | E2E-SESSION-independent-top-level-communication |
@@ -7391,6 +7394,59 @@ runner 会在运行时的隔离临时目录中生成六个插件形态 fixture�
 - **验收**：Quality
 - **里程碑**：M6+
 - **状态**：已自动化（`pnpm test:e2e:skill-market`）
+
+### pi.dev 包市场场景（`pnpm test:e2e:pi-package-market`，协议级无头）
+
+#### E2E-PLUGIN-pidev-market-source-reports-provider-and-url：选择官方 pi 包来源时报告 `pidev` 与其 URL
+
+- **前提条件**：宿主二进制；本地提供的 registry 装置，并通过 `PI_DESKTOP_NPM_REGISTRY_URL` 选中；`pluginMarketSource` 设为 `pidev`。
+- **步骤**：1）在「插件 → 市场」选择「pi.dev official packages (npm)」。2）刷新市场。3）以空查询调用 `market.search`。
+- **预期**：刷新重新读取浏览列表（registry 的一页）并报告 providerId `pidev` 与来源 URL `https://pi.dev/packages`，而不是缓存目录文档；报告的插件数量等于装置的命中数；`market.search` 报告相同的提供商 id 与来源 URL。
+- **链接规格**：`07-plugins/07-plugin-marketplace.md`、ADR 0266
+- **验收**：G（远程市场来源）
+- **里程碑**：M6+
+- **状态**：已自动化（`scripts/e2e-pi-package-market.mjs`，无头协议级；2026-09-23 通过 5/5）。
+
+#### E2E-PLUGIN-pidev-detail-reads-registry-package：详情来自 registry 包文档
+
+- **前提条件**：registry 装置中的包文档声明 `pi.extensions` 与 `pi.skills`，含多个版本（最新版本由 `dist-tags.latest` 指定）、readme、homepage、repository、`unpackedSize`、发布时间与发布者。
+- **步骤**：1）搜索该包。2）打开详情面板（`market.getDetail`）。3）检查版本、权限与信任徽标。
+- **预期**：版本按新到旧排列并截断到 30 个；没有 tarball 的版本不出现；readme、homepage、repository、解包后大小、发布时间与发布者均渲染；权限是由 `pi` 声明推导出的 `agent.extension` 与 `agent.prompt.inject`；信任为 `community`，绝不会是 `verified`。
+- **链接规格**：`07-plugins/07-plugin-marketplace.md`、ADR 0266
+- **验收**：G（市场详情体验）
+- **里程碑**：M6+
+- **状态**：已自动化（`scripts/e2e-pi-package-market.mjs`，无头协议级；2026-09-23 通过 5/5）。
+
+#### E2E-PLUGIN-pidev-listing-entry-installs-only-after-detail-read：列表条目在读取之前不可安装
+
+- **前提条件**：上一场景的 registry 装置。
+- **步骤**：1）搜索。2）读取卡片。3）确认列表不提供安装动作。4）打开详情面板，阅读权限列表后安装。
+- **预期**：卡片报告 `installable: false` 且 `installBlocked: "not_read"`，并显示「Open this plugin to install it」；列表不提供安装动作；面板在用户接受之前展示由包文档推导出的权限；文档被读取后安装经权限对话框继续。
+- **链接规格**：`07-plugins/07-plugin-marketplace.md`、ADR 0266
+- **验收**：G（市场安装与权限审查）
+- **里程碑**：M6+
+- **状态**：已自动化（`scripts/e2e-pi-package-market.mjs`，无头协议级；2026-09-23 通过 5/5）。
+
+#### E2E-PLUGIN-pidev-prompts-only-package-is-not-installable：仅声明 prompts 的包被列出并给出原因
+
+- **前提条件**：registry 装置中的包，其 `pi` 字段只声明 `pi.prompts`。
+- **步骤**：1）搜索。2）打开详情面板。
+- **预期**：该包被列出但不可安装：`installable: false` 且 `installBlocked: "unsupported"`，面板说明它只声明 prompts（本版本无法加载任何内容），并且不提供安装动作。
+- **链接规格**：`07-plugins/07-plugin-marketplace.md`、ADR 0266
+- **验收**：G（插件）、品质
+- **里程碑**：M6+
+- **状态**：已自动化（`scripts/e2e-pi-package-market.mjs`，无头协议级；2026-09-23 通过 5/5）。
+
+#### E2E-PLUGIN-pidev-host-refuses-package-install：宿主自己拒绝 `pidev` 安装
+
+- **前提条件**：宿主二进制；已选中 `pidev` 来源，并有一个合法的 `pidev` 插件 id。
+- **步骤**：1）直接用 `pidev` id 在宿主上调用 `market.install`。2）确认由哪个进程安装该包。
+- **预期**：调用以 `PLUGIN_INSTALL_UNSUPPORTED` 失败并给出原因，不下载 tarball、不出现校验和错误、也不留下半成品插件；桌面应用的 npm 管线才是安装路径，并通过 `plugins.installFromPath` 登记结果。
+- **链接规格**：`07-plugins/07-plugin-marketplace.md`、ADR 0266
+- **验收**：G（插件）、安全性
+- **里程碑**：M6+
+- **状态**：已自动化（`scripts/e2e-pi-package-market.mjs`，无头协议级；2026-09-23 通过 5/5）。
+
 #### E2E-PLUGIN-turn-ended-once-per-host-turn：每个宿主回合只产生一次回合结束事件
 
 - **前置条件**：已加载并启用一个带工具、且监听 `session:turnEnded` 的插件；其面板记录每次收到的载荷，以及工具通过工具上下文拿到的 `turnId`。

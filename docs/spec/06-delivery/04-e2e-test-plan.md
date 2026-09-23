@@ -7516,6 +7516,9 @@ and identify the platform validation still needed.
 | Quality (Session list responsiveness) | E2E-SESSION-list-refresh-keeps-desktop-responsive |
 | Security (imported extension dependencies) | E2E-PLUGIN-import-extension-installs-dependencies, E2E-PLUGIN-import-extension-reports-missing-dependency |
 | Quality (imported extension dependencies) | E2E-PLUGIN-import-extension-installs-dependencies, E2E-PLUGIN-import-extension-reports-missing-dependency |
+| G — Plugins (pi.dev package source) | E2E-PLUGIN-pidev-market-source-reports-provider-and-url, E2E-PLUGIN-pidev-detail-reads-registry-package, E2E-PLUGIN-pidev-listing-entry-installs-only-after-detail-read, E2E-PLUGIN-pidev-prompts-only-package-is-not-installable, E2E-PLUGIN-pidev-host-refuses-package-install |
+| Security (pi.dev package source) | E2E-PLUGIN-pidev-host-refuses-package-install |
+| Quality (pi.dev package source) | E2E-PLUGIN-pidev-detail-reads-registry-package, E2E-PLUGIN-pidev-listing-entry-installs-only-after-detail-read, E2E-PLUGIN-pidev-prompts-only-package-is-not-installable |
 | C — Conversation & stream (Independent session communication) | E2E-SESSION-independent-top-level-communication |
 | D — Plugin security (Independent session communication) | E2E-SESSION-independent-top-level-communication |
 | G — Plugins (Independent session communication) | E2E-SESSION-independent-top-level-communication |
@@ -12277,6 +12280,87 @@ plugin-form fixtures in an isolated temporary directory at runtime.
 - **Acceptance**: Quality
 - **Milestone**: M6+
 - **Status**: Automated (`pnpm test:e2e:skill-market`)
+
+### pi.dev package market scenarios (`pnpm test:e2e:pi-package-market`, headless protocol-level)
+
+#### E2E-PLUGIN-pidev-market-source-reports-provider-and-url: Selecting the official pi package source reports `pidev` and its URL
+
+- **Preconditions**: Host binary; a registry fixture served locally and selected
+  through `PI_DESKTOP_NPM_REGISTRY_URL`; `pluginMarketSource` set to `pidev`.
+- **Steps**: 1) Select "pi.dev official packages (npm)" in Plugins →
+  Marketplace. 2) Refresh the marketplace. 3) Run `market.search` with no query.
+- **Expected**: The refresh re-reads the browse listing (one registry page) and
+  reports providerId `pidev` with source URL `https://pi.dev/packages` instead
+  of caching a catalog document; the reported plugin count is the fixture's hit
+  count; `market.search` reports the same provider id and source URL.
+- **Specs linked**: `07-plugins/07-plugin-marketplace.md`, ADR 0266
+- **Acceptance**: G (remote marketplace source)
+- **Milestone**: M6+
+- **Status**: Automated (`scripts/e2e-pi-package-market.mjs`, headless protocol-level; 5/5 on 2026-09-23).
+
+#### E2E-PLUGIN-pidev-detail-reads-registry-package: Detail comes from the registry package document
+
+- **Preconditions**: A registry fixture whose package document declares
+  `pi.extensions` and `pi.skills`, several versions (the newest named by
+  `dist-tags.latest`), a readme, homepage, repository, `unpackedSize`, publish
+  times, and a publisher.
+- **Steps**: 1) Search for the package. 2) Open its detail sheet
+  (`market.getDetail`). 3) Inspect versions, permissions, and the trust badge.
+- **Expected**: Versions are newest first and capped at 30; a version without a
+  tarball is absent; readme, homepage, repository, unpacked size, published
+  date, and publisher render; permissions are `agent.extension` and
+  `agent.prompt.inject` derived from the `pi` declarations; trust is
+  `community` and never `verified`.
+- **Specs linked**: `07-plugins/07-plugin-marketplace.md`, ADR 0266
+- **Acceptance**: G (marketplace detail UX)
+- **Milestone**: M6+
+- **Status**: Automated (`scripts/e2e-pi-package-market.mjs`, headless protocol-level; 5/5 on 2026-09-23).
+
+#### E2E-PLUGIN-pidev-listing-entry-installs-only-after-detail-read: A listing entry is not installable until it is read
+
+- **Preconditions**: The registry fixture from the previous scenario.
+- **Steps**: 1) Search. 2) Read the card. 3) Confirm the listing offers no
+  install action. 4) Open the detail sheet, read the permission list, and
+  install.
+- **Expected**: The card reports `installable: false` with
+  `installBlocked: "not_read"` and says "Open this plugin to install it"; the
+  listing offers no install action; the sheet shows the permissions derived
+  from the package document before the user accepts; after the document has
+  been read the install proceeds through the permission dialog.
+- **Specs linked**: `07-plugins/07-plugin-marketplace.md`, ADR 0266
+- **Acceptance**: G (marketplace install + permission review)
+- **Milestone**: M6+
+- **Status**: Automated (`scripts/e2e-pi-package-market.mjs`, headless protocol-level; 5/5 on 2026-09-23).
+
+#### E2E-PLUGIN-pidev-prompts-only-package-is-not-installable: A prompts-only package is listed with a reason
+
+- **Preconditions**: A registry fixture package whose `pi` field declares only
+  `pi.prompts`.
+- **Steps**: 1) Search. 2) Open the detail sheet.
+- **Expected**: The package is listed but not installable: `installable: false`
+  with `installBlocked: "unsupported"`, the sheet explains that it declares
+  prompts only (nothing this release can load), and no install action is
+  offered.
+- **Specs linked**: `07-plugins/07-plugin-marketplace.md`, ADR 0266
+- **Acceptance**: G (plugins), Quality
+- **Milestone**: M6+
+- **Status**: Automated (`scripts/e2e-pi-package-market.mjs`, headless protocol-level; 5/5 on 2026-09-23).
+
+#### E2E-PLUGIN-pidev-host-refuses-package-install: The host refuses a `pidev` install itself
+
+- **Preconditions**: Host binary with the `pidev` source selected and a valid
+  `pidev` plugin id.
+- **Steps**: 1) Call `market.install` with the `pidev` id directly on the host.
+  2) Confirm which process installs the package.
+- **Expected**: The call fails with `PLUGIN_INSTALL_UNSUPPORTED` naming the
+  reason, with no tarball download, no checksum error, and no partial plugin;
+  the desktop app's npm pipeline is the install path and registers the result
+  through `plugins.installFromPath`.
+- **Specs linked**: `07-plugins/07-plugin-marketplace.md`, ADR 0266
+- **Acceptance**: G (plugins), Security
+- **Milestone**: M6+
+- **Status**: Automated (`scripts/e2e-pi-package-market.mjs`, headless protocol-level; 5/5 on 2026-09-23).
+
 #### E2E-PLUGIN-turn-ended-once-per-host-turn: A plugin observes exactly one turn-end event per host turn
 
 - **Preconditions**: A plugin with a tool and an event listener for
