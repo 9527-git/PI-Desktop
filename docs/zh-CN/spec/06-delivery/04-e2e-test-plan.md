@@ -4980,7 +4980,7 @@ IPC 请求无法关闭。
 | 品质（会话列表响应性） | E2E-SESSION-list-refresh-keeps-desktop-responsive |
 | 安全性（导入扩展依赖） | E2E-PLUGIN-import-extension-installs-dependencies、E2E-PLUGIN-import-extension-reports-missing-dependency |
 | 品质（导入扩展依赖） | E2E-PLUGIN-import-extension-installs-dependencies、E2E-PLUGIN-import-extension-reports-missing-dependency |
-| G——插件（pi.dev 包来源） | E2E-PLUGIN-pidev-market-source-reports-provider-and-url、E2E-PLUGIN-pidev-detail-reads-registry-package、E2E-PLUGIN-pidev-listing-entry-installs-only-after-detail-read、E2E-PLUGIN-pidev-prompts-only-package-is-not-installable、E2E-PLUGIN-pidev-host-refuses-package-install |
+ | G——插件（pi.dev 包来源） | E2E-PLUGIN-pidev-market-source-reports-provider-and-url、E2E-PLUGIN-pidev-detail-reads-registry-package、E2E-PLUGIN-pidev-listing-entry-installs-only-after-detail-read、E2E-PLUGIN-pidev-browse-pages-through-the-registry、E2E-PLUGIN-pidev-prompts-only-package-is-not-installable、E2E-PLUGIN-pidev-host-refuses-package-install |
 | 安全性（pi.dev 包来源） | E2E-PLUGIN-pidev-host-refuses-package-install |
 | 品质（pi.dev 包来源） | E2E-PLUGIN-pidev-detail-reads-registry-package、E2E-PLUGIN-pidev-listing-entry-installs-only-after-detail-read、E2E-PLUGIN-pidev-prompts-only-package-is-not-installable |
 | C — 对话与流式（独立会话通信） | E2E-SESSION-independent-top-level-communication |
@@ -7406,6 +7406,16 @@ runner 会在运行时的隔离临时目录中生成六个插件形态 fixture�
 - **验收**：G（远程市场来源）
 - **里程碑**：M6+
 - **状态**：已自动化（`scripts/e2e-pi-package-market.mjs`，无头协议级；2026-09-23 通过 5/5）。
+
+#### E2E-PLUGIN-pidev-browse-pages-through-the-registry：浏览逐页翻完整个匹配集合
+
+- **前提条件**：已选择 `pidev` 来源，且 registry 装置的匹配集合大于一页。
+- **步骤**：1）以空查询调用 `market.search`。2）读取 `total` 与 `nextOffset`。3）带该 offset 再次调用 `market.search`。4）直到 `nextOffset` 为 null。
+- **预期**：一次浏览调用返回一页命中，同时带上整个匹配集合的大小与下一页的起点，因此远大于单个响应的目录依然可达：第一页报告整个集合的 `total`，非末页报告可继续的 offset，末页报告 `null`，相邻页不重复同一条命中。目录本身就是单个文档的来源仍以整份快照作答且不带 `nextOffset`，对其行为不变。
+- **链接规格**：`07-plugins/07-plugin-marketplace.md`、ADR 0266
+- **验收**：G（插件）、品质（pi.dev 包来源）
+- **里程碑**：M6+
+- **状态**：已自动化（`scripts/e2e-pi-package-market.mjs`，无头协议级；2026-09-24 通过 6/6）。
 
 #### E2E-PLUGIN-pidev-detail-reads-registry-package：详情来自 registry 包文档
 

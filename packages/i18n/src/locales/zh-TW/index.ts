@@ -1734,6 +1734,8 @@ sklm: {
     marketSource: "來源：{{url}}",
     marketLoading: "正在載入外掛市場…",
     marketEmpty: "沒有匹配的外掛",
+    loadMore: "載入更多",
+    loadingMore: "正在載入更多…",
     categories: "分類",
     categoryAll: "全部",
     verified: "已驗證",

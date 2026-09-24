@@ -23,6 +23,10 @@ export function MarketplacePanel({
   categories,
   category,
   setCategory,
+  marketLoadingMore,
+  marketNextOffset,
+  marketTotal,
+  loadMoreMarket,
   marketLoading,
   market,
   visibleMarket,
@@ -247,6 +251,25 @@ export function MarketplacePanel({
                 })}
               </div>
             )}
+
+            {marketNextOffset !== null ? (
+              <div className="plugins-load-more">
+                <Button
+                  variant="secondary"
+                  disabled={marketLoadingMore}
+                  onClick={() => void loadMoreMarket()}
+                >
+                  {marketLoadingMore ? t("plugins.loadingMore") : t("plugins.loadMore")}
+                </Button>
+                {marketTotal !== null ? (
+                  // Numbers need no translation; the pair is what tells the
+                  // user this list is a window onto a much larger catalog.
+                  <span className="plugins-load-more-count" aria-live="polite">
+                    {`${market.length} / ${marketTotal}`}
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
           </div>
 );
 }

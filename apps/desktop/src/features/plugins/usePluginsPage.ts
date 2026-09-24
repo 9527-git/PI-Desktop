@@ -44,6 +44,11 @@ export function usePluginsPage() {
   const [projects, setProjects] = useState<ProjectRecord[]>([]);
   const [market, setMarket] = useState<MarketPluginSummary[]>([]);
   const [marketLoading, setMarketLoading] = useState(false);
+  const [marketLoadingMore, setMarketLoadingMore] = useState(false);
+  /** Where the next page of the market starts, when its source has one. */
+  const [marketNextOffset, setMarketNextOffset] = useState<number | null>(null);
+  /** Size of the whole market match set, when the source reports it. */
+  const [marketTotal, setMarketTotal] = useState<number | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [reloadingId, setReloadingId] = useState<string | null>(null);
   const [pendingInstall, setPendingInstall] = useState<{
@@ -82,6 +87,8 @@ export function usePluginsPage() {
       }
       const res = await api.marketSearch(q);
       setMarket((res.plugins ?? []).filter(isClientVisibleMarketPlugin));
+      setMarketNextOffset(res.nextOffset ?? null);
+      setMarketTotal(res.total ?? null);
       if (!marketSource) {
         // The host reports the catalog URL actually in effect, so a mirror or
         // custom source shows up here instead of the official repo.
@@ -91,6 +98,37 @@ export function usePluginsPage() {
       showToast(e instanceof Error ? e.message : String(e), { variant: "error" });
     } finally {
       setMarketLoading(false);
+    }
+  };
+
+  /**
+   * Append the next page of the market.
+   *
+   * A source that reads its entries per query cannot hand over the whole
+   * catalog at once, so browsing loads one page at a time. Pages arrive in the
+   * source's own order (the registry's relevance), while the list itself stays
+   * name-sorted the way the host sorts every market page: appending without
+   * re-sorting would leave the earlier pages' names interleaved at random.
+   */
+  const loadMoreMarket = async () => {
+    if (marketNextOffset === null || marketLoadingMore) return;
+    setMarketLoadingMore(true);
+    try {
+      const res = await api.marketSearch(query, category, marketNextOffset);
+      const page = (res.plugins ?? []).filter(isClientVisibleMarketPlugin);
+      setMarket((prev) => {
+        const byId = new Map(prev.map((item) => [item.id, item]));
+        for (const item of page) byId.set(item.id, item);
+        return [...byId.values()].sort((a, b) =>
+          a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
+        );
+      });
+      setMarketNextOffset(res.nextOffset ?? null);
+      if (res.total !== undefined) setMarketTotal(res.total);
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : String(e), { variant: "error" });
+    } finally {
+      setMarketLoadingMore(false);
     }
   };
 
@@ -509,6 +547,10 @@ export function usePluginsPage() {
     settingsPlugin,
     setSettingsPlugin,
     refreshMarket,
+    loadMoreMarket,
+    marketLoadingMore,
+    marketNextOffset,
+    marketTotal,
     openDetail,
     closeDetail,
     stats,

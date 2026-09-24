@@ -1746,6 +1746,8 @@ importConfirm: "Imported extensions run inside the agent process with the same a
     marketSource: "Source: {{url}}",
     marketLoading: "Loading marketplace…",
     marketEmpty: "No plugins matched your search",
+    loadMore: "Load more",
+    loadingMore: "Loading more…",
     categories: "Categories",
     categoryAll: "All",
     verified: "Verified",

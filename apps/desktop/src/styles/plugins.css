@@ -1899,3 +1899,19 @@
   gap: 8px;
   padding: 14px 18px 18px;
 }
+
+/* Paging a source that reads its entries per query: the button carries the
+   action and the count says how much of the catalog is on screen. */
+.plugins-load-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px 0 4px;
+}
+
+.plugins-load-more-count {
+  color: var(--ds-text-tertiary);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}

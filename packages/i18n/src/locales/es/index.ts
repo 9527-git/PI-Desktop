@@ -1726,6 +1726,8 @@ sklm: {
     "marketSource": "Fuente: {{url}}",
     "marketLoading": "Cargando mercado...",
     "marketEmpty": "Ningún complemento coincidió con su búsqueda",
+    "loadMore": "Cargar más",
+    "loadingMore": "Cargando más…",
     "categories": "Categorías",
     "categoryAll": "Todos",
     "verified": "Verificado",

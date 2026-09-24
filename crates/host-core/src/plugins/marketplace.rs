@@ -323,6 +323,11 @@ impl PluginManager {
         }
     }
 
+    /// First page only, for callers that hold the state lock and cannot page.
+    ///
+    /// `market.search` in the RPC layer is the paging path: it fetches through
+    /// `pi_packages` before taking the lock and carries the offset. This helper
+    /// exists for the in-lock callers and therefore stops at the first page.
     pub fn market_search(
         &self,
         query: Option<&str>,
@@ -333,7 +338,7 @@ impl PluginManager {
         // host state lock across the request fetch through `pi_packages` first
         // and map the entries here; see `market.summariesFromEntries`.
         if self.market_provider() == MarketProvider::PiPackages {
-            let entries = pi_packages::search_entries(query)?;
+            let (entries, _, _) = pi_packages::search_entries(query, 0)?;
             return Ok(self.market_summaries_from_entries(entries, query, category));
         }
         let catalog = self.load_catalog()?;

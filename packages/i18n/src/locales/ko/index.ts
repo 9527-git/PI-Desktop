@@ -1745,6 +1745,8 @@ importConfirm: "가져온 확장은 에이전트 프로세스 안에서 에이�
     marketSource: "출처: {{url}}",
     marketLoading: "마켓플레이스 불러오는 중…",
     marketEmpty: "검색과 일치하는 플러그인 없음",
+    loadMore: "더 불러오기",
+    loadingMore: "더 불러오는 중…",
     categories: "카테고리",
     categoryAll: "모두",
     verified: "확인됨",

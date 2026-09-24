@@ -4163,14 +4163,17 @@ async fn handle_request(
                 (st.plugins.market_provider(), st.plugins.market_source_url())
             };
             if provider == crate::plugins::MarketProvider::PiPackages {
-                let entries =
-                    crate::plugins::pi_packages::search_entries(None).map_err(plugin_err)?;
+                // The count this reports is the size of the registry's match
+                // set, not the first page of it: the browse surface pages
+                // through the whole set, so "how many plugins" is the total.
+                let (_, total, _) =
+                    crate::plugins::pi_packages::search_entries(None, 0).map_err(plugin_err)?;
                 return Ok(json!({
                     "providerId": crate::plugins::PI_PACKAGES_PROVIDER_ID,
                     "name": "pi.dev official packages",
                     "homepage": crate::plugins::PI_PACKAGES_SOURCE_URL,
                     "updatedAt": chrono::Utc::now().to_rfc3339(),
-                    "pluginCount": entries.len(),
+                    "pluginCount": total,
                     "sourceUrl": source_url,
                 }));
             }
@@ -4181,6 +4184,9 @@ async fn handle_request(
         "market.search" => {
             let query = params.get("query").and_then(|v| v.as_str());
             let category = params.get("category").and_then(|v| v.as_str());
+            // How many hits the caller has already read. Only the pi package
+            // source pages; every other catalog serves its whole snapshot.
+            let offset = params.get("offset").and_then(|v| v.as_u64()).unwrap_or(0);
             // Every catalog source serves search from its cached snapshot. The
             // official pi package catalog instead reads the registry per query,
             // and that fetch happens before the state lock: a search box that
@@ -4191,8 +4197,9 @@ async fn handle_request(
                 (st.plugins.market_provider(), st.plugins.market_source_url())
             };
             if provider == crate::plugins::MarketProvider::PiPackages {
-                let entries =
-                    crate::plugins::pi_packages::search_entries(query).map_err(plugin_err)?;
+                let (entries, total, next_offset) =
+                    crate::plugins::pi_packages::search_entries(query, offset)
+                        .map_err(plugin_err)?;
                 let st = state.lock().await;
                 let plugins = st
                     .plugins
@@ -4201,6 +4208,11 @@ async fn handle_request(
                     "plugins": plugins,
                     "providerId": crate::plugins::PI_PACKAGES_PROVIDER_ID,
                     "sourceUrl": source_url,
+                    // The whole match set and the cursor for the next page, so
+                    // the caller can page through a catalog it cannot fit in
+                    // one response.
+                    "total": total,
+                    "nextOffset": next_offset,
                 }));
             }
             let st = state.lock().await;

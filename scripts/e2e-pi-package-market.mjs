@@ -10,7 +10,11 @@
  *                                               is reported as providerId/sourceUrl
  *   E2E-PLUGIN-PACKAGE-MARKET-LISTING           search hits map to plugin ids
  *                                               and stay uninstallable until the
- *                                               package document is read
+ *   E2E-PLUGIN-PACKAGE-MARKET-DETAIL            detail reads versions, readme and
+ *                                               the permissions the install asks for
+ *   E2E-PLUGIN-PACKAGE-MARKET-PAGING            browse reads one page of the
+ *                                               registry's match set at a time and
+ *                                               reports where the next one starts
  *   E2E-PLUGIN-PACKAGE-MARKET-DETAIL            detail reads versions, readme and
  *                                               the permissions the install asks for
  *   E2E-PLUGIN-PACKAGE-MARKET-UNSUPPORTED       a package declaring nothing this
@@ -145,6 +149,43 @@ const EXTENSION_PACKAGE = "@fixture/pi-plan-mode";
 const PROMPTS_ONLY_PACKAGE = "fixture-prompts-only";
 const LISTING_PACKAGE = "fixture-web-access";
 
+/**
+ * The registry's whole match set for the fixture.
+ *
+ * The named packages come first so a browse page always carries them; the rest
+ * push the set past one page, which is what makes paging observable at all.
+ * Names stay inside the id contract, so every hit maps to a plugin id.
+ */
+const SEARCH_HITS = [
+  {
+    downloads: { monthly: 429774 },
+    package: {
+      name: LISTING_PACKAGE,
+      version: "0.30.0",
+      description: "Web search for the Pi coding agent.",
+      keywords: ["pi-package", "pi", "web-search"],
+      publisher: { username: "fixture-author" },
+      date: "2026-09-19T14:25:30.716Z",
+      links: { npm: `https://www.npmjs.com/package/${LISTING_PACKAGE}` },
+    },
+  },
+  ...Array.from({ length: 149 }, (_, index) => {
+    const name = `fixture-pkg-${String(index + 1).padStart(3, "0")}`;
+    return {
+      downloads: { monthly: 1000 - index },
+      package: {
+        name,
+        version: "1.0.0",
+        description: `Fixture package ${index + 1}.`,
+        keywords: ["pi-package"],
+        publisher: { username: "fixture-author" },
+        date: "2026-09-19T14:25:30.716Z",
+        links: { npm: `https://www.npmjs.com/package/${name}` },
+      },
+    };
+  }),
+];
+
 const registryDocuments = new Map([
   [
     EXTENSION_PACKAGE,
@@ -176,23 +217,16 @@ function startRegistry() {
     };
     if (url.pathname === "/-/v1/search") {
       // A search hit carries the latest version and no `pi` manifest, which is
-      // exactly what the real registry returns.
+      // exactly what the real registry returns. `from` and `size` are honoured
+      // so the paging contract is exercised, not just described: the host pages
+      // through this fixture the way it pages through npm.
+      const from = Number(url.searchParams.get("from") ?? "0");
+      const size = Number(url.searchParams.get("size") ?? String(SEARCH_HITS.length));
+      const start = Number.isFinite(from) && from > 0 ? from : 0;
+      const take = Number.isFinite(size) && size > 0 ? size : SEARCH_HITS.length;
       send({
-        objects: [
-          {
-            downloads: { monthly: 429774 },
-            package: {
-              name: LISTING_PACKAGE,
-              version: "0.30.0",
-              description: "Web search for the Pi coding agent.",
-              keywords: ["pi-package", "pi", "web-search"],
-              publisher: { username: "fixture-author" },
-              date: "2026-09-19T14:25:30.716Z",
-              links: { npm: `https://www.npmjs.com/package/${LISTING_PACKAGE}` },
-            },
-          },
-        ],
-        total: 1,
+        objects: SEARCH_HITS.slice(start, start + take),
+        total: SEARCH_HITS.length,
       });
       return;
     }
@@ -261,6 +295,40 @@ try {
       ok ? `id=${row.id} installBlocked=${row.installBlocked}` : JSON.stringify(row ?? null),
     );
   }
+  // ── E2E-PLUGIN-PACKAGE-MARKET-PAGING ──────────────────────────────────────
+  {
+    const first = await host.call("market.search", { query: "" });
+    const second = await host.call("market.search", {
+      query: "",
+      offset: first?.nextOffset,
+    });
+    const firstIds = new Set((first?.plugins ?? []).map((plugin) => plugin.id));
+    const secondIds = (second?.plugins ?? []).map((plugin) => plugin.id);
+    const ok =
+      // The whole match set is reported, not the page: that is what tells the
+      // user this list is a window onto a much larger catalog.
+      first?.total === SEARCH_HITS.length &&
+      (first?.plugins ?? []).length === 100 &&
+      first?.nextOffset === 100 &&
+      // The second page continues where the first stopped and is the last one.
+      secondIds.length === SEARCH_HITS.length - 100 &&
+      second?.nextOffset === null &&
+      secondIds.every((id) => !firstIds.has(id));
+    record(
+      "E2E-PLUGIN-PACKAGE-MARKET-PAGING",
+      ok,
+      ok
+        ? `page 1 = ${first.plugins.length}/${first.total}, page 2 = ${secondIds.length}, no overlap`
+        : JSON.stringify({
+            total: first?.total,
+            page1: (first?.plugins ?? []).length,
+            nextOffset: first?.nextOffset,
+            page2: secondIds.length,
+            secondNextOffset: second?.nextOffset,
+          }),
+    );
+  }
+
 
   // ── E2E-PLUGIN-PACKAGE-MARKET-DETAIL ──────────────────────────────────────
   {

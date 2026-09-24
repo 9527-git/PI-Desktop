@@ -1734,6 +1734,8 @@ sklm: {
     marketSource: "来源：{{url}}",
     marketLoading: "正在加载插件市场…",
     marketEmpty: "没有匹配的插件",
+    loadMore: "加载更多",
+    loadingMore: "正在加载更多…",
     categories: "分类",
     categoryAll: "全部",
     verified: "已验证",

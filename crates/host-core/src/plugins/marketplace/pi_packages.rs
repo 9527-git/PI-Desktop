@@ -42,7 +42,9 @@ const PI_PACKAGE_KEYWORD: &str = "pi-package";
 /// under.
 const PLUGIN_ID_PREFIX: &str = "pidev.";
 
-/// npm caps one search page at 250 results; a browse request stays one page.
+/// npm caps one search page at 250 results; one browse request asks for one
+/// page of this size and names its offset, so the caller pages through the
+/// catalog instead of only ever seeing its first page.
 const SEARCH_PAGE_SIZE: u32 = 100;
 
 /// Versions offered in the detail sheet, newest first.
@@ -256,15 +258,36 @@ fn registry_base() -> String {
 }
 
 /// Search URL for one query: an empty query browses the catalog itself.
-fn search_url(base: &str, query: Option<&str>) -> String {
+///
+/// `offset` is the number of hits the caller has already read; the registry
+/// serves the page that starts there (`from`). The total the registry reports
+/// is what tells the caller whether another page exists.
+fn search_url(base: &str, query: Option<&str>, offset: u64) -> String {
     let text = match query.map(str::trim).filter(|query| !query.is_empty()) {
         Some(query) => format!("{query} keywords:{PI_PACKAGE_KEYWORD}"),
         None => format!("keywords:{PI_PACKAGE_KEYWORD}"),
     };
-    format!(
+    let mut url = format!(
         "{base}/-/v1/search?text={}&size={SEARCH_PAGE_SIZE}",
         encode_query(&text)
-    )
+    );
+    if offset > 0 {
+        url.push_str(&format!("&from={offset}"));
+    }
+    url
+}
+
+/// Where the next page starts, when the registry has one.
+///
+/// The cursor advances by the hits this page *consumed*, not by the entries the
+/// caller kept: a hit the id contract cannot encode still occupied a slot, and
+/// counting it as read is what keeps paging from returning it forever.
+pub(crate) fn next_page_offset(offset: u64, consumed: usize, total: u64) -> Option<u64> {
+    if consumed == 0 {
+        return None;
+    }
+    let next = offset.saturating_add(consumed as u64);
+    (next < total).then_some(next)
 }
 
 /// Percent-encode a query parameter value.
@@ -295,17 +318,30 @@ fn fetch_json(url: &str) -> Result<Value> {
         .map_err(|e| anyhow!("PLUGIN_MARKET_INVALID: registry response is not json: {e}"))
 }
 
-/// Search the official catalog.
+/// One page of the official catalog, plus where the next page starts.
 ///
-/// One page per query: the search box is the way to narrow 10k packages, and a
-/// browse request must stay a single round trip.
-pub(crate) fn search_entries(query: Option<&str>) -> Result<Vec<MarketCatalogEntry>> {
-    let value = fetch_json(&search_url(&registry_base(), query))?;
+/// The registry reports the size of the whole match set; the search box is one
+/// way to narrow 10k packages, and the offset is the other, so a browse request
+/// still stays a single round trip.
+pub(crate) fn search_entries(
+    query: Option<&str>,
+    offset: u64,
+) -> Result<(Vec<MarketCatalogEntry>, u64, Option<u64>)> {
+    let value = fetch_json(&search_url(&registry_base(), query, offset))?;
     let objects = value
         .get("objects")
         .and_then(Value::as_array)
         .ok_or_else(|| anyhow!("PLUGIN_MARKET_INVALID: registry search response has no results"))?;
-    Ok(objects.iter().filter_map(entry_from_search_item).collect())
+    // A registry that omits `total` still answers the page: the caller then
+    // treats this page as the last one rather than inventing a count.
+    let total = value
+        .get("total")
+        .and_then(Value::as_u64)
+        .unwrap_or(objects.len() as u64);
+    let entries: Vec<MarketCatalogEntry> =
+        objects.iter().filter_map(entry_from_search_item).collect();
+    let next = next_page_offset(offset, objects.len(), total);
+    Ok((entries, total, next))
 }
 
 /// Read one package document into a catalog entry.
@@ -673,13 +709,41 @@ mod tests {
     #[test]
     fn the_search_query_keeps_the_official_keyword() {
         assert_eq!(
-            search_url("https://registry.npmjs.org", None),
+            search_url("https://registry.npmjs.org", None, 0),
             "https://registry.npmjs.org/-/v1/search?text=keywords%3Api-package&size=100"
         );
         assert_eq!(
-            search_url("https://registry.npmjs.org", Some("  plan mode ")),
+            search_url("https://registry.npmjs.org", Some("  plan mode "), 0),
             "https://registry.npmjs.org/-/v1/search?text=plan+mode+keywords%3Api-package&size=100"
         );
+    }
+
+    #[test]
+    fn a_later_page_names_its_offset_and_the_first_page_stays_bare() {
+        assert_eq!(
+            search_url("https://registry.npmjs.org", None, 100),
+            "https://registry.npmjs.org/-/v1/search?text=keywords%3Api-package&size=100&from=100"
+        );
+        assert_eq!(
+            search_url("https://registry.npmjs.org", Some("plan mode"), 250),
+            "https://registry.npmjs.org/-/v1/search?text=plan+mode+keywords%3Api-package&size=100&from=250"
+        );
+    }
+
+    #[test]
+    fn the_cursor_advances_by_consumed_hits_and_stops_at_the_total() {
+        // A full page of a larger set: the next page starts after it.
+        assert_eq!(next_page_offset(0, 100, 10_553), Some(100));
+        // The hits a page consumed include ones the id contract dropped, so the
+        // cursor advances by what the page read, not by what it kept -- the
+        // dropped hits would otherwise come back on every page.
+        assert_eq!(next_page_offset(100, 100, 10_553), Some(200));
+        // The last page: nothing left past it.
+        assert_eq!(next_page_offset(10_500, 53, 10_553), None);
+        assert_eq!(next_page_offset(0, 100, 100), None);
+        // An empty page cannot be paged past, whatever the total claims.
+        assert_eq!(next_page_offset(0, 0, 10_553), None);
+        assert_eq!(next_page_offset(200, 0, 10_553), None);
     }
 
     #[test]

@@ -834,12 +834,20 @@ export const api = {
       pluginCount: number;
       sourceUrl: string;
     }>(IPC.invoke.marketRefresh, { force }),
-  marketSearch: (query = "", category = "") =>
+  marketSearch: (query = "", category = "", offset = 0) =>
     invoke<{
       plugins: MarketPluginSummary[];
       providerId: string;
       sourceUrl: string;
-    }>(IPC.invoke.marketSearch, { query, category }),
+      /**
+       * Size of the whole match set, and where the next page starts. Only a
+       * source that reads its entries per query reports them; a catalog source
+       * answers with its complete snapshot, so `nextOffset` is absent and there
+       * is nothing more to load.
+       */
+      total?: number;
+      nextOffset?: number | null;
+    }>(IPC.invoke.marketSearch, { query, category, offset }),
   marketGetDetail: (id: string) =>
     invoke<{ plugin: MarketPluginDetail }>(IPC.invoke.marketGetDetail, id),
   marketInstall: (input: {

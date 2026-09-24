@@ -7516,7 +7516,7 @@ and identify the platform validation still needed.
 | Quality (Session list responsiveness) | E2E-SESSION-list-refresh-keeps-desktop-responsive |
 | Security (imported extension dependencies) | E2E-PLUGIN-import-extension-installs-dependencies, E2E-PLUGIN-import-extension-reports-missing-dependency |
 | Quality (imported extension dependencies) | E2E-PLUGIN-import-extension-installs-dependencies, E2E-PLUGIN-import-extension-reports-missing-dependency |
-| G — Plugins (pi.dev package source) | E2E-PLUGIN-pidev-market-source-reports-provider-and-url, E2E-PLUGIN-pidev-detail-reads-registry-package, E2E-PLUGIN-pidev-listing-entry-installs-only-after-detail-read, E2E-PLUGIN-pidev-prompts-only-package-is-not-installable, E2E-PLUGIN-pidev-host-refuses-package-install |
+ | G — Plugins (pi.dev package source) | E2E-PLUGIN-pidev-market-source-reports-provider-and-url, E2E-PLUGIN-pidev-detail-reads-registry-package, E2E-PLUGIN-pidev-listing-entry-installs-only-after-detail-read, E2E-PLUGIN-pidev-browse-pages-through-the-registry, E2E-PLUGIN-pidev-prompts-only-package-is-not-installable, E2E-PLUGIN-pidev-host-refuses-package-install |
 | Security (pi.dev package source) | E2E-PLUGIN-pidev-host-refuses-package-install |
 | Quality (pi.dev package source) | E2E-PLUGIN-pidev-detail-reads-registry-package, E2E-PLUGIN-pidev-listing-entry-installs-only-after-detail-read, E2E-PLUGIN-pidev-prompts-only-package-is-not-installable |
 | C — Conversation & stream (Independent session communication) | E2E-SESSION-independent-top-level-communication |
@@ -12316,6 +12316,25 @@ plugin-form fixtures in an isolated temporary directory at runtime.
 - **Milestone**: M6+
 - **Status**: Automated (`scripts/e2e-pi-package-market.mjs`, headless protocol-level; 5/5 on 2026-09-23).
 
+
+#### E2E-PLUGIN-pidev-browse-pages-through-the-registry: Browse pages through the whole match set
+
+- **Preconditions**: The `pidev` source selected against a registry fixture whose
+  match set is larger than one page.
+- **Steps**: 1) Run `market.search` with no query. 2) Read `total` and
+  `nextOffset`. 3) Run `market.search` again with that offset. 4) Continue until
+  `nextOffset` is null.
+- **Expected**: A browse call returns one page of hits plus the size of the whole
+  match set and where the next page starts, so a catalog far larger than one
+  response stays reachable: the first page reports `total` for the entire set, a
+  page that is not the last one reports the offset to continue from, the last
+  page reports `null`, and consecutive pages do not repeat a hit. A source whose
+  catalog is a single document answers with its whole snapshot and no
+  `nextOffset`, so nothing changes for it.
+- **Specs linked**: `07-plugins/07-plugin-marketplace.md`, ADR 0266
+- **Acceptance**: G (plugins), Quality (pi.dev package source)
+- **Milestone**: M6+
+- **Status**: Automated (`scripts/e2e-pi-package-market.mjs`, headless protocol-level; 6/6 on 2026-09-24).
 #### E2E-PLUGIN-pidev-listing-entry-installs-only-after-detail-read: A listing entry is not installable until it is read
 
 - **Preconditions**: The registry fixture from the previous scenario.

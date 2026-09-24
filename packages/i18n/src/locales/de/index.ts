@@ -1726,6 +1726,8 @@ sklm: {
     "marketSource": "Quelle: {{url}}",
     "marketLoading": "Marktplatz wird geladen…",
     "marketEmpty": "Keine Plugins entsprechen Ihrer Suche",
+    "loadMore": "Mehr laden",
+    "loadingMore": "Weitere werden geladen…",
     "categories": "Kategorien",
     "categoryAll": "Alle",
     "verified": "Verifiziert",

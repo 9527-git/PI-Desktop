@@ -1746,6 +1746,8 @@ importConfirm: "İçe aktarılan uzantılar ajan sürecinde, ajanın kendi araç
     marketSource: "Kaynak: {{url}}",
     marketLoading: "Mağaza yükleniyor…",
     marketEmpty: "Aramanızla eşleşen eklenti yok",
+    loadMore: "Daha fazla yükle",
+    loadingMore: "Daha fazlası yükleniyor…",
     categories: "Kategoriler",
     categoryAll: "Tümü",
     verified: "Doğrulanmış",
