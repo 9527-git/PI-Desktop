@@ -4208,10 +4208,13 @@ async fn handle_request(
                     "plugins": plugins,
                     "providerId": crate::plugins::PI_PACKAGES_PROVIDER_ID,
                     "sourceUrl": source_url,
-                    // The whole match set and the cursor for the next page, so
-                    // the caller can page through a catalog it cannot fit in
-                    // one response.
+                    // The whole match set, the width of one page, and the
+                    // cursor for the next page, so the caller can page through
+                    // a catalog it cannot fit in one response: `total` over
+                    // `pageSize` is how many pages exist, and a page number
+                    // times `pageSize` is the offset that page starts at.
                     "total": total,
+                    "pageSize": crate::plugins::pi_packages::SEARCH_PAGE_SIZE,
                     "nextOffset": next_offset,
                 }));
             }

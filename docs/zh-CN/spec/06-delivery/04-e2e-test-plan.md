@@ -7410,8 +7410,8 @@ runner 会在运行时的隔离临时目录中生成六个插件形态 fixture�
 #### E2E-PLUGIN-pidev-browse-pages-through-the-registry：浏览逐页翻完整个匹配集合
 
 - **前提条件**：已选择 `pidev` 来源，且 registry 装置的匹配集合大于一页。
-- **步骤**：1）以空查询调用 `market.search`。2）读取 `total` 与 `nextOffset`。3）带该 offset 再次调用 `market.search`。4）直到 `nextOffset` 为 null。
-- **预期**：一次浏览调用返回一页命中，同时带上整个匹配集合的大小与下一页的起点，因此远大于单个响应的目录依然可达：第一页报告整个集合的 `total`，非末页报告可继续的 offset，末页报告 `null`，相邻页不重复同一条命中。目录本身就是单个文档的来源仍以整份快照作答且不带 `nextOffset`，对其行为不变。
+- **步骤**：1）以空查询调用 `market.search`。2）读取 `total`、`pageSize` 与 `nextOffset`。3）带该 offset 再次调用 `market.search`。4）直到 `nextOffset` 为 null。5）请求一个超出集合末尾的 offset。
+- **预期**：一次浏览调用返回一页命中，同时带上整个匹配集合的大小与单页宽度（客户端据此换算出页码），因此远大于单个响应的目录依然可达：第一页报告整个集合的 `total` 与每页服务的 `pageSize`，非末页报告可继续的 offset，末页报告 `null`，相邻页不重复同一条命中，而超出末尾的 offset 返回空命中而不是回绕。目录本身就是单个文档的来源仍以整份快照作答且不带 `total`、`pageSize` 或 `nextOffset`，对其行为不变。
 - **链接规格**：`07-plugins/07-plugin-marketplace.md`、ADR 0266
 - **验收**：G（插件）、品质（pi.dev 包来源）
 - **里程碑**：M6+

@@ -840,12 +840,13 @@ export const api = {
       providerId: string;
       sourceUrl: string;
       /**
-       * Size of the whole match set, and where the next page starts. Only a
-       * source that reads its entries per query reports them; a catalog source
-       * answers with its complete snapshot, so `nextOffset` is absent and there
-       * is nothing more to load.
+       * Size of the whole match set, the width of one page, and where the next
+       * page starts. Only a source that reads its entries per query reports
+       * them; a catalog source answers with its complete snapshot, so the pager
+       * stays hidden and there is nothing to page through.
        */
       total?: number;
+      pageSize?: number;
       nextOffset?: number | null;
     }>(IPC.invoke.marketSearch, { query, category, offset }),
   marketGetDetail: (id: string) =>

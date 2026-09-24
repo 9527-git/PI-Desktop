@@ -12321,16 +12321,18 @@ plugin-form fixtures in an isolated temporary directory at runtime.
 
 - **Preconditions**: The `pidev` source selected against a registry fixture whose
   match set is larger than one page.
-- **Steps**: 1) Run `market.search` with no query. 2) Read `total` and
-  `nextOffset`. 3) Run `market.search` again with that offset. 4) Continue until
-  `nextOffset` is null.
+- **Steps**: 1) Run `market.search` with no query. 2) Read `total`, `pageSize`,
+  and `nextOffset`. 3) Run `market.search` again with that offset. 4) Continue
+  until `nextOffset` is null. 5) Ask for an offset past the end of the set.
 - **Expected**: A browse call returns one page of hits plus the size of the whole
-  match set and where the next page starts, so a catalog far larger than one
-  response stays reachable: the first page reports `total` for the entire set, a
-  page that is not the last one reports the offset to continue from, the last
-  page reports `null`, and consecutive pages do not repeat a hit. A source whose
-  catalog is a single document answers with its whole snapshot and no
-  `nextOffset`, so nothing changes for it.
+  match set and the width of one page, which is what a client turns into page
+  numbers, so a catalog far larger than one response stays reachable: the first
+  page reports `total` for the entire set and the `pageSize` every page is
+  served at, a page that is not the last one reports the offset to continue
+  from, the last page reports `null`, consecutive pages do not repeat a hit, and
+  an offset past the end answers with no hits rather than wrapping around. A
+  source whose catalog is a single document answers with its whole snapshot and
+  no `total`, `pageSize`, or `nextOffset`, so nothing changes for it.
 - **Specs linked**: `07-plugins/07-plugin-marketplace.md`, ADR 0266
 - **Acceptance**: G (plugins), Quality (pi.dev package source)
 - **Milestone**: M6+

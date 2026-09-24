@@ -69,13 +69,20 @@ export function registerMarketIpc({
     return host.call("market.refresh", { force: payload?.force ?? true });
   });
 
-  handle(IPC.invoke.marketSearch, async (payload?: { query?: string; category?: string }) => {
-    if (!host) throw new Error("host unavailable");
-    return host.call("market.search", {
-      query: payload?.query ?? "",
-      category: payload?.category ?? "",
-    });
-  });
+  handle(
+    IPC.invoke.marketSearch,
+    async (payload?: { query?: string; category?: string; offset?: number }) => {
+      if (!host) throw new Error("host unavailable");
+      return host.call("market.search", {
+        query: payload?.query ?? "",
+        category: payload?.category ?? "",
+        // A catalog the host cannot fit in one response is browsed by offset,
+        // so the page the renderer asked for has to reach the host: dropping it
+        // silently answered every page with the first one.
+        offset: Math.max(0, Math.trunc(Number(payload?.offset) || 0)),
+      });
+    },
+  );
 
   handle(IPC.invoke.marketGetDetail, async (id: string) => {
     if (!host) throw new Error("host unavailable");

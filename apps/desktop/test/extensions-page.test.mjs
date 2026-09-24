@@ -138,7 +138,14 @@ test("extension row actions stay visible and labelled", () => {
 test("the client hides development-only demo plugins from marketplace results", () => {
   assert.match(pageSrc, /function isClientVisibleMarketPlugin/);
   assert.match(pageSrc, /!plugin\.id\.startsWith\("demo\."\)/);
-  assert.match(pageSrc, /setMarket\(\(res\.plugins \?\? \[\]\)\.filter\(isClientVisibleMarketPlugin\)\)/);
+  // Every market page is filtered the same way: the first one and the ones a
+  // page number asks for.
+  assert.match(
+    pageSrc,
+    /const plugins = \(res\.plugins \?\? \[\]\)\.filter\(isClientVisibleMarketPlugin\)/,
+  );
+  assert.match(pageSrc, /setMarket\(plugins\)/);
+  assert.match(pageSrc, /marketPages\.current\.set\(page, plugins\)/);
 });
 
 test("Settings exposes three independent Agent capability destinations", () => {

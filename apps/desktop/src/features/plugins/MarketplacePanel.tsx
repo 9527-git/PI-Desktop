@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { Button, cx } from "../../components/ui";
 import { IconCheck, IconSearch, IconShield } from "../../components/icons";
 import { MarketplaceSourceSettings } from "../../components/plugins/MarketplaceSourceSettings";
@@ -23,10 +24,11 @@ export function MarketplacePanel({
   categories,
   category,
   setCategory,
-  marketLoadingMore,
-  marketNextOffset,
+  marketPage,
+  marketPageCount,
+  marketPageLoading,
   marketTotal,
-  loadMoreMarket,
+  goToMarketPage,
   marketLoading,
   market,
   visibleMarket,
@@ -36,6 +38,25 @@ export function MarketplacePanel({
   busyId,
   queueInstall,
 }: PluginsPageModel) {
+  const listRef = useRef<HTMLDivElement | null>(null);
+  /** What the page field holds while a number is being typed into it. */
+  const [pageDraft, setPageDraft] = useState("1");
+
+  useEffect(() => setPageDraft(String(marketPage)), [marketPage]);
+
+  /**
+   * Show another page.
+   *
+   * The list is replaced where it stands, so the page just left is what is on
+   * screen when the request goes out: the view returns to the top of the list,
+   * which is where the page that arrives starts.
+   */
+  const showPage = (page: number) => {
+    if (page === marketPage) return;
+    listRef.current?.scrollIntoView({ block: "start" });
+    void goToMarketPage(page);
+  };
+
   return (
           <div
             id="plugins-panel-market"
@@ -118,7 +139,7 @@ export function MarketplacePanel({
                 </div>
               </div>
             ) : (
-              <div className="plugins-card-grid" role="list">
+              <div className="plugins-card-grid" role="list" ref={listRef}>
                 {visibleMarket.map((item) => {
                   const installed = installedById.get(item.id);
                   const upgradable = !!installed && !!item.updateAvailable;
@@ -252,23 +273,65 @@ export function MarketplacePanel({
               </div>
             )}
 
-            {marketNextOffset !== null ? (
-              <div className="plugins-load-more">
+            {marketPageCount !== null ? (
+              // A source that reads its entries per query is browsed a page at a
+              // time: the page number is the control, and the count says how much
+              // of the catalog those pages are drawn from.
+              <nav className="plugins-pager" aria-label={t("plugins.pageNavigation")}>
                 <Button
                   variant="secondary"
-                  disabled={marketLoadingMore}
-                  onClick={() => void loadMoreMarket()}
+                  size="sm"
+                  disabled={marketPage <= 1 || marketPageLoading}
+                  onClick={() => showPage(marketPage - 1)}
                 >
-                  {marketLoadingMore ? t("plugins.loadingMore") : t("plugins.loadMore")}
+                  {t("plugins.pagePrevious")}
                 </Button>
+                <span className="plugins-pager-status" aria-live="polite">
+                  {marketPageLoading
+                    ? t("plugins.pageLoading", { page: marketPage })
+                    : t("plugins.pageIndicator", {
+                        page: marketPage,
+                        pages: marketPageCount,
+                      })}
+                </span>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  disabled={marketPage >= marketPageCount || marketPageLoading}
+                  onClick={() => showPage(marketPage + 1)}
+                >
+                  {t("plugins.pageNext")}
+                </Button>
+                <form
+                  className="plugins-pager-jump"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    const wanted = Number.parseInt(pageDraft, 10);
+                    if (Number.isFinite(wanted)) showPage(wanted);
+                  }}
+                >
+                  <label className="plugins-pager-jump-label" htmlFor="plugins-page-jump">
+                    {t("plugins.pageJumpLabel")}
+                  </label>
+                  <input
+                    id="plugins-page-jump"
+                    className="plugins-pager-input"
+                    type="number"
+                    inputMode="numeric"
+                    min={1}
+                    max={marketPageCount}
+                    value={pageDraft}
+                    disabled={marketPageLoading}
+                    onChange={(event) => setPageDraft(event.target.value)}
+                    onBlur={() => setPageDraft(String(marketPage))}
+                  />
+                </form>
                 {marketTotal !== null ? (
-                  // Numbers need no translation; the pair is what tells the
-                  // user this list is a window onto a much larger catalog.
-                  <span className="plugins-load-more-count" aria-live="polite">
-                    {`${market.length} / ${marketTotal}`}
+                  <span className="plugins-pager-total">
+                    {t("plugins.marketTotal", { count: marketTotal })}
                   </span>
                 ) : null}
-              </div>
+              </nav>
             ) : null}
           </div>
 );

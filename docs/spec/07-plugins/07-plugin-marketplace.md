@@ -81,8 +81,9 @@ way `PI_DESKTOP_PLUGIN_MARKET_URL` overrides the catalog URL.
 
 Listing and detail:
 
-- Search reads one page of 100 hits carrying the `pi-package` keyword, and the
-  response carries the size of the whole match set plus where the next page
+- Search reads one page of 100 hits carrying the `pi-package` keyword. The
+  response carries the size of the whole match set and the width of one page,
+  which is what the pager turns into page numbers, plus where the next page
   starts. Browsing therefore shows the registry's own ordering and can page
   through the whole catalog; the search box is the way to narrow it.
 - A hit carries the package's latest version, description, publisher, monthly

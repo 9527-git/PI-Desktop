@@ -27,6 +27,7 @@ export function PluginsPage() {
     setInstalledQuery,
     marketLoading,
     market,
+    marketTotal,
     applyAutoUpdates,
   } = page;
 
@@ -138,8 +139,8 @@ export function PluginsPage() {
               onClick={() => setTab("market")}
             >
               {t("plugins.tabMarket")}
-              {market.length ? (
-                <span className="plugins-segment-count">{market.length}</span>
+              {(marketTotal ?? market.length) ? (
+                <span className="plugins-segment-count">{marketTotal ?? market.length}</span>
               ) : null}
             </button>
           </div>

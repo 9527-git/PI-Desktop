@@ -302,29 +302,37 @@ try {
       query: "",
       offset: first?.nextOffset,
     });
+    // A page past the end names no entries at all: the pager clamps to the
+    // pages that exist, and the host must not answer with a wrapped page.
+    const beyond = await host.call("market.search", { query: "", offset: 200 });
     const firstIds = new Set((first?.plugins ?? []).map((plugin) => plugin.id));
     const secondIds = (second?.plugins ?? []).map((plugin) => plugin.id);
     const ok =
-      // The whole match set is reported, not the page: that is what tells the
-      // user this list is a window onto a much larger catalog.
+      // The whole match set and the width of one page are reported, not only
+      // the page: those two are what the pager turns into page numbers.
       first?.total === SEARCH_HITS.length &&
+      first?.pageSize === 100 &&
       (first?.plugins ?? []).length === 100 &&
       first?.nextOffset === 100 &&
       // The second page continues where the first stopped and is the last one.
       secondIds.length === SEARCH_HITS.length - 100 &&
       second?.nextOffset === null &&
-      secondIds.every((id) => !firstIds.has(id));
+      secondIds.every((id) => !firstIds.has(id)) &&
+      (beyond?.plugins ?? []).length === 0 &&
+      beyond?.nextOffset === null;
     record(
       "E2E-PLUGIN-PACKAGE-MARKET-PAGING",
       ok,
       ok
-        ? `page 1 = ${first.plugins.length}/${first.total}, page 2 = ${secondIds.length}, no overlap`
+        ? `page 1 = ${first.plugins.length}/${first.total} at ${first.pageSize} per page, page 2 = ${secondIds.length}, no overlap, page 3 empty`
         : JSON.stringify({
             total: first?.total,
+            pageSize: first?.pageSize,
             page1: (first?.plugins ?? []).length,
             nextOffset: first?.nextOffset,
             page2: secondIds.length,
             secondNextOffset: second?.nextOffset,
+            beyond: (beyond?.plugins ?? []).length,
           }),
     );
   }

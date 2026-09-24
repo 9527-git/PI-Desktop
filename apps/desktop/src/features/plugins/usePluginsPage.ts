@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAppStore } from "../../stores/app-store";
 import { api } from "../../lib/api";
@@ -24,6 +24,12 @@ import {
   versionInstallable,
   versionWithdrawn,
 } from "./model";
+import {
+  clampMarketPage,
+  marketPageOffset,
+  resolveMarketPageCount,
+  resolveMarketPageSize,
+} from "./market-paging";
 
 export function usePluginsPage() {
   const { t, i18n } = useTranslation();
@@ -44,11 +50,34 @@ export function usePluginsPage() {
   const [projects, setProjects] = useState<ProjectRecord[]>([]);
   const [market, setMarket] = useState<MarketPluginSummary[]>([]);
   const [marketLoading, setMarketLoading] = useState(false);
-  const [marketLoadingMore, setMarketLoadingMore] = useState(false);
-  /** Where the next page of the market starts, when its source has one. */
-  const [marketNextOffset, setMarketNextOffset] = useState<number | null>(null);
+  /** Page on screen, 1-based: a paging source answers one page per request. */
+  const [marketPage, setMarketPage] = useState(1);
+  /** Pages already read for the current query, so stepping back is instant. */
+  const marketPages = useRef(new Map<number, MarketPluginSummary[]>());
+  const [marketPageLoading, setMarketPageLoading] = useState(false);
+  /** How many entries the source puts in one page, when it reports a size. */
+  const [marketPageSize, setMarketPageSize] = useState<number | null>(null);
   /** Size of the whole market match set, when the source reports it. */
   const [marketTotal, setMarketTotal] = useState<number | null>(null);
+  /**
+   * How many pages the match set spans, or null when the source does not page.
+   *
+   * The pager is drawn from the source's own hit count over its own page width,
+   * so a catalog source that answers with one snapshot offers no pages at all
+   * rather than a first page pretending to be the whole list.
+   */
+  const marketPageCount = useMemo(
+    () => resolveMarketPageCount(marketTotal, marketPageSize),
+    [marketTotal, marketPageSize],
+  );
+  /**
+   * Which request owns the list.
+   *
+   * A query typed while a page is still in flight must not be overwritten by the
+   * answer to the old one, so every answer is applied only while it is still the
+   * newest request.
+   */
+  const marketRequest = useRef(0);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [reloadingId, setReloadingId] = useState<string | null>(null);
   const [pendingInstall, setPendingInstall] = useState<{
@@ -73,6 +102,11 @@ export function usePluginsPage() {
 
   const refreshMarket = async (q = query, opts?: { refreshRemote?: boolean }) => {
     setMarketLoading(true);
+    // A page read for the previous query is no longer the request that owns the
+    // list, so its own answer will not clear this flag.
+    setMarketPageLoading(false);
+    setMarketLoading(true);
+    const request = ++marketRequest.current;
     try {
       if (opts?.refreshRemote) {
         const meta = await api.marketRefresh(true);
@@ -86,8 +120,15 @@ export function usePluginsPage() {
         );
       }
       const res = await api.marketSearch(q);
-      setMarket((res.plugins ?? []).filter(isClientVisibleMarketPlugin));
-      setMarketNextOffset(res.nextOffset ?? null);
+      if (request !== marketRequest.current) return;
+      const plugins = (res.plugins ?? []).filter(isClientVisibleMarketPlugin);
+      // A new query is a new match set: the pages read for the old one are
+      // stale, and browsing starts again at its first page.
+      marketPages.current.clear();
+      marketPages.current.set(1, plugins);
+      setMarket(plugins);
+      setMarketPage(1);
+      setMarketPageSize(resolveMarketPageSize(res.pageSize));
       setMarketTotal(res.total ?? null);
       if (!marketSource) {
         // The host reports the catalog URL actually in effect, so a mirror or
@@ -97,38 +138,42 @@ export function usePluginsPage() {
     } catch (e) {
       showToast(e instanceof Error ? e.message : String(e), { variant: "error" });
     } finally {
-      setMarketLoading(false);
+      if (request === marketRequest.current) setMarketLoading(false);
     }
   };
 
   /**
-   * Append the next page of the market.
+   * Show one page of the market.
    *
-   * A source that reads its entries per query cannot hand over the whole
-   * catalog at once, so browsing loads one page at a time. Pages arrive in the
-   * source's own order (the registry's relevance), while the list itself stays
-   * name-sorted the way the host sorts every market page: appending without
-   * re-sorting would leave the earlier pages' names interleaved at random.
+   * A source that reads its entries per query cannot hand over the whole catalog
+   * at once, so the page number is what the user browses with. One page is read
+   * per request and kept, so stepping back is instant and stepping forward again
+   * does not read the registry twice. The category filter is applied to whatever
+   * page is on screen, exactly as it is to the first one.
    */
-  const loadMoreMarket = async () => {
-    if (marketNextOffset === null || marketLoadingMore) return;
-    setMarketLoadingMore(true);
+  const goToMarketPage = async (next: number) => {
+    const page = clampMarketPage(next, marketPageCount);
+    if (page === marketPage || marketPageLoading || marketPageSize === null) return;
+    const cached = marketPages.current.get(page);
+    if (cached) {
+      setMarket(cached);
+      setMarketPage(page);
+      return;
+    }
+    setMarketPageLoading(true);
+    const request = marketRequest.current;
     try {
-      const res = await api.marketSearch(query, category, marketNextOffset);
-      const page = (res.plugins ?? []).filter(isClientVisibleMarketPlugin);
-      setMarket((prev) => {
-        const byId = new Map(prev.map((item) => [item.id, item]));
-        for (const item of page) byId.set(item.id, item);
-        return [...byId.values()].sort((a, b) =>
-          a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
-        );
-      });
-      setMarketNextOffset(res.nextOffset ?? null);
+      const res = await api.marketSearch(query, "", marketPageOffset(page, marketPageSize));
+      if (request !== marketRequest.current) return;
+      const plugins = (res.plugins ?? []).filter(isClientVisibleMarketPlugin);
+      marketPages.current.set(page, plugins);
+      setMarket(plugins);
+      setMarketPage(page);
       if (res.total !== undefined) setMarketTotal(res.total);
     } catch (e) {
       showToast(e instanceof Error ? e.message : String(e), { variant: "error" });
     } finally {
-      setMarketLoadingMore(false);
+      if (request === marketRequest.current) setMarketPageLoading(false);
     }
   };
 
@@ -547,9 +592,10 @@ export function usePluginsPage() {
     settingsPlugin,
     setSettingsPlugin,
     refreshMarket,
-    loadMoreMarket,
-    marketLoadingMore,
-    marketNextOffset,
+    goToMarketPage,
+    marketPage,
+    marketPageCount,
+    marketPageLoading,
     marketTotal,
     openDetail,
     closeDetail,

@@ -45,7 +45,10 @@ const PLUGIN_ID_PREFIX: &str = "pidev.";
 /// npm caps one search page at 250 results; one browse request asks for one
 /// page of this size and names its offset, so the caller pages through the
 /// catalog instead of only ever seeing its first page.
-const SEARCH_PAGE_SIZE: u32 = 100;
+///
+/// The size travels back with every page: a client that has to name the page it
+/// shows next needs the width of a page to turn a page number into an offset.
+pub(crate) const SEARCH_PAGE_SIZE: u32 = 100;
 
 /// Versions offered in the detail sheet, newest first.
 const DETAIL_VERSION_LIMIT: usize = 30;

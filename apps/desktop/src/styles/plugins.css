@@ -1900,18 +1900,56 @@
   padding: 14px 18px 18px;
 }
 
-/* Paging a source that reads its entries per query: the button carries the
-   action and the count says how much of the catalog is on screen. */
-.plugins-load-more {
+/* Paging a source that reads its entries per query: the page number is the
+   control, and the count says how much of the catalog those pages are drawn
+   from. */
+.plugins-pager {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 10px;
   padding: 16px 0 4px;
 }
 
-.plugins-load-more-count {
+.plugins-pager-status,
+.plugins-pager-total {
   color: var(--ds-text-tertiary);
   font-size: var(--text-sm);
   font-variant-numeric: tabular-nums;
+}
+
+.plugins-pager-status {
+  min-width: 96px;
+  text-align: center;
+}
+
+.plugins-pager-jump {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.plugins-pager-jump-label {
+  color: var(--ds-text-tertiary);
+  font-size: var(--text-sm);
+}
+
+.plugins-pager-input {
+  width: 64px;
+  height: 28px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: color-mix(in oklab, var(--ds-text-primary) 5%, transparent);
+  color: var(--ds-text-primary);
+  padding: 0 10px;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  outline: none;
+}
+
+.plugins-pager-input:focus-visible {
+  background: color-mix(in oklab, var(--ds-text-primary) 7%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--ds-accent) 45%, transparent);
 }
