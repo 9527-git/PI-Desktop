@@ -310,6 +310,10 @@ export async function installExtensionDependencies(
   pluginDir: string,
   options?: { runner?: DependencyCommandRunner; timeoutMs?: number },
 ): Promise<ExtensionDependencyInstallResult> {
+  // npm abandons proxy connections, and the proxy records the resets it sees.
+  // They are not failures on their own — npm retries and usually succeeds — so
+  // they are reported only alongside an install that actually failed.
+  let proxyError: string | undefined;
   const packageJsonPath = join(pluginDir, "package.json");
   if (!existsSync(packageJsonPath)) {
     return { state: "skipped", reason: "no-package-json" };
@@ -365,7 +369,8 @@ export async function installExtensionDependencies(
     runner("npm", args, pluginDir, Math.max(1, deadline - Date.now()), envOverrides);
   const failed = (message: string): ExtensionDependencyInstallResult => {
     cleanupFailedDependencyInstall(pluginDir, lockfiles.snapshots);
-    return { state: "failed", error: dependencyErrorTail(message) };
+    const proxyNote = proxyError ? ` (proxy connection failed: ${proxyError})` : "";
+    return { state: "failed", error: dependencyErrorTail(message) + proxyNote };
   };
   const execute = async (envOverrides?: Record<string, string>): Promise<ExtensionDependencyInstallResult> => {
     try {
@@ -403,12 +408,18 @@ export async function installExtensionDependencies(
   };
   try {
     if (options?.runner) return await execute();
-    return await withRegistryOnlyProxy((proxyUrl) =>
-      execute({
-        npm_config_proxy: proxyUrl,
-        npm_config_https_proxy: proxyUrl,
-        npm_config_noproxy: "",
-      }),
+    return await withRegistryOnlyProxy(
+      (proxyUrl) =>
+        execute({
+          npm_config_proxy: proxyUrl,
+          npm_config_https_proxy: proxyUrl,
+          npm_config_noproxy: "",
+        }),
+      {
+        onClientError: (error) => {
+          proxyError = error.code ?? error.message;
+        },
+      },
     );
   } catch (err) {
     return failed(dependencyRunnerError(err));

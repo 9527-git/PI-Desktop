@@ -95,7 +95,11 @@ then runs `npm ci` with the same safety flags. Direct specs in `dependencies`,
 registry-only because npm may inspect all four; the git resolver is disabled.
 No lifecycle script runs. Failed installs remove partial dependencies/cache and
 are reported to the renderer without blocking the import. The confirm discloses
-the npm step alongside the skills disclosure.
+the npm step alongside the skills disclosure. npm reaches the registry through
+a loopback proxy that allows only `registry.npmjs.org`, and the resets npm
+leaves behind when it abandons a tunnel are recorded rather than fatal: the
+proxy keeps serving, and a reset that accompanied a failed install is reported
+with its message.
 
 | Source | Becomes |
 |---|---|

@@ -80,7 +80,9 @@ Agent 扩展。
 `dependencies`、`optionalDependencies`、`devDependencies` 和 `peerDependencies` 中的
 直接 spec 都必须来自 registry，因为 npm 可能检查全部四者；git resolver 会被禁用。
 不会运行生命周期脚本。安装失败会清理部分依赖/cache、上报渲染层且不阻塞导入。确认对话框
-会与技能披露一并说明 npm 安装步骤。
+会与技能披露一并说明 npm 安装步骤。npm 经由只允许 `registry.npmjs.org` 的回环代理访问
+registry；npm 弃用隧道时留下的连接重置会被记录而非致命：代理继续服务，随安装失败一起发生的
+重置会写进该失败消息。
 
 | 来源 | 结果 |
 |---|---|

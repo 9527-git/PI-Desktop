@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { createRequire, register } from "node:module";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { once } from "node:events";
 import { request as httpRequest } from "node:http";
+import { connect } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -52,6 +54,46 @@ test("registry-only proxy rejects non-registry HTTP targets", async () => {
     });
   });
   assert.equal(status, 403);
+});
+
+test("registry-only proxy survives a client connection reset", async (t) => {
+  const clientErrors = [];
+  const outcome = await withRegistryOnlyProxy(
+    async (proxyUrl) => {
+      const proxy = new URL(proxyUrl);
+      // npm reaches the registry over an HTTPS CONNECT tunnel, and abandons
+      // those tunnels freely. The reset lands on the socket the proxy accepted;
+      // with no listener it is an uncaught 'error' event that takes the whole
+      // main process down. This is the tunnel half of the proxy, which the
+      // HTTP parser no longer covers once the socket is upgraded.
+      const socket = connect(Number(proxy.port), proxy.hostname);
+      await once(socket, "connect");
+      socket.write("CONNECT registry.npmjs.org:443 HTTP/1.1\r\nHost: registry.npmjs.org:443\r\n\r\n");
+      const established = await Promise.race([
+        once(socket, "data").then(() => true),
+        new Promise((resolve) => setTimeout(() => resolve(false), 5_000)),
+      ]);
+      if (!established) {
+        socket.destroy();
+        return "unreachable";
+      }
+      socket.resetAndDestroy();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      return "reset";
+    },
+    { onClientError: (error) => clientErrors.push(error.code) },
+  );
+  if (outcome === "unreachable") {
+    // The tunnel needs registry.npmjs.org:443, which the proxy is the only one
+    // allowed to reach. Without it the reset cannot be reproduced, and a silent
+    // pass would claim coverage this run does not have.
+    t.skip("registry.npmjs.org:443 is unreachable; the tunnel reset was not exercised");
+    return;
+  }
+  assert.ok(
+    clientErrors.includes("ECONNRESET"),
+    `the reset is recorded rather than fatal, saw ${JSON.stringify(clientErrors)}`,
+  );
 });
 
 test("installing a package.json whose JSON body is null or an array fails without throwing", async () => {

@@ -4,6 +4,16 @@ import { connect, type Socket } from "node:net";
 
 type ProxyHandler<T> = (proxyUrl: string) => Promise<T>;
 
+export type RegistryProxyOptions = {
+  /**
+   * Called when a socket the proxy accepted fails. npm opens and abandons
+   * connections freely, so a reset here is an expected network event rather
+   * than a fatal one — but it is the only place that failure is visible, and
+   * the main process must not be taken down by it.
+   */
+  onClientError?: (error: NodeJS.ErrnoException) => void;
+};
+
 const REGISTRY_HOST = "registry.npmjs.org";
 
 function allowedAuthority(host: string, port: string): boolean {
@@ -81,12 +91,22 @@ async function closeServer(server: ReturnType<typeof createServer>, sockets: Set
 }
 
 /** Run an operation with a loopback proxy that permits only the public npm registry. */
-export async function withRegistryOnlyProxy<T>(handler: ProxyHandler<T>): Promise<T> {
+export async function withRegistryOnlyProxy<T>(
+  handler: ProxyHandler<T>,
+  options: RegistryProxyOptions = {},
+): Promise<T> {
+  const { onClientError } = options;
   const sockets = new Set<Socket>();
   const server = createServer((request, response) => forwardHttpRequest(request, response));
   server.on("connect", handleConnect);
   server.on("connection", (socket) => {
     sockets.add(socket);
+    // Every accepted socket needs an 'error' listener before anything can fail
+    // on it. The HTTP parser covers the requests it manages, but a socket
+    // upgraded by `connect` (npm's HTTPS tunnels) is the proxy's alone: a
+    // reset there would otherwise be an unhandled 'error' event, and an
+    // unhandled 'error' event ends the main process.
+    socket.on("error", (error: NodeJS.ErrnoException) => onClientError?.(error));
     socket.once("close", () => sockets.delete(socket));
   });
   await new Promise<void>((resolve, reject) => {
