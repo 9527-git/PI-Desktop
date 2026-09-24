@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { register } from "node:module";
+import { createRequire, register } from "node:module";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { request as httpRequest } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 
 register(new URL("./helpers/ts-import-hooks.mjs", import.meta.url));
 const {
@@ -332,6 +333,33 @@ test("importing strips workspaces from the copied package.json so npm never ente
     name: "plain-ext",
     dependencies: {},
   }, "a package.json without workspaces is copied verbatim");
+});
+
+test("a package declaring type: module cannot make the generated main.js load as ESM", () => {
+  const root = mkdtempSync(join(tmpdir(), "pi-ax-esm-"));
+  const extDir = join(root, "esm-ext");
+  mkdirSync(extDir, { recursive: true });
+  writeFileSync(join(extDir, "index.ts"), "export default function () {}\n");
+  writeFileSync(
+    join(extDir, "package.json"),
+    JSON.stringify({ name: "esm-ext", type: "module", pi: { extensions: ["index.ts"] } }),
+  );
+
+  const generated = generateImportedExtensionPlugin(extDir, join(root, "imported"));
+  const rootPkg = JSON.parse(readFileSync(join(generated.path, "package.json"), "utf8"));
+  assert.equal(rootPkg.type, "commonjs", "the plugin root is pinned to CommonJS");
+  assert.equal(
+    JSON.parse(readFileSync(join(generated.path, "src", "package.json"), "utf8")).type,
+    "module",
+    "the imported package keeps its own module type inside src/",
+  );
+
+  // The regression: the runtime loads `main.js` by path, so Node takes the
+  // module type from the plugin root's package.json. `"type": "module"` there
+  // made this call fail with "module is not defined in ES module scope", after
+  // the install had already been registered.
+  const requireFromPluginRoot = createRequire(pathToFileURL(join(generated.path, "root.js")).href);
+  assert.deepEqual(requireFromPluginRoot(join(generated.path, "main.js")), {});
 });
 
 test("default runner caps captured stderr and escalates the timeout kill", async () => {

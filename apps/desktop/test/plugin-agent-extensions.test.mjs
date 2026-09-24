@@ -13,6 +13,7 @@ const hostProcessEntry = join(desktopRoot, "electron/main/plugin-host-process.mj
 
 register(pathToFileURL(join(here, "helpers/ts-import-hooks.mjs")));
 const { PluginRuntime } = await import("../electron/main/plugin-runtime.ts");
+const { generateImportedExtensionPlugin } = await import("../electron/main/agent-extensions.ts");
 
 function forkPluginProcess({ entry }) {
   const child = fork(entry, [], { stdio: ["ignore", "pipe", "pipe", "ipc"] });
@@ -113,4 +114,25 @@ test("without agent.extension the modules are skipped and audited, and missing f
   await runtime.loadFromPath(dir2);
   assert.deepEqual(runtime.getAgentExtensions().map((s) => s.entry), [join(dir2, "src/a.ts")]);
   assert.ok(audits.some((a) => a.api === "plugin.agentExtensions.skipped" && a.errorCode === "NOT_FOUND"));
+});
+
+test("a plugin generated from a type: module package loads through the real host process", async (t) => {
+  const { runtime } = createRuntime(t);
+  const root = mkdtempSync(join(tmpdir(), "pi-ax-generated-"));
+  const packageDir = join(root, "esm-package");
+  mkdirSync(packageDir, { recursive: true });
+  writeFileSync(join(packageDir, "index.ts"), "export default function () {}\n");
+  writeFileSync(
+    join(packageDir, "package.json"),
+    JSON.stringify({ name: "esm-package", type: "module", pi: { extensions: ["index.ts"] } }),
+  );
+
+  // The seam that broke: a generated plugin root, loaded by the real host
+  // process. Left saying `"type": "module"` it installed and then never loaded.
+  const generated = generateImportedExtensionPlugin(packageDir, join(root, "imported"));
+  await runtime.loadFromPath(generated.path);
+  assert.deepEqual(
+    runtime.getAgentExtensions().map((spec) => [spec.pluginId, spec.entry]),
+    [[generated.id, join(generated.path, "src/index.ts")]],
+  );
 });

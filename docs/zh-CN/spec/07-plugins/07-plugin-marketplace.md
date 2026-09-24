@@ -368,7 +368,10 @@ host 自身从不下载 npm 包：它没有 gzip/tar 解包器，而且它的市
    完整性校验和依赖策略都由 npm 负责。
 2. 安装后的包目录按「导入 pi 扩展」的同一套转换变成插件目录：声明的源码复制到 `src/`
    下，manifest 声明 `contributes.agentExtensions` 和/或 `contributes.skills`，`main.js`
-   为空操作，敏感文件和符号链接被拒绝。
+   为空操作，敏感文件和符号链接被拒绝。插件根目录的 `package.json` 固定为 CommonJS：
+   Node 正是按该目录解析 `main.js` 的模块类型，声明 `"type": "module"` 的包会因此把该文件
+   当作 ESM 求值，在安装已登记之后才以 "module is not defined in ES module scope" 加载
+   失败。包自身的 `type` 保留在 `src/` 下的副本里。
 3. 结果通过 host 既有的 `plugins.installFromPath` RPC 登记为普通已安装插件：source 为
    `marketplace`、`marketplace.providerId = "pidev"`、npm 包记录在
    `marketplace.npmPackage`，信任级别在安装时记录。

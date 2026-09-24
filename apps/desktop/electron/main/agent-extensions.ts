@@ -302,10 +302,12 @@ export type GeneratedPluginIdentity = {
 /**
  * Build a plugin directory from a pi extension file or directory (spec §3):
  * copies the source under `src/`, writes a manifest that declares the entry
- * files as `contributes.agentExtensions`, and a no-op `main.js`. A directory
- * that ships a `package.json` also gets it (plus its lockfile) at the plugin
- * root so {@link installExtensionDependencies} can resolve its dependencies
- * there; `node_modules` itself is never copied — it is reinstalled.
+ * files as `contributes.agentExtensions`, and a no-op CommonJS `main.js`. A
+ * directory that ships a `package.json` also gets it (plus its lockfile) at the
+ * plugin root so {@link installExtensionDependencies} can resolve its
+ * dependencies there; `node_modules` itself is never copied — it is reinstalled.
+ * That root copy is pinned to CommonJS: the entry the runtime loads from it is
+ * `main.js` (see the copy below).
  */
 export function generateImportedExtensionPlugin(
   source: string,
@@ -407,12 +409,22 @@ export function generateImportedExtensionPlugin(
     if (isDirectory) {
       const rootPackageJson = join(resolved, "package.json");
       if (existsSync(rootPackageJson)) {
+        // Two fields decide whether the root copy can stay verbatim.
+        //
         // A `workspaces` field would send npm into the copied sources under
         // src/; strip it so the install sees only the declared dependencies.
+        //
+        // `"type": "module"` would make Node evaluate the plugin root's own
+        // `main.js` as ESM, where `module` does not exist: the plugin installs
+        // and is registered, then fails to load with "module is not defined in
+        // ES module scope". Pin the root to CommonJS instead. The imported
+        // package keeps its own copy of the field under `src/`, so its sources
+        // are unaffected.
         try {
           const pkg = JSON.parse(readFileSync(rootPackageJson, "utf8")) as Record<string, unknown>;
-          if (pkg && typeof pkg === "object" && "workspaces" in pkg) {
+          if (pkg && typeof pkg === "object" && ("workspaces" in pkg || pkg.type === "module")) {
             delete pkg.workspaces;
+            pkg.type = "commonjs";
             writeFileSync(join(dir, "package.json"), JSON.stringify(pkg, null, 2) + "\n", "utf8");
           } else {
             copyFileSync(rootPackageJson, join(dir, "package.json"));

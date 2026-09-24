@@ -439,7 +439,12 @@ registered through the host:
    same conversion as "import a pi extension": declared sources are copied under
    `src/`, the manifest declares `contributes.agentExtensions` and/or
    `contributes.skills`, `main.js` is a no-op, and sensitive files and symlinks
-   are rejected.
+   are rejected. The plugin root's `package.json` is pinned to CommonJS, because
+   that is the directory Node resolves `main.js` against: a package declaring
+   `"type": "module"` would otherwise have that file evaluated as ESM and fail
+   to load with "module is not defined in ES module scope", after the install
+   had already been registered. The package keeps its own `type` in the copy
+   under `src/`.
 3. The result is registered through the host's existing
    `plugins.installFromPath` RPC as a normal installed plugin: source
    `marketplace`, `marketplace.providerId = "pidev"`, the npm package recorded
