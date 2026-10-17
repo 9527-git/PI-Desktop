@@ -5142,6 +5142,90 @@ describe("DesktopAgentRuntime inline context compaction", () => {
     );
   }
 
+  it("summarizes when the provider's own count fits, even if the char heuristic does not", async () => {
+    // Regression: the summary preflight summed `estimateTokens` — a flat four
+    // characters per token — over the summarized range, while the boundary it
+    // guards is measured the way the provider bills. On a real 1M-window
+    // session the two disagreed by a third (1.01M estimated against 734k
+    // billed), and the inflated figure refused a manual compaction whose
+    // request comfortably fit: "Compaction summary input exceeds the safe model
+    // budget" on a context that was nowhere near a limit. Dense tool output
+    // tokenizes into far fewer characters than the heuristic assumes, so this
+    // transcript reproduces the gap: 260k characters of repeated log line
+    // estimate as 65k tokens, but the provider billed 30k for them.
+    const constrainedProvider: RuntimeProviderConfig = {
+      ...provider,
+      modelConfig: {
+        ...provider.modelConfig!,
+        contextWindow: 64_000,
+        maxTokens: 8_192,
+      },
+    };
+    const host = { call: vi.fn().mockResolvedValue(undefined) };
+    const onEvent = vi.fn();
+    const runtime = createRuntime({
+      provider: constrainedProvider,
+      host,
+      onEvent,
+    });
+    (runtime as any).fullEntries = [
+      {
+        type: "message",
+        id: "billed-output",
+        seq: 0,
+        parentId: null,
+        timestamp: Date.parse("2026-07-31T00:00:00Z"),
+        message: {
+          ...assistantMessage({
+            content: [{ type: "text", text: "x".repeat(260_000) }],
+          }),
+          usage: {
+            input: 29_900,
+            output: 112,
+            cacheRead: 0,
+            cacheWrite: 0,
+            totalTokens: 30_012,
+            cost: {
+              input: 0,
+              output: 0,
+              cacheRead: 0,
+              cacheWrite: 0,
+              total: 0,
+            },
+          },
+        },
+      },
+    ];
+    const generateCompaction = vi
+      .spyOn(runtime as any, "generateCompaction")
+      .mockResolvedValue(summaryResult());
+
+    // A 64k window with an 8k output reserve leaves 64_000 - 8_192 - 2_048 =
+    // 53_760 tokens for the summary input: 30k billed fits, the 65k the
+    // heuristic read off the same range does not.
+    await expect(runtime.compactManually()).resolves.toBeUndefined();
+
+    expect(generateCompaction).toHaveBeenCalledTimes(1);
+    expect(host.call).toHaveBeenCalledWith(
+      "session.appendCompaction",
+      expect.objectContaining({
+        compaction: expect.objectContaining({
+          summary: SUMMARY,
+          details: expect.objectContaining({ strategy: "summary" }),
+        }),
+      }),
+    );
+    const events = onEvent.mock.calls.map(([envelope]) => (envelope as any).event);
+    expect(events).toContainEqual(
+      expect.objectContaining({
+        type: "compaction_end",
+        reason: "manual",
+        ok: true,
+      }),
+    );
+    expect(events.some((event: any) => event.ok === false)).toBe(false);
+    await runtime.dispose();
+  });
   it("compacts at the turn boundary rather than ahead of it", async () => {
     const host = { call: vi.fn().mockResolvedValue(undefined) };
     const onEvent = vi.fn();

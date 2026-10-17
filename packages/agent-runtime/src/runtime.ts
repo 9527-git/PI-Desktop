@@ -5543,14 +5543,10 @@ Delegation rules:
         modelOutputBudget -
         COMPACTION_SUMMARY_PROMPT_SAFETY_TOKENS,
     );
-    // The summary now covers the whole boundary range, so its input is the
-    // context that tripped the hard limit. On a window whose headroom leaves
-    // less room for the summary request than the hard limit allows, this is the
-    // guard that routes the turn to retained-tail recovery instead.
-    const historyTokens = preparation.messagesToSummarize.reduce(
-      (total, message) => total + estimateTokens(message),
-      0,
-    );
+    // `tokensBefore` includes the request prefix (system prompt and tool
+    // schemas) while the summary prompt does not, so this stays on the
+    // conservative side of the boundary.
+    const historyTokens = preparation.tokensBefore;
     const previousSummaryTokens = preparation.previousSummary
       ? Math.ceil(preparation.previousSummary.length / 4)
       : 0;
