@@ -1,8 +1,8 @@
 diff --git a/dist/api/openai-completions.js b/dist/api/openai-completions.js
-index 80720d096966bf057708433de0b128935aece8b6..f780c67a4e696639988fa2eff83662a4663198eb 100644
+index 0eeaffa..0c76758 100644
 --- a/dist/api/openai-completions.js
 +++ b/dist/api/openai-completions.js
-@@ -1121,6 +1121,22 @@ export function convertMessages(model, context, compat, options) {
+@@ -1128,6 +1128,22 @@ export function convertMessages(model, context, compat, options) {
          }
          lastRole = msg.role;
      }
@@ -26,10 +26,10 @@ index 80720d096966bf057708433de0b128935aece8b6..f780c67a4e696639988fa2eff83662a4
  }
  function convertTools(tools, compat) {
 diff --git a/dist/api/openai-responses-shared.js b/dist/api/openai-responses-shared.js
-index 53597d2c3becdd2c03d4fd265c213a36b403f26b..352a3c0aea3279cff48c90f11a2cf053d807252b 100644
+index af5f042..54467f4 100644
 --- a/dist/api/openai-responses-shared.js
 +++ b/dist/api/openai-responses-shared.js
-@@ -636,6 +636,10 @@ export async function processResponsesStream(openaiStream, output, stream, model
+@@ -651,6 +651,10 @@ export async function processResponsesStream(openaiStream, output, stream, model
          }
          else if (event.type === "response.completed" || event.type === "response.incomplete") {
              finalizeResponse(event.response);

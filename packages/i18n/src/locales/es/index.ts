@@ -127,7 +127,7 @@ export const es = {
     "error": "No se pudieron buscar actualizaciones: {{message}}",
     "dismiss": "Descartar",
     "autoCheck": "Comprobación automática de actualizaciones",
-    "autoCheckDesc": "Busca nuevas versiones en GitHub Releases al iniciar y periódicamente; las comprobaciones manuales no se ven afectadas.",
+    "autoCheckDesc": "Busca nuevas versiones en GitHub Releases al iniciar y periódicamente; mientras está desactivado, las actualizaciones encontradas automáticamente se ocultan y no se instalan al salir; las comprobaciones manuales no se ven afectadas.",
     "devDisabled": "Las actualizaciones están deshabilitadas en las compilaciones de desarrollo."
   },
   "kernel": {

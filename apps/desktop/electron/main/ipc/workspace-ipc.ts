@@ -159,7 +159,7 @@ export function registerWorkspaceIpc({
     const seed =
       process.env.PI_DESKTOP_SEED_WORKSPACE ||
       process.env.PI_DESKTOP_WORKSPACE ||
-      (isDevelopmentBuild ? join(__dirname, "../../..") : "");
+      (isDevelopmentBuild ? join(import.meta.dirname, "../../..") : "");
     if (!res.workspace && seed) {
       try {
         res = (await host.call("workspace.set", { path: seed })) as {

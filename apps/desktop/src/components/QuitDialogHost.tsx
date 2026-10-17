@@ -13,27 +13,40 @@ import {
 
 /**
  * Renders the main process's quit / close-behavior confirmation (D452) and
- * answers it over IPC. The native message box stays as main's fallback for a
- * renderer that cannot answer, so this host only ever sees live requests.
+ * answers it over IPC. This host is the only confirmation UI: it acknowledges
+ * the request once the dialog is on screen, so main can wait for a slow user
+ * without ever having to fall back to a native message box (D469).
  */
 export function QuitDialogHost() {
   const { t } = useTranslation();
   const [request, setRequest] = useState<QuitDialogRequest | null>(null);
   const dialogRef = useRef<HTMLDivElement | null>(null);
+  // One confirmation at a time. A request this host never showed is neither
+  // acknowledged nor answered, and main settles it on its own budget.
+  const activeRequestId = useRef<string | null>(null);
 
   useEffect(() => {
     return api.onQuitDialogRequest((next) => {
-      // One confirmation at a time; a second request means the first already
-      // timed out on the main side and its answer must not leak into it.
-      setRequest((current) => current ?? next);
+      if (activeRequestId.current) return;
+      activeRequestId.current = next.requestId;
+      void api.presentQuitDialog({ requestId: next.requestId });
+      setRequest(next);
+    });
+  }, []);
+
+  useEffect(() => {
+    return api.onQuitDialogDismiss(({ requestId }) => {
+      if (activeRequestId.current !== requestId) return;
+      activeRequestId.current = null;
+      setRequest(null);
     });
   }, []);
 
   const settle = useCallback((choice: QuitDialogChoice) => {
-    setRequest((current) => {
-      if (current) void api.respondQuitDialog({ requestId: current.requestId, choice });
-      return null;
-    });
+    const requestId = activeRequestId.current;
+    activeRequestId.current = null;
+    setRequest(null);
+    if (requestId) void api.respondQuitDialog({ requestId, choice });
   }, []);
 
   const defaultChoice: QuitDialogChoice =

@@ -1,5 +1,7 @@
 # Context Inspector Compact Action Implementation Plan
 
+ - Status: Implemented and accepted on 2026-09-17 (D434; merge `ede62ad8b`)
+- Status: Implemented and accepted on 2026-09-17 (D434; merge `ede62ad8b`)
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** The context-usage popover card (`ContextUsageInspector`) starts a manual
@@ -106,8 +108,8 @@ import the built `@pi-desktop/shared` output.
 
 **Files:** none (environment only).
 
-- [ ] **Step 1: Rebase onto current local main**
-
+ - [x] **Step 1: Rebase onto current local main**
+- [x] **Step 1: Rebase onto current local main**
 ```bash
 git fetch . main
 git rebase main
@@ -117,8 +119,8 @@ Expected: the branch replays the single design-doc commit `3e96976a` onto
 `d57fc19e` with no conflicts. (The design doc is a new file; D432 does not touch
 it.)
 
-- [ ] **Step 2: Install dependencies**
-
+ - [x] **Step 2: Install dependencies**
+- [x] **Step 2: Install dependencies**
 ```bash
 pnpm install --frozen-lockfile
 ```
@@ -127,16 +129,16 @@ Expected: `Done` (repeatable install). If Electron's postinstall download times
 out, set `ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/` and retry
 (project memory `packaging-github-timeout`).
 
-- [ ] **Step 3: Build the JS packages**
-
+ - [x] **Step 3: Build the JS packages**
+- [x] **Step 3: Build the JS packages**
 ```bash
 pnpm build:js
 ```
 
 Expected: every workspace package reports its build command without error.
 
-- [ ] **Step 4: Record the baseline**
-
+ - [x] **Step 4: Record the baseline**
+- [x] **Step 4: Record the baseline**
 ```bash
 pnpm --filter @pi-desktop/shared test
 pnpm --filter @pi-desktop/desktop test
@@ -163,8 +165,8 @@ Commit 1. Deliverable: `compaction_end.mark` and restored marks carry
 - Modify: `apps/desktop/src/features/chat/transcript/AssistantTurn.tsx:82-93`
 - Modify: `apps/desktop/src/lib/assistant-turns.ts:327-336`
 
-- [ ] **Step 1: Write the failing tests**
-
+ - [x] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 In `packages/shared/src/context-compaction.test.ts`, replace the
 `contextCompactionMark` describe block (lines 47-64) with:
 
@@ -196,16 +198,16 @@ describe("contextCompactionMark", () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
-
+ - [x] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 ```bash
 pnpm --filter @pi-desktop/shared test
 ```
 
 Expected: FAIL — the exact `toEqual` reports a missing `tokensBefore` property.
 
-- [ ] **Step 3: Add the field to the mark type**
-
+ - [x] **Step 3: Add the field to the mark type**
+- [x] **Step 3: Add the field to the mark type**
 In `packages/shared/src/types/sessions.ts`, extend `ContextCompactionMark`
 (currently ends with the `summarized` line):
 
@@ -225,8 +227,8 @@ export type ContextCompactionMark = ContextCompactionStatus & {
 };
 ```
 
-- [ ] **Step 4: Fill it from the record**
-
+ - [x] **Step 4: Fill it from the record**
+- [x] **Step 4: Fill it from the record**
 In `packages/shared/src/context-compaction.ts`, add the field to the returned
 object:
 
@@ -245,8 +247,8 @@ export function contextCompactionMark(
 }
 ```
 
-- [ ] **Step 5: Update the runtime event expectation**
-
+ - [x] **Step 5: Update the runtime event expectation**
+- [x] **Step 5: Update the runtime event expectation**
 In `packages/agent-runtime/src/runtime.test.ts` (~line 5132), add the field to
 the `mark` object of the `compaction_end` expectation:
 
@@ -261,8 +263,8 @@ the `mark` object of the `compaction_end` expectation:
         },
 ```
 
-- [ ] **Step 6: Follow the field in both memo comparisons**
-
+ - [x] **Step 6: Follow the field in both memo comparisons**
+- [x] **Step 6: Follow the field in both memo comparisons**
 In `apps/desktop/src/features/chat/transcript/AssistantTurn.tsx`, extend
 `compactionMarksEqual` (line 82):
 
@@ -299,8 +301,8 @@ In `apps/desktop/src/lib/assistant-turns.ts`, extend the inline comparison in
   }
 ```
 
-- [ ] **Step 7: Run the tests to verify they pass**
-
+ - [x] **Step 7: Run the tests to verify they pass**
+- [x] **Step 7: Run the tests to verify they pass**
 ```bash
 pnpm --filter @pi-desktop/shared test
 pnpm --filter @pi-desktop/agent-runtime test
@@ -310,8 +312,8 @@ pnpm --filter @pi-desktop/desktop typecheck
 Expected: all pass. (`agent-runtime` needs the `pnpm build:js` output from
 Task 1; rerun it first if TypeScript reports unresolved `@pi-desktop/shared`.)
 
-- [ ] **Step 8: Commit**
-
+ - [x] **Step 8: Commit**
+- [x] **Step 8: Commit**
 ```bash
 git add packages/shared/src/types/sessions.ts packages/shared/src/context-compaction.ts packages/shared/src/context-compaction.test.ts packages/agent-runtime/src/runtime.test.ts apps/desktop/src/features/chat/transcript/AssistantTurn.tsx apps/desktop/src/lib/assistant-turns.ts
 git commit -m "feat(chat): carry the pre-compaction occupancy in the checkpoint mark"
@@ -332,8 +334,8 @@ compaction, shows the busy phase, refuses while a run is live, and renders the
 - Modify: `packages/i18n/src/locales/{en,zh-CN,zh-TW,tr,ko,fr,es,de}/index.ts`
 - Test: `apps/desktop/test/context-compaction.test.mjs`
 
-- [ ] **Step 1: Write the failing source-contract test**
-
+ - [x] **Step 1: Write the failing source-contract test**
+- [x] **Step 1: Write the failing source-contract test**
 In `apps/desktop/test/context-compaction.test.mjs`, extend the helper imports
 (line 1-7) with `readComposerSource`:
 
@@ -404,8 +406,8 @@ test("the inspector card starts a compaction and reports it in place", () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
-
+ - [x] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 ```bash
 pnpm --filter @pi-desktop/desktop test
 ```
@@ -414,8 +416,8 @@ Expected: FAIL — `compactionMarksEqual`/mark assertions from Task 2 already
 pass, the new block reports the missing `compactBlocked`, the action row, and
 the locale keys.
 
-- [ ] **Step 3: Widen the component props**
-
+ - [x] **Step 3: Widen the component props**
+- [x] **Step 3: Widen the component props**
 In `apps/desktop/src/components/ContextUsageInspector.tsx`, replace the
 signature (lines 38-54) so the card can learn that a run owns the composer:
 
@@ -442,8 +444,8 @@ export function ContextUsageInspector({
 }) {
 ```
 
-- [ ] **Step 4: Read the busy phase and the store action**
-
+ - [x] **Step 4: Read the busy phase and the store action**
+- [x] **Step 4: Read the busy phase and the store action**
 Directly after the existing `compaction` selector (line 63), add:
 
 ```tsx
@@ -458,8 +460,8 @@ Directly after the existing `compaction` selector (line 63), add:
   const compactContext = useAppStore((state) => state.compactContext);
 ```
 
-- [ ] **Step 5: Add the "before" line under the checkpoint line**
-
+ - [x] **Step 5: Add the "before" line under the checkpoint line**
+- [x] **Step 5: Add the "before" line under the checkpoint line**
 Replace the compaction block (lines 355-362) with:
 
 ```tsx
@@ -479,8 +481,8 @@ Replace the compaction block (lines 355-362) with:
       ) : null}
 ```
 
-- [ ] **Step 6: Add the action row**
-
+ - [x] **Step 6: Add the action row**
+- [x] **Step 6: Add the action row**
 Immediately before the closing `</div>` of the popover (after the block from
 Step 5, line ~363), insert the action row:
 
@@ -510,8 +512,8 @@ Step 5, line ~363), insert the action row:
       </div>
 ```
 
-- [ ] **Step 7: Give the popover a real height dependency**
-
+ - [x] **Step 7: Give the popover a real height dependency**
+- [x] **Step 7: Give the popover a real height dependency**
 The popover's placement effect depends on the rendered content; the action row
 adds a row whose height does not depend on any value in the dependency list.
 Add `compacting` to the `useLayoutEffect` dependency array (line 174-184), next
@@ -532,8 +534,8 @@ to `compaction`:
   ]);
 ```
 
-- [ ] **Step 8: Pass the block from the composer toolbar**
-
+ - [x] **Step 8: Pass the block from the composer toolbar**
+- [x] **Step 8: Pass the block from the composer toolbar**
 In `apps/desktop/src/features/chat/composer/ComposerToolbar.tsx`, line 234:
 
 ```tsx
@@ -545,8 +547,8 @@ In `apps/desktop/src/features/chat/composer/ComposerToolbar.tsx`, line 234:
         ) : null}
 ```
 
-- [ ] **Step 9: Style the action row**
-
+ - [x] **Step 9: Style the action row**
+- [x] **Step 9: Style the action row**
 In `apps/desktop/src/styles/messages.css`, directly after the
 `.context-inspector-compaction strong` rule (line 1602-1605), add:
 
@@ -596,8 +598,8 @@ In `apps/desktop/src/styles/messages.css`, directly after the
 the radius; only the compact padding/type size are overridden. All typography
 values are tokens — `scripts/check-style-tokens.mjs` rejects raw literals.)
 
-- [ ] **Step 10: Add the five keys to all eight catalogs**
-
+ - [x] **Step 10: Add the five keys to all eight catalogs**
+- [x] **Step 10: Add the five keys to all eight catalogs**
 Insert the same block directly after the `usageCompaction` line in each locale
 file, keeping that file's key-quoting style (`fr`, `es`, `de` quote every key;
 the rest do not). The `usageCompaction` anchor is at: en 376, zh-CN 371,
@@ -688,8 +690,8 @@ zh-TW 371, tr 378, ko 378, fr 369, es 369, de 369.
     "usageCompactBusyHint": "Checkpoint-Zusammenfassung wird erstellt…",
 ```
 
-- [ ] **Step 11: Run the checks to verify they pass**
-
+ - [x] **Step 11: Run the checks to verify they pass**
+- [x] **Step 11: Run the checks to verify they pass**
 ```bash
 pnpm --filter @pi-desktop/desktop test
 pnpm --filter @pi-desktop/desktop typecheck
@@ -701,8 +703,8 @@ Expected: all pass. `pnpm --filter @pi-desktop/desktop test` now includes the
 new block; typecheck proves the catalog record type accepted all five keys in
 all eight locales.
 
-- [ ] **Step 12: Commit**
-
+ - [x] **Step 12: Commit**
+- [x] **Step 12: Commit**
 ```bash
 git add apps/desktop/src/components/ContextUsageInspector.tsx apps/desktop/src/features/chat/composer/ComposerToolbar.tsx apps/desktop/src/styles/messages.css packages/i18n/src/locales apps/desktop/test/context-compaction.test.mjs
 git commit -m "feat(chat): compact context from the inspector card"
@@ -722,8 +724,8 @@ scene.
 - Create: `scripts/e2e-context-inspector-compact.mjs`
 - Modify: `package.json` (root scripts)
 
-- [ ] **Step 1: Add the fixture to the rig**
-
+ - [x] **Step 1: Add the fixture to the rig**
+- [x] **Step 1: Add the fixture to the rig**
 In `apps/desktop/src/capture/capture-rig.ts`, add to `CaptureRigMethods` (after
 `seedTranscript`):
 
@@ -836,8 +838,8 @@ In `dispose()` (line 1095), restore it next to the other restores:
       api.compact = originalCompact;
 ```
 
-- [ ] **Step 2: Whitelist the fixture**
-
+ - [x] **Step 2: Whitelist the fixture**
+- [x] **Step 2: Whitelist the fixture**
 In `apps/desktop/src/capture/renderer-api.ts`, add the name to
 `CAPTURE_RIG_METHODS` after `"seedTranscript"`:
 
@@ -845,8 +847,8 @@ In `apps/desktop/src/capture/renderer-api.ts`, add the name to
   "seedContextInspectorCompaction",
 ```
 
-- [ ] **Step 3: Write the E2E script**
-
+ - [x] **Step 3: Write the E2E script**
+- [x] **Step 3: Write the E2E script**
 Create `scripts/e2e-context-inspector-compact.mjs`:
 
 ```js
@@ -1207,16 +1209,16 @@ main().catch((error) => {
 });
 ```
 
-- [ ] **Step 4: Register the root script**
-
+ - [x] **Step 4: Register the root script**
+- [x] **Step 4: Register the root script**
 In the root `package.json`, after `"test:e2e:layout"`, add:
 
 ```json
     "test:e2e:inspector-compact": "node scripts/e2e-context-inspector-compact.mjs",
 ```
 
-- [ ] **Step 5: Build and run the script**
-
+ - [x] **Step 5: Build and run the script**
+- [x] **Step 5: Build and run the script**
 ```bash
 pnpm --filter @pi-desktop/desktop build
 pnpm --filter @pi-desktop/desktop test
@@ -1234,8 +1236,8 @@ script), record `E2E: NOT RUN` with the reason and remaining risk in the final
 handoff, and describe the scenario in the E2E plan as manual verification.
 Never commit a failing or flaky script.
 
-- [ ] **Step 6: Commit**
-
+ - [x] **Step 6: Commit**
+- [x] **Step 6: Commit**
 ```bash
 git add apps/desktop/src/capture/capture-rig.ts apps/desktop/src/capture/renderer-api.ts scripts/e2e-context-inspector-compact.mjs package.json
 git commit -m "test(e2e): drive the inspector compact action over CDP"
@@ -1258,8 +1260,8 @@ English and in the zh-CN mirror.
 - Modify: `docs/spec/08-meta/decisions-log.md` + zh-CN
 - Modify: `docs/spec/06-delivery/04-e2e-test-plan.md` + zh-CN
 
-- [ ] **Step 1: Confirm the decision number is still free**
-
+ - [x] **Step 1: Confirm the decision number is still free**
+- [x] **Step 1: Confirm the decision number is still free**
 ```bash
 grep -n "D43[0-9]" docs/spec/08-meta/decisions-log.md | tail -5
 ```
@@ -1268,8 +1270,8 @@ Expected: the newest entry is `D432`. If another agent has since taken `D434`,
 use the next free number everywhere below and note the substitution in the
 commit message.
 
-- [ ] **Step 2: Write the ADR**
-
+ - [x] **Step 2: Write the ADR**
+- [x] **Step 2: Write the ADR**
 Create `docs/adr/context-inspector-compact-action.md` (slug-file convention, like
 `docs/adr/global-sidebar-pins.md`):
 
@@ -1329,8 +1331,8 @@ The inspector popover card is both the entry point and the result surface.
   no destructive outcome to confirm.
 ```
 
-- [ ] **Step 3: Amend the two ADRs through their Status lines**
-
+ - [x] **Step 3: Amend the two ADRs through their Status lines**
+- [x] **Step 3: Amend the two ADRs through their Status lines**
 The repository records amendments in the amended ADR's own Status line
 (`docs/adr/0050-…` reads `- Status: Accepted (amended by D259 and D378)`).
 
@@ -1346,8 +1348,8 @@ In `docs/adr/0106-core-five-builtin-commands.md`, line 3 becomes:
 - Status: Accepted (amended by D434 / [context-inspector-compact-action](context-inspector-compact-action.md): compaction is also reachable from the context usage card, not slash-first alone)
 ```
 
-- [ ] **Step 4: Index the ADR**
-
+ - [x] **Step 4: Index the ADR**
+- [x] **Step 4: Index the ADR**
 The English table is the full index (`| ID | Title | Status |`, slug ids allowed,
 appended after the `0259` row at the end of the table in `docs/adr/README.md`):
 
@@ -1366,8 +1368,8 @@ its last row (`| 0259 | … |`):
 Do **not** touch the zh-CN `## 重点决策` table — it is a curated shortlist, not
 a mirror.
 
-- [ ] **Step 5: Update the component spec (EN + zh-CN)**
-
+ - [x] **Step 5: Update the component spec (EN + zh-CN)**
+- [x] **Step 5: Update the component spec (EN + zh-CN)**
 In `docs/spec/04-ux/08-component-spec.md`, the inspector paragraph ends
 "…the popover keeps its floating-layer edge and draws no inner section rules
 (D297)." (~line 1591). Extend it with:
@@ -1403,8 +1405,8 @@ accessibility bullets ~line 1186-1191):
 - 压缩按钮以动作名作为无障碍名称，压缩进行中带 `aria-busy="true"`，禁用状态通过 `disabled` 暴露。
 ```
 
-- [ ] **Step 6: Update the interaction patterns (EN + zh-CN)**
-
+ - [x] **Step 6: Update the interaction patterns (EN + zh-CN)**
+- [x] **Step 6: Update the interaction patterns (EN + zh-CN)**
 In `docs/spec/04-ux/09-interaction-patterns.md` §3A, extend the checkpoint-line
 bullet (lines 751-753):
 
@@ -1422,8 +1424,8 @@ Mirror in `docs/zh-CN/spec/04-ux/09-interaction-patterns.md`:
 - 检查点行显示压缩次数、摘要的估算占用，并在最新检查点记录携带该值时显示被替换掉的上下文占用（“本次压缩前占用”）。从卡片内启动压缩后卡片保持打开：忙碌文案、更新后的检查点行与压缩前占用即为原地反馈。
 ```
 
-- [ ] **Step 7: Update the IPC protocol docs (EN + zh-CN)**
-
+ - [x] **Step 7: Update the IPC protocol docs (EN + zh-CN)**
+- [x] **Step 7: Update the IPC protocol docs (EN + zh-CN)**
 In `docs/spec/03-runtime/01-ipc-protocol.md`, the `compaction_end` mark shape
 (lines 647-654) gains the field, and the prose (702-709) gains one sentence:
 
@@ -1458,8 +1460,8 @@ mark block and prose paragraph:
 `mark.tokensBefore` 为该检查点替换掉的上下文占用，直接取自持久化记录的 `tokensBefore`。该字段为可选的新增字段：旧运行时产生的标记不含它，此时检查器隐藏“本次压缩前占用”一行。
 ```
 
-- [ ] **Step 8: Record the decision**
-
+ - [x] **Step 8: Record the decision**
+- [x] **Step 8: Record the decision**
 Append to `docs/spec/08-meta/decisions-log.md`:
 
 ```markdown
@@ -1488,8 +1490,8 @@ Append the zh-CN mirror to `docs/zh-CN/spec/08-meta/decisions-log.md`:
 上下文用量检查器此前是只读的，看到上下文变满和动手处理是两处界面。现在卡片底部新增操作行：左侧提示文案，右侧“压缩上下文”按钮，调用既有的 `compactContext()` store 动作与既有 `agent.compact` IPC —— 不新增渠道、不新增权限、不改运行时。忙碌状态直接取自运行时的 `activity.phase === "compacting"`；当有正在进行的回合或原生会话占用输入区时按钮禁用；压缩过程中卡片保持打开，更新后的检查点行即为原地反馈。`ContextCompactionMark` 新增可选 `tokensBefore`，取自宿主本就持久化的记录，使检查点行可以显示被替换掉的上下文占用；旧标记不含该字段时退化为单行。仅渲染器、文档与测试：不改 IPC 渠道、Host RPC、存储 schema、权限或持久化状态。
 ```
 
-- [ ] **Step 9: Document the E2E scenario**
-
+ - [x] **Step 9: Document the E2E scenario**
+- [x] **Step 9: Document the E2E scenario**
 Semantic scenarios are appended at the end of the catalog in both locales — the
 English file uses `#### <id>: <Title>` with `**Preconditions** / **Steps** /
 **Expected** / **Specs linked** / **Acceptance**` bullets, the zh-CN file uses
@@ -1551,8 +1553,8 @@ and the mirrored rows in `docs/zh-CN/spec/06-delivery/04-e2e-test-plan.md`
 | 品质（检查器压缩操作） | E2E-CHAT-compact-from-context-inspector |
 ```
 
-- [ ] **Step 10: Run the docs checks**
-
+ - [x] **Step 10: Run the docs checks**
+- [x] **Step 10: Run the docs checks**
 ```bash
 pnpm docs:check
 pnpm check:release-docs 0.14.24
@@ -1563,8 +1565,8 @@ Expected: `docs:check` passes (locale parity for the docs site);
 may report missing changelog entries for an unreleased bump — that is expected
 here and is not a failure of this task.
 
-- [ ] **Step 11: Commit**
-
+ - [x] **Step 11: Commit**
+- [x] **Step 11: Commit**
 ```bash
 git add docs
 git commit -m "docs(spec): record compact from the context inspector card as D434"
@@ -1574,8 +1576,8 @@ git commit -m "docs(spec): record compact from the context inspector card as D43
 
 ### Task 6: Verify, integrate into local main, and clean up
 
-- [ ] **Step 1: Full local verification on the branch**
-
+ - [x] **Step 1: Full local verification on the branch**
+- [x] **Step 1: Full local verification on the branch**
 ```bash
 pnpm build:js
 pnpm --filter @pi-desktop/desktop build
@@ -1589,8 +1591,8 @@ pnpm lint
 Expected: everything passes. Fix and amend nothing retroactively — new commits
 for new fixes.
 
-- [ ] **Step 2: Run the E2E on the branch (exploratory)**
-
+ - [x] **Step 2: Run the E2E on the branch (exploratory)**
+- [x] **Step 2: Run the E2E on the branch (exploratory)**
 ```bash
 pnpm test:e2e:layout
 pnpm test:e2e:inspector-compact
@@ -1599,8 +1601,8 @@ pnpm test:e2e:inspector-compact
 Expected: both pass. This run is exploratory only; the required run happens on
 integrated `main` (AGENTS.md §15).
 
-- [ ] **Step 3: Refresh against main and integrate**
-
+ - [x] **Step 3: Refresh against main and integrate**
+- [x] **Step 3: Refresh against main and integrate**
 ```bash
 git log --oneline -1 main
 git rebase main
@@ -1616,8 +1618,8 @@ git merge --no-ff feat/context-inspector-compact-action -m "merge: integrate com
 Expected: a fast, conflict-free merge. If `main` moved, re-resolve inside the
 worktree first. Record conflicts in the handoff if any.
 
-- [ ] **Step 4: Run the required E2E on integrated main**
-
+ - [x] **Step 4: Run the required E2E on integrated main**
+- [x] **Step 4: Run the required E2E on integrated main**
 From the primary checkout on `main`:
 
 ```bash
@@ -1632,16 +1634,16 @@ Expected: all pass. If the environment cannot run them, record
 `E2E: NOT RUN` with suite, reason, alternative validation, and remaining risk
 in the handoff — never claim a run that did not happen.
 
-- [ ] **Step 5: Clean up the worktree and the branch**
-
+ - [x] **Step 5: Clean up the worktree and the branch**
+- [x] **Step 5: Clean up the worktree and the branch**
 ```bash
 git worktree remove .worktrees/feat/context-inspector-compact-action
 git branch -d feat/context-inspector-compact-action
 git worktree prune
 ```
 
-- [ ] **Step 6: Handoff**
-
+ - [x] **Step 6: Handoff**
+- [x] **Step 6: Handoff**
 Report: what changed; architecture/compatibility impact (none beyond additive
 optional field); specs/ADRs (ADR 0259-adjacent slug file + D434); validation
 commands and their results; E2E results per suite; commits; merge status; the

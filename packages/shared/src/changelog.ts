@@ -29,6 +29,72 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.16.16",
+    date: "2026-10-17",
+    highlights: [
+      "Turning off automatic update checks now also withdraws an update an automatic check already found: the update notice disappears right away and that update no longer installs when you quit. Manual checks keep working.",
+      "Compacting a long conversation no longer refuses a summary that fits: the request is measured the way the provider bills it, so the context is compacted instead of reporting that the summary input exceeds the model budget.",
+    ],
+  },
+
+  {
+    version: "0.16.14",
+    date: "2026-10-08",
+    highlights: [
+      "The pi agent kernel is updated to 1.3.0: the compaction engine that shrank long conversations moves in-house with identical behaviour, the ChatGPT-subscription default GPT-6.1 Sol grows to a 500k context, Claude Haiku 5.5 and Gemini 4 Argon reach the GitHub Copilot catalog, and provider requests gain retry handling for busy and capacity responses.",
+    ],
+  },
+
+  {
+    version: "0.16.13",
+    date: "2026-09-28",
+    highlights: [
+      "Quitting no longer stacks a native warning over the in-app confirmation: the dialog waits for your answer instead of timing out while you read it.",
+    ],
+  },
+
+  {
+    version: "0.16.12",
+    date: "2026-09-24",
+    highlights: [
+      "The marketplace's \"Load more\" never fetched another page: browsing now uses page numbers, with previous/next, a field to jump to a page, and the size of the catalog those pages are drawn from.",
+    ],
+  },
+
+  {
+    version: "0.16.11",
+    date: "2026-09-24",
+    highlights: [
+      "Browsing the official pi.dev package source pages through the whole catalog instead of stopping at the first 100 matches, and says how many packages the source lists.",
+    ],
+  },
+
+  {
+    version: "0.16.10",
+    date: "2026-09-24",
+    highlights: [
+      "A pi package that declares ES modules no longer installs and then fails to load: the generated plugin root is pinned to CommonJS, so the plugin works on the first try.",
+      "Installing extension dependencies no longer risks crashing the app when npm resets a proxy connection; the reset is recorded and reported with a failed install.",
+    ],
+  },
+
+  {
+    version: "0.16.9",
+    date: "2026-09-23",
+    highlights: [
+      "The Plugins page can browse and install the official pi.dev packages published to npm: search the catalog, review the permissions a package asks for, then install, update, or remove it like any other plugin.",
+    ],
+  },
+
+  {
+    version: "0.16.8",
+    date: "2026-09-23",
+    highlights: [
+      "The pi agent kernel is updated to 0.87.1: Anthropic requests carry the current Claude Code client version, the bundled image-model catalog is refreshed, and user messages with empty text blocks are sent without blank parts.",
+    ],
+  },
+
+  {
     version: "0.16.7",
     date: "2026-09-23",
     highlights: [
@@ -1028,6 +1094,72 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.16.16",
+    date: "2026-10-17",
+    highlights: [
+      "关闭「自动检查更新」现在也会撤回自动检查已发现的更新：更新提示立即消失，该更新也不会在退出应用时安装。手动检查不受影响。",
+      "长对话压缩不再误报“摘要输入超出模型预算”：摘要请求改为按提供商的计费口径衡量，装得下的上下文会正常压缩，而不是直接报错。",
+    ],
+  },
+
+  {
+    version: "0.16.14",
+    date: "2026-10-08",
+    highlights: [
+      "PI 内核更新至 1.3.0:压缩长对话的引擎改为内置维护且行为不变,ChatGPT 订阅默认模型 GPT-6.1 Sol 上下文扩展至 500k,Claude Haiku 5.5 与 Gemini 4 Argon 加入 GitHub Copilot 目录,提供商请求对繁忙与容量受限响应增加了重试处理。",
+    ],
+  },
+
+  {
+    version: "0.16.13",
+    date: "2026-09-28",
+    highlights: [
+      "退出时不再在应用内确认框上叠出原生警告：确认框会一直等你的答复，而不是在你阅读时超时。",
+    ],
+  },
+
+  {
+    version: "0.16.12",
+    date: "2026-09-24",
+    highlights: [
+      "插件市场的「加载更多」从未真正取到下一页：浏览改为按页码翻页，带上一页/下一页、跳页输入框，以及这些页面所取自的目录总量。",
+    ],
+  },
+
+  {
+    version: "0.16.11",
+    date: "2026-09-24",
+    highlights: [
+      "浏览 pi.dev 官方包来源时不再止步于前 100 条，而是可以逐页翻完整个目录，并显示该来源收录了多少个包。",
+    ],
+  },
+
+  {
+    version: "0.16.10",
+    date: "2026-09-24",
+    highlights: [
+      "声明 ES 模块的 pi 包不再「装上了却加载失败」：生成的插件根目录固定为 CommonJS，一次安装即可生效。",
+      "安装扩展依赖时，npm 重置代理连接不再有拖垮应用的风险；重置会被记录，并随安装失败一并上报。",
+    ],
+  },
+
+  {
+    version: "0.16.9",
+    date: "2026-09-23",
+    highlights: [
+      "插件页面现在可以浏览并安装发布在 npm 上的 pi.dev 官方包：搜索目录、查看包申请的权限，然后像其他插件一样安装、更新或卸载。",
+    ],
+  },
+
+  {
+    version: "0.16.8",
+    date: "2026-09-23",
+    highlights: [
+      "PI 内核更新至 0.87.1:Anthropic 请求携带当前 Claude Code 客户端版本,内置图片模型目录已刷新,含空文本块的用户消息不再发送空白片段。",
+    ],
+  },
+
+  {
     version: "0.16.7",
     date: "2026-09-23",
     highlights: [
@@ -2025,6 +2157,72 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.16.16",
+    date: "2026-10-17",
+    highlights: [
+      "關閉「自動檢查更新」現在也會撤回自動檢查已發現的更新：更新提示立即消失，該更新也不會在結束應用時安裝。手動檢查不受影響。",
+      "長對話壓縮不再誤報「摘要輸入超出模型預算」：摘要請求改為依提供者的計費口徑衡量，放得下的上下文會正常壓縮，而不是直接報錯。",
+    ],
+  },
+
+  {
+    version: "0.16.14",
+    date: "2026-10-08",
+    highlights: [
+      "PI 核心更新至 1.3.0:壓縮長對話的引擎改為內建維護且行為不變,ChatGPT 訂閱預設模型 GPT-6.1 Sol 上下文擴展至 500k,Claude Haiku 5.5 與 Gemini 4 Argon 加入 GitHub Copilot 目錄,供應商請求對忙碌與容量受限回應加入了重試處理。",
+    ],
+  },
+
+  {
+    version: "0.16.13",
+    date: "2026-09-28",
+    highlights: [
+      "結束時不再在應用內確認框上疊出原生警告：確認框會一直等你的回覆，而不是在你閱讀時逾時。",
+    ],
+  },
+
+  {
+    version: "0.16.12",
+    date: "2026-09-24",
+    highlights: [
+      "外掛市場的「載入更多」從未真正取得下一頁：瀏覽改為按頁碼翻頁，帶上一頁/下一頁、跳頁輸入框，以及這些頁面所取自的目錄總量。",
+    ],
+  },
+
+  {
+    version: "0.16.11",
+    date: "2026-09-24",
+    highlights: [
+      "瀏覽 pi.dev 官方套件來源時不再止步於前 100 筆，而是可以逐頁翻完整個目錄，並顯示該來源收錄了多少個套件。",
+    ],
+  },
+
+  {
+    version: "0.16.10",
+    date: "2026-09-24",
+    highlights: [
+      "宣告 ES 模組的 pi 套件不再「裝好了卻載入失敗」：產生的外掛根目錄固定為 CommonJS，一次安裝即可生效。",
+      "安裝擴充套件相依時，npm 重設代理連線不再有拖垮應用程式的風險；重設會被記錄，並隨安裝失敗一併回報。",
+    ],
+  },
+
+  {
+    version: "0.16.9",
+    date: "2026-09-23",
+    highlights: [
+      "外掛頁面現可瀏覽並安裝發佈在 npm 上的 pi.dev 官方套件：搜尋目錄、檢視套件要求的許可權，然後像其他外掛一樣安裝、更新或移除。",
+    ],
+  },
+
+  {
+    version: "0.16.8",
+    date: "2026-09-23",
+    highlights: [
+      "PI 核心更新至 0.87.1:Anthropic 請求攜帶目前 Claude Code 用戶端版本,內建圖片模型目錄已重新整理,含空文字區塊的使用者訊息不再送出空白內容。",
+    ],
+  },
+
   {
     version: "0.16.7",
     date: "2026-09-23",

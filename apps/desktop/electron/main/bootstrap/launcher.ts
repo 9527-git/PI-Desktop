@@ -77,7 +77,7 @@ export function createLauncher({
         autoHideMenuBar: true,
         ...(process.platform === "darwin" ? { type: "panel" as const } : {}),
         webPreferences: {
-          preload: join(__dirname, "../preload/index.cjs"),
+          preload: join(import.meta.dirname, "../preload/index.cjs"),
           contextIsolation: true,
           nodeIntegration: false,
           sandbox: true,
@@ -123,7 +123,7 @@ export function createLauncher({
           url.searchParams.set("surface", "plugin-launcher");
           await window.loadURL(url.toString());
         } else {
-          await window.loadFile(join(__dirname, "../renderer/index.html"), {
+          await window.loadFile(join(import.meta.dirname, "../renderer/index.html"), {
             query: { surface: "plugin-launcher" },
           });
         }

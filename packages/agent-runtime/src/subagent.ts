@@ -22,12 +22,12 @@
 import { randomUUID } from "node:crypto";
 import {
   Agent,
-  convertToLlm,
   type AfterToolCallContext,
   type AfterToolCallResult,
   type AgentEvent,
   type AgentTool,
 } from "@earendil-works/pi-agent-core";
+import { convertToLlm } from "@earendil-works/pi-coding-agent";
 import type { AssistantMessage } from "@earendil-works/pi-ai";
 import {
   addUsage,

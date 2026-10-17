@@ -1310,7 +1310,7 @@ export class PluginRuntime {
             ),
           );
 
-    const entry = this.services.hostEntry ?? join(__dirname, "plugin-host-process.js");
+    const entry = this.services.hostEntry ?? join(import.meta.dirname, "plugin-host-process.js");
     const spawn = this.services.spawnProcess ?? spawnUtilityProcess;
     const child = await spawn({ pluginId: manifest.id, entry, pluginPath });
 

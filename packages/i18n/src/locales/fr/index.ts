@@ -127,7 +127,7 @@ export const fr = {
     "error": "Impossible de vérifier les mises à jour : {{message}}",
     "dismiss": "Ignorer",
     "autoCheck": "Vérification automatique des mises à jour",
-    "autoCheckDesc": "Recherche les nouvelles versions sur GitHub Releases au démarrage et régulièrement ; les vérifications manuelles ne sont pas affectées.",
+    "autoCheckDesc": "Recherche les nouvelles versions sur GitHub Releases au démarrage et régulièrement ; lorsque cette option est désactivée, les mises à jour détectées automatiquement sont masquées et ne sont pas installées à la fermeture ; les vérifications manuelles ne sont pas affectées.",
     "devDisabled": "Les mises à jour sont désactivées dans les versions de développement."
   },
   "kernel": {

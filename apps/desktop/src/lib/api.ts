@@ -97,6 +97,8 @@ import type {
   TrustedExtensionStatusEvent,
   TrustedExtensionUiPrompt,
   TrustedExtensionUiPromptResponse,
+  QuitDialogDismiss,
+  QuitDialogPresent,
   QuitDialogRequest,
   QuitDialogResponse,
 } from "@pi-desktop/shared";
@@ -888,6 +890,9 @@ export const api = {
     invoke<{ ok: boolean }>(IPC.invoke.extensionsCommandRun, input),
   respondExtensionPrompt: (response: TrustedExtensionUiPromptResponse) =>
     invoke<{ ok: boolean }>(IPC.invoke.extensionsUiRespond, response),
+  /** Renderer acknowledgment that the quit dialog is on screen (D469). */
+  presentQuitDialog: (signal: QuitDialogPresent) =>
+    invoke<{ ok: boolean }>(IPC.invoke.quitDialogPresent, signal),
   respondQuitDialog: (response: QuitDialogResponse) =>
     invoke<{ ok: boolean }>(IPC.invoke.quitDialogRespond, response),
   searchCommands: (query: string) =>
@@ -1060,6 +1065,13 @@ export const api = {
     if (!window.piDesktop?.on) return () => undefined;
     return window.piDesktop.on(IPC.event.quitDialogRequest, (payload) =>
       listener(payload as QuitDialogRequest),
+    );
+  },
+  /** Main retracting a request the renderer never got to answer (D469). */
+  onQuitDialogDismiss: (listener: (signal: QuitDialogDismiss) => void) => {
+    if (!window.piDesktop?.on) return () => undefined;
+    return window.piDesktop.on(IPC.event.quitDialogDismiss, (payload) =>
+      listener(payload as QuitDialogDismiss),
     );
   },
   onExtensionStatus: (listener: (event: TrustedExtensionStatusEvent) => void) => {

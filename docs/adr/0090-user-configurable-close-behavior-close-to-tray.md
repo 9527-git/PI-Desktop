@@ -3,7 +3,7 @@
 - Status: Accepted for implementation
 - Date: 2026-08-12
 - Deciders: PI-Desktop core
-- Related: D230, D256, ADR 0021, ADR 0025, ADR 0078, ADR 0123
+- Related: D230, D256, D452, D469, ADR 0021, ADR 0025, ADR 0078, ADR 0123
 
 ## Context
 
@@ -31,10 +31,12 @@ matches the desired behavior.
      icon and keeps the app running; the tray menu restores the window or
      quits the app.
    - `quit`: legacy behavior — closing the window exits the app.
-2. The first close with an unset preference shows a native modal dialog
-   (main process) with Cancel / Close to tray / Quit. Picking a non-cancel
-   option persists it forever; Cancel keeps the window open and leaves the
-   preference unset (so the next close prompts again).
+2. The first close with an unset preference prompts once with Cancel / Close
+   to tray / Quit. Picking a non-cancel option persists it forever; Cancel
+   keeps the window open and leaves the preference unset (so the next close
+   prompts again). *(Amended by D452, narrowed by D469: the prompt is drawn by
+   the renderer, not by a native message box, and it is the only confirmation
+   the exit path shows.)*
 3. The preference is stored by Electron main in
    `<data>/close-behavior.json` (same ownership pattern as
    `window-state.json`), NOT in host-core settings: it is app-shell
@@ -75,9 +77,11 @@ matches the desired behavior.
 - **Store the preference in host-core settings (`AppSettings`):** rejected
   because it would add a Rust schema field and host RPC surface for pure
   shell lifecycle state that only Electron main consumes.
-- **Renderer-drawn first-close dialog:** rejected because the window is
-  closing; a native modal keeps the decision in the process that owns the
-  close lifecycle and works before the renderer has mounted.
+- **Renderer-drawn first-close dialog:** rejected at the time because the
+  window is closing and a native modal works before the renderer has mounted.
+  Superseded by D452: the renderer draws both exit-path confirmations so they
+  stay anchored to the window, and D469 removed the native message box that
+  used to run beside them.
 - **Always close-to-tray without a choice:** rejected — it changes the
   meaning of the close button for users who expect exit.
 - **Tray icon reconciled with the preference:** rejected; D216 keeps one
@@ -92,6 +96,7 @@ matches the desired behavior.
   macOS native minimize remains tray-resident under D216.
 - Close on Windows/Linux either hides to tray or quits, per user choice,
   remembered across launches and changeable in Settings.
-- The tray menu and the first-close dialog reuse the existing
-  `@pi-desktop/i18n` catalogs (English and Simplified Chinese).
+- The tray menu and the first-close dialog reuse the existing `@pi-desktop/i18n`
+  catalogs; since D452 the dialog reads them through the renderer's i18next
+  instance rather than from the main process.
 - No host protocol, storage schema, or macOS behavior changes.

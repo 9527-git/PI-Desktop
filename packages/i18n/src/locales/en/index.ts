@@ -118,7 +118,7 @@ export const en = {
     check: "Check for updates",
     autoCheck: "Automatic update checks",
     autoCheckDesc:
-      "Check GitHub Releases on startup and periodically. Manual checks always stay available.",
+      "Check GitHub Releases on startup and periodically. While off, an automatically found update is hidden and never installs on quit; manual checks always stay available.",
     checking: "Checking for updates…",
     upToDate: "You're on the latest version.",
     available: "Version {{version}} is available.",

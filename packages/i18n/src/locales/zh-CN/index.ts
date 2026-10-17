@@ -112,7 +112,7 @@ export const zhCN = {
     desc: "更新通过 GitHub Releases 分发。",
     check: "检查更新",
     autoCheck: "自动检查更新",
-    autoCheckDesc: "启动时及定期从 GitHub Releases 检查新版本；手动检查不受影响。",
+    autoCheckDesc: "启动时及定期从 GitHub Releases 检查新版本；关闭后，自动发现的更新不再提示，也不会在退出时安装；手动检查不受影响。",
     checking: "正在检查更新…",
     upToDate: "已是最新版本。",
     available: "发现新版本 {{version}}。",

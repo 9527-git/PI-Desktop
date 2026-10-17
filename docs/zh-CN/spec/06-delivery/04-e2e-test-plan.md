@@ -6374,8 +6374,8 @@ IPC 请求无法关闭。
   编辑器不再缺少高级设置。在账户模型上启用的等级会持久化，并在重新打开编辑器后
   依然存在。OpenAI Codex 的 `openai-codex` 适配器键会解析匹配的 `openai`
   models.dev 记录，因此 `gpt-6-astra` 不会显示为通用的 128,000 / 8,192 /
-  无推理默认值。已认证的 ChatGPT 列表本身来自已固定的 pi-ai 目录（0.85.1
-  包含 `gpt-6-astra`）；models.dev 不能补上缺失的 OAuth ID。没有已发布记录
+  无推理默认值。已认证的 ChatGPT 列表本身来自已固定的 pi-ai 目录（1.3.0
+  包含 `gpt-6.1-sol`、`gpt-6-sol`）；models.dev 不能补上缺失的 OAuth ID。没有已发布记录
   的模型则保留其已存等级不变。账户的默认模型仍是首个绑定。
 - **链接规格**：`04-ux/06-settings-ia.md`、`04-ux/08-component-spec.md` §19、
   `03-runtime/11-provider-model-system.md` §10、`08-meta/decisions-log.md`
@@ -6819,12 +6819,12 @@ E2E-PROVIDER-fallback-hides-select-all（D438）更名——D443 在 D442 已持
 #### E2E-204：显式退出在关机前确认（D363）
 
 - **前提条件**：普通交互会话正在运行（不是 boot / supervision / capture 探针）。主窗口可见或已藏到托盘。
-- **步骤**：1) 从托盘菜单选择退出，或按 Cmd+Q / 应用菜单退出。2) 取消原生警告，确认窗口、托盘、host-core 和 sidecar 仍在。3) 再操作一次并确认退出，确认走有序关机。4) Windows/Linux 在关闭行为未设置时关窗，并在 D230 对话框选择退出；确认没有第二次警告。5) 以 `PI_DESKTOP_BOOT_PROBE=1`（及 supervision/capture 等价项）启动，确认 `app.quit()` 不弹对话框。6) 在打包的 Windows NSIS 或 Linux AppImage 安装上，下载更新并选择“重启以更新”；确认退出警告不再出现，安装器完成升级并重新拉起应用。
-- **预期**：误触显式退出可以取消。已经在关闭行为对话框选择退出的用户不会再被问一次。自动化探针不会被警告挡住。应用内更新重启同样不会被警告推迟：平台安装器先于 `app.quit()` 启动，应用一旦超出其等待窗口安装器就会中止，因此更新触发的退出必须立即走有序关机 —— 用户选择该操作时已经确认了重启。见 ADR 0022。
-- **链接规格**：`04-ux/08-component-spec.md`、`04-ux/09-interaction-patterns.md`、`08-meta/decisions-log.md`（D216、D230、D363）、ADR 0022
+- **步骤**：1) 从托盘菜单选择退出，或按 Cmd+Q / 应用菜单退出。2) 取消应用内警告，确认窗口、托盘、host-core 和 sidecar 仍在。3) 再操作一次，在警告上停留至少十秒，确认屏幕上只有这一个提示 —— 不会叠出原生消息框。4) 确认退出，确认走有序关机。5) Windows/Linux 在关闭行为未设置时关窗，并在 D230 对话框选择退出；确认没有第二次警告。6) 以 `PI_DESKTOP_BOOT_PROBE=1`（及 supervision/capture 等价项）启动，确认 `app.quit()` 不弹对话框。7) 在打包的 Windows NSIS 或 Linux AppImage 安装上，下载更新并选择“重启以更新”；确认退出警告不再出现，安装器完成升级并重新拉起应用。
+- **预期**：误触显式退出可以取消。退出路径上只有应用内对话框：渲染器在对话框上屏时回执，所以读得慢的用户不会被代替作答，也不会在旁边叠出原生消息框（D469）。已经在关闭行为对话框选择退出的用户不会再被问一次。自动化探针不会被警告挡住。应用内更新重启同样不会被警告推迟：平台安装器先于 `app.quit()` 启动，应用一旦超出其等待窗口安装器就会中止，因此更新触发的退出必须立即走有序关机 —— 用户选择该操作时已经确认了重启。见 ADR 0022。
+- **链接规格**：`04-ux/08-component-spec.md`、`04-ux/09-interaction-patterns.md`、`08-meta/decisions-log.md`（D216、D230、D363、D469）、ADR 0022
 - **验收**：A、质量
 - **里程碑**：M5
-- **状态**：单元已覆盖（`close-behavior-tray.test.mjs` 断言探针与更新重启两项豁免，`auto-update.test.mjs` 断言安装闩锁先于 `quitAndInstall` 设置）；原生对话框旅程为草稿
+- **状态**：单元已覆盖（`close-behavior-tray.test.mjs` 断言探针与更新重启两项豁免，`auto-update.test.mjs` 断言安装闩锁先于 `quitAndInstall` 设置，`quit-dialog-inapp.test.mjs` 断言退出路径不弹原生消息框、且以渲染器上屏回执而非用户阅读时长作为等待边界）；应用内对话框旅程为草稿
 
 #### E2E-209：从本地智能体存储导入模型配置
 

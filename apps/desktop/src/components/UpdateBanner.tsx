@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { UpdateState } from "@pi-desktop/shared";
 import { api } from "../lib/api";
+import { useAppStore } from "../stores/app-store";
 import { useUpdateState } from "../hooks/use-update-state";
 import { Button, TooltipButton } from "./ui";
 import { IconClose, IconCloudDown, IconExternal } from "./icons";
@@ -12,13 +13,21 @@ import { IconClose, IconCloudDown, IconExternal } from "./icons";
  * silent otherwise. The Settings → Info tab owns explicit checks and status.
  * When Main attaches localized release notes, they appear under the status
  * message as a compact "What's new" list (D164).
+ *
+ * Automatic discovery is opt-out: while Settings → Info disables automatic
+ * update checks, a notice that only an automatic check produced must stay
+ * hidden. A manual check's result (`update.manual`) remains visible because
+ * the user asked for it explicitly (D437).
  */
 export function UpdateBanner() {
   const { t } = useTranslation();
   const update = useUpdateState();
+  const settings = useAppStore((s) => s.settings);
   const [dismissedState, setDismissedState] = useState<string | null>(null);
 
   if (!update?.availableVersion) return null;
+  const automaticChecksOff = settings?.autoUpdateCheck === false;
+  if (automaticChecksOff && update.manual !== true) return null;
   const stateKey = `${update.availableVersion}:${update.status}`;
   if (stateKey === dismissedState) return null;
 

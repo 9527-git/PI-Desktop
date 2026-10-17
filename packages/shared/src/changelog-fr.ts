@@ -2,6 +2,72 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.16",
+    "date": "2026-10-17",
+    "highlights": [
+      "Désactiver la vérification automatique des mises à jour retire désormais une mise à jour déjà détectée : l'avis disparaît immédiatement et cette mise à jour ne s'installe plus à la fermeture. Les vérifications manuelles restent disponibles.",
+      "Compacter une longue conversation ne refuse plus un résumé qui tient : la requête est mesurée comme le fournisseur la facture, donc le contexte est compacté au lieu de signaler que l'entrée du résumé dépasse le budget du modèle.",
+    ],
+  },
+
+  {
+    "version": "0.16.14",
+    "date": "2026-10-08",
+    "highlights": [
+      "Le noyau de l'agent pi passe à 1.3.0 : le moteur qui compacte les longues conversations devient interne avec un comportement identique, GPT-6.1 Sol, le modèle par défaut de l'abonnement ChatGPT, porte son contexte à 500k, Claude Haiku 5.5 et Gemini 4 Argon rejoignent le catalogue GitHub Copilot et les requêtes fournisseur réessaient les réponses de saturation et de capacité.",
+    ],
+  },
+
+  {
+    "version": "0.16.13",
+    "date": "2026-09-28",
+    "highlights": [
+      "À la fermeture, plus d'avertissement natif par-dessus la confirmation de l'application : la boîte de dialogue attend votre réponse au lieu d'expirer pendant que vous la lisez.",
+    ],
+  },
+
+  {
+    "version": "0.16.12",
+    "date": "2026-09-24",
+    "highlights": [
+      "Le bouton « Charger plus » du marché ne chargeait jamais une autre page : la navigation utilise désormais des numéros de page, avec précédent/suivant, un champ pour aller à une page et la taille du catalogue dont proviennent ces pages.",
+    ],
+  },
+
+  {
+    "version": "0.16.11",
+    "date": "2026-09-24",
+    "highlights": [
+      "Parcourir la source officielle de paquets pi.dev feuillette tout le catalogue au lieu de s'arrêter aux 100 premiers résultats, et indique combien de paquets la source recense.",
+    ],
+  },
+
+  {
+    "version": "0.16.10",
+    "date": "2026-09-24",
+    "highlights": [
+      "Un paquet pi qui déclare des modules ES ne s'installe plus pour échouer au chargement : la racine du plugin généré est fixée sur CommonJS, le plugin fonctionne donc du premier coup.",
+      "L'installation des dépendances d'extension ne peut plus faire planter l'application quand npm réinitialise une connexion au proxy ; la réinitialisation est enregistrée et signalée avec une installation échouée.",
+    ],
+  },
+
+  {
+    "version": "0.16.9",
+    "date": "2026-09-23",
+    "highlights": [
+      "La page des plugins permet désormais de parcourir et d'installer les paquets officiels pi.dev publiés sur npm : rechercher dans le catalogue, examiner les permissions demandées par un paquet, puis l'installer, le mettre à jour ou le supprimer comme n'importe quel autre plugin.",
+    ],
+  },
+
+  {
+    "version": "0.16.8",
+    "date": "2026-09-23",
+    "highlights": [
+      "Le noyau de l'agent pi passe à 0.87.1 : les requêtes Anthropic portent la version actuelle du client Claude Code, le catalogue de modèles d'image embarqué est actualisé et les messages utilisateur contenant des blocs de texte vides sont envoyés sans parties vides.",
+    ],
+  },
+
+  {
     "version": "0.16.7",
     "date": "2026-09-23",
     "highlights": [

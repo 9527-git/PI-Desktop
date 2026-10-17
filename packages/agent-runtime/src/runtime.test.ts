@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { estimateTokens, type Agent } from "@earendil-works/pi-agent-core";
+import { type Agent } from "@earendil-works/pi-agent-core";
+import { estimateTokens } from "@earendil-works/pi-coding-agent";
 import { formatSessionMessage, type SessionMessageOrigin } from "@pi-desktop/shared";
 import { buildSessionContext } from "./session-context.js";
 import {
@@ -4613,13 +4614,13 @@ const systemPromptText = (context: any): string =>
         },
       ],
     });
-    vi.spyOn(runtime as any, "generateCompaction").mockResolvedValue({
-      ok: false,
-      error: {
+    // pi 1.1 `compact()` throws on failure instead of returning an error
+    // result, so the seam rejects and the build falls to recovery.
+    vi.spyOn(runtime as any, "generateCompaction").mockRejectedValue(
+      Object.assign(new Error("provider terminated the summary request"), {
         code: "summarization_failed",
-        message: "provider terminated the summary request",
-      },
-    });
+      }),
+    );
 
     await expect((runtime as any).runCompaction("threshold", false)).resolves.toBe(
       true,
@@ -4845,13 +4846,13 @@ const systemPromptText = (context: any): string =>
         },
       ],
     });
-    vi.spyOn(runtime as any, "generateCompaction").mockResolvedValue({
-      ok: false,
-      error: {
+    // pi 1.1 `compact()` throws on failure instead of returning an error
+    // result, so the seam rejects and the build fails through the same path.
+    vi.spyOn(runtime as any, "generateCompaction").mockRejectedValue(
+      Object.assign(new Error("summary unavailable"), {
         code: "summarization_failed",
-        message: "summary unavailable",
-      },
-    });
+      }),
+    );
 
     await expect((runtime as any).runCompaction("manual", false)).resolves.toBe(
       false,
@@ -5126,10 +5127,8 @@ describe("DesktopAgentRuntime inline context compaction", () => {
   }
 
   function summaryResult(summary = SUMMARY) {
-    return {
-      ok: true,
-      value: { summary, tokensBefore: 240_000 },
-    };
+    // pi 1.1 `compact()` resolves straight to its result (errors throw).
+    return { summary, tokensBefore: 240_000 };
   }
 
   /** Over the boundary until the checkpoint's summary is part of the context. */
@@ -6880,6 +6879,7 @@ describe("DesktopAgentRuntime compaction request headers", () => {
   /** The shape `prepareCompaction` returns for a single-turn history. */
   function preparation() {
     return {
+      firstKeptEntryId: "anchor-1",
       messagesToSummarize: [
         {
           role: "user",
@@ -6900,13 +6900,15 @@ describe("DesktopAgentRuntime compaction request headers", () => {
     };
   }
 
-  /** Replaces the collection with a recorder; only `completeSimple` is used. */
   function captureSummaryRequest(runtime: DesktopAgentRuntime) {
     const calls: any[] = [];
     (runtime as any).models = {
-      completeSimple: async (_model: unknown, _context: unknown, options: unknown) => {
+      streamSimple: async (_model: unknown, _context: unknown, options: unknown) => {
         calls.push(options);
-        return assistantMessage({ content: [{ type: "text", text: "Older work." }] });
+        return {
+          result: () =>
+            assistantMessage({ content: [{ type: "text", text: "Older work." }] }),
+        };
       },
     };
     return calls;
@@ -6919,9 +6921,11 @@ describe("DesktopAgentRuntime compaction request headers", () => {
     const result = await (runtime as any).generateCompaction(
       preparation(),
       new AbortController().signal,
+      "anchor-1",
     );
 
-    expect(result.ok).toBe(true);
+    expect(result.summary).toBe("Older work.");
+    expect(result.firstKeptEntryId).toBe("anchor-1");
     expect(calls).toHaveLength(1);
     expect(calls[0]?.sessionId).toBe("session-1");
     expect(calls[0]?.headers).toMatchObject({
@@ -6941,6 +6945,7 @@ describe("DesktopAgentRuntime compaction request headers", () => {
     await (runtime as any).generateCompaction(
       preparation(),
       new AbortController().signal,
+      "anchor-1",
     );
 
     expect(calls).toHaveLength(1);

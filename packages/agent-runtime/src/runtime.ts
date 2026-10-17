@@ -5,13 +5,6 @@ import {
 } from "./delegation-message.js";
 import {
   Agent,
-  BACKGROUND_CONTEXT,
-  compact,
-  convertToLlm,
-  estimateContextTokens,
-  estimateTokens,
-  prepareCompaction,
-  withAbortSignal,
   type AgentContext,
   type AgentEvent,
   type AgentLoopTurnUpdate,
@@ -21,15 +14,24 @@ import {
   type AgentToolResult,
   type AfterToolCallContext,
   type AfterToolCallResult,
-  type CompactionPreparation,
-  type CompactionEntry,
-  type CompactionSettings,
   type BeforeToolCallContext,
   type BeforeToolCallResult,
-  type Entry,
-  type MessageEntry,
   type PrepareNextTurnContext,
 } from "@earendil-works/pi-agent-core";
+import {
+  compact,
+  convertToLlm,
+  estimateTokens,
+} from "@earendil-works/pi-coding-agent";
+import {
+  estimateContextTokens,
+  prepareCompaction,
+  type CompactionEntry,
+  type CompactionPreparation,
+  type CompactionSettings,
+  type Entry,
+  type MessageEntry,
+} from "./session-entries.js";
 import {
   isContextOverflow,
   type ImageContent,
@@ -114,6 +116,7 @@ import type { RuntimeHost } from "./host-client.js";
 import { classifyAgentError } from "./agent-errors.js";
 import {
   assistantContent,
+  isJsonObject,
   isRecord,
   isStringList,
   nowIso,
@@ -163,7 +166,7 @@ import {
   openCodeEndpointFromProvider,
   withOpenCodeSessionHeaders,
 } from "./opencode-session-headers.js";
-import { withCompactionRequestHeaders } from "./compaction-request.js";
+import { compactionRequestStream } from "./compaction-request.js";
 import {
   mergeProviderHeaders,
   providerHeadersEqual,
@@ -1368,7 +1371,7 @@ function toolSearchActivatedNames(message: ToolResultMessage): string[] {
 function argsAsJsonObject(value: unknown): JsonObject {
   if (isRecord(value)) {
     const json = toJsonValue(value);
-    if (isRecord(json)) return json;
+    if (isJsonObject(json)) return json;
   }
   return { value: toJsonValue(value) ?? null };
 }
@@ -5528,6 +5531,23 @@ Delegation rules:
     );
   }
 
+  /**
+   * Whether the summary request itself would not fit the model window.
+   *
+   * The request pi issues for the summary carries the whole boundary range as
+   * one prompt plus an output budget of `min(0.8 * headroom, model.maxTokens)`
+   * — the same figure reserved below — so a context that leaves less than that
+   * cannot be summarized in one shot.
+   *
+   * The input is measured the way the provider bills it: `tokensBefore` is the
+   * same provider-usage-based figure the hard limit is checked against. It must
+   * not be re-derived by summing the chars/4 `estimateTokens` heuristic over
+   * the range: on a real transcript the heuristic and the provider disagreed by
+   * a third (1.01M estimated vs 734k billed on a 1M-window session), and the
+   * inflated number refused a compaction whose request comfortably fit —
+   * "Compaction summary input exceeds the safe model budget" on a context that
+   * was not near any limit.
+   */
   private compactionSummaryWouldExceedBudget(
     preparation: ShapedPreparation,
     budget: { hardLimit: number; requestHeadroom: number },
@@ -5716,19 +5736,26 @@ Delegation rules:
   private async generateCompaction(
     preparation: ShapedPreparation,
     signal: AbortSignal,
+    firstKeptEntryId: string,
   ): Promise<Awaited<ReturnType<typeof compact>>> {
+    // The summary is a provider request like any other turn. pi 1.1 lets the
+    // caller hand `compact` its request boundary explicitly, so pass the same
+    // seam a turn uses and let it carry the session/provider headers, the
+    // request key, and the abort signal. The anchor is the transcript tail
+    // the caller already established as the durable boundary.
     return compact(
-      preparation,
-      // The summary is a provider request like any other turn, but
-      // pi-agent-core builds its options itself and never reaches `streamFn`,
-      // so the headers have to ride on the collection.
-      withCompactionRequestHeaders(this.models, this.provider, this.sessionId),
+      { ...preparation, firstKeptEntryId },
       this.model,
+      providerRequestKey(this.provider),
       undefined,
+      undefined,
+      signal,
       this.thinkingLevel,
+      compactionRequestStream(this.models, this.provider, this.sessionId),
       undefined,
       undefined,
-      withAbortSignal(signal, BACKGROUND_CONTEXT),
+      undefined,
+      this.sessionId,
     );
   }
 
@@ -5782,9 +5809,29 @@ Delegation rules:
       };
     }
 
+    // Establish the durable boundary before any summary request: without it
+    // no checkpoint can be filed, so the provider call is skipped rather than
+    // paid for and thrown away (pi 1.1 also requires the anchor it reports).
+    const throughMessageId = this.fullEntries.at(-1)?.id;
+    if (!throughMessageId) {
+      return {
+        ok: false,
+        entries,
+        budget,
+        preparation: preparation.value,
+        tokensBefore: preparation.value.tokensBefore,
+        message: "Compaction has no durable transcript boundary",
+        recoverable: false,
+      };
+    }
+
     let result: Awaited<ReturnType<typeof compact>>;
     try {
-      result = await this.generateCompaction(preparation.value, signal);
+      result = await this.generateCompaction(
+        preparation.value,
+        signal,
+        throughMessageId,
+      );
     } catch (error) {
       return {
         ok: false,
@@ -5796,30 +5843,6 @@ Delegation rules:
         recoverable: !signal.aborted,
       };
     }
-    if (!result.ok) {
-      return {
-        ok: false,
-        entries,
-        budget,
-        preparation: preparation.value,
-        tokensBefore: preparation.value.tokensBefore,
-        message: result.error.message,
-        recoverable: result.error.code !== "aborted",
-      };
-    }
-
-    const throughMessageId = this.fullEntries.at(-1)?.id;
-    if (!throughMessageId) {
-      return {
-        ok: false,
-        entries,
-        budget,
-        preparation: preparation.value,
-        tokensBefore: result.value.tokensBefore,
-        message: "Compaction has no durable transcript boundary",
-        recoverable: false,
-      };
-    }
     return {
       ok: true,
       entries,
@@ -5828,10 +5851,10 @@ Delegation rules:
       checkpoint: this.createCheckpoint(
         preparation.value,
         throughMessageId,
-        result.value.summary,
-        result.value.usage,
+        result.summary,
+        result.usage,
         {
-          ...(isRecord(result.value.details) ? result.value.details : {}),
+          ...(isRecord(result.details) ? result.details : {}),
           strategy: "summary" satisfies CompactionStrategy,
           retainedTailMode: retentionMode,
         },

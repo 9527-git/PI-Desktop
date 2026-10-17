@@ -2,7 +2,7 @@ export const PROTOCOL_VERSION = 11 as const;
 export const SCHEMA_VERSION = 16 as const;
 export const APP_ID = "com.pi-desktop.app";
 export const APP_NAME = "PI-Desktop";
-export const APP_VERSION = "0.16.7";
+export const APP_VERSION = "0.16.16";
 
 export const APP_MENU_COMMANDS = [
   "newTask",
@@ -56,6 +56,8 @@ export const IPC = {
     appDismissOnboarding: "pi-desktop/app/dismissOnboarding",
     /** Renderer's answer to a main-initiated quit / close-behavior dialog (D452). */
     quitDialogRespond: "pi-desktop/app/quitDialog/respond",
+    /** Renderer confirming the dialog is on screen and answerable (D469). */
+    quitDialogPresent: "pi-desktop/app/quitDialog/present",
     /** Installed system font families, resolved by Electron main. */
     systemFontsList: "pi-desktop/app/systemFonts",
     updatesGetState: "pi-desktop/updates/getState",
@@ -271,6 +273,8 @@ export const IPC = {
     toast: "pi-desktop/app/event/toast",
     /** Main asks the renderer to show the in-app quit / close-behavior dialog (D452). */
     quitDialogRequest: "pi-desktop/app/event/quitDialogRequest",
+    /** Main drops a request whose dialog can no longer be answered (D469). */
+    quitDialogDismiss: "pi-desktop/app/event/quitDialogDismiss",
     browserState: "pi-desktop/browser/event/state",
     browserPreview: "pi-desktop/browser/event/preview",
     windowMaximized: "pi-desktop/window/event/maximized",

@@ -554,7 +554,7 @@ OpenAI Responses 适配器必须把 `response.completed`（以及
 而不是继续等待服务端的 TCP FIN。上游 pi-ai 会一直迭代直到服务端关闭
 连接，在保持空闲连接不关的反向代理后面会导致整个回合挂起。在该修复
 随上游发布之前，`patches/` 通过 pnpm patch 修改
-`@earendil-works/pi-ai@0.85.1`，在终态事件处跳出事件循环（消费方停止
+`@earendil-works/pi-ai@1.3.0`，在终态事件处跳出事件循环（消费方停止
 迭代时 OpenAI SDK 会中止底层请求）。待 pi-ai 发布包含该修复的版本后
 移除补丁。
 

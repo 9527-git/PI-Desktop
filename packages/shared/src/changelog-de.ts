@@ -2,6 +2,72 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.16",
+    "date": "2026-10-17",
+    "highlights": [
+      "Das Ausschalten der automatischen Update-Prüfung nimmt jetzt auch ein bereits gefundenes Update zurück: der Update-Hinweis verschwindet sofort und dieses Update wird beim Beenden nicht mehr installiert. Manuelle Prüfungen bleiben verfügbar.",
+      "Das Verdichten langer Unterhaltungen lehnt eine Zusammenfassung, die passt, nicht mehr ab: die Anfrage wird so gemessen, wie der Anbieter sie abrechnet, sodass der Kontext verdichtet wird, statt einen zu großen Zusammenfassungs-Input zu melden.",
+    ],
+  },
+
+  {
+    "version": "0.16.14",
+    "date": "2026-10-08",
+    "highlights": [
+      "Die pi-Agent-Kernbibliothek wird auf 1.3.0 aktualisiert: die Engine, die lange Gespräche verdichtet, wird mit identischem Verhalten integriert, der ChatGPT-Abo-Standard GPT-6.1 Sol erhält ein 500k-Kontextfenster, Claude Haiku 5.5 und Gemini 4 Argon kommen in den GitHub-Copilot-Katalog und Anbieteranfragen wiederholen ausgelastete und kapazitätsbegrenzte Antworten.",
+    ],
+  },
+
+  {
+    "version": "0.16.13",
+    "date": "2026-09-28",
+    "highlights": [
+      "Beim Beenden legt sich kein natives Warnfenster mehr über die In-App-Bestätigung: Der Dialog wartet auf Ihre Antwort, statt während des Lesens abzulaufen.",
+    ],
+  },
+
+  {
+    "version": "0.16.12",
+    "date": "2026-09-24",
+    "highlights": [
+      "Die Schaltfläche „Mehr laden“ im Marktplatz hat nie eine weitere Seite geladen: Das Durchsuchen nutzt jetzt Seitenzahlen mit Vor/Zurück, einem Sprungfeld und der Größe des Katalogs, aus dem die Seiten stammen.",
+    ],
+  },
+
+  {
+    "version": "0.16.11",
+    "date": "2026-09-24",
+    "highlights": [
+      "Das Durchsuchen der offiziellen pi.dev-Paketquelle blättert durch den gesamten Katalog, statt bei den ersten 100 Treffern zu enden, und zeigt an, wie viele Pakete die Quelle führt.",
+    ],
+  },
+
+  {
+    "version": "0.16.10",
+    "date": "2026-09-24",
+    "highlights": [
+      "Ein pi-Paket, das ES-Module deklariert, wird nicht mehr installiert und dann nicht geladen: Das erzeugte Plugin-Stammverzeichnis ist auf CommonJS festgelegt, sodass das Plugin beim ersten Versuch funktioniert.",
+      "Die Installation von Erweiterungsabhängigkeiten kann die App nicht mehr abstürzen lassen, wenn npm eine Proxy-Verbindung zurücksetzt; der Reset wird erfasst und mit einer fehlgeschlagenen Installation gemeldet.",
+    ],
+  },
+
+  {
+    "version": "0.16.9",
+    "date": "2026-09-23",
+    "highlights": [
+      "Die Plugins-Seite kann jetzt die offiziellen, bei npm veröffentlichten pi.dev-Pakete durchsuchen und installieren: Katalog durchsuchen, die von einem Paket angefragten Berechtigungen prüfen und es dann wie jedes andere Plugin installieren, aktualisieren oder entfernen.",
+    ],
+  },
+
+  {
+    "version": "0.16.8",
+    "date": "2026-09-23",
+    "highlights": [
+      "Die pi-Agent-Kernbibliothek wird auf 0.87.1 aktualisiert: Anthropic-Anfragen tragen die aktuelle Claude-Code-Client-Version, der mitgelieferte Bildmodell-Katalog ist aktualisiert, und Benutzernachrichten mit leeren Textblöcken werden ohne leere Teile gesendet.",
+    ],
+  },
+
+  {
     "version": "0.16.7",
     "date": "2026-09-23",
     "highlights": [

@@ -2,6 +2,72 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.16",
+    "date": "2026-10-17",
+    "highlights": [
+      "Desactivar la comprobación automática de actualizaciones ahora también retira una actualización ya encontrada: el aviso desaparece de inmediato y esa actualización ya no se instala al salir. Las comprobaciones manuales siguen disponibles.",
+      "Compactar una conversación larga ya no rechaza un resumen que cabe: la petición se mide como la factura el proveedor, así que el contexto se compacta en lugar de avisar de que la entrada del resumen supera el presupuesto del modelo.",
+    ],
+  },
+
+  {
+    "version": "0.16.14",
+    "date": "2026-10-08",
+    "highlights": [
+      "El núcleo del agente de pi se actualiza a 1.3.0: el motor que compacta conversaciones largas pasa a mantenerse integrado con el mismo comportamiento, el GPT-6.1 Sol por defecto de la suscripción de ChatGPT amplía su contexto a 500k, Claude Haiku 5.5 y Gemini 4 Argon entran en el catálogo de GitHub Copilot y las peticiones a proveedores reintentan respuestas de saturación y capacidad.",
+    ],
+  },
+
+  {
+    "version": "0.16.13",
+    "date": "2026-09-28",
+    "highlights": [
+      "Al salir, ya no aparece un aviso nativo sobre el diálogo de confirmación de la aplicación: el diálogo espera tu respuesta en lugar de agotarse mientras lo lees.",
+    ],
+  },
+
+  {
+    "version": "0.16.12",
+    "date": "2026-09-24",
+    "highlights": [
+      "El botón «Cargar más» del mercado nunca cargaba otra página: la exploración ahora usa números de página, con anterior/siguiente, un campo para saltar a una página y el tamaño del catálogo del que proceden esas páginas.",
+    ],
+  },
+
+  {
+    "version": "0.16.11",
+    "date": "2026-09-24",
+    "highlights": [
+      "Explorar la fuente oficial de paquetes pi.dev recorre todo el catálogo en lugar de detenerse en los primeros 100 resultados, e indica cuántos paquetes lista la fuente.",
+    ],
+  },
+
+  {
+    "version": "0.16.10",
+    "date": "2026-09-24",
+    "highlights": [
+      "Un paquete pi que declara módulos ES ya no se instala y luego falla al cargar: la raíz del plugin generado se fija en CommonJS, así que el plugin funciona al primer intento.",
+      "Instalar dependencias de extensiones ya no puede bloquear la app cuando npm restablece una conexión del proxy; el reinicio se registra y se informa junto con una instalación fallida.",
+    ],
+  },
+
+  {
+    "version": "0.16.9",
+    "date": "2026-09-23",
+    "highlights": [
+      "La página de complementos ahora permite explorar e instalar los paquetes oficiales de pi.dev publicados en npm: busca en el catálogo, revisa los permisos que solicita cada paquete y luego instálalo, actualízalo o quítalo como cualquier otro complemento.",
+    ],
+  },
+
+  {
+    "version": "0.16.8",
+    "date": "2026-09-23",
+    "highlights": [
+      "El núcleo del agente de pi se actualiza a 0.87.1: las peticiones a Anthropic llevan la versión actual del cliente Claude Code, el catálogo de modelos de imagen incluido se ha renovado y los mensajes de usuario con bloques de texto vacíos se envían sin partes en blanco.",
+    ],
+  },
+
+  {
     "version": "0.16.7",
     "date": "2026-09-23",
     "highlights": [

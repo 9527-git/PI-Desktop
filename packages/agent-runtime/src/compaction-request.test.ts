@@ -8,7 +8,7 @@ import {
 } from "./opencode-session-headers.js";
 import {
   compactionRequestOptions,
-  withCompactionRequestHeaders,
+  compactionRequestStream,
 } from "./compaction-request.js";
 import type { RuntimeProviderConfig } from "./provider-binding.js";
 
@@ -75,26 +75,22 @@ describe("compactionRequestOptions", () => {
   });
 });
 
-describe("withCompactionRequestHeaders", () => {
-  it("stamps the headers on completeSimple and leaves the collection otherwise intact", async () => {
-    const completeSimple = vi.fn(
+describe("compactionRequestStream", () => {
+  it("routes the summary request through streamSimple with the header set", async () => {
+    const streamSimple = vi.fn(
       async (_model: Model<Api>, _context: unknown, _options?: unknown) =>
-        "assistant-message",
+        "assistant-message-event-stream",
     );
-    const getModel = vi.fn(() => model);
-    const collection = { completeSimple, getModel } as unknown as Models;
+    const collection = { streamSimple } as unknown as Models;
 
-    const wrapped = withCompactionRequestHeaders(collection, provider, "session-1");
-    await wrapped.completeSimple(model, context as never, { maxTokens: 4_096 });
+    const stream = compactionRequestStream(collection, provider, "session-1");
+    await stream(model, context as never, { maxTokens: 4_096 });
 
-    expect(completeSimple).toHaveBeenCalledOnce();
-    expect(completeSimple.mock.calls[0]?.[2]).toMatchObject({
+    expect(streamSimple).toHaveBeenCalledOnce();
+    expect(streamSimple.mock.calls[0]?.[2]).toMatchObject({
       sessionId: "session-1",
       maxTokens: 4_096,
       headers: { [OPENCODE_SESSION_HEADER]: "session-1" },
     });
-    // Every other member is still the collection's own.
-    expect(wrapped.getModel("row-uuid", "glm-5.3-flash")).toBe(model);
-    expect(getModel).toHaveBeenCalledWith("row-uuid", "glm-5.3-flash");
   });
 });

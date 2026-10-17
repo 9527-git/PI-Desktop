@@ -480,13 +480,11 @@ const applyCloseBehaviorForLifecycle = (next: CloseBehavior) => {
   }
   closeBehaviorRuntime.applyCloseBehavior(next);
 };
-const askCloseBehaviorForLifecycle = (
-  window: BrowserWindow,
-): Promise<CloseBehavior | null> => {
+const askCloseBehaviorForLifecycle = (): Promise<CloseBehavior | null> => {
   if (!closeBehaviorRuntime) {
     return Promise.reject(new Error("close behavior runtime is not initialized"));
   }
-  return closeBehaviorRuntime.askCloseBehavior(window);
+  return closeBehaviorRuntime.askCloseBehavior();
 };
 
 const workPanelRuntime = createWorkPanelRuntime({
@@ -587,6 +585,9 @@ let updaterLocale = "en";
 let autoUpdateCheckEnabled = true;
 function applyUpdateCheckSetting(settings?: { autoUpdateCheck?: unknown } | null) {
   autoUpdateCheckEnabled = settings?.autoUpdateCheck !== false;
+  // Also retract an automatically discovered update when the user opts out;
+  // the toggle must take effect without a restart.
+  updater.setAutoCheckEnabled(autoUpdateCheckEnabled);
 }
 type PluginPanelTheme = "light" | "dark";
 let pluginPanelTheme: PluginPanelTheme = nativeTheme.shouldUseDarkColors
@@ -967,7 +968,6 @@ const quitDialogRuntime = createQuitDialogRuntime({
 closeBehaviorRuntime = createCloseBehaviorRuntime({
   state: windowLifecycleState,
   dataDir,
-  getLocale: () => updaterLocale,
   createTray,
   quitDialog: quitDialogRuntime,
 });

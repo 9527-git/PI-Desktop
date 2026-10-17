@@ -6714,3 +6714,191 @@ it. The app's own Updates row keeps `pi-desktop/updates/openReleases`.
   `kernel-version.test.ts` (repository normalization and the derived URL).
 - See `04-ux/06-settings-ia.md` §Info and
   E2E-UPDATES-kernel-version-and-check in `06-delivery/04-e2e-test-plan.md`.
+
+## 2026-09-24 — The quit confirmation is the only dialog on the exit path (D469)
+
+> **Removes the `dialog.showMessageBox` fallback D452 kept.** The D363
+> explicit-quit contract, the D216 tray, and the Windows/Linux close behavior
+> (`ask` / `tray` / `quit`) stay.
+
+D452 moved both exit-path confirmations into the renderer but kept the native
+message box as the fallback for a renderer that could not answer, and it bounded
+that answer with a five-second timer. The timer measured the wrong thing: a user
+reading the dialog was indistinguishable from a hung renderer, so pausing for
+five seconds — trivial for a dialog that lists the running replies — drew a
+native warning on top of the in-app dialog that was still open. One question,
+two dialogs.
+
+The native boxes are gone; `close-behavior.ts` no longer imports
+`electron.dialog`. Both callers read one `null` sentinel and decide for
+themselves what it leaves them with:
+
+- `askCloseBehavior()` returns `null` — keep the window open, persist nothing —
+  when no dialog could be shown. Answering `quit` on the user's behalf would
+  write a preference they never chose.
+- `confirmQuitDialog()` returns `true` when no dialog could be shown: the user
+  already asked to quit, and an app that can never be quit because its renderer
+  is broken is worse than one that skips its warning.
+
+The five-second answer budget becomes a ten-second *presentation* budget. The
+renderer acknowledges a request as soon as the host that draws it takes it
+(`IPC.invoke.quitDialogPresent`), and only then does main wait for the user with
+no deadline at all. A renderer that never acknowledges has no dialog to offer,
+so the caller applies its default instead of holding shutdown. When main gives
+up on a request it retracts it (`IPC.event.quitDialogDismiss`), so a renderer
+that unblocks late drops the dialog instead of leaving a dead prompt on screen.
+
+- Two additive IPC channels: `IPC.invoke.quitDialogPresent` (renderer → main,
+  `{ requestId }`) and `IPC.event.quitDialogDismiss` (main → renderer,
+  `{ requestId }`). `IPC.invoke.quitDialogRespond` and
+  `IPC.event.quitDialogRequest` keep their payloads. No `PROTOCOL_VERSION`,
+  Host RPC, schema, permission, or persisted-setting change.
+- The renderer host acknowledges the request it renders and drops what main
+  retracts. A request it never took is never acknowledged — main would
+  otherwise wait forever for an answer no dialog can produce.
+- A renderer that dies after acknowledging leaves `quitConfirmed` set, so the
+  next quit request runs the ordered shutdown without re-prompting: the exit
+  path cannot wedge on a broken renderer.
+- Electron main no longer reads the `@pi-desktop/i18n` catalogs on this path;
+  `createCloseBehaviorRuntime` dropped its `getLocale` dependency and the copy
+  belongs to the host that draws it.
+- Regression coverage: `quit-dialog-inapp.test.mjs` (no `showMessageBox` on the
+  exit path, both `null` defaults, the presentation gate and its retraction,
+  the renderer's acknowledgement and dismissal, and the whitelisted channels)
+  and `close-behavior-tray.test.mjs` for the confirmation copy, which now lives
+  in the renderer host.
+- See E2E-204 in `06-delivery/04-e2e-test-plan.md` and ADR 0090.
+
+## 2026-10-08 — The pi agent kernel moves to 1.1.0 with a local compaction engine (D470)
+
+> **Kernel pin: `@earendil-works/{pi-agent-core,pi-ai,pi-coding-agent}` 1.1.0.**
+> The D203 compaction contract, protocol, schema, and settings surfaces are
+> unchanged; the entry-model engine that drove them moved from the kernel into
+> PI-Desktop.
+
+pi 1.0 folded the agent harness into `@earendil-works/pi-coding-agent` and
+closed its public export. `pi-agent-core` 1.1.0 ships only the Agent loop; the
+entry model (`Entry`, `MessageEntry`, `CompactionEntry`), `prepareCompaction`,
+the message-based `estimateContextTokens`, and the prompt-template loader that
+PI-Desktop consumed are gone, and the coding-agent root now exposes a
+projection-era engine built around native v3 JSONL sessions (no `retainedTail`,
+plain returns instead of `Result`, a `firstKeptEntryId` anchor on every
+preparation).
+
+Desktop's D203 compaction owns its entry list end to end, so the 0.87.1 pure
+functions now live in `packages/agent-runtime/src/session-entries.ts` verbatim
+— entry types, cut-point walk, file operations, and token estimates (which,
+unlike 1.1's own estimator, do not count the system prompt; `contextBudget`
+stays conversation-only and `requestPrefixTokens` keeps accounting for the
+prefix separately, D463). `session-context.ts` reuses the same
+`sessionEntryToContextMessages` filter, and `prompt-templates.ts` ports the
+0.87 loader so `.pi/prompts` assets keep behaving identically. The summary
+request itself rides the 1.1 engine: `compact()` resolves straight to its
+result (failures throw), takes a caller-supplied `StreamFn`, and
+`compaction-request.ts` now passes that boundary instead of proxying
+`completeSimple` on the collection. `buildCheckpoint` establishes the durable
+`throughMessageId` anchor before any provider request.
+
+- Pins: `apps/desktop` (`pi-ai` dev dep) and `packages/agent-runtime`
+  (`pi-agent-core`, `pi-ai`, `pi-coding-agent`) at 1.1.0; `pnpm-workspace.yaml`
+  age-gate list follows (pnpm adds the new `pi-codemode`/`pi-mcp` transitives).
+- The pi-ai supply patch is rebased onto 1.1.0 unchanged: the
+  DeepSeek-style `reasoning_content` backfill still misses persisted turns on
+  non-catalog relays, and Responses streams still hang behind proxies that
+  never close the connection.
+- Catalog facts: the pinned pi-ai catalog lists `gpt-6.1-sol` (the new
+  ChatGPT-subscription default), `gpt-6-sol`, `gpt-6-luna`, and `grok-4.7`;
+  Sign in with ChatGPT is also listed under the `openai` provider (legacy
+  `openai-codex` remains for existing rows); Claude Haiku 5.5 joins the direct
+  Anthropic catalog. The bundled models.dev snapshot is refreshed alongside.
+- No protocol, storage-schema, permission, or settings change; native Pi
+  session continuation and trusted-extension contracts are untouched.
+- Regression coverage: `session-context.test.ts` and the compaction suites in
+  `runtime.test.ts` (result shape, error-as-throw, anchors) plus
+  `compaction-request.test.ts` (`StreamFn` seam) on the runtime side, and
+  `vendor-oauth-login.test.mjs` / `models-dev-catalog.test.mjs` (1.1.0 catalog
+  entries and snapshot ids) on the app side.
+- Retirement condition: delete `session-entries.ts` (and the
+  `prompt-templates.ts` port) when Desktop adopts the projection-era engine
+  from `pi-coding-agent` wholesale.
+
+## 2026-10-08 — The pi agent kernel moves to 1.3.0 (D471)
+
+> **Kernel pin: `@earendil-works/{pi-agent-core,pi-ai,pi-coding-agent}` 1.3.0.**
+> D470 stays in force: the local compaction engine, the protocol, the storage
+> schema, and the settings surfaces are unchanged. This release only moves the
+> pinned kernel forward and refreshes the OAuth catalogs it carries.
+
+D470 pinned the kernel at 1.1.0 to collect the entry-model split and the
+projection-era coding-agent engine. 1.3.0 is the next stable the registry
+offers, and the app was already built against 1.1.0 long enough to expose the
+one user-visible catalog difference: the ChatGPT-subscription default
+`gpt-6.1-sol` now reports a 500k context window instead of 272k. Everything
+PI-Desktop implemented against 1.1.0 — `session-entries.ts`, the
+`prompt-templates.ts` port, the `StreamFn` compaction seam — is untouched; the
+1.3.0 API surface PI-Desktop consumes is identical.
+
+- Pins: `apps/desktop` (`pi-ai` dev dep) and `packages/agent-runtime`
+  (`pi-agent-core`, `pi-ai`, `pi-coding-agent`) at 1.3.0; `pnpm-workspace.yaml`
+  age-gate list follows. `chord` leaves the age-gate list: `pi-coding-agent`
+  1.3.0 no longer depends on it and no other package resolves it.
+- The pi-ai supply patch is rebased onto 1.3.0 unchanged. Both defects it
+  guards are still present upstream: the DeepSeek-style `reasoning_content`
+  backfill still misses persisted turns on non-catalog relays (the 1.3.0
+  backfill stays gated on `model.reasoning`), and the Responses stream still
+  iterates past the terminal `response.completed`/`response.incomplete` event
+  instead of breaking, so a proxy that never closes the connection still hangs
+  the turn. `patches/@earendil-works__pi-ai@1.3.0.patch` replaces the 1.1.0
+  patch and applies cleanly to the 1.3.0 dist.
+- Catalog facts: the pinned pi-ai catalog keeps `gpt-6.1-sol`, `gpt-6-sol`,
+  `gpt-6-luna`, and `grok-4.7`. On the ChatGPT-subscription (`openai-codex`)
+  wire, `gpt-6.1-sol` grows to a 500k context (272k for `gpt-6-sol` /
+  `gpt-6-luna`, all 128k output). The GitHub Copilot catalog gains Claude
+  Haiku 5.5 and Gemini 4 Argon. Sign in with ChatGPT stays listed under the
+  `openai` provider (the legacy `openai-codex` entry remains). The bundled
+  models.dev snapshot is refreshed alongside.
+- No protocol, storage-schema, permission, or settings change; native Pi
+  session continuation and trusted-extension contracts are untouched.
+- Regression coverage: `reasoning-content-backfill.test.ts` and
+  `responses-stream-termination.test.ts` still guard the two patched sites on
+  the runtime side, and `vendor-oauth-login.test.mjs` asserts the 1.3.0 OAuth
+  catalogs (including `gpt-6.1-sol`'s 500k context) on the app side.
+
+## 2026-10-17 — Turning off automatic update checks also retracts an automatic update (D472)
+
+The D437 toggle stopped the timers but not what a timer had already found: an
+automatic check that discovered a release left its banner up, a download it
+started kept running, and `autoInstallOnAppQuit = true` still installed that
+release on the next normal quit. A user who turned "Automatic update checks"
+off kept seeing "Software update" and could be updated anyway — the exact
+behavior the opt-out was supposed to stop.
+
+The updater now owns the opt-out transition. `AppUpdaterController` tracks the
+origin of the current update state (automatic vs manual) and exposes
+`setAutoCheckEnabled()`, which Main calls from `applyUpdateCheckSetting` both
+on boot and after every settings write. Turning automatic checks off while the
+state came from an automatic check cancels its download and resets the state
+to idle (no `availableVersion`, notes, progress, or error), so the ambient
+banner and Settings → Info clear without a restart. `autoDownload` and
+`autoInstallOnAppQuit` follow the same rule: automatic checks may download
+only while automatic checks are enabled, while a manual check the user asked
+for may still download and offer "Restart to update". Update events that
+arrive after the opt-out are ignored instead of repopulating the banner, and an
+opt-out that lands while an automatic check is still in flight suppresses that
+check's download instead of starting one.
+
+The ambient banner also gates itself on the setting: while
+`AppSettings.autoUpdateCheck` is `false`, it hides any state that is not
+marked `manual`. A manual check's result stays visible, matching D437's
+"manual checks are never gated" rule.
+
+- Renderer, main, i18n, docs, and tests only: no IPC channel, Host RPC,
+  storage schema, permission, or `PROTOCOL_VERSION` change. The setting is
+  the existing `AppSettings.autoUpdateCheck`.
+- Regression coverage: `updater-opt-out.test.mjs` drives the real controller
+  (retraction of an automatic result, a manual result kept, late events
+  ignored, cancellation of an automatic download, and the in-flight opt-out
+  race); `auto-update.test.mjs` pins the wiring (main-process retraction call,
+  origin-aware install policy, banner gate, updated toggle copy).
+- See `04-ux/06-settings-ia.md` §Info and
+  E2E-UPDATES-auto-check-toggle in `06-delivery/04-e2e-test-plan.md`.

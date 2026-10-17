@@ -10,6 +10,12 @@ const mainSource = await readMainSource();
 const closeBehaviorSource = await readMainModule("bootstrap/close-behavior.ts");
 const windowSource = await readMainModule("bootstrap/window.ts");
 const shutdownSource = await readMainModule("bootstrap/shutdown.ts");
+// D469: the confirmation the renderer draws carries the copy, so the quit
+// prompt contract is asserted against the host that renders it.
+const quitDialogHostSource = await readFile(
+  new URL("../src/components/QuitDialogHost.tsx", import.meta.url),
+  "utf8",
+);
 
 test("one tray owns both minimize-to-tray and close-to-tray", () => {
   // D216's tray and D210's close-to-tray tray are the same icon. A second
@@ -117,7 +123,7 @@ test("close behavior is not settable on macOS", () => {
 
 test("explicit quit asks for confirmation except probes and update restarts", () => {
   assert.match(closeBehaviorSource, /const confirmQuitDialog = async/);
-  assert.match(closeBehaviorSource, /labels\.tray\.confirmQuitTitle/);
+  assert.match(quitDialogHostSource, /t\("tray\.confirmQuitTitle"\)/);
   const quitHandler = shutdownSource.slice(
     shutdownSource.indexOf('app.on("before-quit"'),
   );

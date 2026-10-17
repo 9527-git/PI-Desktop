@@ -127,7 +127,7 @@ export const de = {
     "error": "Konnte nicht nach Updates suchen: {{message}}",
     "dismiss": "Verwerfen",
     "autoCheck": "Automatische Update-Prüfung",
-    "autoCheckDesc": "Beim Start und regelmäßig auf neue Versionen auf GitHub Releases prüfen; manuelle Prüfungen sind nicht betroffen.",
+    "autoCheckDesc": "Beim Start und regelmäßig auf neue Versionen auf GitHub Releases prüfen; solange deaktiviert, werden automatisch gefundene Updates ausgeblendet und nicht beim Beenden installiert; manuelle Prüfungen sind nicht betroffen.",
     "devDisabled": "Updates sind in Entwicklungs-Builds deaktiviert."
   },
   "kernel": {

@@ -1,16 +1,17 @@
 /**
- * Outbound headers for the context-compaction summary request.
+ * Outbound stream boundary for the context-compaction summary request.
  *
- * pi-agent-core owns that request: `compact` assembles its own stream options
- * and hands them straight to `Models.completeSimple`, so the call never passes
- * the agent's `streamFn` where every other request of a session picks up its
- * provider headers. OpenCode Go answers 400 to a request without
+ * pi-agent-core owns that request: since 1.1, `compact` assembles its own
+ * stream options and reaches the provider only through the `StreamFn` the
+ * caller supplies. Left to the pi-ai default, the summary would miss the
+ * session's provider headers — OpenCode Go answers 400 to a request without
  * `x-opencode-session`, which is why `/compact` failed on that provider while
  * ordinary turns worked, and a provider row's own custom headers were missing
- * from the same call. `compact` takes the model collection as an argument, so
- * the collection is the seam that reaches its one request.
+ * from the same call. The boundary mirrors the turn `streamFn`: same options
+ * shape, one seam, applied to the single summary request.
  */
 
+import type { StreamFn } from "@earendil-works/pi-agent-core";
 import type {
   Api,
   Context,
@@ -56,27 +57,20 @@ export function compactionRequestOptions(input: {
 }
 
 /**
- * `models` with compaction's request routed through that header boundary.
- *
- * Only `completeSimple` is reached from `compact`; every other member stays the
- * collection's own, so a later pi-agent-core release that calls something else
- * keeps working unchanged.
+ * The `streamFn` passed to `compact` for the summary request: every call goes
+ * through the collection's `streamSimple` with the compaction header set.
+ * Later pi releases may call the boundary more than once (split-turn prefix
+ * summaries); each request re-applies the same options.
  */
-export function withCompactionRequestHeaders(
+export function compactionRequestStream(
   models: Models,
   provider: RuntimeProviderConfig,
   sessionId: string,
-): Models {
-  const completeSimple: Models["completeSimple"] = (model, context, options) =>
-    models.completeSimple(
+): StreamFn {
+  return (model, context, options) =>
+    models.streamSimple(
       model,
       context,
       compactionRequestOptions({ provider, sessionId, model, context, options }),
     );
-  return new Proxy(models, {
-    get: (target, property, receiver) =>
-      property === "completeSimple"
-        ? completeSimple
-        : Reflect.get(target, property, receiver),
-  });
 }

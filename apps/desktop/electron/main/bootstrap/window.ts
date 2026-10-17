@@ -89,7 +89,7 @@ export type WindowLifecycleDependencies = {
   sendToRenderer: (channel: string, payload: unknown) => void;
   safeOpenExternal: (rawUrl: unknown) => Promise<void>;
   showPluginLauncher: () => Promise<void>;
-  askCloseBehavior: (window: BrowserWindow) => Promise<CloseBehavior | null>;
+  askCloseBehavior: () => Promise<CloseBehavior | null>;
   applyCloseBehavior: (behavior: CloseBehavior) => void;
   createTray: () => void;
   browserPane: BrowserPane;
@@ -176,7 +176,7 @@ export async function createWindow({
         }
       : {}),
     webPreferences: {
-      preload: join(__dirname, "../preload/index.cjs"),
+      preload: join(import.meta.dirname, "../preload/index.cjs"),
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
@@ -835,8 +835,10 @@ export async function createWindow({
         if (windowState.closePromptOpen) return;
         windowState.closePromptOpen = true;
         try {
-          const choice = await askCloseBehavior(window);
-          if (!choice) return; // canceled: keep the window open
+          const choice = await askCloseBehavior();
+          // No usable answer: canceled, or the renderer never showed the
+          // dialog. Keep the window open either way.
+          if (!choice) return;
           applyCloseBehavior(choice);
         } finally {
           windowState.closePromptOpen = false;
@@ -1926,6 +1928,6 @@ export async function createWindow({
       window.webContents.openDevTools({ mode: "detach" });
     }
   } else {
-    await window.loadFile(join(__dirname, "../renderer/index.html"));
+    await window.loadFile(join(import.meta.dirname, "../renderer/index.html"));
   }
 }

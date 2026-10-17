@@ -10,6 +10,7 @@ import {
   PROTOCOL_VERSION,
   assertFeedbackIssueUrl,
   buildBugReportUrl,
+  type QuitDialogPresent,
   type QuitDialogResponse,
 } from "@pi-desktop/shared";
 import {
@@ -29,7 +30,15 @@ export type AppIpcDependencies = {
   togglePluginLauncher: () => Promise<void>;
   safeOpenExternal: (url: unknown) => Promise<void>;
   updater: AppUpdaterController;
-  quitDialog: { respond: (response: QuitDialogResponse) => void };
+  /**
+   * Renderer's presentation acknowledgement and answer for a quit /
+   * close-behavior dialog. `present` separates "the user is still deciding"
+   * from "no dialog can be drawn" (D469).
+   */
+  quitDialog: {
+    present: (signal: QuitDialogPresent) => void;
+    respond: (response: QuitDialogResponse) => void;
+  };
 };
 
 /** Register app, instruction, launcher, kernel and update channels. */
@@ -43,6 +52,11 @@ export function registerAppIpc({
   quitDialog,
 }: AppIpcDependencies): void {
   const { handle, handleWithEvent } = registrar;
+
+  handle(IPC.invoke.quitDialogPresent, async (signal: QuitDialogPresent) => {
+    quitDialog.present(signal);
+    return { ok: true };
+  });
 
   handle(IPC.invoke.quitDialogRespond, async (response: QuitDialogResponse) => {
     quitDialog.respond(response);

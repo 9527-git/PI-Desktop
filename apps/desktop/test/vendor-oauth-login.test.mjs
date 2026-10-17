@@ -451,6 +451,9 @@ test("the real pi-ai catalog offers every vendor account we ship", async () => {
       "github-copilot",
       "kimi-coding",
       "meta",
+      // pi 1.1 lists Sign in with ChatGPT under the `openai` provider; the
+      // legacy `openai-codex` entry remains for existing account rows.
+      "openai",
       "openai-codex",
       "openrouter",
       "radius",
@@ -500,4 +503,51 @@ test("credential writes for one account run one at a time", async () => {
   assert.equal(overlapped, false);
   assert.deepEqual(seen, ["access-for-abc", "rotated-1"]);
   assert.equal(host.secrets.size, 1);
+});
+
+test("the pi-ai 1.3.0 OAuth catalogs include the latest model wires", async () => {
+  const { OPENAI_CODEX_MODELS } = await import(
+    "@earendil-works/pi-ai/providers/openai-codex.models"
+  );
+  // pi 1.3 kept GPT-6.1 Sol as the flagship ChatGPT-subscription default and
+  // grew its context window to 500k; GPT-6 Sol and GPT-6 Luna stay at 272k.
+  const codexContextWindow = {
+    "gpt-6.1-sol": 500_000,
+    "gpt-6-sol": 272_000,
+    "gpt-6-luna": 272_000,
+  };
+  for (const [modelId, contextWindow] of Object.entries(codexContextWindow)) {
+    const model = OPENAI_CODEX_MODELS[modelId];
+    assert.ok(model, `openai-codex catalog must include ${modelId}`);
+    assert.equal(model.api, "openai-codex-responses");
+    assert.equal(model.reasoning, true);
+    assert.equal(model.contextWindow, contextWindow);
+    assert.equal(model.maxTokens, 128_000);
+    assert.ok(model.input.includes("image"));
+  }
+
+  const { GITHUB_COPILOT_MODELS } = await import(
+    "@earendil-works/pi-ai/providers/github-copilot.models"
+  );
+  for (const modelId of ["gpt-6.1-sol", "gpt-6-sol", "grok-4.7"]) {
+    const model = GITHUB_COPILOT_MODELS[modelId];
+    assert.ok(model, `github-copilot catalog must include ${modelId}`);
+    assert.equal(model.api, "openai-responses");
+    assert.ok(model.input.includes("image"));
+  }
+
+  const { ANTHROPIC_MODELS } = await import(
+    "@earendil-works/pi-ai/providers/anthropic.models"
+  );
+  // Claude Haiku 5.5 joins the direct Anthropic catalog in pi 1.1.
+  for (const modelId of ["claude-haiku-5-5", "claude-opus-5-5"]) {
+    const model = ANTHROPIC_MODELS[modelId];
+    assert.ok(model, `anthropic catalog must include ${modelId}`);
+    assert.equal(model.api, "anthropic-messages");
+    assert.equal(model.contextWindow, 1_000_000);
+  }
+
+  const { XAI_MODELS } = await import("@earendil-works/pi-ai/providers/xai.models");
+  assert.equal(XAI_MODELS["grok-4.7"]?.api, "openai-responses");
+  assert.equal(XAI_MODELS["grok-4.7"]?.contextWindow, 500_000);
 });

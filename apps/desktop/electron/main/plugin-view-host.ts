@@ -275,7 +275,7 @@ export class PluginViewHost {
     const view = new WebContentsView({
       webPreferences: {
         session: ses,
-        preload: join(__dirname, "../preload/plugin-panel.js"),
+        preload: join(import.meta.dirname, "../preload/plugin-panel.js"),
         contextIsolation: true,
         nodeIntegration: false,
         sandbox: true,

@@ -5116,3 +5116,146 @@ D467 为信息页内核行加了「查看发布页」，但它走的是应用更
   调用 `updatesOpenReleases`）与 `kernel-version.test.ts`（仓库规范化与派生地址）。
 - 见 `04-ux/06-settings-ia.md` §信息 与
   `06-delivery/04-e2e-test-plan.md` 中的 E2E-UPDATES-kernel-version-and-check。
+
+## 2026-09-24 —— 退出路径上只剩一个确认框（D469）
+
+> **移除 D452 保留的 `dialog.showMessageBox` 后备。** D363 显式退出契约、D216 托盘，
+> 以及 Windows/Linux 的关闭行为（`ask` / `tray` / `quit`）保持不变。
+
+D452 把两个退出确认框搬进了渲染层，但为「渲染层无法应答」保留了原生消息框，并用
+5 秒计时器界定这个「无法应答」。这个计时器量错了对象：正在阅读确认框的用户与卡死的
+渲染进程无法区分，于是只要停顿 5 秒——对一个会列出运行中回复的确认框来说太容易
+了——原生警告就会盖在仍然打开的应用内确认框上。一个问题，两个弹窗。
+
+原生框已删除，`close-behavior.ts` 不再引入 `electron.dialog`。两个调用方都只读同一个
+`null` 哨兵，各自决定它留下的默认行为：
+
+- 无法显示确认框时，`askCloseBehavior()` 返回 `null`：保持窗口打开，不写入任何偏好。
+  替用户回答 `quit` 会写下一个他们从未选择的设置。
+- 无法显示确认框时，`confirmQuitDialog()` 返回 `true`：用户本来就已经要求退出；因为
+  渲染层坏了而永远退不掉的应用，比跳过警告更糟。
+
+5 秒的「应答预算」变成 10 秒的「呈现预算」。渲染层在绘制它的宿主接手请求时立即回执
+（`IPC.invoke.quitDialogPresent`），此后主进程等待用户没有任何时限。始终不回执的
+渲染层没有确认框可提供，调用方就用自己的默认值收尾，而不是拖住关机。主进程放弃某个
+请求时会撤回它（`IPC.event.quitDialogDismiss`），因此晚一步解除阻塞的渲染层会丢掉
+该确认框，而不是在屏幕上留下一枚失效的提示。
+
+- 仅新增两条 IPC 通道：`IPC.invoke.quitDialogPresent`（渲染层 → 主进程，
+  `{ requestId }`）与 `IPC.event.quitDialogDismiss`（主进程 → 渲染层，
+  `{ requestId }`）。`IPC.invoke.quitDialogRespond` 与
+  `IPC.event.quitDialogRequest` 的载荷不变。不改 `PROTOCOL_VERSION`、Host RPC、
+  存储 schema、权限或持久化设置。
+- 渲染层宿主只为它真正渲染的请求回执，并丢弃主进程撤回的请求。它没接手的请求绝不
+  回执——否则主进程会永远等待一个没有任何确认框能给出的答案。
+- 回执之后才崩溃的渲染层会让 `quitConfirmed` 保持为真，于是下一次退出请求直接走有序
+  关机、不再询问：退出路径不会卡在坏掉的渲染层上。
+- 主进程不再读取 `@pi-desktop/i18n` 语言包；`createCloseBehaviorRuntime` 去掉了
+  `getLocale` 依赖，文案归绘制它的宿主所有。
+- 回归覆盖：`quit-dialog-inapp.test.mjs`（退出路径不含 `showMessageBox`、两个 `null`
+  默认值、呈现门与其撤回、渲染层的回执与丢弃，以及通道白名单）与
+  `close-behavior-tray.test.mjs` 的确认文案断言（现在落在渲染层宿主上）。
+- 见 `06-delivery/04-e2e-test-plan.md` 的 E2E-204 与 ADR 0090。
+
+## 2026-10-08 —— pi 内核升级到 1.1.0,压缩引擎转为本地维护(D470)
+
+> **内核固定版本:`@earendil-works/{pi-agent-core,pi-ai,pi-coding-agent}` 1.1.0。**
+> D203 的压缩契约、协议、schema 与设置面不变;驱动它的 entry 模型引擎从内核迁入
+> PI-Desktop 本地维护。
+
+pi 1.0 把 agent harness 并入 `@earendil-works/pi-coding-agent` 并关闭了公开导出。
+`pi-agent-core` 1.1.0 只保留 Agent 循环;PI-Desktop 此前消费的 entry 模型
+(`Entry`、`MessageEntry`、`CompactionEntry`)、`prepareCompaction`、基于消息的
+`estimateContextTokens` 以及提示模板装载器都不复存在,coding-agent 根导出换成围绕
+原生 v3 JSONL 会话的投影式引擎(没有 `retainedTail`、以普通返回取代 `Result`、
+每个 preparation 都带 `firstKeptEntryId` 锚点)。
+
+Desktop 的 D203 压缩自始至终驱动自己持有的 entry 列表,因此 0.87.1 的纯函数原样
+迁入 `packages/agent-runtime/src/session-entries.ts`——entry 类型、切点游走、文件
+操作与 token 估算(与 1.1 自带的估算器不同,不计系统提示;`contextBudget` 保持
+只算对话,请求前缀仍由 `requestPrefixTokens` 单独核算,D463)。
+`session-context.ts` 复用同一个 `sessionEntryToContextMessages` 过滤器,
+`prompt-templates.ts` 移植 0.87 装载器,`.pi/prompts` 资产行为不变。摘要请求本身
+走 1.1 引擎:`compact()` 直接 resolve 出结果(失败即抛出)、接受调用方传入的
+`StreamFn`,`compaction-request.ts` 改为传入该边界而不是在集合上代理
+`completeSimple`;`buildCheckpoint` 在发起任何提供商请求之前先确立
+`throughMessageId` 持久锚点。
+
+- 固定版本:`apps/desktop`(`pi-ai` dev 依赖)与 `packages/agent-runtime`
+  (`pi-agent-core`、`pi-ai`、`pi-coding-agent`)升至 1.1.0;`pnpm-workspace.yaml`
+  的 age-gate 列表随之更新(pnpm 自动加入新的 `pi-codemode`/`pi-mcp` 传递依赖)。
+- pi-ai 供给补丁原样重推到 1.1.0:DeepSeek 式 `reasoning_content` 回填仍会漏掉
+  非目录中转上的持久化回合,Responses 流在永不关闭连接的代理后面仍会挂起。
+- 目录事实:固定的 pi-ai 目录列出 `gpt-6.1-sol`(新的 ChatGPT 订阅默认)、
+  `gpt-6-sol`、`gpt-6-luna` 与 `grok-4.7`;ChatGPT 订阅登录同时列在 `openai`
+  提供商下(旧 `openai-codex` 条目为既有账户行保留);Claude Haiku 5.5 加入
+  Anthropic 直连目录。内置的 models.dev 快照同步刷新。
+- 协议、存储 schema、权限与设置均无变化;原生 Pi 会话续接与可信扩展契约不受影响。
+- 回归覆盖:运行时侧 `session-context.test.ts` 与 `runtime.test.ts` 的压缩套件
+  (结果形状、失败即抛、锚点)加 `compaction-request.test.ts`(`StreamFn` 接缝);
+  应用侧 `vendor-oauth-login.test.mjs` / `models-dev-catalog.test.mjs`(1.1.0 目录
+  条目与快照 ID)。
+- 退役条件:当 Desktop 全面采用 `pi-coding-agent` 的投影式引擎时,删除
+  `session-entries.ts`(以及 `prompt-templates.ts` 的移植部分)。
+
+## 2026-10-08 —— pi 内核升级到 1.3.0(D471)
+
+> **内核固定版本:`@earendil-works/{pi-agent-core,pi-ai,pi-coding-agent}` 1.3.0。**
+> D470 依然有效:本地压缩引擎、协议、存储 schema 与设置界面均不变。本次发布只是把固定内核前移,
+> 并刷新它携带的 OAuth 目录。
+
+D470 把内核固定在 1.1.0,以取得 entry 模型拆分与投影式 coding-agent 引擎。1.3.0 是注册表提供的
+下一个稳定版,而应用已在 1.1.0 上运行足够久,暴露出唯一一处用户可见的目录差异:ChatGPT 订阅默认
+模型 `gpt-6.1-sol` 的上下文窗口现为 500k,而非 272k。PI-Desktop 在 1.1.0 上实现的一切——
+`session-entries.ts`、`prompt-templates.ts` 的移植、`StreamFn` 压缩接缝——均未改动;PI-Desktop
+消费的 1.3.0 API 表面与 1.1.0 完全一致。
+
+- 引脚:`apps/desktop`(`pi-ai` dev 依赖)与 `packages/agent-runtime`
+  (`pi-agent-core`、`pi-ai`、`pi-coding-agent`)升至 1.3.0;`pnpm-workspace.yaml`
+  的年龄门槛列表随之更新。`chord` 移出年龄门槛列表:`pi-coding-agent` 1.3.0 不再依赖它,
+  也没有其他包再解析它。
+- pi-ai 供给补丁原样重推到 1.3.0。它防护的两处缺陷在上游仍存在:DeepSeek 式
+  `reasoning_content` 回填仍会漏掉非目录中转的已持久化轮次(1.3.0 的回填仍以
+  `model.reasoning` 为条件),Responses 流仍会在终态 `response.completed`/
+  `response.incomplete` 事件之后继续迭代而不跳出,因此从不关闭连接的中转会挂起整个回合。
+  `patches/@earendil-works__pi-ai@1.3.0.patch` 取代 1.1.0 补丁,并能干净地应用到 1.3.0 的
+  dist。
+- 目录事实:固定的 pi-ai 目录保留 `gpt-6.1-sol`、`gpt-6-sol`、`gpt-6-luna` 与 `grok-4.7`。
+  在 ChatGPT 订阅(`openai-codex`)线路上,`gpt-6.1-sol` 上下文增至 500k(`gpt-6-sol` /
+  `gpt-6-luna` 为 272k,输出均为 128k)。GitHub Copilot 目录新增 Claude Haiku 5.5 与
+  Gemini 4 Argon。ChatGPT 订阅登录仍列在 `openai` 提供商下(旧 `openai-codex` 条目保留)。
+  随发版内置的 models.dev 快照同步刷新。
+- 协议、存储 schema、权限与设置均无变化;原生 Pi 会话续接与可信扩展契约不受影响。
+- 回归覆盖:运行时侧 `reasoning-content-backfill.test.ts` 与
+  `responses-stream-termination.test.ts` 仍防护两处补丁点;应用侧
+  `vendor-oauth-login.test.mjs` 断言 1.3.0 的 OAuth 目录(含 `gpt-6.1-sol` 的 500k 上下文)。
+
+## 2026-10-17 —— 关闭自动检查更新时同时撤回自动发现的更新（D472）
+
+D437 的开关只停了定时器，却没有停掉定时器已经发现的东西：自动检查发现的版本仍
+留着更新横幅，已开始的下载继续跑，`autoInstallOnAppQuit = true` 还会在下次正常
+退出时把它装上。用户关掉“自动检查更新”后仍会看到“软件更新”，甚至仍会被更新——
+这正是该开关本应阻止的行为。
+
+更新器现在负责这次关闭动作。`AppUpdaterController` 记录当前更新状态的来源
+（自动或手动），并提供 `setAutoCheckEnabled()`；主进程在启动读取设置以及每次
+设置写入后都通过 `applyUpdateCheckSetting` 调用它。若关闭自动检查时状态来自自动
+检查，则取消其下载并把状态重置为 idle（清空 `availableVersion`、更新说明、进度
+和错误），横幅与设置 → 信息页无需重启即消失。`autoDownload` 与
+`autoInstallOnAppQuit` 遵循同一规则：自动检查只有在自动检查开启时才可下载，而
+用户主动发起的手动检查仍可下载并给出“重启以更新”。关闭后迟到的更新事件会被
+忽略，不会再把横幅重新点亮；若关闭发生在自动检查仍在进行时，该次检查完成后也
+不会启动下载。
+
+环境横幅也会读取该设置：当 `AppSettings.autoUpdateCheck` 为 `false` 时，它隐藏
+所有未标记为 `manual` 的状态；手动检查的结果仍会显示，符合 D437“手动检查永不
+受限”的规则。
+
+- 仅渲染器、主进程、i18n、文档与测试：不改 IPC 渠道、Host RPC、存储 schema、
+  权限或 `PROTOCOL_VERSION`。设置仍使用既有的 `AppSettings.autoUpdateCheck`。
+- 回归覆盖：`updater-opt-out.test.mjs` 驱动真实控制器（撤回自动结果、保留手动
+  结果、忽略迟到事件、取消自动下载，以及进行中关闭的竞态）；
+  `auto-update.test.mjs` 固定接线（主进程撤回调用、来源感知的安装策略、横幅
+  门控、更新后的开关文案）。
+- 见 `04-ux/06-settings-ia.md` §信息 与
+  `06-delivery/04-e2e-test-plan.md` 中的 E2E-UPDATES-auto-check-toggle。

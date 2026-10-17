@@ -532,8 +532,9 @@ system while preserving their different data ownership:
 - **Automatic update checks** toggle row directly above the Updates row,
   persisted as the optional `AppSettings.autoUpdateCheck` value (absent =
   enabled). While disabled, Main skips the startup and periodic GitHub feed
-  checks; manual checks (Updates row, sidebar build chip, application menu)
-  are never gated (D437)
+  checks, hides an update that an automatic check already discovered, and
+  never installs it on quit; manual checks (Updates row, sidebar build chip,
+  application menu) are never gated and their result stays visible (D437)
 - **PI kernel** row under the application row: shows the bundled pi agent
   kernel version, resolved from the pinned `@earendil-works/pi-agent-core`
   dependency, and offers one manual **Check for updates** action that reads

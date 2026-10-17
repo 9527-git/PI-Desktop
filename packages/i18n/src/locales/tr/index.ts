@@ -136,7 +136,7 @@ export const tr = {
     error: "Güncellemeler denetlenemedi: {{message}}",
     dismiss: "Kapat",
     autoCheck: "Otomatik güncelleme denetimi",
-    autoCheckDesc: "Başlangıçta ve düzenli aralıklarla GitHub Releases üzerinde yeni sürümler denetlenir; manuel denetimler etkilenmez.",
+    autoCheckDesc: "Başlangıçta ve düzenli aralıklarla GitHub Releases üzerinde yeni sürümler denetlenir; kapalıyken otomatik bulunan güncellemeler gizlenir ve çıkışta yüklenmez; manuel denetimler etkilenmez.",
     devDisabled: "Geliştirme derlemelerinde güncellemeler kapalıdır.",
   },
   kernel: {

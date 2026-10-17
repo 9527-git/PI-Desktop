@@ -112,7 +112,7 @@ export const zhTW = {
     desc: "更新通過 GitHub Releases 分發。",
     check: "檢查更新",
     autoCheck: "自動檢查更新",
-    autoCheckDesc: "啟動時及定期從 GitHub Releases 檢查新版本；手動檢查不受影響。",
+    autoCheckDesc: "啟動時及定期從 GitHub Releases 檢查新版本；關閉後，自動發現的更新不再提示，也不會在結束時安裝；手動檢查不受影響。",
     checking: "正在檢查更新…",
     upToDate: "已是最新版本。",
     available: "發現新版本 {{version}}。",

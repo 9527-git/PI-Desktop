@@ -1677,23 +1677,27 @@ and identify the platform validation still needed.
 - **Preconditions**: Packaged build (updates enabled); Settings → Info is
   reachable.
 - **Steps**: 1) Open Settings → Info and locate the Automatic update checks
-  toggle above the Updates row. 2) Turn it off and confirm the persisted
-  settings contain `autoUpdateCheck: false`. 3) Restart the app and confirm
-  no startup update check fires (no `checking` state, no network feed
-  request after boot). 4) Click Check for updates in the Updates row (and
-  the sidebar build chip) and confirm a manual check still runs. 5) Turn the
-  toggle back on and confirm periodic checks resume without a restart.
+  toggle above the Updates row. 2) With an update already discovered by an
+  automatic check (banner visible), turn the toggle off: the banner must
+  disappear immediately without a restart. 3) Confirm the persisted settings
+  contain `autoUpdateCheck: false`. 4) Restart the app and confirm no startup
+  update check fires (no `checking` state, no network feed request after
+  boot). 5) Click Check for updates in the Updates row (and the sidebar build
+  chip) and confirm a manual check still runs and its result stays visible.
+  6) Turn the toggle back on and confirm periodic checks resume without a
+  restart.
 - **Expected**: The toggle persists as `AppSettings.autoUpdateCheck`
   (absent = enabled). While off, Main skips the startup and periodic feed
-  checks silently; manual checks from the Updates row, sidebar build chip,
-  and application menu still run and surface state. Toggling back on
-  resumes automatic checks at the next timer fire without an app restart.
+  checks silently, retracts an update an automatic check already discovered,
+  and never installs it on quit; manual checks from the Updates row, sidebar
+  build chip, and application menu still run and surface state. Toggling back
+  on resumes automatic checks at the next timer fire without an app restart.
 - **Specs linked**: `04-ux/06-settings-ia.md` §Info
 - **Acceptance**: Quality
 - **Milestone**: Post-M6 desktop shell maintenance
 - **Status**: Manual; source contract in `auto-update.test.mjs`
-  (`autoUpdateCheck` setting, main-process mirror flag, updater gate, toggle
-  row and i18n keys)
+  (`autoUpdateCheck` setting, main-process mirror flag, updater gate and
+  opt-out retraction, banner gate, toggle row and i18n keys)
 
 #### E2E-UPDATES-kernel-version-and-check: Info shows the PI kernel version and checks it upstream
 
@@ -4057,8 +4061,9 @@ and identify the platform validation still needed.
   provider-discovered or explicitly configured ID absent from models.dev remains
   runnable with the generic text-only, non-reasoning shape; pi-ai supplies only
   the selected wire adapter, OAuth flow, and account model availability. A
-  ChatGPT Plus/Pro or GitHub Copilot account lists `gpt-6-astra` from the
-  pinned pi-ai 0.85.1 catalog; models.dev then supplies its published metadata.
+  ChatGPT Plus/Pro or GitHub Copilot account lists `gpt-6.1-sol` and
+  `gpt-6-sol` from the pinned pi-ai 1.3.0 catalog; models.dev then supplies
+  their published metadata.
 - **Specs linked**: `02-architecture/02-tech-stack.md`,
   `03-runtime/11-provider-model-system.md`,
   `03-runtime/13-model-catalog-and-selection.md`, ADR 0134
@@ -4199,31 +4204,39 @@ and identify the platform validation still needed.
 - **Preconditions**: A normal interactive session is running (not a boot,
   supervision, or capture probe). The main window may be visible or tray-hidden.
 - **Steps**: 1) Choose Quit from the tray menu, or press Cmd+Q / the
-  application-menu Quit item. 2) Cancel the native warning and confirm the
-  window, tray, host-core, and sidecar remain. 3) Repeat and confirm Quit;
-  confirm the ordered shutdown runs. 4) On Windows/Linux with close behavior
-  unset, close the window and choose Quit on the D230 dialog; confirm no
-  second warning. 5) Launch with `PI_DESKTOP_BOOT_PROBE=1` (and the
+  application-menu Quit item. 2) Cancel the in-app warning and confirm the
+  window, tray, host-core, and sidecar remain. 3) Repeat, wait at least ten
+  seconds on the warning, and confirm the dialog is still the only prompt on
+  screen — no native message box stacks over it. 4) Confirm Quit and confirm
+  the ordered shutdown runs. 5) On Windows/Linux with close behavior unset,
+  close the window and choose Quit on the D230 dialog; confirm no second
+  warning. 6) Launch with `PI_DESKTOP_BOOT_PROBE=1` (and the
   supervision/capture equivalents) and confirm `app.quit()` exits without a
-  dialog. 6) On a packaged Windows NSIS or Linux AppImage install, download an
+  dialog. 7) On a packaged Windows NSIS or Linux AppImage install, download an
   update and choose Restart to update; confirm the quit warning never appears
   and the installer finishes the upgrade and relaunch.
-- **Expected**: Accidental explicit quit is cancellable. A user who already
-  chose Quit on the close-behavior dialog is not asked again. Probes used by
-  automation never block on the warning. An in-app update restart is never
-  deferred behind the warning either: the platform installer is spawned before
-  `app.quit()` and aborts once the app outlives its wait window, so the
-  update-triggered quit must run the ordered shutdown immediately — the user
-  already committed to the restart by choosing that action.
+- **Expected**: Accidental explicit quit is cancellable. The in-app dialog is
+  the only confirmation on the exit path: the renderer acknowledges it on
+  screen, so a user who reads it slowly is never answered for, and no native
+  message box ever appears beside it (D469). A user who already chose Quit on
+  the close-behavior dialog is not asked again. Probes used by automation never
+  block on the warning. An in-app update restart is never deferred behind the
+  warning either: the platform installer is spawned before `app.quit()` and
+  aborts once the app outlives its wait window, so the update-triggered quit
+  must run the ordered shutdown immediately — the user already committed to the
+  restart by choosing that action.
 - **Specs linked**: `04-ux/08-component-spec.md`,
   `04-ux/09-interaction-patterns.md`, `08-meta/decisions-log.md` (D216, D230,
-  D363), ADR 0022
+  D363, D469), ADR 0022
 - **Acceptance**: A (app startup), Quality
 - **Milestone**: M5
 - **Status**: Unit-covered (`close-behavior-tray.test.mjs` asserts the
   probe and update-restart exemptions; `auto-update.test.mjs` asserts the
-  install latch is set before `quitAndInstall`); native dialog journey Draft
-  (run only in a capable environment when this surface changes)
+  install latch is set before `quitAndInstall`; `quit-dialog-inapp.test.mjs`
+  asserts the exit path opens no native message box and that the presentation
+  acknowledgement, not the user's reading time, bounds the wait); in-app
+  dialog journey Draft (run only in a capable environment when this surface
+  changes)
 
 #### E2E-067A: Prerelease install discovers newer stable release (D120)
 
@@ -9756,10 +9769,11 @@ This test plan spec is accepted when:
   catalog does not publish. OpenAI Codex's `openai-codex` adapter key resolves
   the matching `openai` models.dev record, so `gpt-6-astra` is not shown with
   generic 128,000 / 8,192 / no-reasoning defaults. The authenticated ChatGPT
-  list itself comes from the pinned pi-ai catalog (0.85.1 includes
-  `gpt-6-astra`); models.dev cannot add a missing OAuth ID. A model with no published
-  record keeps its explicit levels and starts with all choices available for
-  manual opt-in. The account's default model stays the head binding.
+  list itself comes from the pinned pi-ai catalog (1.3.0 includes
+  `gpt-6.1-sol` and `gpt-6-sol`); models.dev cannot add a missing OAuth ID. A
+  model with no published record keeps its explicit levels and starts with
+  all choices available for manual opt-in. The account's default model stays
+  the head binding.
 - **Specs linked**: `04-ux/06-settings-ia.md`,
   `04-ux/08-component-spec.md` §19, `03-runtime/11-provider-model-system.md`
   §10, `08-meta/decisions-log.md` (D270 refines D237/D240)

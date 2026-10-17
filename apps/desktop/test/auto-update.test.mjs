@@ -97,7 +97,11 @@ test("updater gates delivery mode by platform and delivery policy", () => {
   assert.match(updaterSource, /win32.*in-app|in-app.*win32/s);
   assert.match(updaterSource, /PORTABLE_EXECUTABLE_FILE \? "manual"/);
   assert.match(updaterSource, /APPIMAGE/);
-  assert.match(updaterSource, /autoInstallOnAppQuit = true/);
+  assert.match(
+    updaterSource,
+    /autoInstallOnAppQuit = allowed/,
+    "install-on-quit follows the automatic-check opt-out and manual origin",
+  );
   assert.match(
     updaterSource,
     /allowPrerelease = false/,
@@ -181,6 +185,26 @@ test("auto update checks are user-gated by the autoUpdateCheck setting", () => {
   assert.match(settingsSource, /autoUpdateCheck: !enabled/);
   assert.match(enSource, /autoCheck:/);
   assert.match(zhSource, /自动检查更新/);
+  assert.match(
+    mainSource,
+    /applyUpdateCheckSetting[\s\S]*?updater\.setAutoCheckEnabled\(autoUpdateCheckEnabled\)/,
+    "toggling automatic checks must retract an automatically discovered update",
+  );
+  assert.match(
+    updaterSource,
+    /setAutoCheckEnabled\(enabled: boolean\)/,
+    "the updater applies the opt-out without a restart",
+  );
+  assert.match(
+    updaterSource,
+    /!enabled && this\.stateOrigin !== "manual"/,
+    "only an automatic result is retracted; a manual check stays visible",
+  );
+  assert.match(
+    bannerSource,
+    /automaticChecksOff && update\.manual !== true/,
+    "the ambient banner stays hidden for automatic results while checks are off",
+  );
 });
 
 test("renderer exposes the updates API, banner and settings row", () => {

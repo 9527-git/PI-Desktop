@@ -5,8 +5,7 @@
  * shape, so the conversions live here instead of being duplicated per loop.
  */
 
-import type { JsonValue } from "@earendil-works/pi-agent-core";
-import type { Usage } from "@earendil-works/pi-ai";
+import type { JsonObject, JsonValue, Usage } from "@earendil-works/pi-ai";
 import type { MessageUsage } from "@pi-desktop/shared";
 
 export function nowIso(): string {
@@ -51,6 +50,16 @@ export function toJsonValue(value: unknown): JsonValue | undefined {
   } catch {
     return undefined;
   }
+}
+
+/**
+ * Narrow a JSON-clone result onto pi's strict `JsonObject`: the round trip
+ * guarantees every value is JSON, so an object here always has that shape.
+ */
+export function isJsonObject(
+  value: JsonValue | undefined,
+): value is JsonObject {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 export function usageFromPi(

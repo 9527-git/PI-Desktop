@@ -12,14 +12,18 @@
 | Host backend | **Rust** | stable Rust toolchain | tools/plugins/permissions/persistence adapters |
 | Rust async | tokio | stable | host services |
 | Host RPC | stdio JSON-RPC (NDJSON) | frozen (D001) | Electron main ↔ Rust host |
-| Agent engine | `@earendil-works/pi-agent-core` | 0.85.1 | agent loop |
-| Model API | `@earendil-works/pi-ai` | 0.85.1 | provider adapters, OAuth, and stream handling |
+| Agent engine | `@earendil-works/pi-agent-core` | 1.3.0 | agent loop |
+| Model API | `@earendil-works/pi-ai` | 1.3.0 | provider adapters, OAuth, and stream handling |
 | Model catalog | `https://models.dev/api.json` | bundled release snapshot + process-local refresh | sole provider/model metadata source |
 
 > pi-ai is not consulted for model names, capabilities, limits, modalities,
 > thinking levels, or prices. It remains the request transport dependency.
 > ChatGPT Plus/Pro and GitHub Copilot OAuth availability still comes from the
-> pinned pi-ai catalog; 0.85.1 is the first pin that lists `gpt-6-astra`.
+> pinned pi-ai catalog; 1.3.0 keeps `gpt-6.1-sol`, `gpt-6-sol`, `gpt-6-luna`,
+> and `grok-4.7`, grows the ChatGPT-subscription default `gpt-6.1-sol` to a
+> 500k context (272k for `gpt-6-sol`/`gpt-6-luna`), and adds Claude Haiku 5.5
+> and Gemini 4 Argon to the GitHub Copilot catalog. Sign in with ChatGPT stays
+> listed under the `openai` provider (the legacy `openai-codex` entry remains).
 
 | Node runtime | Node.js | `>= 22.19` | pi requirement |
 | DB | SQLite | Rust host-core via `rusqlite` | sessions/settings |

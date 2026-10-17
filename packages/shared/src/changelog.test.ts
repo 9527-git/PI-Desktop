@@ -32,12 +32,20 @@ describe("changelog catalog", () => {
 
   it("lists stable releases from 0.1.1 newest-first without pre-releases", () => {
     const versions = CHANGELOG.en.map((e) => e.version);
-    expect(versions[0]).toBe("0.16.7");
+    expect(versions[0]).toBe("0.16.16");
     expect(versions.at(-1)).toBe(STABLE_FROM);
     // 0.11.1 is intentionally absent: that tag was pushed before the release
     // branch was complete, and 0.11.2 is the tag that actually ships its
     // highlights. The in-app changelog lists shipped releases, not tags.
     expect(versions).toEqual([
+      "0.16.16",
+      "0.16.14",
+      "0.16.13",
+      "0.16.12",
+      "0.16.11",
+      "0.16.10",
+      "0.16.9",
+      "0.16.8",
       "0.16.7",
       "0.16.6",
       "0.16.5",
@@ -165,7 +173,7 @@ describe("changelog catalog", () => {
     const entry = getChangelogEntry("v0.1.1", "en");
     expect(entry?.version).toBe("0.1.1");
     const notes = formatChangelogNotes("0.2.7", "en");
-    expect(notes).toMatch(/^• /);
+    expect(notes).toMatch(/^鈥?/);
     expect(notes?.split("\n").length).toBe(
       getChangelogEntry("0.2.7", "en")?.highlights.length,
     );

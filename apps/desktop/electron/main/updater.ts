@@ -81,7 +81,16 @@ export class AppUpdaterController {
   private readonly getLocale: () => string | null | undefined;
   private readonly isAutoCheckEnabled: () => boolean;
   private state: UpdateState;
-  private manualRequested = false;
+  /** Origin of the update state currently on screen; drives opt-out retraction. */
+  private stateOrigin: "manual" | "automatic" | null = null;
+  /**
+   * Last value applied from settings. Timers consult the injected callback,
+   * but the opt-out transition also has to retract what an automatic check
+   * already discovered, which needs the previous value.
+   */
+  private autoCheckEnabled: boolean;
+  /** Download started by an automatic check; a later opt-out cancels it. */
+  private activeAutomaticDownload: { cancel: () => void } | null = null;
   private initialTimer: NodeJS.Timeout | null = null;
   private intervalTimer: NodeJS.Timeout | null = null;
   private listenersAttached = false;
@@ -99,6 +108,7 @@ export class AppUpdaterController {
     this.send = options.send;
     this.getLocale = options.getLocale ?? (() => "en");
     this.isAutoCheckEnabled = options.isAutoCheckEnabled ?? (() => true);
+    this.autoCheckEnabled = this.isAutoCheckEnabled();
     const mode = resolveUpdateMode(
       options.platform ?? process.platform,
       options.isPackaged ?? app.isPackaged,
@@ -112,6 +122,56 @@ export class AppUpdaterController {
     if (mode !== "disabled") this.attachListeners();
   }
 
+  /**
+   * Keep download/install policy in sync with the opt-out. A download may
+   * start only for an automatic check while automatic checks are enabled, or
+   * for a manual check the user asked for. An update discovered automatically
+   * must never install on quit after the user opted out of automatic checks.
+   */
+  private applyAutoDownloadPolicy() {
+    const inApp = this.state.mode === "in-app";
+    const allowed = inApp && (this.autoCheckEnabled || this.stateOrigin === "manual");
+    autoUpdater.autoDownload = allowed;
+    autoUpdater.autoInstallOnAppQuit = allowed;
+  }
+
+  private acceptsUpdateEvents(): boolean {
+    return this.stateOrigin === "manual" || this.autoCheckEnabled;
+  }
+
+  /**
+   * Apply `AppSettings.autoUpdateCheck` without a restart.
+   *
+   * Turning it off retracts an update that only an automatic check discovered:
+   * the user opted out of being nudged, so its banner must disappear and a
+   * download it already staged must not install on quit. A manual check's
+   * result stays visible because the user asked for it explicitly.
+   */
+  setAutoCheckEnabled(enabled: boolean) {
+    if (this.autoCheckEnabled === enabled) return;
+    this.autoCheckEnabled = enabled;
+    if (!enabled && this.stateOrigin !== "manual") {
+      this.activeAutomaticDownload?.cancel();
+      this.activeAutomaticDownload = null;
+      if (
+        this.state.status === "checking" ||
+        this.state.status === "available" ||
+        this.state.status === "downloading" ||
+        this.state.status === "downloaded" ||
+        this.state.availableVersion
+      ) {
+        this.setState({
+          status: "idle",
+          availableVersion: undefined,
+          releaseNotes: undefined,
+          progressPercent: undefined,
+          error: undefined,
+        });
+      }
+    }
+    this.applyAutoDownloadPolicy();
+  }
+
   /** Localized product notes for a discovered version, if catalogued. */
   private notesFor(version: string | undefined): string | undefined {
     if (!version) return undefined;
@@ -122,16 +182,13 @@ export class AppUpdaterController {
     if (this.listenersAttached) return;
     this.listenersAttached = true;
 
-    autoUpdater.autoDownload = this.state.mode === "in-app";
+    this.applyAutoDownloadPolicy();
     // electron-updater defaults allowPrerelease=true when the installed
     // version has a prerelease component (e.g. 0.2.0-rc.6). That pins the
     // GitHub provider to the same custom channel ("rc") and never offers a
     // newer stable release such as 0.2.2. Always track GitHub's latest
     // stable release so RC installs can graduate to stable.
     autoUpdater.allowPrerelease = false;
-    // Even if the user ignores the restart prompt, a downloaded update
-    // lands on the next normal quit.
-    autoUpdater.autoInstallOnAppQuit = true;
     autoUpdater.logger = {
       info: (m: unknown) =>
         this.logger.app("updater", "info", "updater diagnostic", {
@@ -152,9 +209,11 @@ export class AppUpdaterController {
     };
 
     autoUpdater.on("checking-for-update", () => {
+      if (!this.acceptsUpdateEvents()) return;
       this.setState({ status: "checking", error: undefined });
     });
     autoUpdater.on("update-available", (info: UpdateInfo) => {
+      if (!this.acceptsUpdateEvents()) return;
       this.setState({
         status: this.state.mode === "in-app" ? "downloading" : "available",
         availableVersion: info.version,
@@ -163,6 +222,7 @@ export class AppUpdaterController {
       });
     });
     autoUpdater.on("update-not-available", () => {
+      if (!this.acceptsUpdateEvents()) return;
       this.setState({
         status: "up-to-date",
         availableVersion: undefined,
@@ -171,6 +231,7 @@ export class AppUpdaterController {
       });
     });
     autoUpdater.on("download-progress", (progress: ProgressInfo) => {
+      if (!this.acceptsUpdateEvents()) return;
       this.setState({
         status: "downloading",
         // Preserve notes already attached when discovery advanced to download.
@@ -180,6 +241,7 @@ export class AppUpdaterController {
       });
     });
     autoUpdater.on("update-downloaded", (info: UpdateInfo) => {
+      if (!this.acceptsUpdateEvents()) return;
       this.setState({
         status: "downloaded",
         availableVersion: info.version,
@@ -191,12 +253,17 @@ export class AppUpdaterController {
       // Auto checks fail quietly (offline, private repo, rate limits);
       // the renderer only surfaces errors when `manual` is set.
       this.logger.app("updater", "warn", "updater error", { data: String(error) });
+      if (!this.acceptsUpdateEvents()) return;
       this.setState({ status: "error", error: error.message });
     });
   }
 
   private setState(patch: Partial<UpdateState>) {
-    this.state = { ...this.state, ...patch, manual: this.manualRequested };
+    this.state = {
+      ...this.state,
+      ...patch,
+      manual: this.stateOrigin === "manual",
+    };
     this.send(IPC.event.updatesState, this.state);
   }
 
@@ -228,24 +295,36 @@ export class AppUpdaterController {
     ) {
       return this.state;
     }
-    this.manualRequested = Boolean(options.manual);
-    const timeoutMs = this.manualRequested
+    this.stateOrigin = options.manual ? "manual" : "automatic";
+    this.applyAutoDownloadPolicy();
+    const timeoutMs = options.manual
       ? MANUAL_CHECK_TIMEOUT_MS
       : AUTO_CHECK_TIMEOUT_MS;
     try {
       // Fire-and-forget relative to boot: callers must not await this from the
       // first-window path. The race only bounds *our* wait; electron-updater
       // may still finish later and emit available/up-to-date.
-      await raceWithTimeout(
+      const result = await raceWithTimeout(
         autoUpdater.checkForUpdates(),
         timeoutMs,
         "update check",
       );
+      // Track the download this check started. An automatic check needs it so
+      // turning automatic checks off can cancel the download; a manual check
+      // asks for the update explicitly. Both end in the same watcher: with a
+      // `downloadPromise` it is watched and cancellable, and without one
+      // (automatic downloads were off when the check began) the download is
+      // started explicitly. An opt-out that landed while this check was in
+      // flight wins: `acceptsUpdateEvents()` is false for an automatic result
+      // once the user has turned automatic checks off, so no download starts.
+      if (result?.isUpdateAvailable && this.acceptsUpdateEvents()) {
+        this.trackDownload(result);
+      }
     } catch (error) {
       const timedOut =
         (error as { code?: unknown } | null)?.code === UPDATE_CHECK_TIMEOUT_CODE;
       if (timedOut) {
-        if (this.manualRequested) {
+        if (options.manual) {
           this.setState({ status: "error", error: "update check timed out" });
           throw error;
         }
@@ -264,6 +343,33 @@ export class AppUpdaterController {
       if (options.manual) throw error;
     }
     return this.state;
+  }
+
+  /**
+   * Watch a download started by electron-updater so an opt-out can cancel it.
+   * Without a `downloadPromise` (the check was manual while automatic
+   * downloads are off), start the download explicitly.
+   */
+  private trackDownload(result: {
+    downloadPromise?: Promise<Array<string>> | null;
+    cancellationToken?: { cancel: () => void };
+    updateInfo?: { version: string };
+  } | null) {
+    if (!result) return;
+    if (result.downloadPromise) {
+      this.activeAutomaticDownload = {
+        cancel: () => result.cancellationToken?.cancel(),
+      };
+      void result.downloadPromise
+        .catch(() => undefined)
+        .finally(() => {
+          this.activeAutomaticDownload = null;
+        });
+      return;
+    }
+    if (this.state.mode === "in-app") {
+      void this.download().catch(() => undefined);
+    }
   }
 
   /** Explicit download for in-app installs when a check was manual-only. */

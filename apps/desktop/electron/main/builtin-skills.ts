@@ -20,8 +20,8 @@ export const PLUGIN_DEV_SKILL_ID = "pi-desktop/plugin-development";
 function resolveBuiltinSkillPath(fileName: string): string | null {
   const candidates = [
     join(process.resourcesPath || "", "skills", fileName),
-    join(__dirname, "../../resources/skills", fileName),
-    join(__dirname, "../../../resources/skills", fileName),
+    join(import.meta.dirname, "../../resources/skills", fileName),
+    join(import.meta.dirname, "../../../resources/skills", fileName),
   ];
   for (const candidate of candidates) {
     if (candidate && existsSync(candidate)) return candidate;

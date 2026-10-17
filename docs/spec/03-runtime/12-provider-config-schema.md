@@ -465,8 +465,9 @@ The canonical DDL lives in [04-data-storage](04-data-storage.md) (D086). Summary
   (`models.getAvailable`, which applies the vendor's own `filterModels`, so a
   Copilot account lists what its subscription includes) instead of calling
   `/models`; each returned model carries the apiStyle its wire API implies.
-  Static vendors such as `openai-codex` use the pinned pi-ai catalog (0.85.1
-  includes `gpt-6-astra`); models.dev does not invent those IDs.
+  Static vendors such as `openai-codex` use the pinned pi-ai catalog (1.3.0
+  includes `gpt-6.1-sol`, `gpt-6-sol`, and `gpt-6-luna`); models.dev does not
+  invent those IDs.
 - out: `{ models: ModelCatalogItem[] }`; each known model carries the complete
   models.dev metadata including `reasoning`, `supportedThinkingLevels`, limits,
   modalities, output types, and capability tags. Cached/provider claims cannot

@@ -2,6 +2,72 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.16",
+    "date": "2026-10-17",
+    "highlights": [
+      "Otomatik güncelleme denetimini kapatmak, otomatik olarak bulunmuş bir güncellemeyi de geri çeker: güncelleme bildirimi hemen kaybolur ve çıkışta bu güncelleme artık yüklenmez. Manuel denetimler çalışmaya devam eder.",
+      "Uzun bir konuşmayı sıkıştırmak, sığan bir özeti artık reddetmiyor: istek sağlayıcının faturalandırdığı biçimde ölçülüyor, böylece bağlam, özet girdisinin model bütçesini aştığı bildirilmesi yerine sıkıştırılıyor.",
+    ],
+  },
+
+  {
+    "version": "0.16.14",
+    "date": "2026-10-08",
+    "highlights": [
+      "pi ajan çekirdeği 1.3.0 sürümüne güncellendi: uzun konuşmaları sıkıştıran motor aynı davranışla yerleşik bakıma geçti, ChatGPT aboneliğinin varsayılan modeli GPT-6.1 Sol 500k bağlama çıktı, Claude Haiku 5.5 ve Gemini 4 Argon GitHub Copilot kataloğuna eklendi ve sağlayıcı istekleri meşgul ve kapasite yanıtlarını yeniden dener.",
+    ],
+  },
+
+  {
+    "version": "0.16.13",
+    "date": "2026-09-28",
+    "highlights": [
+      "Çıkarken uygulama içi onayın üzerine artık yerel bir uyarı penceresi binmiyor: onay penceresi siz okurken zaman aşımına uğramak yerine yanıtınızı bekliyor.",
+    ],
+  },
+
+  {
+    "version": "0.16.12",
+    "date": "2026-09-24",
+    "highlights": [
+      "Mağazadaki \"Daha fazla yükle\" düğmesi hiçbir zaman sonraki sayfayı getirmiyordu: gezinme artık sayfa numaralarıyla çalışıyor; önceki/sonraki, sayfaya gitme alanı ve sayfaların alındığı kataloğun boyutu ile birlikte.",
+    ],
+  },
+
+  {
+    "version": "0.16.11",
+    "date": "2026-09-24",
+    "highlights": [
+      "Resmî pi.dev paket kaynağında gezinmek ilk 100 sonuçta durmak yerine tüm kataloğu sayfalar ve kaynağın kaç paket listelediğini gösterir.",
+    ],
+  },
+
+  {
+    "version": "0.16.10",
+    "date": "2026-09-24",
+    "highlights": [
+      "ES modülleri bildiren bir pi paketi artık kurulup yüklenemez durumda kalmıyor: oluşturulan eklenti kökü CommonJS'e sabitlendiği için eklenti ilk denemede çalışıyor.",
+      "Uzantı bağımlılıkları kurulurken npm proxy bağlantısını sıfırladığında uygulama artık çökme riski taşımıyor; sıfırlama kaydediliyor ve başarısız bir kurulumla birlikte bildiriliyor.",
+    ],
+  },
+
+  {
+    "version": "0.16.9",
+    "date": "2026-09-23",
+    "highlights": [
+      "Eklentiler sayfası artık npm'de yayımlanan resmî pi.dev paketlerini gezip kurmanızı sağlıyor: kataloğu arayın, paketin istediği izinleri inceleyin, ardından diğer eklentiler gibi kurun, güncelleyin veya kaldırın.",
+    ],
+  },
+
+  {
+    "version": "0.16.8",
+    "date": "2026-09-23",
+    "highlights": [
+      "pi ajan çekirdeği 0.87.1 sürümüne güncellendi: Anthropic istekleri güncel Claude Code istemci sürümünü taşır, paketle gelen görsel model kataloğu yenilendi ve boş metin blokları içeren kullanıcı mesajları boş parça göndermeden iletilir.",
+    ],
+  },
+
+  {
     "version": "0.16.7",
     "date": "2026-09-23",
     "highlights": [

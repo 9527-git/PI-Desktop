@@ -53,7 +53,7 @@ export type ApplicationLifecycleDependencies = {
   sendToRenderer: (channel: string, payload: unknown) => void;
   safeOpenExternal: (rawUrl: unknown) => Promise<void>;
   showPluginLauncher: () => Promise<void>;
-  askCloseBehavior: (window: BrowserWindow) => Promise<CloseBehavior | null>;
+  askCloseBehavior: () => Promise<CloseBehavior | null>;
   applyCloseBehavior: (behavior: CloseBehavior) => void;
   browserPane: BrowserPane;
   pluginViews: PluginViewHost;

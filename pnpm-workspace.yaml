@@ -38,11 +38,12 @@ overrides:
 # Drop this list once the pinned @earendil-works packages are older than
 # pnpm's supply-chain age gate (packages published within the last day).
 minimumReleaseAgeExclude:
-  - '@earendil-works/chord@0.87.0'
-  - '@earendil-works/pi-agent-core@0.87.0'
-  - '@earendil-works/pi-ai@0.87.0'
-  - '@earendil-works/pi-telemetry@0.87.0'
-  - '@earendil-works/pi-coding-agent@0.87.0'
-  - '@earendil-works/pi-tui@0.87.0'
+  - '@earendil-works/pi-agent-core@1.3.0'
+  - '@earendil-works/pi-ai@1.3.0'
+  - '@earendil-works/pi-telemetry@1.3.0'
+  - '@earendil-works/pi-coding-agent@1.3.0'
+  - '@earendil-works/pi-tui@1.3.0'
+  - '@earendil-works/pi-codemode@1.3.0'
+  - '@earendil-works/pi-mcp@1.3.0'
 patchedDependencies:
-  '@earendil-works/pi-ai@0.87.0': patches/@earendil-works__pi-ai@0.87.0.patch
+  '@earendil-works/pi-ai@1.3.0': patches/@earendil-works__pi-ai@1.3.0.patch

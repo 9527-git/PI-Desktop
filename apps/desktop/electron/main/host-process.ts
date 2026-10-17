@@ -51,8 +51,8 @@ function resolveHostBinary(): string {
     // packaged resources
     join(process.resourcesPath || "", `bin/pi-desktop-host-core${exe}`),
     // monorepo dev/build
-    join(__dirname, `../../../../target/debug/pi-desktop-host-core${exe}`),
-    join(__dirname, `../../../../target/release/pi-desktop-host-core${exe}`),
+    join(import.meta.dirname, `../../../../target/debug/pi-desktop-host-core${exe}`),
+    join(import.meta.dirname, `../../../../target/release/pi-desktop-host-core${exe}`),
   ];
   for (const c of candidates) {
     if (c && existsSync(c)) return c;
@@ -72,8 +72,8 @@ function resolveHostBinary(): string {
 function resolveBuiltinPluginsDir(): string | null {
   const candidates = [
     join(process.resourcesPath || "", "plugins"),
-    join(__dirname, "../../resources/plugins"),
-    join(__dirname, "../../../resources/plugins"),
+    join(import.meta.dirname, "../../resources/plugins"),
+    join(import.meta.dirname, "../../../resources/plugins"),
   ];
   for (const candidate of candidates) {
     if (candidate && existsSync(candidate)) return candidate;
