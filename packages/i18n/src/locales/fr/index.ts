@@ -313,6 +313,7 @@ export const fr = {
     loadLaterMessages: "Charger les messages suivants",
     "showEarlierMessages": "Afficher les messages précédents",
     "copy": "Copier",
+    "paste": "Coller",
     "copied": "Copié",
     "copyDiagramSource": "Copier la source du diagramme",
     "showDiagram": "Afficher le diagramme",

@@ -125,6 +125,8 @@ The minimum selection is:
 - Individual provider model selection: `pnpm test:e2e:provider-model-selection`
   (real React/Chromium pointer and keyboard activation, stubbed provider API).
 - Composer clipboard representation and text insertion: `pnpm test:e2e:composer-paste`.
+- Transcript right-click copy and paste: `pnpm test:e2e:transcript` and
+  `pnpm test:e2e:composer-paste`.
 - Transcript render boundaries and cross-part delegation display: `pnpm test:e2e:transcript`.
 - Plan host/runtime behavior: `pnpm test:e2e` and `pnpm test:e2e:plan`.
 - Plan UI behavior: `pnpm test:e2e:plan` and `pnpm test:e2e:plan-ui`.
@@ -1482,6 +1484,41 @@ and identify the platform validation still needed.
 - **Milestone**: M6+
 - **Status**: Draft
 
+#### E2E-CHAT-transcript-context-copy-paste: Right-click in the transcript copies the selection and pastes into the composer
+
+- **Preconditions**: A session with a completed answer containing an inline
+  formula, a fenced code block, and a GFM table; the composer is idle; the OS
+  clipboard holds plain text.
+- **Steps**: 1) Select part of the answer that spans a code fence and a
+  adjacent sentence, right-click inside the transcript, and activate Copy; then
+  read the system clipboard. 2) Clear the composer, right-click inside the
+  transcript, and activate Paste; inspect the composer draft, focus, and caret.
+  3) Put text longer than the large-paste threshold on the clipboard, right-click
+  the transcript, and activate Paste again. 4) Right-click without a selection
+  and with an empty clipboard, then scroll the transcript while the menu is
+  open and press Escape. 5) Right-click on an http(s) link, inside the code
+  block's head chrome, and inside the side-chat projection and a hidden
+  retained pane. 6) Right-click while a turn is streaming and activate Paste.
+- **Expected**: One body-level menu opens 4px from the pointer with Copy
+  (`chat.copy`) and Paste (`chat.paste`). Copy writes the live selection back
+  to Markdown through the quote recovery path (§8.8): `$…$` TeX, fenced code
+  with a delimiter outgrowing the snippet's backtick run, one `a | b` line per
+  table row, chrome-free — and shows the shared copied feedback without
+  clearing the selection or sending anything. Paste targets the composer's own
+  paste pipeline: the clipboard text lands in the draft with the caret at the
+  end, CRLF is normalized, clipboard history is recorded, and text beyond the
+  large-paste threshold becomes a session-scratch reference chip exactly like
+  Ctrl+V (ADR 0131) — nothing is sent. No selection disables Copy; an empty
+  clipboard or an inert composer disables Paste; the side-chat projection,
+  read-only rows, and hidden panes never open the menu, and the link's own
+  context menu still wins over it. The menu closes on a press outside,
+  Escape, scroll, and every action.
+- **Specs linked**: `04-ux/08-component-spec.md` §7.4, §8.8;
+  `03-runtime/02-agent-runtime.md`; ADR 0131; ADR 0115
+- **Acceptance**: C (conversation), Quality
+- **Milestone**: Post-M6 desktop shell maintenance
+- **Status**: Source-level regression covered
+  (`chat-transcript-context-menu.test.mjs`); full UI journey Draft
 #### E2E-CHAT-annotation-attachments: Annotating a response attaches numbered prompt data, not draft text
 
 - **Preconditions**: A session with a completed answer containing at least two
@@ -7587,6 +7624,9 @@ and identify the platform validation still needed.
 | M6+ (project color) | E2E-SIDEBAR-project-color-assignment, E2E-SIDEBAR-session-inherits-project-color |
 | C — Conversation & stream (legacy subagent turn limit) | E2E-SUBAGENT-legacy-turn-limit-frontmatter-is-ignored |
 | Quality (legacy subagent turn limit) | E2E-SUBAGENT-legacy-turn-limit-frontmatter-is-ignored |
+| C — Conversation & stream (transcript context copy/paste) | E2E-CHAT-transcript-context-copy-paste |
+| Quality (transcript context copy/paste) | E2E-CHAT-transcript-context-copy-paste |
+| M6+ (transcript context copy/paste) | E2E-CHAT-transcript-context-copy-paste |
 
 The `US-UI-*` visual scenarios (§UI shell visual scenarios) trace to the
 Codex parity decisions in [decisions-log §D](../08-meta/decisions-log.md)

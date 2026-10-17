@@ -315,6 +315,7 @@ export const zhCN = {
     loadLaterMessages: "加载后续消息",
     showEarlierMessages: "显示更早的消息",
     copy: "复制",
+    paste: "粘贴",
     copied: "已复制",
     copyDiagramSource: "复制图表源码",
     showDiagram: "显示图表",

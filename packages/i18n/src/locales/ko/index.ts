@@ -322,6 +322,7 @@ export const ko = {
     loadLaterMessages: "이후 메시지 불러오기",
     showEarlierMessages: "이전 메시지 표시",
     copy: "복사",
+    paste: "붙여넣기",
     copied: "복사됨",
     copyDiagramSource: "다이어그램 소스 복사",
     showDiagram: "다이어그램 표시",

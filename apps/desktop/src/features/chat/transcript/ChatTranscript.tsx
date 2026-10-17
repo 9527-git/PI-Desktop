@@ -20,6 +20,7 @@ import { TranscriptReadOnlyContext, useActiveSessionTitle } from "./context";
 import { TurnProgressCard } from "./TurnProgressCard";
 import { turnProgressGate } from "./turn-progress-gate";
 import { SelectionQuoteButton } from "../../../components/SelectionQuoteButton";
+import { TranscriptContextMenu } from "./TranscriptContextMenu";
 import { ResponseAnnotationOverlay } from "../../../components/ResponseAnnotationOverlay";
 import { useTranscriptScroll } from "./hooks/useTranscriptScroll";
 import type { TranscriptSearchTarget } from "../../../lib/transcript-reading";
@@ -211,6 +212,11 @@ export const ChatTranscript = memo(function ChatTranscript({
         * answer is the wrong end of the message to reach for (ADR message-quotes-and-side-chats / D-LOCAL-selection-overlay). */}
       {transcriptReadOnly || !paneVisible ? null : (
         <SelectionQuoteButton scrollRef={scrollRef} title={sessionTitle} />
+      )}
+      {/* Right-click copy/paste lives beside the quote overlay with the same
+        * gates: read-only projections and hidden panes never build one. */}
+      {transcriptReadOnly || !paneVisible ? null : (
+        <TranscriptContextMenu scrollRef={scrollRef} />
       )}
       {!transcriptReadOnly && paneVisible && !veilCovering && sessionId ? (
         <ResponseAnnotationOverlay sessionId={sessionId} scrollRef={scrollRef} onNavigate={navigateAnnotation} />

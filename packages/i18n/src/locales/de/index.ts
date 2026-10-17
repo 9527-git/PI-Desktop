@@ -313,6 +313,7 @@ export const de = {
     loadLaterMessages: "Spätere Nachrichten laden",
     "showEarlierMessages": "Frühere Nachrichten anzeigen",
     "copy": "Kopieren",
+    "paste": "Einfügen",
     "copied": "Kopiert",
     "copyDiagramSource": "Diagrammquelle kopieren",
     "showDiagram": "Diagramm anzeigen",

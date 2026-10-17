@@ -321,6 +321,7 @@ export const en = {
     loadLaterMessages: "Load later messages",
     showEarlierMessages: "Show earlier messages",
     copy: "Copy",
+    paste: "Paste",
     copied: "Copied",
     copyDiagramSource: "Copy diagram source",
     showDiagram: "Show diagram",

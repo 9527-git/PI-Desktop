@@ -1346,6 +1346,22 @@ storage but compose into one assistant turn until the next user message.
   content's left rule is itself a pointer and keyboard-focusable collapse
   control.
 - Hover code block: copy button appears
+- Right-click inside the transcript: open one body-level, renderer-owned
+  menu (same fixed rule as the other pointer menus) with **Copy**
+  (`chat.copy`) and **Paste** (`chat.paste`). Copy returns the live selection
+  to Markdown through the quote recovery path (§8.8) and stays enabled while
+  the selection still lives in the transcript; the selection itself survives
+  the copy. Paste always targets the composer's real paste pipeline — the OS
+  clipboard text is replayed as a paste event into the composer input — so
+  clipboard-history records, line-ending normalization, and the large-text →
+  session-scratch reference rule behave exactly as a native paste (ADR 0131);
+  the composer is focused and the text lands at the draft's end. A menu
+  without a selection keeps Copy disabled, an empty clipboard or an inert
+  composer keeps Paste disabled, and the menu never sends anything. The menu
+  closes on a press outside it, Escape, transcript scroll, and every action.
+  Read-only projections, hidden panes, and the composer itself stay outside
+  this menu (the composer keeps Ctrl/Cmd+V; a right-click on an http(s) link
+  still opens its own menu first).
 - Hover or focus a minimap marker: show the localized sender and a bounded
   plaintext preview; multiple assistant fragments produced within one user
   turn are combined into one AI-response marker and preview; nearby markers

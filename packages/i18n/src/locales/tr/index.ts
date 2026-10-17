@@ -322,6 +322,7 @@ export const tr = {
     loadLaterMessages: "Sonraki mesajları yükle",
     showEarlierMessages: "Önceki iletileri göster",
     copy: "Kopyala",
+    paste: "Yapıştır",
     copied: "Kopyalandı",
     copyDiagramSource: "Diyagram kaynağını kopyala",
     showDiagram: "Diyagramı göster",

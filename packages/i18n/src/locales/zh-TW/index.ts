@@ -315,6 +315,7 @@ export const zhTW = {
     loadLaterMessages: "載入後續訊息",
     showEarlierMessages: "顯示更早的訊息",
     copy: "複製",
+    paste: "貼上",
     copied: "已複製",
     copyDiagramSource: "複製圖表原始碼",
     showDiagram: "顯示圖表",
