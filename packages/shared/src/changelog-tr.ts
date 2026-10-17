@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.17",
+    "date": "2026-10-17",
+    "highlights": [
+      "Konuşma alanında sağ tıklama artık bir kopyala/yapıştır menüsü açıyor: Kopyala, seçimin formüllerini, kodunu ve tablolarını Markdown olarak geri getirir; Yapıştır, panoyu girdi alanının gerçek yapıştırma kurallarıyla composer'a taşır.",
+    ],
+  },
+
+  {
     "version": "0.16.16",
     "date": "2026-10-17",
     "highlights": [

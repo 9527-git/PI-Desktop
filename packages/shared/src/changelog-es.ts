@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.17",
+    "date": "2026-10-17",
+    "highlights": [
+      "El clic derecho dentro de la conversación abre ahora un menú de copiar/pegar: Copiar recupera las fórmulas, el código y las tablas de la selección como Markdown, y Pegar lleva el portapapeles al campo de entrada con sus reglas reales de pegado.",
+    ],
+  },
+
+  {
     "version": "0.16.16",
     "date": "2026-10-17",
     "highlights": [

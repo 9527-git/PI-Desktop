@@ -29,6 +29,14 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.16.17",
+    date: "2026-10-17",
+    highlights: [
+      "Right-clicking inside the conversation now opens a copy/paste menu: Copy recovers the selection's formulas, code, and tables as Markdown, and Paste sends the clipboard into the composer through its real paste rules.",
+    ],
+  },
+
+  {
     version: "0.16.16",
     date: "2026-10-17",
     highlights: [
@@ -1094,6 +1102,14 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.16.17",
+    date: "2026-10-17",
+    highlights: [
+      "对话区域现在支持右键复制/粘贴菜单：复制把选中内容的公式、代码和表格还原成 Markdown，粘贴则通过输入框自身的粘贴规则直通输入框。",
+    ],
+  },
+
+  {
     version: "0.16.16",
     date: "2026-10-17",
     highlights: [
@@ -2157,6 +2173,14 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.16.17",
+    date: "2026-10-17",
+    highlights: [
+      "對話區域現在支援右鍵複製/貼上選單：複製把選取內容的公式、程式碼和表格還原成 Markdown，貼上則透過輸入框自身的貼上規則直接進入輸入框。",
+    ],
+  },
+
   {
     version: "0.16.16",
     date: "2026-10-17",

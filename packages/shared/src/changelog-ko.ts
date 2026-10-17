@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.17",
+    "date": "2026-10-17",
+    "highlights": [
+      "대화 영역에서 마우스 오른쪽 클릭으로 이제 복사/붙여넣기 메뉴를 엽니다: 복사는 선택한 수식, 코드, 표를 Markdown으로 되돌리고, 붙여넣기는 입력창의 실제 붙여넣기 규칙을 따라 클립보드 내용을 바로 넣습니다.",
+    ],
+  },
+
+  {
     "version": "0.16.16",
     "date": "2026-10-17",
     "highlights": [

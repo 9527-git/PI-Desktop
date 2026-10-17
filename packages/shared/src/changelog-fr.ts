@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.17",
+    "date": "2026-10-17",
+    "highlights": [
+      "Un clic droit dans la conversation ouvre désormais un menu copier/coller : Copier restitue les formules, le code et les tableaux de la sélection en Markdown, et Coller envoie le presse-papiers dans le composer selon ses véritables règles de collage.",
+    ],
+  },
+
+  {
     "version": "0.16.16",
     "date": "2026-10-17",
     "highlights": [

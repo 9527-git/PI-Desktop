@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.17",
+    "date": "2026-10-17",
+    "highlights": [
+      "Rechtsklick im Gespräch öffnet jetzt ein Kopier-/Einfüge-Menü: Kopieren stellt Formeln, Code und Tabellen der Auswahl als Markdown wieder her, und Einfügen bringt die Zwischenablage über die echten Einfüge-Regeln des Eingabefelds hinein.",
+    ],
+  },
+
+  {
     "version": "0.16.16",
     "date": "2026-10-17",
     "highlights": [
