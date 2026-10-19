@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.19",
+    "date": "2026-10-19",
+    "highlights": [
+      "Das App-Symbol zeigt jetzt, was im Arbeitsbereich passiert: Die Taskleiste (Windows) und das Dock-Symbol (macOS) zeigen ein Status-Abzeichen für laufende Arbeit, einen auf deine Eingabe wartenden Turn und ungelesene fehlgeschlagene oder abgeschlossene Ergebnisse."
+    ],
+  },
+
+  {
     "version": "0.16.18",
     "date": "2026-10-19",
     "highlights": [

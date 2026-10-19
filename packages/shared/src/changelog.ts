@@ -29,6 +29,14 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.16.19",
+    date: "2026-10-19",
+    highlights: [
+      "The app icon now reports what the workspace is doing: the taskbar button (Windows) and the Dock tile (macOS) show a status badge for running work, a turn waiting for your input, and unread failed or completed results.",
+    ],
+  },
+
+  {
     version: "0.16.18",
     date: "2026-10-19",
     highlights: [
@@ -1110,6 +1118,14 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.16.19",
+    date: "2026-10-19",
+    highlights: [
+      "应用图标现在会报告工作区的状态：任务栏按钮（Windows）与 Dock 图标（macOS）会为正在运行的任务、等待你输入的回合，以及未读的失败或完成结果显示状态角标。",
+    ],
+  },
+
+  {
     version: "0.16.18",
     date: "2026-10-19",
     highlights: [
@@ -2189,6 +2205,14 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.16.19",
+    date: "2026-10-19",
+    highlights: [
+      "應用程式圖示現在會回報工作區的狀態：工作列按鈕（Windows）與 Dock 圖示（macOS）會為正在執行的工作、等待你輸入的回合，以及未讀的失敗或完成結果顯示狀態徽章。",
+    ],
+  },
+
   {
     version: "0.16.18",
     date: "2026-10-19",

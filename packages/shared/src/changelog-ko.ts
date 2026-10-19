@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.19",
+    "date": "2026-10-19",
+    "highlights": [
+      "이제 앱 아이콘이 작업 공간의 상태를 보여 줍니다: 작업 표시줄 버튼(Windows)과 Dock 아이콘(macOS)이 실행 중인 작업, 입력을 기다리는 턴, 읽지 않은 실패 또는 완료 결과에 상태 배지를 표시합니다."
+    ],
+  },
+
+  {
     "version": "0.16.18",
     "date": "2026-10-19",
     "highlights": [

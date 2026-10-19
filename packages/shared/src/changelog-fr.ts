@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.19",
+    "date": "2026-10-19",
+    "highlights": [
+      "L'icône de l'application indique désormais ce que fait l'espace de travail : la barre des tâches (Windows) et l'icône du Dock (macOS) affichent un badge d'état pour le travail en cours, un tour qui attend votre intervention et les résultats échoués ou terminés non lus."
+    ],
+  },
+
+  {
     "version": "0.16.18",
     "date": "2026-10-19",
     "highlights": [

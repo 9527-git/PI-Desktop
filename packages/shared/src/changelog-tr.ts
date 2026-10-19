@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.19",
+    "date": "2026-10-19",
+    "highlights": [
+      "Uygulama simgesi artık çalışma alanının ne yaptığını gösteriyor: görev çubuğu düğmesi (Windows) ve Dock simgesi (macOS), süren işler, girdinizi bekleyen bir tur ve okunmamış başarısız ya da tamamlanmış sonuçlar için durum rozeti gösterir."
+    ],
+  },
+
+  {
     "version": "0.16.18",
     "date": "2026-10-19",
     "highlights": [
