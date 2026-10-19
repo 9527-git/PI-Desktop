@@ -30,7 +30,8 @@ on macOS. Neither side alone can answer "what should the badge say right now".
    signature changes. Main never polls the renderer.
 3. **Main paints per platform.**
    - Windows: `setOverlayIcon` with a locally rasterized 16px/32px BGRA badge
-     (a status-coloured disc with a white ring and a per-state glyph). The
+     (a full-bleed status-coloured disc with a one-pixel `--ds-status-ink` rim
+     and a per-state glyph; see the amendment at the end of this document). The
      bitmap is generated in code from the dark-theme status tokens, so no
      packaged asset can drift and no new resource file is needed.
    - macOS: the Dock badge is text-only, so each state maps to one glyph
@@ -75,3 +76,17 @@ Rejected. A bare count cannot distinguish "three agents are working" from
 
 Rejected. Main has no renderer store, and polling across the IPC boundary
 would add latency and traffic for a signal that already changes discretely.
+
+## Amendment (D474, 2026-10-19): dark ink instead of a white ring
+
+Decision 3's Windows artwork was redrawn after it proved unreadable at taskbar
+size. The disc is now full bleed, its rim and its glyph are `--ds-status-ink`
+(`--gray-900`) rather than white, the strokes are thicker capsules, and
+`running` carries the Dock's `…` instead of a bare disc. White on these light
+status fills measured 2.13-2.85:1 at 16px; the ink measures 6.24-8.32:1, and a
+full-bleed disc keeps 14px of colour where the ring left 11px. The rasterizer
+also draws the scale-1 representation at the badge's real size, because a probe
+of the live taskbar showed `setOverlayIcon` never selects the 2x representation
+and pre-scaling the bitmap makes the drawn badge smaller. Everything else — the
+platform split, the channel, the reducer, and the localized description — is
+unchanged.

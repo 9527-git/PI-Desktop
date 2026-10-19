@@ -6932,3 +6932,37 @@ surface. Renderer, Main, shared, i18n, docs, and tests only: no Host RPC,
 storage schema, permission, or `PROTOCOL_VERSION` change. See ADR 0267,
 `04-ux/08-component-spec.md` §1.7, `03-runtime/01-ipc-protocol.md` §13b, and
 E2E-WINDOW-taskbar-status-badge.
+
+## 2026-10-19 — The taskbar badge reads at taskbar size (D474)
+
+The badge D473 shipped was hard to read on the taskbar. A 1.8px white ring ate
+22% of the 16px canvas, the glyph strokes were 1.2px, and white on the
+dark-theme status fills (`--ds-warning`, `--ds-purple`, `--ds-error`,
+`--ds-success`) measured only 2.13-2.85:1 — the ring and the mark both washed
+out, and the running state carried no mark at all.
+
+`createStatusBadgeBitmap` now paints what the sidebar pills already paint
+(D445/D451): a full-bleed status-coloured disc, `--ds-status-ink` (`--gray-900`)
+for both a one-device-pixel rim and the glyph, and capsule strokes sized at 12%
+of the badge (1.92px at 16px) from one shared glyph set — `…` running, `!`
+attention, `✕` failed, `✓` completed, the same vocabulary the macOS Dock badge
+uses. The exclamation keeps a bar, a clear gap and a dot instead of one thick
+column. The ink measures 6.24-8.32:1 against every fill, and 14px of colour
+replaces the 11px the ring left.
+
+A probe against the real taskbar (Windows 11, 150% scale) settled the
+rasterizing strategy: `setOverlayIcon` paints from the scale-1 representation
+only, so the 2x representation is never selected, Windows draws the badge 24
+physical pixels wide from that 16px source, and a pre-scaled 24px bitmap came
+back smaller and fully smoothed. The artwork therefore carries its own weight
+instead of depending on a larger canvas: supersampling rose from 4x to 8x and
+the disc now covers the whole box.
+
+- Windows only: macOS keeps the platform's own Dock badge, Linux keeps
+  reporting `unsupported`.
+- Main, docs, and tests only: no IPC channel, Host RPC, storage schema,
+  permission, or `PROTOCOL_VERSION` change.
+- Regression coverage: `taskbar-status.test.mjs` pins the full-bleed disc and
+  its ink rim, the ink-versus-fill contrast floor, a mark in the middle of every
+  badge, and the exclamation's bar-gap-dot rhythm. See ADR 0267 (amendment),
+  `04-ux/08-component-spec.md` §1.7, and `04-ux/07-ui-design-system.md`.

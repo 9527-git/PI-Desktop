@@ -1,5 +1,5 @@
 /**
- * Native taskbar/Dock status badge (D473).
+ * Native taskbar/Dock status badge (D473, repainted by D474).
  *
  * The renderer reports one aggregate snapshot; this module paints it on the
  * platform-native surface:
@@ -12,8 +12,13 @@
  * - Linux: no portable taskbar badge exists; the call reports unsupported.
  *
  * Colors mirror the dark-theme status tokens (`--ds-warning`, `--ds-purple`,
- * `--ds-error`, `--ds-success`). A white ring keeps the dot legible on light
- * and dark taskbars alike.
+ * `--ds-error`, `--ds-success`) as the disc fill, with `--ds-status-ink`
+ * (`--gray-900`) for both the rim and the glyph. Dark ink on a light status
+ * token is the D445/D451 rule the sidebar pills already follow, and it is what
+ * makes a 16px pictogram readable: white glyphs measured 2.1-2.9:1 against
+ * these fills and read as a smudge at taskbar size, the ink measures 6.2-8.3:1.
+ * Windows rasterizes the scale-1 representation, so the artwork is drawn full
+ * bleed with chunky strokes rather than relying on a large canvas.
  */
 import { app, nativeImage, type BrowserWindow, type NativeImage } from "electron";
 import { catalogs, resolveLocale } from "@pi-desktop/i18n";
@@ -22,7 +27,7 @@ import {
   type TaskbarStatusSnapshot,
 } from "@pi-desktop/shared";
 
-type BadgeGlyph = "dot" | "exclaim" | "cross" | "check";
+type BadgeGlyph = "dots" | "exclaim" | "cross" | "check";
 
 type BadgeDesign = {
   color: string;
@@ -30,8 +35,11 @@ type BadgeDesign = {
   dockGlyph: string;
 };
 
+/** Mirrors `--ds-status-ink` (`--gray-900`). */
+const BADGE_INK = "#181818";
+
 const BADGE_DESIGNS: Record<TaskbarStatusKind, BadgeDesign> = {
-  running: { color: "#ff8549", glyph: "dot", dockGlyph: "…" },
+  running: { color: "#ff8549", glyph: "dots", dockGlyph: "…" },
   attention: { color: "#c27aff", glyph: "exclaim", dockGlyph: "!" },
   failed: { color: "#ff6764", glyph: "cross", dockGlyph: "✕" },
   completed: { color: "#40c977", glyph: "check", dockGlyph: "✓" },
@@ -81,19 +89,35 @@ function distanceToSegment(
   return Math.hypot(px - nearestX, py - nearestY);
 }
 
+/**
+ * True when a point inside the disc belongs to the state glyph.
+ *
+ * Geometry is expressed in fractions of the badge so one definition serves the
+ * 16px and 32px rasters. Every stroke is a capsule (a segment grown by half the
+ * stroke width), which is what keeps the marks the same weight at any size, and
+ * every mark stays clear of the rim so it never collides with the outline.
+ */
 function insideGlyph(
   glyph: BadgeGlyph,
   x: number,
   y: number,
   size: number,
+  stroke: number,
 ): boolean {
   const cx = size / 2;
-  const stroke = size * 0.075;
-  if (glyph === "dot") return false;
+  const cap = stroke / 2;
+  const dot = stroke * 0.55;
+  if (glyph === "dots") {
+    // The Dock badge's own running glyph, so both platforms say the same thing.
+    for (const offset of [-0.22, 0, 0.22]) {
+      if (Math.hypot(x - (cx + size * offset), y - cx) <= dot) return true;
+    }
+    return false;
+  }
   if (glyph === "exclaim") {
-    const bar = Math.abs(x - cx) <= stroke * 0.9 && y >= size * 0.27 && y <= size * 0.58;
-    const dot = Math.hypot(x - cx, y - size * 0.72) <= stroke * 1.05;
-    return bar || dot;
+    const bar = distanceToSegment(x, y, cx, size * 0.26, cx, size * 0.5) <= cap;
+    const point = Math.hypot(x - cx, y - size * 0.76) <= dot;
+    return bar || point;
   }
   if (glyph === "cross") {
     const first = distanceToSegment(
@@ -112,7 +136,7 @@ function insideGlyph(
       size * 0.3,
       size * 0.7,
     );
-    return Math.min(first, second) <= stroke;
+    return Math.min(first, second) <= cap;
   }
   const first = distanceToSegment(
     x,
@@ -128,50 +152,47 @@ function insideGlyph(
     size * 0.44,
     size * 0.68,
     size * 0.73,
-    size * 0.33,
+    size * 0.32,
   );
-  return Math.min(first, second) <= stroke;
+  return Math.min(first, second) <= cap;
 }
 
 /**
  * Rasterize one status badge as a BGRA bitmap, the format
- * `nativeImage.createFromBitmap` consumes. Four-fold supersampling keeps the
- * circle and its glyph smooth at taskbar size.
+ * `nativeImage.createFromBitmap` consumes.
+ *
+ * The disc is full bleed and its outermost device pixel is ink, so the badge
+ * keeps a defined edge on a light taskbar while the state colour carries it on
+ * a dark one. Eight-fold supersampling keeps the circle, the rim and the glyph
+ * smooth at taskbar size.
  */
 export function createStatusBadgeBitmap(
   size: number,
   color: string,
   glyph: BadgeGlyph,
 ): Buffer {
-  const scale = 4;
+  const scale = 8;
   const high = size * scale;
-  const rgb = parseHexColor(color);
+  const fill = parseHexColor(color);
+  const ink = parseHexColor(BADGE_INK);
   const center = high / 2;
-  const outerRadius = high * 0.46;
-  const ringWidth = high * 0.11;
-  const innerRadius = outerRadius - ringWidth;
-
+  const radius = high / 2;
+  const rim = high / 16;
+  const stroke = high * 0.12;
   const highPixels = new Uint8Array(high * high * 4);
   for (let y = 0; y < high; y += 1) {
     for (let x = 0; x < high; x += 1) {
       const px = x + 0.5;
       const py = y + 0.5;
       const distance = Math.hypot(px - center, py - center);
+      if (distance > radius) continue;
+      const inked = distance > radius - rim || insideGlyph(glyph, px, py, high, stroke);
       const offset = (y * high + x) * 4;
-      if (distance > outerRadius) continue;
-      const inFill = distance <= innerRadius;
-      const white = !inFill || insideGlyph(glyph, px, py, high);
-      if (white) {
-        highPixels[offset] = 255;
-        highPixels[offset + 1] = 255;
-        highPixels[offset + 2] = 255;
-        highPixels[offset + 3] = 255;
-      } else {
-        highPixels[offset] = rgb.b;
-        highPixels[offset + 1] = rgb.g;
-        highPixels[offset + 2] = rgb.r;
-        highPixels[offset + 3] = 255;
-      }
+      const source = inked ? ink : fill;
+      highPixels[offset] = source.b;
+      highPixels[offset + 1] = source.g;
+      highPixels[offset + 2] = source.r;
+      highPixels[offset + 3] = 255;
     }
   }
 

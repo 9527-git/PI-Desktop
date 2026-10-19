@@ -5282,3 +5282,31 @@ Electron 本地 `window/setTaskbarStatus` 通道推送；主进程校验后绘�
 shared、i18n、文档与测试：不改 Host RPC、存储 schema、权限或
 `PROTOCOL_VERSION`。见 ADR 0267、`04-ux/08-component-spec.md` §1.7、
 `03-runtime/01-ipc-protocol.md` §13b 与 E2E-WINDOW-taskbar-status-badge。
+
+## 2026-10-19 —— 16px 任务栏角标要能读出来（D474）
+
+D473 交付的角标在任务栏尺寸下难以辨认：1.8px 的白环吃掉 16px 画布的 22%，字形
+笔画只有 1.2px，而白色落在深色主题的状态填充（`--ds-warning`、`--ds-purple`、
+`--ds-error`、`--ds-success`）上只有 2.13–2.85:1 —— 环与字形一起糊掉，running
+状态甚至没有字形。
+
+`createStatusBadgeBitmap` 现在按侧边栏胶囊既有的画法（D445/D451）绘制：满幅的
+状态色圆盘，描边与字形都用 `--ds-status-ink`（`--gray-900`），笔画按角标的 12%
+做成胶囊线（16px 下 1.92px），字形共用一套 —— `…` 运行中、`!` 需要输入、`✕`
+失败、`✓` 完成，与 macOS Dock 角标同一套语汇。叹号保留竖条、清晰间隙与圆点，
+而不是糊成一根粗柱。墨色在四种填充上实测 6.24–8.32:1，着色面积也从白环时代的
+11px 回到 14px。
+
+一次针对真实任务栏的探针（Windows 11、150% 缩放）确定了光栅化策略：
+`setOverlayIcon` 只取 scale-1 表示，2x 表示永远不会被选中；Windows 会把这枚
+16px 源画到 24 物理像素宽，而预先按 24px 光栅化的位图反而更小、且被完全平滑。
+因此图形改为自带分量，而不是依赖更大的画布：超采样从 4x 提到 8x，圆盘也改成
+满幅。
+
+- 仅 Windows 变化：macOS 继续使用平台自带的 Dock 角标，Linux 继续报告
+  `unsupported`。
+- 仅主进程、文档与测试：不改 IPC 通道、Host RPC、存储 schema、权限或
+  `PROTOCOL_VERSION`。
+- 回归覆盖：`taskbar-status.test.mjs` 固定满幅圆盘与深墨描边、墨色对填充的对比度
+  下限、每枚角标中心都有字形，以及叹号的「竖条—间隙—圆点」节奏。见 ADR 0267
+  （修订）、`04-ux/08-component-spec.md` §1.7 与 `04-ux/07-ui-design-system.md`。

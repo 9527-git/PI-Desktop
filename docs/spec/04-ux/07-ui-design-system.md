@@ -293,6 +293,10 @@ hue plus cadence second. The quiet states keep their token colour on a tinted
 (selected: outlined) pill, so a solid fill still means "this row needs you".
 Both themes resolve every pill to its own token; the ink is a single dark token
 because both attention tokens are light in both themes.
+The native taskbar/Dock badge reuses that ink for the same reason (D474): a
+white glyph over the light warning, purple, error, and success fills measured
+2.13-2.85:1 and read as a smudge at 16px, while `--ds-status-ink` measures
+6.24-8.32:1.
 
 Short words are a locale contract, not a truncation: every shipped locale
 carries `nav.session<State>Short` for all five states, each no longer than the

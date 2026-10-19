@@ -185,9 +185,12 @@ Outer frame that positions Topbar, Sidebar, MainChat, and WorkPanel. Owns resize
   snapshot from `runningSessions`, the pending permission/ask/plan queues, and
   unread terminal outcomes with priority `attention > running > failed >
   completed`; a session that is both running and blocked counts once as
-  attention. Windows paints a 16px status-coloured disc with a white ring and
-  a per-state glyph over the taskbar icon; macOS paints the platform's own
-  single-glyph Dock badge (`…`, `!`, `✕`, `✓`); Linux reports unsupported and
+  attention. Windows paints a full-bleed 16px status-coloured disc over the
+  taskbar icon, carrying the Dock's own glyph vocabulary (`…`, `!`, `✕`, `✓`)
+  and a one-pixel rim in `--ds-status-ink` — the dark ink the sidebar pills
+  already use, 6.24-8.32:1 against these fills where a white glyph measured
+  only 2.13-2.85:1 and read as a smudge (D474); macOS paints the platform's
+  own single-glyph Dock badge; Linux reports unsupported and shows nothing.
   shows nothing. The overlay's localized description names the state, and
   clearing every source removes the badge. A malformed snapshot is rejected
   with `INVALID_ARGUMENT` and never changes the native surface.
