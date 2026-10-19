@@ -7668,6 +7668,9 @@ and identify the platform validation still needed.
 | C — Conversation & stream (composer context copy/paste) | E2E-CHAT-composer-context-copy-paste |
 | Quality (composer context copy/paste) | E2E-CHAT-composer-context-copy-paste |
 | M6+ (composer context copy/paste) | E2E-CHAT-composer-context-copy-paste |
+| A — App startup (taskbar status badge) | E2E-WINDOW-taskbar-status-badge |
+| Quality (taskbar status badge) | E2E-WINDOW-taskbar-status-badge |
+| M6+ (taskbar status badge) | E2E-WINDOW-taskbar-status-badge |
 
 The `US-UI-*` visual scenarios (§UI shell visual scenarios) trace to the
 Codex parity decisions in [decisions-log §D](../08-meta/decisions-log.md)
@@ -12835,3 +12838,32 @@ plugin-form fixtures in an isolated temporary directory at runtime.
   decimal where a whole percent is too coarse" and its companions), and
   `pnpm test:e2e:inspector-compact` reads the ring label with
   `Number.parseFloat`, standing the `<1` range in at its midpoint.
+
+### E2E-WINDOW-taskbar-status-badge: The native taskbar/Dock badge follows the aggregate session status
+
+- **Preconditions**: Built desktop app on Windows or macOS with a throwaway
+  profile; at least one session exists; `PI_DESKTOP_TASKBAR_PROBE=1` is set so
+  Main reports each applied badge.
+- **Steps**: 1) Put one session into a running turn and inspect the taskbar
+  button (Windows) or Dock tile (macOS). 2) Keep that session running and raise
+  a pending permission, ask, or Plan approval; inspect the badge again. 3)
+  Clear the intervention and leave an unread failed outcome; inspect. 4) Replace
+  it with an unread completed outcome; inspect. 5) Clear every source and
+  inspect. 6) Send a malformed snapshot through
+  `window/setTaskbarStatus` and inspect the badge and the error result.
+- **Expected**: Windows shows a 16px status-coloured disc with a white ring
+  and a per-state glyph over the taskbar icon; macOS shows the platform's own
+  single-glyph Dock badge (`…`, `!`, `✕`, `✓`). The priority is
+  `attention > running > failed > completed > none`: a session that is both
+  running and blocked counts once as attention, so the count never
+  double-counts. The overlay's localized description names the current state.
+  Clearing every source removes the badge entirely. A malformed snapshot fails
+  with `INVALID_ARGUMENT` and leaves the previous native surface untouched.
+  Linux reports `unsupported` and shows nothing.
+- **Specs linked**: `04-ux/08-component-spec.md` §1.7,
+  `03-runtime/01-ipc-protocol.md` §13b; ADR 0267; D473
+- **Acceptance**: A (app startup), Quality
+- **Milestone**: Post-M6 desktop shell maintenance
+- **Status**: Automated (CDP) — `pnpm test:e2e:taskbar-status-badge`; source
+  regression covered by `taskbar-status.test.mjs` and the shared
+  `taskbar-status.test.ts`.

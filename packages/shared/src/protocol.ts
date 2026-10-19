@@ -254,6 +254,8 @@ export const IPC = {
       "pi-desktop/window/setWorkPanelReservation",
     windowSetWorkPanelChatWidth: "pi-desktop/window/setWorkPanelChatWidth",
     windowSetBackgroundColor: "pi-desktop/window/setBackgroundColor",
+    /** Aggregate taskbar/Dock status badge painted by Main (D473). */
+    windowSetTaskbarStatus: "pi-desktop/window/setTaskbarStatus",
     windowControl: "pi-desktop/window/control",
     closeBehaviorGet: "pi-desktop/window/closeBehavior/get",
     closeBehaviorSet: "pi-desktop/window/closeBehavior/set",

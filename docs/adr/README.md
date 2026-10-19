@@ -289,4 +289,5 @@ Each ADR includes:
 | 0264 | [Keep the progress card on the running turn, not on its tail](0264-turn-progress-open-turn.md) | Accepted (amends ADR 0263's gate; D461) |
 | 0265 | [Stand the progress card above the composer](0265-turn-progress-above-composer.md) | Accepted (amends ADR 0263's placement; D462) |
 | 0266 | [Add the official pi package catalog as a marketplace source backed by npm](0266-official-pi-package-market-source.md) | Accepted |
+| 0267 | [Paint the aggregate session status as a native taskbar/Dock badge](0267-taskbar-status-badge.md) | Accepted (D473) |
 | context-inspector-compact-action | [Compact the context from the usage inspector card](context-inspector-compact-action.md) | Accepted (amends ADR 0103 / ADR 0106; D434) |

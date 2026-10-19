@@ -253,6 +253,7 @@ export function registerIpcHandlers(dependencies: RegisterIpcDependencies) {
     getCloseBehavior,
     markMenuRendererReady,
     executeNativeMenuAction,
+    getLocale: getUpdaterLocale,
   });
   registerPullsIpc({ registrar, getHost });
   registerScheduledIpc({

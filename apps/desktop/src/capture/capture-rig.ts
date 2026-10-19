@@ -59,6 +59,7 @@ export type CaptureRigMethods = {
     ask: string;
     plan: string;
   } | null;
+  seedTaskbarStatus: (kind: "running" | "attention" | "failed" | "completed" | "none") => void;
   ensureVisualFixtures: () => Promise<void>;
 };
 
@@ -1180,6 +1181,39 @@ export function installCaptureRig(): CaptureRig {
         ask: ask.id,
         plan: plan.id,
       };
+    },
+    seedTaskbarStatus: (kind) => {
+      if (!window.__PI_CAPTURE__) return;
+      const sessions = useAppStore.getState().sessions;
+      const ids = sessions.slice(0, 3).map((session) => session.id);
+      useAppStore.setState({
+        runningSessions: kind === "running" && ids[0] ? { [ids[0]]: true } : {},
+        pendingPermissions:
+          kind === "attention" && ids[0]
+            ? {
+                [ids[0]]: [
+                  {
+                    requestId: "capture-taskbar-permission",
+                    sessionId: ids[0],
+                    toolCallId: "capture-taskbar-tool",
+                    toolName: "Bash",
+                    argsPreview: { command: "git status" },
+                    risk: "medium",
+                    reason: "capture fixture",
+                    receivedAt: Date.now(),
+                  },
+                ],
+              }
+            : {},
+        pendingAsks: {},
+        pendingPlans: {},
+        sessionOutcomes:
+          kind === "failed" && ids[0]
+            ? { [ids[0]]: "failed" }
+            : kind === "completed" && ids[0]
+              ? { [ids[0]]: "completed" }
+              : {},
+      });
     },
     ensureVisualFixtures: async () => {
       // Destructive fixture seeding is capture-rig only; the rig sets

@@ -1400,6 +1400,31 @@ window/closeBehavior/set({ behavior: "tray" | "quit" })
 在每个平台上启动时都会创建一个，而无论存的是哪种关闭行为，最小化到托盘都
 需要它。
 
+聚合任务栏/Dock 状态角标（D473、ADR 0267）是一条新增的主进程自有通道。
+渲染器发送它从实时会话映射算出的快照；主进程校验后绘制平台表面：
+
+```ts
+type TaskbarStatusKind = "running" | "attention" | "failed" | "completed";
+type TaskbarStatusSnapshot =
+  | { kind: "none"; count: 0 }
+  | { kind: TaskbarStatusKind; count: number };
+
+window/setTaskbarStatus({ snapshot: TaskbarStatusSnapshot })
+  -> {
+       applied: boolean;
+       kind: TaskbarStatusSnapshot["kind"];
+       count: number;
+       platform: NodeJS.Platform;
+       reason?: "no-window" | "unsupported";
+     }
+```
+
+`count` 必须是 `0..999` 的整数；`none` 必须为 `0`，其他 kind 至少为 `1`。
+其他形状以 `INVALID_ARGUMENT` 失败，且不触碰原生表面。Windows 绘制
+16px/32px 覆盖图标及其本地化描述；macOS 把 Dock 角标设为单字形；
+Linux 报告 `unsupported`。该通道仅限 Electron 本地，不进入 host-core，
+也不改变主机 RPC 协议版本。
+
 Maximize/unmaximize 变化也会发出
 `window/event/maximized`。未知的操作失败。这些仅限电子的通道
 不要跨入 host-core，也不要更改主机 RPC 协议版本。

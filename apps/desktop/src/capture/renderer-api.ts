@@ -56,6 +56,7 @@ const CAPTURE_RIG_METHODS = [
   "seedNotifications",
   "seedSidebarStatuses",
   "seedSidebarInterventions",
+  "seedTaskbarStatus",
   "ensureVisualFixtures",
 ] as const satisfies readonly CaptureRigMethod[];
 

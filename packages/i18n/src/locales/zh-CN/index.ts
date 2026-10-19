@@ -22,6 +22,13 @@ export const zhCN = {
     restore: "还原",
     close: "关闭",
   },
+  /** Native taskbar/Dock status badge (D473). */
+  taskbar: {
+    running: "PI-Desktop 正在执行任务",
+    attention: "PI-Desktop 需要你的确认",
+    failed: "PI-Desktop 有失败的任务",
+    completed: "PI-Desktop 有已完成的任务",
+  },
   tray: {
     open: "打开 PI-Desktop",
     quit: "退出 PI-Desktop",

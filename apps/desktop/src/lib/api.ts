@@ -97,6 +97,7 @@ import type {
   TrustedExtensionStatusEvent,
   TrustedExtensionUiPrompt,
   TrustedExtensionUiPromptResponse,
+  TaskbarStatusSnapshot,
   QuitDialogDismiss,
   QuitDialogPresent,
   QuitDialogRequest,
@@ -961,6 +962,14 @@ export const api = {
       IPC.invoke.windowSetBackgroundColor,
       { theme, color },
     ),
+  setTaskbarStatus: (snapshot: TaskbarStatusSnapshot) =>
+    invoke<{
+      applied: boolean;
+      kind: TaskbarStatusSnapshot["kind"];
+      count: number;
+      platform: NodeJS.Platform;
+      reason?: "no-window" | "unsupported";
+    }>(IPC.invoke.windowSetTaskbarStatus, { snapshot }),
   windowControl: (action: WindowControlAction) =>
     invoke<{ maximized: boolean }>(IPC.invoke.windowControl, { action }),
   getCloseBehavior: () =>

@@ -296,6 +296,7 @@ ADR 记录那些不应被静默改变的架构选择。中文入口与英文索�
 | 0264 | [进度卡跟随运行中的回合，而不跟随消息尾部](/adr/0264-turn-progress-open-turn) | 已接受（修订 ADR 0263 的显示门槛；D461） |
 | 0265 | [进度卡站到输入框上方](/adr/0265-turn-progress-above-composer) | 已接受（修订 ADR 0263 的摆放位置；D462） |
 | 0266 | [将官方 pi 包目录作为由 npm 支撑的市场来源](/adr/0266-official-pi-package-market-source) | 已接受 |
+| 0267 | [把聚合会话状态画成原生任务栏/Dock 角标](/adr/0267-taskbar-status-badge) | 已接受（D473） |
 | context-inspector-compact-action | [从上下文用量卡片启动压缩](/adr/context-inspector-compact-action) | 已接受待实现（修订 ADR 0103 / ADR 0106；D434） |
 
 ## 什么时候看 ADR

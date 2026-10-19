@@ -1710,6 +1710,33 @@ macOS, where there is no close behavior to configure. Setting a behavior does
 not touch the tray icon: D216 (ADR 0078) creates one at startup on every
 platform, and minimize-to-tray needs it whichever close behavior is stored.
 
+The aggregate taskbar/Dock status badge (D473, ADR 0267) is one additive
+Main-owned channel. The renderer sends the snapshot it computed from its live
+session maps; Main validates it and paints the platform surface:
+
+```ts
+type TaskbarStatusKind = "running" | "attention" | "failed" | "completed";
+type TaskbarStatusSnapshot =
+  | { kind: "none"; count: 0 }
+  | { kind: TaskbarStatusKind; count: number };
+
+window/setTaskbarStatus({ snapshot: TaskbarStatusSnapshot })
+  -> {
+       applied: boolean;
+       kind: TaskbarStatusSnapshot["kind"];
+       count: number;
+       platform: NodeJS.Platform;
+       reason?: "no-window" | "unsupported";
+     }
+```
+
+`count` must be an integer in `0..999`; `none` requires `0` and every other
+kind requires at least `1`. Any other shape fails with `INVALID_ARGUMENT`
+without touching the native surface. Windows paints a 16px/32px overlay icon
+and its localized description; macOS sets the Dock badge to a single state
+glyph; Linux reports `unsupported`. The channel is Electron-local and does not
+cross into host-core or change the host RPC protocol version.
+
 Maximize/unmaximize changes also emit
 `window/event/maximized`. Unknown actions fail. These Electron-only channels
 do not cross into host-core and do not change the host RPC protocol version.

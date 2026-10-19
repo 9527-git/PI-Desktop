@@ -51,7 +51,8 @@
     "test:e2e:pi-package-market": "node scripts/e2e-pi-package-market.mjs",
     "test:e2e:plugin-import-deps": "node scripts/e2e-plugin-import-deps.mjs",
     "test:e2e:trusted-extensions": "node scripts/e2e-trusted-extensions.mjs",
-    "test:e2e:collaboration": "node scripts/e2e-session-collaboration.mjs"
+    "test:e2e:collaboration": "node scripts/e2e-session-collaboration.mjs",
+    "test:e2e:taskbar-status-badge": "node scripts/e2e-taskbar-status-badge.mjs"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.13",

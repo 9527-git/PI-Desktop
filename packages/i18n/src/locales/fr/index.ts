@@ -22,6 +22,12 @@ export const fr = {
     "restore": "Restaurer",
     "close": "Fermer"
   },
+  "taskbar": {
+    "running": "PI-Desktop travaille",
+    "attention": "PI-Desktop attend votre réponse",
+    "failed": "PI-Desktop a une tâche échouée",
+    "completed": "PI-Desktop a une tâche terminée"
+  },
   "tray": {
     "open": "Ouvrir PI-Desktop",
     "quit": "Quitter PI-Desktop",

@@ -180,6 +180,17 @@ Outer frame that positions Topbar, Sidebar, MainChat, and WorkPanel. Owns resize
 - Windows/Linux do not render File/Edit/View/Window/Help in the titlebar and
   do not reserve left-side space for an application menubar. F10 and
   Shift+F10 remain available to focused content.
+- The taskbar button (Windows) and Dock tile (macOS) carry one aggregate
+  session-status badge (D473, ADR 0267). The renderer computes a single
+  snapshot from `runningSessions`, the pending permission/ask/plan queues, and
+  unread terminal outcomes with priority `attention > running > failed >
+  completed`; a session that is both running and blocked counts once as
+  attention. Windows paints a 16px status-coloured disc with a white ring and
+  a per-state glyph over the taskbar icon; macOS paints the platform's own
+  single-glyph Dock badge (`…`, `!`, `✕`, `✓`); Linux reports unsupported and
+  shows nothing. The overlay's localized description names the state, and
+  clearing every source removes the badge. A malformed snapshot is rejected
+  with `INVALID_ARGUMENT` and never changes the native surface.
 - macOS native commands that create or reload a window wait for the renderer's menu
   subscription acknowledgement instead of relying on a timing delay.
 - Plugin panel windows use the same strict 46px drag-band metric on every

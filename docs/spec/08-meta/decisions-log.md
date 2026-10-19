@@ -6902,3 +6902,33 @@ marked `manual`. A manual check's result stays visible, matching D437's
   origin-aware install policy, banner gate, updated toggle copy).
 - See `04-ux/06-settings-ia.md` §Info and
   E2E-UPDATES-auto-check-toggle in `06-delivery/04-e2e-test-plan.md`.
+
+
+## 2026-10-19 — The aggregate session status rides the native taskbar/Dock badge (D473)
+
+The sidebar's per-session status pills are invisible whenever the window is
+minimized or behind another app, which is exactly when several sessions keep
+working. The new badge answers one question on the OS surface: is PI-Desktop
+working, waiting on the user, or holding an unread result?
+
+`resolveTaskbarStatus` in `packages/shared/src/taskbar-status.ts` reduces
+`runningSessions`, the pending permission/ask/Plan queues, and unread terminal
+outcomes to one snapshot with priority `attention > running > failed >
+completed`. A session that is both running and blocked counts once under
+`attention`, so the count never double-counts a session. The renderer pushes
+only on a changed signature through the additive Electron-local
+`window/setTaskbarStatus` channel; Main validates the snapshot and paints it.
+
+- Windows: `BrowserWindow.setOverlayIcon` with a locally rasterized 16px/32px
+  BGRA disc in the state colour (white ring plus a state glyph), described by
+  the localized `taskbar.*` catalog entry.
+- macOS: `app.dock.setBadge` with the platform's single state glyph (`…`,
+  `!`, `✕`, `✓`).
+- Linux: no portable taskbar badge; the channel reports `unsupported` and the
+  renderer ignores it.
+
+Malformed snapshots fail with `INVALID_ARGUMENT` and never touch the native
+surface. Renderer, Main, shared, i18n, docs, and tests only: no Host RPC,
+storage schema, permission, or `PROTOCOL_VERSION` change. See ADR 0267,
+`04-ux/08-component-spec.md` §1.7, `03-runtime/01-ipc-protocol.md` §13b, and
+E2E-WINDOW-taskbar-status-badge.

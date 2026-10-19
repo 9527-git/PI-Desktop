@@ -5,6 +5,7 @@ import {
   ErrorCodes,
   IPC,
   isThemeColorScheme,
+  isTaskbarStatusSnapshot,
   NATIVE_MENU_ACTIONS,
   WINDOW_CONTROL_ACTIONS,
   type NativeMenuAction,
@@ -16,6 +17,7 @@ import {
   parseWorkPanelReservationWidth,
   type WorkPanelReservationState,
 } from "../work-panel-window";
+import { createTaskbarStatusController } from "../taskbar-status";
 import type { IpcRegistrar } from "./types";
 
 export type WindowIpcDependencies = {
@@ -29,6 +31,7 @@ export type WindowIpcDependencies = {
   getCloseBehavior: () => "ask" | "tray" | "quit";
   markMenuRendererReady: (window: BrowserWindow) => boolean;
   executeNativeMenuAction: (action: NativeMenuAction) => unknown;
+  getLocale: () => string;
 };
 
 /** Register renderer-drawn window chrome and work-panel geometry channels. */
@@ -43,8 +46,13 @@ export function registerWindowIpc({
   getCloseBehavior,
   markMenuRendererReady,
   executeNativeMenuAction,
+  getLocale,
 }: WindowIpcDependencies): void {
   const { handle, handleWithEvent } = registrar;
+  const taskbarStatus = createTaskbarStatusController({
+    getWindow: getMainWindow,
+    getLocale,
+  });
 
   handle(IPC.invoke.windowSetWorkPanelReservation, async (input: unknown = {}) => {
     const requested = parseWorkPanelReservationWidth(input);
@@ -175,5 +183,18 @@ export function registerWindowIpc({
       throw new Error("unsupported native menu action");
     }
     return executeNativeMenuAction(input.action as NativeMenuAction);
+  });
+
+  // The renderer owns the live session state; Main only paints the aggregate
+  // on the native taskbar/Dock surface. Malformed snapshots fail closed rather
+  // than clearing or inventing a badge (D473).
+  handle(IPC.invoke.windowSetTaskbarStatus, async (input: unknown = {}) => {
+    const snapshot = (input as { snapshot?: unknown })?.snapshot;
+    if (!isTaskbarStatusSnapshot(snapshot)) {
+      throw Object.assign(new Error("invalid taskbar status snapshot"), {
+        errorCode: ErrorCodes.INVALID_ARGUMENT,
+      });
+    }
+    return taskbarStatus.apply(snapshot);
   });
 }

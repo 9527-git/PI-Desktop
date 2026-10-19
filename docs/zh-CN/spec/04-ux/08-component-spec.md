@@ -161,6 +161,14 @@
 - Windows/Linux 不会在标题栏中呈现 File/Edit/View/Window/Help，并且
   不要为应用程序菜单栏保留左侧空间。 F10 和
   Shift+F10 仍然可用于聚焦内容。
+- 任务栏按钮（Windows）与 Dock 磁贴（macOS）承载一枚聚合会话状态角标
+  （D473、ADR 0267）。渲染器从 `runningSessions`、待处理的权限/提问/计划
+  队列与未读终态结果计算一个快照，优先级为 `attention > running > failed >
+  completed`；同一会话既在运行又受阻时只按 attention 计一次。Windows 在
+  任务栏图标右下角画一枚 16px 的状态色圆盘（白环加状态字形）；macOS 使用
+  平台自带的单字形 Dock 角标（`…`、`!`、`✕`、`✓`）；Linux 报告不支持并
+  不显示。覆盖图标的本地化描述说明当前状态；所有来源清空后角标移除。畸形
+  快照以 `INVALID_ARGUMENT` 拒绝，绝不改变原生表面。
 - macOS 创建或重新加载窗口的本机命令等待渲染器的菜单
   订阅确认而不是依赖于时间延迟。
 

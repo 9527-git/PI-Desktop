@@ -28,6 +28,7 @@ import {
 } from "../../lib/work-panel-resize";
 import { browserPluginTab } from "../../lib/work-panel-tabs";
 import { useAppStore } from "../../stores/app-store";
+import { useTaskbarStatus } from "./useTaskbarStatus";
 
 const MODIFIER_ONLY_KEYS = new Set([
   "Alt",
@@ -42,6 +43,7 @@ const PLUGIN_THEME_STYLE_ID = "pi-plugin-theme";
 export function useAppShellRuntime() {
   const { t } = useTranslation();
   const platform = window.piDesktop?.platform ?? "darwin";
+  useTaskbarStatus();
   const bootstrap = useAppStore((s) => s.bootstrap);
   const ready = useAppStore((s) => s.ready);
   const page = useAppStore((s) => s.page);

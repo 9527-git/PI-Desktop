@@ -23,6 +23,13 @@ export const ko = {
     restore: "복원",
     close: "닫기",
   },
+  /** Native taskbar/Dock status badge (D473). */
+  taskbar: {
+    running: "PI-Desktop 작업 중",
+    attention: "PI-Desktop 확인 필요",
+    failed: "PI-Desktop 실패한 작업 있음",
+    completed: "PI-Desktop 완료된 작업 있음",
+  },
   tray: {
     open: "PI-Desktop 열기",
     quit: "PI-Desktop 종료",

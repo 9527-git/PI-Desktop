@@ -5014,6 +5014,9 @@ IPC 请求无法关闭。
 | C — 对话与流式（上下文百分比精度） | E2E-CHAT-context-percent-precision |
 | 品质（上下文百分比精度） | E2E-CHAT-context-percent-precision |
 | 品质（PI 内核版本与检测） | E2E-UPDATES-kernel-version-and-check |
+| A — 应用启动（任务栏状态角标） | E2E-WINDOW-taskbar-status-badge |
+| 品质（任务栏状态角标） | E2E-WINDOW-taskbar-status-badge |
+| M6+（任务栏状态角标） | E2E-WINDOW-taskbar-status-badge |
 
 | 里程碑 | 应用场景 |
 |---|---|
@@ -7558,3 +7561,25 @@ runner 会在运行时的隔离临时目录中生成六个插件形态 fixture�
 - **链接规格**：`04-ux/08-component-spec.md` §8.3/§8.5；D466
 - **验收**：C —— 对话与流式；品质
 - **状态**：部分自动化——标签分级由 `apps/desktop/test/context-usage.test.mjs` 覆盖（“the inspector label keeps a decimal where a whole percent is too coarse” 及其同组用例），`pnpm test:e2e:inspector-compact` 用 `Number.parseFloat` 读取圆环标签，并把 `<1` 区间按其自身中点代入。
+
+### E2E-WINDOW-taskbar-status-badge：原生任务栏/Dock 角标跟随聚合会话状态
+
+- **前提条件**：Windows 或 macOS 上已构建的桌面应用与一次性配置；至少一个会话
+  存在；设置 `PI_DESKTOP_TASKBAR_PROBE=1` 让主进程报告每次应用的角标。
+- **步骤**：1) 让一个会话进入运行中的回合，检查任务栏按钮（Windows）或 Dock
+  磁贴（macOS）。2) 保持该会话运行并制造一个待处理的权限、提问或计划批准，
+  再次检查角标。3) 清除干预并留下未读的失败结果，检查。4) 换成未读的完成
+  结果，检查。5) 清空所有来源，检查。6) 通过 `window/setTaskbarStatus` 发送
+  畸形快照，检查角标与错误结果。
+- **预期**：Windows 在任务栏图标上显示 16px 的状态色圆盘（白环加状态字形）；
+  macOS 显示平台自带的单字形 Dock 角标（`…`、`!`、`✕`、`✓`）。优先级为
+  `attention > running > failed > completed > none`：同一会话既在运行又受阻
+  时只按 attention 计一次，计数不会重复。覆盖图标的本地化描述说明当前状态。
+  清空所有来源后角标完全移除。畸形快照以 `INVALID_ARGUMENT` 失败，且不改变
+  此前的原生表面。Linux 报告 `unsupported` 并不显示任何内容。
+- **链接规格**：`04-ux/08-component-spec.md` §1.7、
+  `03-runtime/01-ipc-protocol.md` §13b；ADR 0267；D473
+- **验收**：A（应用启动）、品质
+- **里程碑**：M6+ 桌面外壳维护
+- **状态**：自动化（CDP）——`pnpm test:e2e:taskbar-status-badge`；源码回归由
+  `taskbar-status.test.mjs` 与 shared 的 `taskbar-status.test.ts` 覆盖。

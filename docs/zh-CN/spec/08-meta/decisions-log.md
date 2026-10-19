@@ -5259,3 +5259,26 @@ D437 的开关只停了定时器，却没有停掉定时器已经发现的东西
   门控、更新后的开关文案）。
 - 见 `04-ux/06-settings-ia.md` §信息 与
   `06-delivery/04-e2e-test-plan.md` 中的 E2E-UPDATES-auto-check-toggle。
+
+
+## 2026-10-19 —— 聚合会话状态登上原生任务栏/Dock 角标（D473）
+
+侧边栏的逐会话状态胶囊在窗口最小化或被其他应用遮挡时完全不可见，而这正是多个
+会话继续工作的时刻。新角标在操作系统表面回答一个问题：PI-Desktop 正在工作、
+正在等用户，还是有一个未读结果？
+
+`packages/shared/src/taskbar-status.ts` 中的 `resolveTaskbarStatus` 把
+`runningSessions`、待处理的权限/提问/计划队列与未读终态结果归约成一个快照，
+优先级为 `attention > running > failed > completed`。同一会话既在运行又受阻时
+只按 `attention` 计一次，因此计数不会重复。渲染器只在签名变化时通过新增的
+Electron 本地 `window/setTaskbarStatus` 通道推送；主进程校验后绘制。
+
+- Windows：`BrowserWindow.setOverlayIcon` 使用本地光栅化的 16px/32px BGRA
+  状态色圆盘（白环加状态字形），描述来自本地化的 `taskbar.*` 文案。
+- macOS：`app.dock.setBadge` 使用平台自带的单字形（`…`、`!`、`✕`、`✓`）。
+- Linux：没有可移植的任务栏角标；通道报告 `unsupported`，渲染器忽略。
+
+畸形快照以 `INVALID_ARGUMENT` 失败，且绝不触碰原生表面。仅渲染器、主进程、
+shared、i18n、文档与测试：不改 Host RPC、存储 schema、权限或
+`PROTOCOL_VERSION`。见 ADR 0267、`04-ux/08-component-spec.md` §1.7、
+`03-runtime/01-ipc-protocol.md` §13b 与 E2E-WINDOW-taskbar-status-badge。

@@ -22,6 +22,13 @@ export const zhTW = {
     restore: "還原",
     close: "關閉",
   },
+  /** Native taskbar/Dock status badge (D473). */
+  taskbar: {
+    running: "PI-Desktop 正在執行任務",
+    attention: "PI-Desktop 需要你的確認",
+    failed: "PI-Desktop 有失敗的任務",
+    completed: "PI-Desktop 有已完成的任務",
+  },
   tray: {
     open: "開啟 PI-Desktop",
     quit: "退出 PI-Desktop",

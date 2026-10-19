@@ -21,6 +21,13 @@ export const en = {
     restore: "Restore",
     close: "Close",
   },
+  /** Native taskbar/Dock status badge (D473). */
+  taskbar: {
+    running: "PI-Desktop is working",
+    attention: "PI-Desktop needs your input",
+    failed: "PI-Desktop has a failed task",
+    completed: "PI-Desktop has a finished task",
+  },
   tray: {
     open: "Open PI-Desktop",
     quit: "Quit PI-Desktop",

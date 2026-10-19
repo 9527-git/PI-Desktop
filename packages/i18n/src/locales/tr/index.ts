@@ -23,6 +23,13 @@ export const tr = {
     restore: "Geri yükle",
     close: "Kapat",
   },
+  /** Native taskbar/Dock status badge (D473). */
+  taskbar: {
+    running: "PI-Desktop çalışıyor",
+    attention: "PI-Desktop onayınızı bekliyor",
+    failed: "PI-Desktop'ta başarısız görev var",
+    completed: "PI-Desktop'ta tamamlanan görev var",
+  },
   tray: {
     open: "PI-Desktop’u aç",
     quit: "PI-Desktop’tan çık",
