@@ -308,6 +308,7 @@ test("upstream input routes Alt+Enter to steering, Shift+Enter to newline, and i
   const { ComposerInput } = load("../src/features/chat/composer/ComposerInput.tsx", {
     react: {}, "react/jsx-runtime": { jsx, jsxs: jsx },
     "./editor": {},
+    "./ComposerContextMenu": { ComposerContextMenu: () => null },
   });
   const submits = [];
   const tree = ComposerInput({ value: "text", runActive: true, enterToSend: true,

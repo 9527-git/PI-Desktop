@@ -1360,8 +1360,8 @@ storage but compose into one assistant turn until the next user message.
   composer keeps Paste disabled, and the menu never sends anything. The menu
   closes on a press outside it, Escape, transcript scroll, and every action.
   Read-only projections, hidden panes, and the composer itself stay outside
-  this menu (the composer keeps Ctrl/Cmd+V; a right-click on an http(s) link
-  still opens its own menu first).
+  this menu (the composer keeps Ctrl/Cmd+V and owns its own right-click menu,
+  §11.5; a right-click on an http(s) link still opens its own menu first).
 - Hover or focus a minimap marker: show the localized sender and a bounded
   plaintext preview; multiple assistant fragments produced within one user
   turn are combined into one AI-response marker and preview; nearby markers
@@ -2580,6 +2580,23 @@ reasoning-level control.
   order. Folders are not traversed or copied; insert the complete native path
   at the caret as the literal `@<path>/` directory form. Mixed drops preserve
   item order and restore focus/caret after file materialization.
+- Right-click in the editor: open the composer's own body-level menu (same
+  transient floating style, pointer offsets, and dismissal as the transcript's
+  §7.4 menu) with **Copy** (`chat.copy`) and **Paste** (`chat.paste`). Copy
+  writes the draft-text selection captured when the menu opened, read through
+  the composer's own value/selection offsets — a selected reference chip
+  copies as its token text — and stays enabled only while that selection
+  lives in this editor. Paste replays the OS clipboard text as a paste event
+  at the same captured caret or selection exactly like Ctrl+V, restoring
+  editor focus and that range first — clipboard-history records, CRLF
+  normalization, and the large-text → session-scratch reference rule
+  (ADR 0131) stay the one shared pipeline — and never moves the caret to the
+  draft's end. A blocked or inert editor (native/approval gates) never opens
+  read keeps Paste disabled or surfaces the real error. The menu closes on a
+  press outside it, Escape (while the menu is open the Escape is consumed and
+  cannot clear the draft), scroll, and every action, and never sends
+  anything. The transcript keeps its own §7.4 menu unchanged; the two menus
+  share the lifecycle hook and the paste delivery helpers only.
 - Send clears the box before the host round trip (D287): the draft leaves the
   textarea in the frame Enter is pressed, so a slow host cannot make a send look
   ignored or let a second Enter queue the same prompt twice. If the store

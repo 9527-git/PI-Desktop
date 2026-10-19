@@ -4,8 +4,8 @@
  * A right click inside the transcript opens one renderer-owned, body-level
  * menu with Copy and Paste; nothing is ever sent. Copy reuses the quote
  * recovery path and Paste reuses the composer's real paste pipeline — the
- * actions live in context-menu-actions and the open-menu lifecycle (dismiss,
- * keyboard walk, clipboard probe) in useTranscriptContextMenuShell, so this
+ * actions live in the shared context-menu module and the open-menu lifecycle
+ * (dismiss, keyboard walk, clipboard probe) in useChatContextMenuShell, so this
  * component only renders items and moves the pointer event into a state.
  * Read-only projections and hidden panes never mount the menu: the same gates
  * as the selection quote overlay guard it.
@@ -21,8 +21,8 @@ import {
   liveSelectionMarkdown,
   pasteClipboardIntoComposer,
   selectionBelongsTo,
-} from "./context-menu-actions";
-import { useTranscriptContextMenuShell } from "./hooks/useTranscriptContextMenuShell";
+} from "../context-menu/context-menu-actions";
+import { useChatContextMenuShell } from "../context-menu/use-chat-context-menu-shell";
 
 /** Same fixed clamps as the link menus, so the menu never leaves the window. */
 const MENU_WIDTH_MARGIN = 200;
@@ -46,7 +46,7 @@ export function TranscriptContextMenu({
   const showToast = useAppStore((state) => state.showToast);
   const [menu, setMenu] = useState<TranscriptContextMenuState | null>(null);
   const { menuRef, clipboardEmpty, resetClipboardEmpty, onMenuKeyDown } =
-    useTranscriptContextMenuShell({
+    useChatContextMenuShell({
       open: menu !== null,
       dismiss: () => setMenu(null),
     });

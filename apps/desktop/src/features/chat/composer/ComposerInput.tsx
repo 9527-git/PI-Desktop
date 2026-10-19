@@ -7,6 +7,7 @@ import type {
   SetStateAction,
 } from "react";
 import type { useComposerAutocomplete } from "../../../hooks/use-composer-autocomplete";
+import { ComposerContextMenu } from "./ComposerContextMenu";
 import { editorSelectionRange, readEditorValue } from "./editor";
 
 type AutocompleteController = ReturnType<typeof useComposerAutocomplete>;
@@ -144,6 +145,9 @@ export function ComposerInput({
             {placeholderText}
           </span>
         ) : null}
+        {/* §11.5 right-click copy/paste menu: one body-level menu per editor
+          instance. */}
+        <ComposerContextMenu inputRef={inputRef} />
       </div>
     </div>
   );

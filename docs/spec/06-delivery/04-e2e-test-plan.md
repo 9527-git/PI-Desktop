@@ -1520,6 +1520,44 @@ and identify the platform validation still needed.
 - **Status**: Source-level regression covered
   (`chat-transcript-context-menu.test.mjs`); full UI journey Draft
 #### E2E-CHAT-annotation-attachments: Annotating a response attaches numbered prompt data, not draft text
+#### E2E-CHAT-composer-context-copy-paste: Right-click in the composer copies the draft selection and pastes at the caret
+
+- **Preconditions**: An editable composer with a draft that contains a line
+  break, a multi-word phrase, and one file-reference chip; the OS clipboard
+  holds plain text; no approval or native gate blocks the input.
+- **Steps**: 1) Select a phrase inside the draft, right-click the composer
+  input, and activate Copy; read the OS clipboard. 2) Right-click again,
+  activate Paste, and compare the insertion position and caret with Ctrl+V so
+  the paste lands at the live selection. 3) Put text longer than the
+  large-paste threshold on the clipboard, right-click the composer, and
+  activate Paste. 4) Right-click without a composer selection and with an
+  empty clipboard, then press Escape, scroll, and press outside while the
+  menu is open. 5) Right-click while the input is blocked by a pending
+  approval or a native session gate. 6) With text on the clipboard, use the
+  transcript menu's Paste into the same draft and confirm the transcript's
+  caret-at-the-end contract still holds.
+- **Expected**: One body-level menu opens 4px from the pointer inside the
+  composer with Copy (`chat.copy`) and Paste (`chat.paste`), styled like the
+  transcript's floating menu. Copy writes the selected draft text verbatim —
+  a selected reference chip copies as its single token character — and shows
+  the shared copied feedback without clearing the draft or sending anything.
+  Paste replays the clipboard text as a paste event at the caret or selection
+  captured when the menu opened, through the composer's own pipeline: CRLF is
+  normalized, clipboard history is recorded, text beyond the large-paste
+  threshold becomes a session-scratch reference chip exactly like Ctrl+V
+  (ADR 0131), and the caret stays after the inserted text without jumping to
+  the draft's end — clicking the menu item cannot drop the saved selection.
+  No selection disables Copy; an empty clipboard or a refused read keeps
+  Paste disabled or surfaces the real error; a blocked or inert editor never
+  opens the menu; Escape while the menu is open closes only the menu and
+  never clears the draft; the menu never sends anything. The transcript menu
+  keeps its separate attach point and its caret-at-the-end paste contract.
+- **Specs linked**: `04-ux/08-component-spec.md` §7.4, §11.5; ADR 0131;
+  ADR 0115
+- **Acceptance**: C (conversation), Quality
+- **Milestone**: Post-M6 desktop shell maintenance
+- **Status**: Source-level regression covered
+  (`chat-composer-context-menu.test.mjs`); full UI journey Draft
 
 - **Preconditions**: A session with a completed answer containing at least two
   distinct paragraphs; no turn running.
@@ -7627,6 +7665,9 @@ and identify the platform validation still needed.
 | C — Conversation & stream (transcript context copy/paste) | E2E-CHAT-transcript-context-copy-paste |
 | Quality (transcript context copy/paste) | E2E-CHAT-transcript-context-copy-paste |
 | M6+ (transcript context copy/paste) | E2E-CHAT-transcript-context-copy-paste |
+| C — Conversation & stream (composer context copy/paste) | E2E-CHAT-composer-context-copy-paste |
+| Quality (composer context copy/paste) | E2E-CHAT-composer-context-copy-paste |
+| M6+ (composer context copy/paste) | E2E-CHAT-composer-context-copy-paste |
 
 The `US-UI-*` visual scenarios (§UI shell visual scenarios) trace to the
 Codex parity decisions in [decisions-log §D](../08-meta/decisions-log.md)

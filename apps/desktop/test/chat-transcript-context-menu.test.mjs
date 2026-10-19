@@ -7,7 +7,7 @@ const menuSource = await readFile(
   "utf8",
 );
 const actionsSource = await readFile(
-  new URL("../src/features/chat/transcript/context-menu-actions.ts", import.meta.url),
+  new URL("../src/features/chat/context-menu/context-menu-actions.ts", import.meta.url),
   "utf8",
 );
 const transcriptSource = await readFile(
@@ -46,20 +46,20 @@ test("only the active readable transcript mounts the menu", () => {
     transcriptSource,
     /transcriptReadOnly \|\| !paneVisible \? null : \(\s*<TranscriptContextMenu scrollRef=\{scrollRef\} \/>/s,
   );
-  // The composer itself is out of scope: the menu listener attaches only to
-  // the transcript scroller.
+  // The transcript menu never attaches to the composer: the composer owns
+  // its separate §11.5 menu on the editor element.
   assert.match(menuSource, /scrollRef\.current/);
   assert.match(menuSource, /addEventListener\("contextmenu", open\)/);
   assert.doesNotMatch(menuSource, /\.composer-input/);
 });
 test("menu dismissal and probe live in one lifecycle hook", async () => {
   const shellSource = await readFile(
-    new URL("../src/features/chat/transcript/hooks/useTranscriptContextMenuShell.ts", import.meta.url),
+    new URL("../src/features/chat/context-menu/use-chat-context-menu-shell.ts", import.meta.url),
     "utf8",
   );
   assert.match(
     menuSource,
-    /useTranscriptContextMenuShell\(\{\s*open: menu !== null,\s*dismiss: \(\) => setMenu\(null\),\s*\}\)/s,
+    /useChatContextMenuShell\(\{\s*open: menu !== null,\s*dismiss: \(\) => setMenu\(null\),\s*\}\)/s,
   );
   assert.match(shellSource, /addEventListener\("pointerdown", onPointerDown\)/);
   assert.match(shellSource, /navigator\.clipboard\s*\.readText\(\)/);

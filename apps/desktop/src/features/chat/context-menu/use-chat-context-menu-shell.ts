@@ -1,16 +1,17 @@
 /**
- * Open-menu lifecycle for the transcript's right-click menu (§7.4).
+ * Open-menu lifecycle for the chat right-click menus: the transcript's
+ * (§7.4) and the composer's own (§11.5).
  *
  * One hook owns what happens while a menu is open — outside press, Escape,
  * and scroll dismissal, arrow-key walking, and the quiet OS-clipboard probe —
- * so the menu component stays a renderer for the Copy/Paste actions. The
- * open state itself stays with the component: it knows the pointer geometry
+ * so the menu components stay renderers for the Copy/Paste actions. The
+ * open state itself stays with each component: it knows the pointer geometry
  * and item enablement.
  */
 import { useEffect, useRef, useState } from "react";
 import type { KeyboardEvent as ReactKeyboardEvent, RefObject } from "react";
 
-export function useTranscriptContextMenuShell({
+export function useChatContextMenuShell({
   open,
   dismiss,
 }: {
@@ -26,7 +27,8 @@ export function useTranscriptContextMenuShell({
   const menuRef = useRef<HTMLDivElement | null>(null);
 
   // Outside press, Escape, and any scroll close the menu, matching the link
-  // menu's lifecycle.
+  // menu's lifecycle. Escape is captured at the window so a focused
+  // composer's own Escape handler cannot also clear the draft (§11.5).
   useEffect(() => {
     if (!open) return;
     const onPointerDown = (event: PointerEvent) => {
@@ -36,14 +38,15 @@ export function useTranscriptContextMenuShell({
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
       event.preventDefault();
+      event.stopPropagation();
       dismiss();
     };
     window.addEventListener("pointerdown", onPointerDown);
-    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keydown", onKeyDown, true);
     window.addEventListener("scroll", dismiss, true);
     return () => {
       window.removeEventListener("pointerdown", onPointerDown);
-      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keydown", onKeyDown, true);
       window.removeEventListener("scroll", dismiss, true);
     };
   }, [open, dismiss]);
