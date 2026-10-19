@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.20",
+    "date": "2026-10-19",
+    "highlights": [
+      "작업 표시줄 아이콘의 상태 배지가 이제 아이콘 크기에서도 읽힙니다: 각 상태는 진한 색 기호를 얹은 꽉 찬 색 원판이라, 실행 중인 작업과 입력을 기다리는 턴, 읽지 않은 실패 또는 완료 결과가 더 이상 뭉개지지 않습니다."
+    ],
+  },
+
+  {
     "version": "0.16.19",
     "date": "2026-10-19",
     "highlights": [

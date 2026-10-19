@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.20",
+    "date": "2026-10-19",
+    "highlights": [
+      "Das Status-Abzeichen am Taskleisten-Symbol ist jetzt in Symbolgröße lesbar: Jeder Zustand ist eine vollflächige Farbscheibe mit einem kräftigen dunklen Symbol, sodass laufende Arbeit, ein auf deine Eingabe wartender Turn und ungelesene fehlgeschlagene oder abgeschlossene Ergebnisse nicht mehr verschwimmen."
+    ],
+  },
+
+  {
     "version": "0.16.19",
     "date": "2026-10-19",
     "highlights": [

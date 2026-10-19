@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.20",
+    "date": "2026-10-19",
+    "highlights": [
+      "La insignia de estado del icono de la barra de tareas ya se lee a tamaño de icono: cada estado es un disco de color macizo con un símbolo oscuro y grueso, así que el trabajo en curso, un turno que espera tu entrada y los resultados fallidos o completados sin leer ya no se confunden entre sí."
+    ],
+  },
+
+  {
     "version": "0.16.19",
     "date": "2026-10-19",
     "highlights": [

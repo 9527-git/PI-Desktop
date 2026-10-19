@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.20",
+    "date": "2026-10-19",
+    "highlights": [
+      "Le badge d'état de l'icône de la barre des tâches est désormais lisible à la taille d'une icône : chaque état est un disque de couleur plein avec un symbole sombre et gras, si bien que le travail en cours, un tour qui attend votre saisie et les résultats échoués ou terminés non lus ne se confondent plus."
+    ],
+  },
+
+  {
     "version": "0.16.19",
     "date": "2026-10-19",
     "highlights": [

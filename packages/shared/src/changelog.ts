@@ -29,6 +29,14 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.16.20",
+    date: "2026-10-19",
+    highlights: [
+      "The status badge on the Windows taskbar icon is readable at icon size now: every state is a solid color disc with a bold dark symbol, so running work, a turn waiting for your input, and unread failed or completed results no longer blur together.",
+    ],
+  },
+
+  {
     version: "0.16.19",
     date: "2026-10-19",
     highlights: [
@@ -1118,6 +1126,14 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.16.20",
+    date: "2026-10-19",
+    highlights: [
+      "Windows 任务栏图标上的状态角标现在在图标尺寸下也能看清：每种状态都是一个实心色盘配深色粗字形，正在运行的任务、等待你输入的回合，以及未读的失败或完成结果不再糊成一片。",
+    ],
+  },
+
+  {
     version: "0.16.19",
     date: "2026-10-19",
     highlights: [
@@ -2205,6 +2221,14 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.16.20",
+    date: "2026-10-19",
+    highlights: [
+      "Windows 工作列圖示上的狀態角標現在在圖示尺寸下也看得清楚：每種狀態都是一個實心色盤配深色粗字形，正在執行的任務、等待你輸入的回合，以及未讀的失敗或完成結果不再糊成一片。",
+    ],
+  },
+
   {
     version: "0.16.19",
     date: "2026-10-19",

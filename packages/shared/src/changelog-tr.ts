@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.20",
+    "date": "2026-10-19",
+    "highlights": [
+      "Görev çubuğu simgesindeki durum rozeti artık simge boyutunda okunuyor: her durum kalın koyu bir simge taşıyan dolu renkli bir daire olduğundan, süren iş, girdini bekleyen tur ve okunmamış başarısız veya tamamlanmış sonuçlar artık birbirine karışmıyor."
+    ],
+  },
+
+  {
     "version": "0.16.19",
     "date": "2026-10-19",
     "highlights": [
