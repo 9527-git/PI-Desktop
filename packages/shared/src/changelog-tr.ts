@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const trEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.18",
+    "date": "2026-10-19",
+    "highlights": [
+      "Giriş kutusunun artık kendi sağ tık menüsü var: Kopyala seçili taslak metnini alır, Yapıştır ise hiçbir şey göndermeden Ctrl+V ile aynı kurallarla panoyu imlecin bulunduğu noktaya bırakır."
+    ],
+  },
+
+  {
     "version": "0.16.17",
     "date": "2026-10-17",
     "highlights": [

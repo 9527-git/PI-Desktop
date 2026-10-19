@@ -29,6 +29,14 @@ export type ChangelogEntry = {
 
 const enEntries: ChangelogEntry[] = [
   {
+    version: "0.16.18",
+    date: "2026-10-19",
+    highlights: [
+      "The input box now has its own right-click menu: Copy takes the selected draft text, and Paste drops the clipboard in at the pointer through the same rules as Ctrl+V, with nothing sent.",
+    ],
+  },
+
+  {
     version: "0.16.17",
     date: "2026-10-17",
     highlights: [
@@ -1102,6 +1110,14 @@ const enEntries: ChangelogEntry[] = [
 
 const zhCNEntries: ChangelogEntry[] = [
   {
+    version: "0.16.18",
+    date: "2026-10-19",
+    highlights: [
+      "输入框现在有自己的右键菜单：复制取走选中的草稿文字，粘贴在鼠标位置按与 Ctrl+V 相同的规则放入剪贴板内容，全程不会发送任何消息。",
+    ],
+  },
+
+  {
     version: "0.16.17",
     date: "2026-10-17",
     highlights: [
@@ -2173,6 +2189,14 @@ const zhCNEntries: ChangelogEntry[] = [
 ];
 
 const zhTWEntries: ChangelogEntry[] = [
+  {
+    version: "0.16.18",
+    date: "2026-10-19",
+    highlights: [
+      "輸入框現在有自己的右鍵選單：複製取走選取的草稿文字，貼上在滑鼠位置依與 Ctrl+V 相同的規則放入剪貼簿內容，全程不會傳送任何訊息。",
+    ],
+  },
+
   {
     version: "0.16.17",
     date: "2026-10-17",

@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const koEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.18",
+    "date": "2026-10-19",
+    "highlights": [
+      "입력창에 자체 우클릭 메뉴가 생겼습니다: 복사는 선택한 초안 텍스트를 가져가고, 붙여넣기는 아무것도 전송하지 않은 채 Ctrl+V와 같은 규칙으로 포인터 위치에 클립보드 내용을 넣습니다."
+    ],
+  },
+
+  {
     "version": "0.16.17",
     "date": "2026-10-17",
     "highlights": [

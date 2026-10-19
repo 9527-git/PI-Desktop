@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const esEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.18",
+    "date": "2026-10-19",
+    "highlights": [
+      "El cuadro de entrada ahora tiene su propio menú contextual: Copiar toma el texto seleccionado del borrador y Pegar coloca el portapapeles en el punto del puntero con las mismas reglas que Ctrl+V, sin enviar nada."
+    ],
+  },
+
+  {
     "version": "0.16.17",
     "date": "2026-10-17",
     "highlights": [

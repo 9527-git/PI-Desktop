@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const deEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.18",
+    "date": "2026-10-19",
+    "highlights": [
+      "Das Eingabefeld hat jetzt ein eigenes Rechtsklick-Menü: Kopieren übernimmt den markierten Entwurfstext, Einfügen setzt den Inhalt der Zwischenablage an der Zeigerposition ein – nach denselben Regeln wie Strg+V und ohne etwas zu senden."
+    ],
+  },
+
+  {
     "version": "0.16.17",
     "date": "2026-10-17",
     "highlights": [

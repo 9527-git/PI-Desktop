@@ -2,6 +2,14 @@ import type { ChangelogEntry } from "./changelog.js";
 
 export const frEntries: ChangelogEntry[] = [
   {
+    "version": "0.16.18",
+    "date": "2026-10-19",
+    "highlights": [
+      "La zone de saisie a désormais son propre menu contextuel : Copier prend le texte sélectionné du brouillon et Coller place le presse-papiers à l'emplacement du pointeur selon les mêmes règles que Ctrl+V, sans rien envoyer."
+    ],
+  },
+
+  {
     "version": "0.16.17",
     "date": "2026-10-17",
     "highlights": [
